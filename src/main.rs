@@ -113,12 +113,13 @@ fn convert(project: Option<String>, templates: Option<Vec<String>>) -> Result<()
 
     fs::write(&combined_markdown_path, combined_content)?;
 
+    let lua_filter_args = get_lua_filters(project_path)?;
+
     let pandoc_status = Command::new("pandoc")
         .arg(&combined_markdown_path)
         .arg("-o")
         .arg(compiled_directory_path.join("output.tex"))
-        .arg("--lua-filter")
-        .arg(project_path.join("chapter_filter.lua"))
+        .args(lua_filter_args)
         .status()?;
     if !pandoc_status.success() {
         return Err("Pandoc failed to convert the markdown.".into());
@@ -154,6 +155,16 @@ fn convert(project: Option<String>, templates: Option<Vec<String>>) -> Result<()
     }
 
     Ok(())
+}
+
+fn get_lua_filters(project_path: &Path) -> Result<Vec<String>, Box<dyn Error>> {
+    let lua_filters = fs::read_dir(project_path.join("luafilters"))?;
+    let mut lua_filter_args = vec![];
+    for lua_filter in lua_filters {
+        lua_filter_args.push("--lua-filter".to_string());
+        lua_filter_args.push(lua_filter?.path().to_str().unwrap().to_string());
+    }
+    Ok(lua_filter_args)
 }
 
 fn compile_latex(
