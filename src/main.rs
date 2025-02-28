@@ -1,6 +1,8 @@
 use clap::{Parser, Subcommand};
 
 mod conversion;
+mod manifest_model;
+mod project_management;
 
 #[derive(Parser)]
 #[command(name = "tiefdownconverter")]
@@ -32,6 +34,15 @@ enum Commands {
         )]
         templates: Option<Vec<String>>,
     },
+    #[command(about = "Initialize a new TiefDown project.")]
+    Init {
+        #[arg(
+            short,
+            long,
+            help = "The project to initialize. If not provided, the current directory will be used."
+        )]
+        project: Option<String>,
+    },
 }
 
 fn main() {
@@ -39,6 +50,7 @@ fn main() {
 
     if let Err(e) = match args.command {
         Commands::Convert { project, templates } => conversion::convert(project, templates),
+        Commands::Init { project } => project_management::init(project),
     } {
         eprintln!("Error: {}", e);
         std::process::exit(1);

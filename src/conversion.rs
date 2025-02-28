@@ -8,6 +8,8 @@ use std::path::Path;
 use std::process::Command;
 use std::process::Stdio;
 
+use crate::manifest_model::Manifest;
+
 pub(crate) fn convert(
     project: Option<String>,
     templates: Option<Vec<String>>,
@@ -25,14 +27,14 @@ pub(crate) fn convert(
     }
 
     let manifest_content = fs::read_to_string(&manifest_path)?;
-    let manifest: toml::Value = toml::from_str(&manifest_content)?;
+    let manifest: Manifest = toml::from_str(&manifest_content).unwrap();
 
     println!("Converting project: {}", project);
 
     let compiled_directory_path = create_build_directory(project_path)?;
 
     let combined_markdown_path = compiled_directory_path.join("combined.md");
-    let markdown_dir = project_path.join(manifest["markdown_dir"].as_str().unwrap_or("Markdown/"));
+    let markdown_dir = project_path.join(manifest.markdown_dir.as_ref().unwrap_or("Markdown"));
     let mut combined_content = String::new();
 
     let markdown_files = get_markdown_files(markdown_dir)?;
@@ -64,17 +66,7 @@ pub(crate) fn convert(
         .into());
     }
 
-    let templates = templates.unwrap_or_else(|| {
-        manifest
-            .get("templates")
-            .and_then(|t| t.as_array())
-            .map(|arr| {
-                arr.iter()
-                    .filter_map(|s| s.as_str().map(String::from))
-                    .collect()
-            })
-            .unwrap_or_default()
-    });
+    let templates = templates.unwrap_or_else(|| manifest.templates);
 
     let mut conversion_errors = Vec::new();
 
@@ -95,9 +87,7 @@ pub(crate) fn convert(
     Ok(())
 }
 
-pub(crate) fn create_build_directory(
-    project_path: &Path,
-) -> Result<std::path::PathBuf, Box<dyn Error>> {
+fn create_build_directory(project_path: &Path) -> Result<std::path::PathBuf, Box<dyn Error>> {
     let current_time = std::time::SystemTime::now();
     let current_time: DateTime<Utc> = current_time.into();
     let current_time = current_time.format("%Y-%m-%d_%H-%M-%S").to_string();
@@ -106,7 +96,7 @@ pub(crate) fn create_build_directory(
     Ok(compiled_directory_path)
 }
 
-pub(crate) fn get_markdown_files(
+fn get_markdown_files(
     markdown_dir: std::path::PathBuf,
 ) -> Result<Vec<fs::DirEntry>, Box<dyn Error>> {
     let chapter_name_regex = regex::Regex::new(r"Chapter (\d+).*").unwrap();
@@ -124,13 +114,13 @@ pub(crate) fn get_markdown_files(
     Ok(markdown_files)
 }
 
-pub(crate) fn get_lua_filters(project_path: &Path) -> Result<ReadDir, Box<dyn Error>> {
+fn get_lua_filters(project_path: &Path) -> Result<ReadDir, Box<dyn Error>> {
     let lua_filters = fs::read_dir(project_path.join("luafilters"))?;
 
     Ok(lua_filters)
 }
 
-pub(crate) fn convert_template(
+fn convert_template(
     compiled_directory_path: &std::path::PathBuf,
     template: &String,
     project_path: &Path,
@@ -161,7 +151,7 @@ pub(crate) fn convert_template(
 
 // NOTE: This requires xelatex to be installed. I don't particularly like that, but I tried tectonic and it didn't work.
 //       For now we'll keep it simple and just use xelatex. I'm not sure if there's a way to get tectonic to work with the current setup.
-pub(crate) fn compile_latex(
+fn compile_latex(
     compiled_directory_path: &std::path::PathBuf,
     template: &String,
 ) -> Result<(), Box<dyn Error>> {
