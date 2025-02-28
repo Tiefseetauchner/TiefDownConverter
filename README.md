@@ -28,11 +28,21 @@ cargo build --release
 This will create an executable in the `target/release/` directory.
 
 ## Usage
+You can download the current binaries from the github action artifacts.
+
+Initialize a project:
+```sh
+./tiefdownconverter init MyProject
+```
+
 Run the converter with:
 ```sh
-./tiefdownconverter convert [-p project_directory]
+./tiefdownconverter convert -p MyProject/
 ```
-Additional commands for project management will be added in future updates.
+
+Add your markdown files to Markdown or run `./tiefdownconverter [command] -h` for more information on changing the markdown location.
+
+Adjust the template files to your liking.
 
 ## Project Structure
 A typical TiefDown project may look like this:
