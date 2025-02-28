@@ -53,6 +53,7 @@ project/
 The `manifest.toml` is the primary indicator that this is a TiefDown project. Currently, an example configuration is:
 ```toml
 templates = ["template.tex", "template_a4.tex"]
+markdown_dir = "Markdown"
 ```
 
 The `Markdown/` folder should contain all Markdown files. They should begin with "Chapter XX" to allow for sorting.
