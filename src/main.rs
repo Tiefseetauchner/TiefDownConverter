@@ -143,7 +143,11 @@ fn convert(project: Option<String>, templates: Option<Vec<String>>) -> Result<()
             let output_path = compiled_directory_path.join(&result_file_name);
             fs::copy(output_path, project_path.join(&result_file_name))?;
         } else {
-            return Err(format!("Unsupported template format: {}", template).into());
+            eprintln!(
+                "Warning: The template type '{}' is not yet supported.",
+                template
+            );
+            continue;
         }
 
         println!("Converted template: {}", template);
