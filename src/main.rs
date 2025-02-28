@@ -37,8 +37,6 @@ enum Commands {
     #[command(about = "Initialize a new TiefDown project.")]
     Init {
         #[arg(
-            short,
-            long,
             help = "The project to initialize. If not provided, the current directory will be used."
         )]
         project: Option<String>,
