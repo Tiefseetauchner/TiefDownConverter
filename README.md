@@ -1,7 +1,10 @@
 # TiefDown Converter
 
 ## Overview
-TiefDown Converter is a command-line tool designed to convert TiefDown projects, a structured format for compiling Markdown files into PDFs. The conversion process involves copying a defined template structure, merging Markdown files, converting the combined file to LaTeX, and generating a PDF using XeTeX.
+TiefDown Converter is a command-line tool designed to convert TiefDown projects, a structured format for compiling Markdown files into PDFs. It automates the process of combining multiple Markdown files, applying LaTeX templates, and generating a PDF using XeTeX. 
+
+### Example Use Case
+Imagine you are writing a book with multiple chapters stored as separate Markdown files. With TiefDown Converter, you can structure your project, define your LaTeX template, and generate a professionally formatted PDF with just one command.
 
 ## Features
 - Reads project structure from `manifest.toml`
@@ -47,14 +50,14 @@ project/
 │   ├── other_filter.lua
 ```
 
-The `manifest.toml` is the primary indicator that this is a tiefdown project. Currently, my example is
+The `manifest.toml` is the primary indicator that this is a TiefDown project. Currently, an example configuration is:
 ```toml
 templates = ["template.tex", "template_a4.tex"]
 ```
 
-The folder `Markdown/` should contain all Markdown files. They should begin with "Chapter XX" to allow for sorting.
+The `Markdown/` folder should contain all Markdown files. They should begin with "Chapter XX" to allow for sorting.
 
-The templates can be any tex file, but to include the generated content, they have to include `\input{./output.tex}`. An example using [LiX's novel document class](https://github.com/NicklasVraa/LiX/) could look like this:
+The templates can be any `.tex` file, but to include the generated content, they must include `\input{./output.tex}`. An example using [LiX's novel document class](https://github.com/NicklasVraa/LiX/) could look like this:
 
 ```latex
 \documentclass{novel}
@@ -81,7 +84,7 @@ The templates can be any tex file, but to include the generated content, they ha
 \end{document}
 ```
 
-Where meta.tex is also in the template directory. It would contain something like this:
+Where `meta.tex` is also in the template directory and might contain:
 
 ```latex
 \lang      {english}
@@ -89,36 +92,31 @@ Where meta.tex is also in the template directory. It would contain something lik
 \subtitle  {Small stories for bedtime 5}
 \authors   {Tiefseetauchner}
 \publisher {Tiefseetauchner}
-\edition   {1}{2025} % you should edit this only when creating a new edition. For example, if you found a significant mistake, you may change the edition to two and the year to the current year.
+\edition   {1}{2025} % Update for new editions
 \keywords  {fiction}
 
-\note{This is a work of fiction. Any resemblance to real-world persons, living or dead, per name or otherwise, is purely coincidental. \\
-Beyond the Past © 2025 by Lena Tauchner is licensed under CC BY-NC-ND 4.0, as described by the license section.}
+\note{This is a work of fiction. Any resemblance to real-world persons, living or dead, is purely coincidental.}
 
-\license{CC}{by-nc-nd}{4.0} % you may want to remove the license. If so, don't forget to remove the above disclaimer!
+\license{CC}{by-nc-nd}{4.0} % Modify or remove as needed
 ```
 
-This also requires a lua filter in luafilters/ like this:
+A Lua filter in `luafilters/` might look like this:
 
 ```lua
 function Header(elem)
-  -- Check if it's a first-level heading (i.e., Chapter in Markdown)
   if elem.level == 1 then
-    -- Replace with \h{...} LaTeX command
     return pandoc.RawBlock("latex", "\\h{" .. pandoc.utils.stringify(elem.content) .. "}")
   end
   if elem.level == 2 then
-    -- Replace with \hh{...} LaTeX command
     return pandoc.RawBlock("latex", "\\hh{" .. pandoc.utils.stringify(elem.content) .. "}")
   end
 end
 ```
 
 ## License
-This project is licensed under MIT. See the license file for information.
+This project is licensed under MIT. See the license file for details.
 
 ## Coffee
-You know it by now. I am doing a lot of projects for fun, and I appreciate any help you can give - be that by contributing or donating.
+If you appreciate this project, consider supporting it by contributing or donating.
 
-[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/tiefseetauchner)
-
+[![](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/tiefseetauchner)
