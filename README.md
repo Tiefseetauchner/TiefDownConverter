@@ -1,4 +1,5 @@
 # TiefDown Converter
+[![Build and Upload Artifacts](https://github.com/Tiefseetauchner/TiefDownConverter/actions/workflows/main_push.yml/badge.svg)](https://github.com/Tiefseetauchner/TiefDownConverter/actions/workflows/main_push.yml)
 
 ## Overview
 TiefDown Converter is a command-line tool designed to convert TiefDown projects, a structured format for compiling Markdown files into PDFs. It automates the process of combining multiple Markdown files, applying LaTeX templates, and generating a PDF using XeTeX. 
