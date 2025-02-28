@@ -65,18 +65,6 @@ fn convert(project: Option<String>, templates: Option<Vec<String>>) -> Result<()
     let manifest_content = fs::read_to_string(&manifest_path)?;
     let manifest: toml::Value = toml::from_str(&manifest_content)?;
 
-    let templates = templates.unwrap_or_else(|| {
-        manifest
-            .get("templates")
-            .and_then(|t| t.as_array())
-            .map(|arr| {
-                arr.iter()
-                    .filter_map(|s| s.as_str().map(String::from))
-                    .collect()
-            })
-            .unwrap_or_default()
-    });
-
     println!("Converting project: {}", project);
 
     let current_time = std::time::SystemTime::now();
@@ -86,7 +74,7 @@ fn convert(project: Option<String>, templates: Option<Vec<String>>) -> Result<()
     copy_dir::copy_dir(project_path.join("template/"), &compiled_directory_path)?;
 
     let combined_markdown_path = compiled_directory_path.join("combined.md");
-    let markdown_dir = project_path.join("Markdown");
+    let markdown_dir = project_path.join(manifest["markdown_dir"].as_str().unwrap_or("Markdown/"));
     let mut combined_content = String::new();
 
     // NOTE: This expects the markdown files to be named "Chapter NR.md" to order them correctly.
@@ -124,6 +112,18 @@ fn convert(project: Option<String>, templates: Option<Vec<String>>) -> Result<()
     if !pandoc_status.success() {
         return Err("Pandoc failed to convert the markdown.".into());
     }
+
+    let templates = templates.unwrap_or_else(|| {
+        manifest
+            .get("templates")
+            .and_then(|t| t.as_array())
+            .map(|arr| {
+                arr.iter()
+                    .filter_map(|s| s.as_str().map(String::from))
+                    .collect()
+            })
+            .unwrap_or_default()
+    });
 
     for template in &templates {
         let template_path = compiled_directory_path.join(template);
