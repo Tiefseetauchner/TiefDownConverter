@@ -1,7 +1,8 @@
 use chrono::prelude::{DateTime, Utc};
 use clap::{Parser, Subcommand};
+use pandoc::Pandoc;
 use std::error::Error;
-use std::fs;
+use std::fs::{self, ReadDir};
 use std::path::Path;
 use std::process::{Command, Stdio};
 use toml;
@@ -84,16 +85,22 @@ fn convert(project: Option<String>, templates: Option<Vec<String>>) -> Result<()
 
     fs::write(&combined_markdown_path, combined_content)?;
 
-    let lua_filter_args = get_lua_filters(project_path)?;
+    let mut pandoc = Pandoc::new();
+    pandoc.add_input(&combined_markdown_path);
+    pandoc.set_output(pandoc::OutputKind::File(
+        compiled_directory_path.join("output.tex"),
+    ));
+    for filter in get_lua_filters(project_path)? {
+        pandoc.add_option(pandoc::PandocOption::LuaFilter(filter?.path()));
+    }
 
-    let pandoc_status = Command::new("pandoc")
-        .arg(&combined_markdown_path)
-        .arg("-o")
-        .arg(compiled_directory_path.join("output.tex"))
-        .args(lua_filter_args)
-        .status()?;
-    if !pandoc_status.success() {
-        return Err("Pandoc failed to convert the markdown.".into());
+    let pandoc_result = pandoc.execute();
+    if pandoc_result.is_err() {
+        return Err(format!(
+            "Pandoc conversion to .tex failed: {}",
+            pandoc_result.err().unwrap()
+        )
+        .into());
     }
 
     let templates = templates.unwrap_or_else(|| {
@@ -154,14 +161,10 @@ fn get_markdown_files(
     Ok(markdown_files)
 }
 
-fn get_lua_filters(project_path: &Path) -> Result<Vec<String>, Box<dyn Error>> {
+fn get_lua_filters(project_path: &Path) -> Result<ReadDir, Box<dyn Error>> {
     let lua_filters = fs::read_dir(project_path.join("luafilters"))?;
-    let mut lua_filter_args = vec![];
-    for lua_filter in lua_filters {
-        lua_filter_args.push("--lua-filter".to_string());
-        lua_filter_args.push(lua_filter?.path().to_str().unwrap().to_string());
-    }
-    Ok(lua_filter_args)
+
+    Ok(lua_filters)
 }
 
 fn convert_template(
