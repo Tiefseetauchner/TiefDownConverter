@@ -34,7 +34,7 @@ pub(crate) fn convert(
     let compiled_directory_path = create_build_directory(project_path)?;
 
     let combined_markdown_path = compiled_directory_path.join("combined.md");
-    let markdown_dir = project_path.join(manifest.markdown_dir.as_ref().unwrap_or("Markdown"));
+    let markdown_dir = project_path.join(manifest.markdown_dir.unwrap_or("Markdown".to_string()));
     let mut combined_content = String::new();
 
     let markdown_files = get_markdown_files(markdown_dir)?;
