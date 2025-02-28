@@ -40,6 +40,14 @@ enum Commands {
             help = "The project to initialize. If not provided, the current directory will be used."
         )]
         project: Option<String>,
+        #[arg(short, long, help = "Delete the project if it already exists.")]
+        force: bool,
+        #[arg(
+            short,
+            long,
+            help = "The directory where the Markdown files are located. If not provided, Markdown/ will be used."
+        )]
+        markdown_dir: Option<String>,
     },
 }
 
@@ -48,7 +56,11 @@ fn main() {
 
     if let Err(e) = match args.command {
         Commands::Convert { project, templates } => conversion::convert(project, templates),
-        Commands::Init { project } => project_management::init(project),
+        Commands::Init {
+            project,
+            force,
+            markdown_dir,
+        } => project_management::init(project, force, markdown_dir),
     } {
         eprintln!("Error: {}", e);
         std::process::exit(1);

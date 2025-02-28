@@ -3,7 +3,7 @@ use chrono::prelude::Utc;
 use pandoc::Pandoc;
 use std::error::Error;
 use std::fs;
-use std::fs::ReadDir;
+use std::fs::DirEntry;
 use std::path::Path;
 use std::process::Command;
 use std::process::Stdio;
@@ -54,7 +54,7 @@ pub(crate) fn convert(
         compiled_directory_path.join("output.tex"),
     ));
     for filter in get_lua_filters(project_path)? {
-        pandoc.add_option(pandoc::PandocOption::LuaFilter(filter?.path()));
+        pandoc.add_option(pandoc::PandocOption::LuaFilter(filter.path()));
     }
 
     let pandoc_result = pandoc.execute();
@@ -114,10 +114,17 @@ fn get_markdown_files(
     Ok(markdown_files)
 }
 
-fn get_lua_filters(project_path: &Path) -> Result<ReadDir, Box<dyn Error>> {
-    let lua_filters = fs::read_dir(project_path.join("luafilters"))?;
+fn get_lua_filters(project_path: &Path) -> Result<Vec<DirEntry>, Box<dyn Error>> {
+    let luafilters_path = project_path.join("luafilters");
 
-    Ok(lua_filters)
+    if !luafilters_path.exists() {
+        return Ok(Vec::new());
+    }
+    let dirs: Vec<DirEntry> = fs::read_dir(luafilters_path)?
+        .filter_map(Result::ok)
+        .collect();
+
+    Ok(dirs)
 }
 
 fn convert_template(
