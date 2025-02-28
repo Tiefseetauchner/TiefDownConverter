@@ -1,0 +1,54 @@
+name: Build and Upload Artifacts
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build (Linux & macOS)
+        if: runner.os != 'Windows'
+        run: cargo build --release
+
+      - name: Build (Windows)
+        if: runner.os == 'Windows'
+        run: cargo build --release --target x86_64-pc-windows-msvc
+
+      - name: Package binary (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          mkdir -p artifacts
+          tar -czvf artifacts/tiefdownconverter-linux.tar.gz -C target/release tiefdownconverter
+
+      - name: Package binary (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          mkdir -p artifacts
+          tar -czvf artifacts/tiefdownconverter-macos.tar.gz -C target/release tiefdownconverter
+
+      - name: Package binary (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          mkdir artifacts
+          Compress-Archive -Path target\x86_64-pc-windows-msvc\release\tiefdownconverter.exe -DestinationPath artifacts\tiefdownconverter-windows.zip
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiefdownconverter-${{ runner.os }}
+          path: artifacts/*
