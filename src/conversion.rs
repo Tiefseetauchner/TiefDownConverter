@@ -5,9 +5,8 @@ use std::error::Error;
 use std::fs;
 use std::fs::DirEntry;
 use std::path::Path;
-use std::process::Command;
-use std::process::Stdio;
 
+use crate::conversion_decider;
 use crate::manifest_model::Manifest;
 
 pub(crate) fn convert(
@@ -137,37 +136,14 @@ fn convert_template(
         return Err(format!("Warning: Template path does not exist: {}", template).into());
     }
 
-    if template_path.extension() == Some("tex".as_ref()) {
-        println!("Converting using XeTeX...");
+    let converter = conversion_decider::get_converter(template)?;
 
-        // NOTE: This is a little bit of a hack to get around the fact that for the first compile, the toc index is not yet generated.
-        compile_latex(&compiled_directory_path, template)?;
-        compile_latex(&compiled_directory_path, template)?;
-
-        let result_file_name = format!("{}.pdf", template.replace(".tex", ""));
-
-        let output_path = compiled_directory_path.join(&result_file_name);
-        fs::copy(output_path, project_path.join(&result_file_name))?;
-    } else {
-        return Err(format!("Template type '{}' not supported.", template).into());
-    }
+    let result_file_path = converter(&compiled_directory_path, &template)?;
+    fs::copy(
+        &result_file_path,
+        project_path.join(result_file_path.file_name().unwrap_or_default()),
+    )?;
 
     println!("Converted template: {}", template);
-    Ok(())
-}
-
-// NOTE: This requires xelatex to be installed. I don't particularly like that, but I tried tectonic and it didn't work.
-//       For now we'll keep it simple and just use xelatex. I'm not sure if there's a way to get tectonic to work with the current setup.
-fn compile_latex(
-    compiled_directory_path: &std::path::PathBuf,
-    template: &String,
-) -> Result<(), Box<dyn Error>> {
-    Command::new("xelatex")
-        .current_dir(compiled_directory_path)
-        .arg("-interaction=nonstopmode")
-        .arg("-synctex=1")
-        .arg(template)
-        .stdout(Stdio::null())
-        .status()?;
     Ok(())
 }

@@ -1,6 +1,8 @@
 use clap::{Parser, Subcommand};
 
 mod conversion;
+mod conversion_decider;
+mod converters;
 mod manifest_model;
 mod project_management;
 
