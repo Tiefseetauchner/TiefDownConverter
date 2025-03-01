@@ -4,6 +4,7 @@ use crate::manifest_model::Manifest;
 
 pub fn init(
     project: Option<String>,
+    templates: Option<Vec<String>>,
     force: bool,
     markdown_dir: Option<String>,
 ) -> Result<(), Box<dyn Error>> {
@@ -29,7 +30,7 @@ pub fn init(
         );
     }
 
-    let templates = vec!["template.tex".to_string()];
+    let templates = templates.unwrap_or(vec!["template.tex".to_string()]);
 
     let markdown_dir_path =
         project_path.join(markdown_dir.clone().unwrap_or("Markdown".to_string()));
@@ -64,17 +65,28 @@ fn create_latex_templates(
 
     for template in templates {
         let content = match template.as_str() {
-            "template.tex" => include_bytes!("resources/templates/article/default.tex"),
+            "template" => include_bytes!("resources/templates/default/default.tex").to_vec(),
+            "booklet" => include_bytes!("resources/templates/default/booklet.tex").to_vec(),
+            "lix_novel_a4" => {
+                println!("Using the lix_novel_a4 template. Make sure to install lix.sty and novel.cls. -h for more information.");
+                include_bytes!("resources/templates/lix_novel/lix_novel_a4.tex").to_vec()
+            }
+            "lix_novel_book" => {
+                println!("Using the lix_novel_book template. Make sure to install lix.sty and novel.cls. -h for more information.");
+                include_bytes!("resources/templates/lix_novel/lix_novel_book.tex").to_vec()
+            }
             _ => return Err(format!("Unknown template: {}", template).into()),
         };
 
-        let template_path = template_dir.join(&template);
+        let template_path = template_dir.join(format!("{}{}", &template, ".tex"));
         std::fs::write(&template_path, content)?;
     }
 
-    let meta_content = include_bytes!("resources/templates/article/meta.tex");
+    let meta_content = include_bytes!("resources/templates/default/meta.tex");
     let meta_path = template_dir.join("meta.tex");
     std::fs::write(&meta_path, meta_content)?;
+
+    println!("meta.tex was written to the template directory. Make sure to adjust the metadata in the file.");
 
     Ok(())
 }
