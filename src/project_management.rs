@@ -82,7 +82,7 @@ fn create_latex_templates(
         std::fs::write(&template_path, content)?;
     }
 
-    let meta_content = include_bytes!("resources/templates/default/meta.tex");
+    let meta_content = include_bytes!("resources/templates/meta.tex");
     let meta_path = template_dir.join("meta.tex");
     std::fs::write(&meta_path, meta_content)?;
 
