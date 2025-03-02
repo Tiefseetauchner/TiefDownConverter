@@ -55,12 +55,12 @@ This is a simple test document for you to edit or overwrite."#,
     std::fs::write(&manifest_path, manifest_content)?;
 
     let t = filter_templates(&templates, ".tex");
-    if t.is_empty() {
+    if !t.is_empty() {
         create_tex_templates(&project_path, t)?;
     }
 
     let t = filter_templates(&templates, "_epub");
-    if t.is_empty() {
+    if !t.is_empty() {
         create_epub_templates(&project_path, t)?;
     }
 
