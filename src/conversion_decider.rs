@@ -7,9 +7,8 @@ pub fn get_converter(
 ) -> Result<fn(&PathBuf, &String) -> Result<PathBuf, Box<dyn Error>>, Box<dyn Error>> {
     if template.ends_with(".tex") {
         Ok(converters::convert_latex)
-        // TODO: Add support for other converters here
-        // } else if template.trim_matches('/').ends_with("_epub") {
-        //     Ok(converters::convert_epub)
+    } else if template.trim_matches('/').ends_with("_epub") {
+        Ok(converters::convert_epub)
     } else {
         Err(format!(
             "Unsupported template type for template name '{}'.",

@@ -4,6 +4,8 @@ use std::{
     process::{Command, Stdio},
 };
 
+use pandoc::{OutputFormat, Pandoc};
+
 pub(crate) fn convert_latex(
     compiled_directory_path: &PathBuf,
     template: &String,
@@ -30,4 +32,21 @@ fn compile_latex(
         .stdout(Stdio::null())
         .status()?;
     Ok(())
+}
+
+pub(crate) fn convert_epub(
+    compiled_directory_path: &PathBuf,
+    template: &String,
+) -> Result<PathBuf, Box<dyn Error>> {
+    let result_file_name = format!("{}.epub", template.trim_matches('/'));
+    let output_path = compiled_directory_path.join(&result_file_name);
+
+    let mut pandoc = Pandoc::new();
+    pandoc.add_input(&compiled_directory_path.join("combined.md"));
+    pandoc.set_output(pandoc::OutputKind::File(output_path.clone()));
+    pandoc.set_output_format(OutputFormat::Epub3, vec![]);
+
+    pandoc.execute()?;
+
+    Ok(output_path)
 }
