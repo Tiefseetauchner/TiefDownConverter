@@ -1,3 +1,5 @@
+use std::fs;
+
 use color_eyre::eyre::{eyre, Result};
 
 use crate::manifest_model::Manifest;
@@ -52,17 +54,33 @@ This is a simple test document for you to edit or overwrite."#,
     let manifest_content = toml::to_string(&manifest)?;
     std::fs::write(&manifest_path, manifest_content)?;
 
-    create_templates(&project_path, templates)?;
+    let t = filter_templates(&templates, ".tex");
+    if t.is_empty() {
+        create_tex_templates(&project_path, t)?;
+    }
+
+    let t = filter_templates(&templates, "_epub");
+    if t.is_empty() {
+        create_epub_templates(&project_path, t)?;
+    }
 
     Ok(())
 }
 
-fn create_templates(project_path: &std::path::Path, templates: Vec<String>) -> Result<()> {
+fn filter_templates<'a>(templates: &'a Vec<String>, suffix: &str) -> Vec<&'a str> {
+    templates
+        .iter()
+        .map(|t| t.as_str())
+        .filter(|t| t.ends_with(suffix))
+        .collect()
+}
+
+fn create_tex_templates(project_path: &std::path::Path, templates: Vec<&str>) -> Result<()> {
     let template_dir = project_path.join("template");
     std::fs::create_dir_all(&template_dir)?;
 
     for template in templates {
-        let content = match template.as_str() {
+        let content = match template {
             "template.tex" => include_bytes!("resources/templates/default/default.tex").to_vec(),
             "booklet.tex" => include_bytes!("resources/templates/default/booklet.tex").to_vec(),
             "lix_novel_a4.tex" => {
@@ -85,6 +103,17 @@ fn create_templates(project_path: &std::path::Path, templates: Vec<String>) -> R
     std::fs::write(&meta_path, meta_content)?;
 
     println!("meta.tex was written to the template directory. Make sure to adjust the metadata in the file.");
+
+    Ok(())
+}
+
+fn create_epub_templates(project_path: &std::path::Path, templates: Vec<&str>) -> Result<()> {
+    let template_dir = project_path.join("template");
+    std::fs::create_dir_all(&template_dir)?;
+
+    for template in templates {
+        fs::create_dir_all(&template_dir.join(template))?;
+    }
 
     Ok(())
 }
