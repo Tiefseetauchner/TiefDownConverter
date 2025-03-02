@@ -64,6 +64,39 @@ enum Commands {
         )]
         markdown_dir: Option<String>,
     },
+    #[command(about = "Update the TiefDown project.")]
+    Update {
+        #[arg(
+            help = "The project to initialize. If not provided, the current directory will be used."
+        )]
+        project: Option<String>,
+        #[command(subcommand)]
+        command: UpdateCommands,
+    },
+}
+
+#[derive(Subcommand)]
+enum UpdateCommands {
+    #[command(about = "Add a new template to the project.")]
+    AddTemplate {
+        #[arg(
+            short,
+            long,
+            help = r#"The templates to use. If not provided, the default template.tex will be used. If using a LiX template, make sure to install the corresponding .sty and .cls files from https://github.com/NicklasVraa/LiX. Adjust the metadata in template/meta.tex accordingly."#,
+            value_parser = PossibleValuesParser::new(POSSIBLE_TEMPLATES),
+        )]
+        template: String,
+    },
+    #[command(about = "Remove a template from the project.")]
+    RemoveTemplate {
+        #[arg(
+            short,
+            long,
+            help = r#"The templates to remove."#,
+            value_parser = PossibleValuesParser::new(POSSIBLE_TEMPLATES),
+        )]
+        template: String,
+    },
 }
 
 fn main() -> Result<()> {
@@ -79,6 +112,14 @@ fn main() -> Result<()> {
             force,
             markdown_dir,
         } => project_management::init(project, templates, force, markdown_dir)?,
+        Commands::Update { project, command } => match command {
+            UpdateCommands::AddTemplate { template } => {
+                project_management::add_template(project, template)?
+            }
+            UpdateCommands::RemoveTemplate { template } => {
+                project_management::remove_template(project, template)?
+            }
+        },
     }
 
     Ok(())

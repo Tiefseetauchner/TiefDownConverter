@@ -54,17 +54,73 @@ This is a simple test document for you to edit or overwrite."#,
     let manifest_content = toml::to_string(&manifest)?;
     std::fs::write(&manifest_path, manifest_content)?;
 
+    create_templates(project_path, templates)?;
+
+    Ok(())
+}
+
+pub(crate) fn add_template(project: Option<String>, template: String) -> Result<()> {
+    let project = project.unwrap_or_else(|| ".".to_string());
+    let project_path = std::path::Path::new(&project);
+
+    let manifest_path = project_path.join("manifest.toml");
+    if !manifest_path.exists() {
+        return Err(eyre!(
+            "Manifest file does not exist. Please initialize a project before adding templates."
+        ));
+    }
+
+    let manifest_content = fs::read_to_string(&manifest_path)?;
+    let mut manifest: Manifest = toml::from_str(&manifest_content)?;
+    manifest.templates.extend([template.clone()]);
+
+    let manifest_content = toml::to_string(&manifest)?;
+    std::fs::write(&manifest_path, manifest_content)?;
+
+    create_templates(project_path, vec![template.clone()])?;
+
+    Ok(())
+}
+
+pub(crate) fn remove_template(project: Option<String>, template: String) -> Result<()> {
+    let project = project.unwrap_or_else(|| ".".to_string());
+    let project_path = std::path::Path::new(&project);
+
+    let manifest_path = project_path.join("manifest.toml");
+    if !manifest_path.exists() {
+        return Err(eyre!(
+            "Manifest file does not exist. Please initialize a project before removing templates."
+        ));
+    }
+
+    let manifest_content = fs::read_to_string(&manifest_path)?;
+    let mut manifest: Manifest = toml::from_str(&manifest_content)?;
+    manifest.templates.retain(|t| t != &template);
+
+    let manifest_content = toml::to_string(&manifest)?;
+    std::fs::write(&manifest_path, manifest_content)?;
+
+    let template_dir = project_path.join("template");
+    let template_path = template_dir.join(&template);
+
+    fs::remove_file(template_path)?;
+
+    Ok(())
+}
+
+fn create_templates(
+    project_path: &std::path::Path,
+    templates: Vec<String>,
+) -> Result<(), color_eyre::eyre::Error> {
     let t = filter_templates(&templates, ".tex");
     if !t.is_empty() {
         create_tex_templates(&project_path, t)?;
     }
 
     let t = filter_templates(&templates, "_epub");
-    if !t.is_empty() {
+    Ok(if !t.is_empty() {
         create_epub_templates(&project_path, t)?;
-    }
-
-    Ok(())
+    })
 }
 
 fn filter_templates<'a>(templates: &'a Vec<String>, suffix: &str) -> Vec<&'a str> {
