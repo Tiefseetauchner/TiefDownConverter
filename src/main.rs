@@ -1,6 +1,6 @@
 use clap::{builder::PossibleValuesParser, Parser, Subcommand};
+use color_eyre::eyre::Result;
 use consts::POSSIBLE_TEMPLATES;
-
 mod consts;
 mod conversion;
 mod conversion_decider;
@@ -66,19 +66,20 @@ enum Commands {
     },
 }
 
-fn main() {
+fn main() -> Result<()> {
+    color_eyre::install()?;
+
     let args = Cli::parse();
 
-    if let Err(e) = match args.command {
-        Commands::Convert { project, templates } => conversion::convert(project, templates),
+    match args.command {
+        Commands::Convert { project, templates } => conversion::convert(project, templates)?,
         Commands::Init {
             project,
             templates,
             force,
             markdown_dir,
-        } => project_management::init(project, templates, force, markdown_dir),
-    } {
-        eprintln!("Error: {}", e);
-        std::process::exit(1);
+        } => project_management::init(project, templates, force, markdown_dir)?,
     }
+
+    Ok(())
 }

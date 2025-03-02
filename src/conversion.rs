@@ -1,28 +1,29 @@
 use chrono::prelude::DateTime;
 use chrono::prelude::Utc;
+use color_eyre::eyre::eyre;
+use color_eyre::eyre::Result;
 use pandoc::Pandoc;
-use std::error::Error;
 use std::fs;
 use std::fs::DirEntry;
 use std::path::Path;
+use std::path::PathBuf;
 
 use crate::conversion_decider;
 use crate::manifest_model::Manifest;
 
-pub(crate) fn convert(
-    project: Option<String>,
-    templates: Option<Vec<String>>,
-) -> Result<(), Box<dyn Error>> {
+pub(crate) fn convert(project: Option<String>, templates: Option<Vec<String>>) -> Result<()> {
     let project = project.unwrap_or_else(|| ".".to_string());
     let project_path = Path::new(&project);
 
     if !project_path.exists() {
-        return Err("Project path does not exist.".into());
+        return Err(eyre!("Project path does not exist."));
     }
 
     let manifest_path = project_path.join("manifest.toml");
     if !manifest_path.exists() {
-        return Err("No manifest file found. Please initialize a project first.".into());
+        return Err(eyre!(
+            "No manifest file found. Please initialize a project first."
+        ));
     }
 
     let manifest_content = fs::read_to_string(&manifest_path)?;
@@ -58,11 +59,10 @@ pub(crate) fn convert(
 
     let pandoc_result = pandoc.execute();
     if pandoc_result.is_err() {
-        return Err(format!(
+        return Err(eyre!(
             "Pandoc conversion to .tex failed: {}",
             pandoc_result.err().unwrap()
-        )
-        .into());
+        ));
     }
 
     let templates = templates.unwrap_or_else(|| manifest.templates);
@@ -81,12 +81,12 @@ pub(crate) fn convert(
         for error in &conversion_errors {
             eprintln!("Error: {}", error);
         }
-        return Err("Conversion failed for some templates.".into());
+        return Err(eyre!("Conversion failed for some templates."));
     }
     Ok(())
 }
 
-fn create_build_directory(project_path: &Path) -> Result<std::path::PathBuf, Box<dyn Error>> {
+fn create_build_directory(project_path: &Path) -> Result<std::path::PathBuf> {
     let current_time = std::time::SystemTime::now();
     let current_time: DateTime<Utc> = current_time.into();
     let current_time = current_time.format("%Y-%m-%d_%H-%M-%S").to_string();
@@ -95,9 +95,7 @@ fn create_build_directory(project_path: &Path) -> Result<std::path::PathBuf, Box
     Ok(compiled_directory_path)
 }
 
-fn get_markdown_files(
-    markdown_dir: std::path::PathBuf,
-) -> Result<Vec<fs::DirEntry>, Box<dyn Error>> {
+fn get_markdown_files(markdown_dir: std::path::PathBuf) -> Result<Vec<fs::DirEntry>> {
     let chapter_name_regex = regex::Regex::new(r"Chapter (\d+).*").unwrap();
 
     let mut markdown_files: Vec<_> = fs::read_dir(markdown_dir)?.filter_map(Result::ok).collect();
@@ -113,7 +111,7 @@ fn get_markdown_files(
     Ok(markdown_files)
 }
 
-fn get_lua_filters(project_path: &Path) -> Result<Vec<DirEntry>, Box<dyn Error>> {
+fn get_lua_filters(project_path: &Path) -> Result<Vec<DirEntry>> {
     let luafilters_path = project_path.join("luafilters");
 
     if !luafilters_path.exists() {
@@ -127,13 +125,13 @@ fn get_lua_filters(project_path: &Path) -> Result<Vec<DirEntry>, Box<dyn Error>>
 }
 
 fn convert_template(
-    compiled_directory_path: &std::path::PathBuf,
-    template: &String,
+    compiled_directory_path: &PathBuf,
+    template: &str,
     project_path: &Path,
-) -> Result<(), Box<dyn Error>> {
+) -> Result<()> {
     let template_path = compiled_directory_path.join(template);
     if !template_path.exists() {
-        return Err(format!("Warning: Template path does not exist: {}", template).into());
+        return Err(eyre!("Warning: Template path does not exist: {}", template));
     }
 
     let converter = conversion_decider::get_converter(template)?;
