@@ -154,11 +154,11 @@ fn create_tex_templates(project_path: &std::path::Path, templates: Vec<&str>) ->
         std::fs::write(&template_path, content)?;
     }
 
-    let meta_content = include_bytes!("resources/templates/meta.tex");
     let meta_path = template_dir.join("meta.tex");
-    std::fs::write(&meta_path, meta_content)?;
-
-    println!("meta.tex was written to the template directory. Make sure to adjust the metadata in the file.");
+    if !meta_path.exists() {
+        std::fs::write(&meta_path, include_bytes!("resources/templates/meta.tex"))?;
+        println!("meta.tex was written to the template directory. Make sure to adjust the metadata in the file.");
+    }
 
     Ok(())
 }
