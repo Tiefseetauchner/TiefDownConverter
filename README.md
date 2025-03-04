@@ -19,6 +19,7 @@ Imagine you are writing a book with multiple chapters stored as separate Markdow
 - [Rust (for compiling the tool)]
 - Pandoc (for Markdown to LaTeX conversion)
 - XeTeX (for compiling LaTeX to PDF)
+  - On Windows I recommend installing MikTeX
 
 ## Installation
 To build the project from source, run:
