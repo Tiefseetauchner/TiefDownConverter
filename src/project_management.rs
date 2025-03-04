@@ -40,7 +40,7 @@ pub fn init(
     if !markdown_dir_path.exists() {
         std::fs::create_dir(&markdown_dir_path)?;
         std::fs::write(
-            &markdown_dir_path.join("Chapter 1: Introduction.md"),
+            &markdown_dir_path.join("Chapter 1 - Introduction.md"),
             r#"# Test Document
 This is a simple test document for you to edit or overwrite."#,
         )?;
