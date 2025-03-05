@@ -48,6 +48,28 @@ pub(crate) fn convert(project: Option<String>, templates: Option<Vec<String>>) -
 
     fs::write(&combined_markdown_path, combined_content)?;
 
+    convert_md_to_tex(
+        project_path,
+        &compiled_directory_path,
+        &combined_markdown_path,
+    )?;
+
+    convert_md_to_typst(&compiled_directory_path, &combined_markdown_path)?;
+
+    let templates = templates.unwrap_or_else(|| manifest.templates);
+
+    for template in &templates {
+        convert_template(&compiled_directory_path, &template, &project_path)?;
+    }
+
+    Ok(())
+}
+
+fn convert_md_to_tex(
+    project_path: &Path,
+    compiled_directory_path: &PathBuf,
+    combined_markdown_path: &PathBuf,
+) -> Result<(), color_eyre::eyre::Error> {
     let mut pandoc = Pandoc::new();
     pandoc.add_input(&combined_markdown_path);
     pandoc.set_output(pandoc::OutputKind::File(
@@ -56,7 +78,6 @@ pub(crate) fn convert(project: Option<String>, templates: Option<Vec<String>>) -
     for filter in get_lua_filters(project_path)? {
         pandoc.add_option(pandoc::PandocOption::LuaFilter(filter.path()));
     }
-
     let pandoc_result = pandoc.execute();
     if pandoc_result.is_err() {
         return Err(eyre!(
@@ -65,24 +86,27 @@ pub(crate) fn convert(project: Option<String>, templates: Option<Vec<String>>) -
         ));
     }
 
-    let templates = templates.unwrap_or_else(|| manifest.templates);
+    Ok(())
+}
 
-    let mut conversion_errors = Vec::new();
+fn convert_md_to_typst(
+    compiled_directory_path: &PathBuf,
+    combined_markdown_path: &PathBuf,
+) -> Result<(), color_eyre::eyre::Error> {
+    let mut pandoc = Pandoc::new();
+    pandoc.add_input(&combined_markdown_path);
+    pandoc.set_output(pandoc::OutputKind::File(
+        compiled_directory_path.join("output.typ"),
+    ));
+    let pandoc_result = pandoc.execute();
 
-    for template in &templates {
-        let result = convert_template(&compiled_directory_path, &template, &project_path);
-
-        if result.is_err() {
-            conversion_errors.push(result.err().unwrap());
-        }
+    if pandoc_result.is_err() {
+        return Err(eyre!(
+            "Pandoc conversion to .typ failed: {}",
+            pandoc_result.err().unwrap()
+        ));
     }
 
-    if !conversion_errors.is_empty() {
-        for error in &conversion_errors {
-            eprintln!("Error: {}", error);
-        }
-        return Err(eyre!("Conversion failed for some templates."));
-    }
     Ok(())
 }
 

@@ -118,9 +118,16 @@ fn create_templates(
     }
 
     let t = filter_templates(&templates, "_epub");
-    Ok(if !t.is_empty() {
+    if !t.is_empty() {
         create_epub_templates(&project_path, t)?;
-    })
+    }
+
+    let t = filter_templates(&templates, ".typ");
+    if !t.is_empty() {
+        create_typst_templates(&project_path, t)?;
+    }
+
+    Ok(())
 }
 
 fn filter_templates<'a>(templates: &'a Vec<String>, suffix: &str) -> Vec<&'a str> {
@@ -136,7 +143,7 @@ fn create_tex_templates(project_path: &std::path::Path, templates: Vec<&str>) ->
     std::fs::create_dir_all(&template_dir)?;
 
     for template in templates {
-        let content = match template {
+        let content: Vec<u8> = match template {
             "template.tex" => include_bytes!("resources/templates/default/default.tex").to_vec(),
             "booklet.tex" => include_bytes!("resources/templates/default/booklet.tex").to_vec(),
             "lix_novel_a4.tex" => {
@@ -169,6 +176,31 @@ fn create_epub_templates(project_path: &std::path::Path, templates: Vec<&str>) -
 
     for template in templates {
         fs::create_dir_all(&template_dir.join(template))?;
+    }
+
+    Ok(())
+}
+
+fn create_typst_templates(project_path: &std::path::Path, templates: Vec<&str>) -> Result<()> {
+    let template_dir = project_path.join("template");
+    std::fs::create_dir_all(&template_dir)?;
+
+    for template in templates {
+        let content: Vec<u8> = match template {
+            "template_typ.typ" => {
+                include_bytes!("resources/templates/default/default.typ").to_vec()
+            }
+            _ => return Err(eyre!("Unknown template: {}", template)),
+        };
+
+        let template_path = template_dir.join(template);
+        std::fs::write(&template_path, content)?;
+    }
+
+    let meta_path = template_dir.join("meta.typ");
+    if !meta_path.exists() {
+        std::fs::write(&meta_path, include_bytes!("resources/templates/meta.typ"))?;
+        println!("meta.typ was written to the template directory. Make sure to adjust the metadata in the file.");
     }
 
     Ok(())
