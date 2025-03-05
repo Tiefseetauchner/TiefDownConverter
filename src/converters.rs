@@ -43,13 +43,14 @@ pub(crate) fn convert_epub(compiled_directory_path: &PathBuf, template: &str) ->
 }
 
 pub(crate) fn convert_typst(compiled_directory_path: &PathBuf, template: &str) -> Result<PathBuf> {
-    let result_file_name = format!("{}.pdf", template);
+    let result_file_name = template.replace(".typ", ".pdf");
     let output_path = compiled_directory_path.join(&result_file_name);
 
     Command::new("typst")
         .current_dir(compiled_directory_path)
         .arg("compile")
         .arg(template)
+        .arg(result_file_name)
         .stdout(Stdio::null())
         .status()?;
 

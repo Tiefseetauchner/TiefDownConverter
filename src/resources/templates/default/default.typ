@@ -12,4 +12,4 @@
 
 #pagebreak()
 
-#import "./output.typ"
+#include "./output.typ"

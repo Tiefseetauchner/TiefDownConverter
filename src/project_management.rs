@@ -187,7 +187,9 @@ fn create_typst_templates(project_path: &std::path::Path, templates: Vec<&str>) 
 
     for template in templates {
         let content: Vec<u8> = match template {
-            "template.typ" => include_bytes!("resources/templates/default/default.typ").to_vec(),
+            "template_typ.typ" => {
+                include_bytes!("resources/templates/default/default.typ").to_vec()
+            }
             _ => return Err(eyre!("Unknown template: {}", template)),
         };
 

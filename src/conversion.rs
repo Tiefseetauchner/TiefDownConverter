@@ -58,22 +58,10 @@ pub(crate) fn convert(project: Option<String>, templates: Option<Vec<String>>) -
 
     let templates = templates.unwrap_or_else(|| manifest.templates);
 
-    let mut conversion_errors = Vec::new();
-
     for template in &templates {
-        let result = convert_template(&compiled_directory_path, &template, &project_path);
-
-        if result.is_err() {
-            conversion_errors.push(result.err().unwrap());
-        }
+        convert_template(&compiled_directory_path, &template, &project_path)?;
     }
 
-    if !conversion_errors.is_empty() {
-        for error in &conversion_errors {
-            eprintln!("Error: {}", error);
-        }
-        return Err(eyre!("Conversion failed for some templates."));
-    }
     Ok(())
 }
 
