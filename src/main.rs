@@ -7,6 +7,7 @@ mod conversion_decider;
 mod converters;
 mod manifest_model;
 mod project_management;
+mod template_management;
 
 #[derive(Parser)]
 #[command(name = "tiefdownconverter")]
