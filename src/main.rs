@@ -49,13 +49,21 @@ enum Commands {
         #[arg(
             short,
             long,
-            help = r#"The templates to use. If not provided, the default template.tex will be used. If using a LiX template, make sure to install the corresponding .sty and .cls files from https://github.com/NicklasVraa/LiX. Adjust the metadata in template/meta.tex accordingly."#,
+            help = r#"The preset templates to use. If not provided, the default template.tex will be used.
+For custom templates, use the update command after initializing the project.
+If using a LiX template, make sure to install the corresponding .sty and .cls files from https://github.com/NicklasVraa/LiX. Adjust the metadata in template/meta.tex accordingly."#,
             value_parser = PossibleValuesParser::new(POSSIBLE_TEMPLATES),
             use_value_delimiter = true,
             value_delimiter = ',',
             num_args = 1..,
         )]
         templates: Option<Vec<String>>,
+        #[arg(
+            short,
+            long,
+            help = "Do not include the default templates. You will need to add templates manually with Update"
+        )]
+        no_templates: bool,
         #[arg(short, long, help = "Delete the project if it already exists.")]
         force: bool,
         #[arg(
@@ -110,9 +118,10 @@ fn main() -> Result<()> {
         Commands::Init {
             project,
             templates,
+            no_templates,
             force,
             markdown_dir,
-        } => project_management::init(project, templates, force, markdown_dir)?,
+        } => project_management::init(project, templates, no_templates, force, markdown_dir)?,
         Commands::Update { project, command } => match command {
             UpdateCommands::AddTemplate { template } => {
                 project_management::add_template(project, template)?

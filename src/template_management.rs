@@ -5,7 +5,11 @@ use std::{
 
 use color_eyre::eyre::{eyre, Result};
 
-pub(crate) fn get_template_creator(template: &str) -> Result<fn(&Path, &str) -> Result<()>> {
+use crate::manifest_model::TemplateMapping;
+
+pub(crate) fn get_template_creator(
+    template: &str,
+) -> Result<fn(&Path, &TemplateMapping) -> Result<()>> {
     if template.ends_with(".tex") {
         return Ok(create_tex_templates);
     } else if template.trim_matches('/').ends_with("_epub") {
@@ -20,11 +24,11 @@ pub(crate) fn get_template_creator(template: &str) -> Result<fn(&Path, &str) -> 
     }
 }
 
-fn create_tex_templates(project_path: &Path, template: &str) -> Result<()> {
+fn create_tex_templates(project_path: &Path, template: &TemplateMapping) -> Result<()> {
     let template_dir = project_path.join("template");
     fs::create_dir_all(&template_dir)?;
 
-    let content: Vec<u8> = match template {
+    let content: Vec<u8> = match template.name.as_str() {
         "template.tex" => {
             create_latex_meta(&template_dir)?;
             include_bytes!("resources/templates/default/default.tex").to_vec()

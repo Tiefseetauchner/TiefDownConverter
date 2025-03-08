@@ -6,3 +6,5 @@ pub const POSSIBLE_TEMPLATES: [&str; 6] = [
     "template_typ.typ",
     "default_epub",
 ];
+
+pub const CURRENT_MANIFEST_VERSION: u32 = 1;
