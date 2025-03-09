@@ -12,7 +12,8 @@ use crate::{
 
 pub(crate) fn get_template_creator(
     template: &str,
-) -> Result<fn(&Path, &TemplateMapping) -> Result<()>> {
+) -> Result<fn(project_path: &Path, template: &TemplateMapping) -> Result<()>> {
+    // TODO: Handle existing templates
     if is_preset_template(template) {
         let template_type = get_template_type_from_path(template)?;
         return match template_type {
@@ -21,10 +22,22 @@ pub(crate) fn get_template_creator(
             TemplateType::Epub => Ok(create_epub_presets),
         };
     } else {
-        return Err(eyre!(
-            "Template '{}' is not a preset template. Creation of custom templates via the command line is not supported yet.",
-            template
-        ));
+        return Ok(|_, template| {
+            println!("Creating a custom template. Don't forget to add your template file. The template was created with the following parameters:");
+            println!("  Template name: {}", template.name);
+            println!("  Template type: {}", &template.template_type);
+            if let Some(file) = &template.template_file {
+                println!("  Template file: {}", file.display());
+            }
+            if let Some(output) = &template.output {
+                println!("  Output file: {}", output.display());
+            }
+            if let Some(filters) = &template.filters {
+                println!("  Filters: {}", filters.join(", "));
+            }
+
+            Ok(())
+        });
     }
 }
 

@@ -100,6 +100,14 @@ pub(crate) fn add_template(
 
     let mut manifest = load_and_convert_manifest(&manifest_path)?;
 
+    if manifest.templates.iter().any(|t| t.name == template_name) {
+        return Err(eyre!(
+            "Template with name '{}' already exists.",
+            template_name
+        ));
+    }
+
+    // TODO: Handle existing templates
     let template = TemplateMapping {
         name: template_name.clone(),
         template_type: template_type.unwrap_or(get_template_type_from_path(get_template_path(

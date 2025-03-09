@@ -1,10 +1,14 @@
 use clap::{
-    builder::{EnumValueParser, PossibleValue, ValueParserFactory},
+    builder::{EnumValueParser, ValueParserFactory},
     ValueEnum,
 };
 use color_eyre::eyre::{self, eyre, Result};
 use serde::{Deserialize, Serialize};
-use std::{path::PathBuf, str::FromStr};
+use std::{
+    fmt::{Display, Formatter},
+    path::PathBuf,
+    str::FromStr,
+};
 use toml::Table;
 
 use crate::consts::CURRENT_MANIFEST_VERSION;
@@ -25,7 +29,7 @@ pub(crate) struct TemplateMapping {
     pub filters: Option<Vec<String>>,
 }
 
-#[derive(Deserialize, Serialize, Clone, Debug, PartialEq, Eq)]
+#[derive(Deserialize, Serialize, Clone, Debug, PartialEq, Eq, ValueEnum)]
 pub(crate) enum TemplateType {
     Tex = 0,
     Typst = 1,
@@ -67,17 +71,14 @@ impl From<usize> for TemplateType {
     }
 }
 
-impl ValueEnum for TemplateType {
-    fn to_possible_value(&self) -> Option<PossibleValue> {
-        match self {
-            TemplateType::Tex => Some(PossibleValue::new("tex")),
-            TemplateType::Typst => Some(PossibleValue::new("typst")),
-            TemplateType::Epub => Some(PossibleValue::new("epub")),
-        }
-    }
-
-    fn value_variants<'a>() -> &'a [Self] {
-        &[TemplateType::Tex, TemplateType::Typst, TemplateType::Epub]
+impl Display for TemplateType {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let text = match self {
+            TemplateType::Tex => "tex",
+            TemplateType::Typst => "typst",
+            TemplateType::Epub => "epub",
+        };
+        write!(f, "{}", text)
     }
 }
 
