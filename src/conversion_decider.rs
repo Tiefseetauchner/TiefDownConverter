@@ -12,6 +12,7 @@ pub fn get_converter(
     template: &str,
 ) -> Result<
     fn(
+        project_directory_path: &PathBuf,
         compiled_markdown_path: &PathBuf,
         compiled_directory_path: &PathBuf,
         template: &TemplateMapping,

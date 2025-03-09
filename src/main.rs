@@ -92,8 +92,7 @@ enum UpdateCommands {
     #[command(about = "Add a new template to the project.")]
     AddTemplate {
         #[arg(
-            help = r#"The templates to use. If not provided, the default template.tex will be used. If using a LiX template, make sure to install the corresponding .sty and .cls files from https://github.com/NicklasVraa/LiX. Adjust the metadata in template/meta.tex accordingly."#,
-            value_parser = PossibleValuesParser::new(&*POSSIBLE_TEMPLATES),
+            help = r#"The templates to use. If not provided, the default template.tex will be used. If using a LiX template, make sure to install the corresponding .sty and .cls files from https://github.com/NicklasVraa/LiX. Adjust the metadata in template/meta.tex accordingly."#
         )]
         template: String,
         #[arg(
@@ -106,7 +105,7 @@ enum UpdateCommands {
         template_type: Option<TemplateType>,
         #[arg(help = "The output file. If not provided, the template name will be used.")]
         output: Option<PathBuf>,
-        #[arg(help = "The luafilters to use for pandoc conversion of this templates markdown.")]
+        #[arg(help = "The luafilters to use for pandoc conversion of this templates markdown.", num_args = 1.., value_delimiter = ',')]
         filters: Option<Vec<String>>,
     },
     #[command(about = "Remove a template from the project.")]

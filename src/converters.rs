@@ -12,6 +12,7 @@ use crate::{
 };
 
 pub(crate) fn convert_latex(
+    project_directory_path: &PathBuf,
     combined_markdown_path: &PathBuf,
     compiled_directory_path: &PathBuf,
     template: &TemplateMapping,
@@ -26,7 +27,12 @@ pub(crate) fn convert_latex(
         template.template_type.clone(),
     ));
 
-    convert_md_to_tex(template, compiled_directory_path, combined_markdown_path)?;
+    convert_md_to_tex(
+        template,
+        project_directory_path,
+        compiled_directory_path,
+        combined_markdown_path,
+    )?;
 
     compile_latex(compiled_directory_path, &template_path, &output_path)?;
     compile_latex(compiled_directory_path, &template_path, &output_path)?;
@@ -36,6 +42,7 @@ pub(crate) fn convert_latex(
 
 fn convert_md_to_tex(
     template: &TemplateMapping,
+    project_directory_path: &PathBuf,
     compiled_directory_path: &PathBuf,
     combined_markdown_path: &PathBuf,
 ) -> Result<()> {
@@ -46,9 +53,7 @@ fn convert_md_to_tex(
         compiled_directory_path.join("output.tex"),
     ));
 
-    for filter in template.filters.clone().unwrap_or_default() {
-        pandoc.add_filter(move |_| filter.clone());
-    }
+    add_lua_filters(template, project_directory_path, &mut pandoc);
 
     pandoc.execute()?;
 
@@ -75,6 +80,7 @@ fn compile_latex(
 }
 
 pub(crate) fn convert_epub(
+    project_directory_path: &PathBuf,
     combined_markdown_path: &PathBuf,
     compiled_directory_path: &PathBuf,
     template: &TemplateMapping,
@@ -94,12 +100,15 @@ pub(crate) fn convert_epub(
     pandoc.set_output(pandoc::OutputKind::File(output_path.clone()));
     pandoc.set_output_format(OutputFormat::Epub3, vec![]);
 
+    add_lua_filters(template, project_directory_path, &mut pandoc);
+
     pandoc.execute()?;
 
     Ok(output_path)
 }
 
 pub(crate) fn convert_typst(
+    project_directory_path: &PathBuf,
     combined_markdown_path: &PathBuf,
     compiled_directory_path: &PathBuf,
     template: &TemplateMapping,
@@ -114,7 +123,12 @@ pub(crate) fn convert_typst(
         template.template_type.clone(),
     ));
 
-    convert_md_to_typst(template, compiled_directory_path, combined_markdown_path)?;
+    convert_md_to_typst(
+        template,
+        project_directory_path,
+        compiled_directory_path,
+        combined_markdown_path,
+    )?;
 
     Command::new("typst")
         .current_dir(compiled_directory_path)
@@ -129,6 +143,7 @@ pub(crate) fn convert_typst(
 
 fn convert_md_to_typst(
     template: &TemplateMapping,
+    project_directory_path: &PathBuf,
     compiled_directory_path: &PathBuf,
     combined_markdown_path: &PathBuf,
 ) -> Result<()> {
@@ -139,11 +154,20 @@ fn convert_md_to_typst(
         compiled_directory_path.join("output.typ"),
     ));
 
-    for filter in template.filters.clone().unwrap_or_default() {
-        pandoc.add_filter(move |_| filter.clone());
-    }
+    add_lua_filters(template, project_directory_path, &mut pandoc);
 
     pandoc.execute()?;
 
     Ok(())
+}
+
+fn add_lua_filters(
+    template: &TemplateMapping,
+    project_directory_path: &PathBuf,
+    pandoc: &mut Pandoc,
+) {
+    for filter in template.filters.clone().unwrap_or_default() {
+        let filter = project_directory_path.join(&filter);
+        pandoc.add_option(pandoc::PandocOption::LuaFilter(filter));
+    }
 }

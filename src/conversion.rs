@@ -110,7 +110,12 @@ fn convert_template(
 
     let converter = conversion_decider::get_converter(&template.name)?;
 
-    let result_file_path = converter(combined_markdown_path, compiled_directory_path, template)?;
+    let result_file_path = converter(
+        &project_path.to_path_buf(),
+        combined_markdown_path,
+        compiled_directory_path,
+        template,
+    )?;
     fs::copy(
         &result_file_path,
         project_path.join(result_file_path.file_name().unwrap_or_default()),
