@@ -41,6 +41,7 @@ fn convert_md_to_tex(
 ) -> Result<()> {
     let mut pandoc = Pandoc::new();
     pandoc.add_input(&combined_markdown_path);
+    // TODO: Output per template (use template name)
     pandoc.set_output(pandoc::OutputKind::File(
         compiled_directory_path.join("output.tex"),
     ));
@@ -133,6 +134,7 @@ fn convert_md_to_typst(
 ) -> Result<()> {
     let mut pandoc = Pandoc::new();
     pandoc.add_input(&combined_markdown_path);
+    // TODO: Output per template (use template name)
     pandoc.set_output(pandoc::OutputKind::File(
         compiled_directory_path.join("output.typ"),
     ));
