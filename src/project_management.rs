@@ -5,8 +5,8 @@ use toml::Table;
 
 use crate::{
     consts::CURRENT_MANIFEST_VERSION,
-    manifest_model::{upgrade_manifest, Manifest, TemplateMapping},
-    template_management,
+    manifest_model::{upgrade_manifest, Manifest, TemplateMapping, TemplateType},
+    template_management::{self, get_template_path, get_template_type_from_path},
 };
 
 pub fn init(
@@ -42,17 +42,12 @@ pub fn init(
     let mut templates: Vec<TemplateMapping> = Vec::new();
 
     if !no_templates {
-        // NOTE: As this is just the preset templates, we set the minimal implementation.
         templates.extend(
             template_names
                 .unwrap_or(vec!["template.tex".to_string()])
                 .iter()
-                .map(|template| TemplateMapping {
-                    name: template.clone(),
-                    output: None,
-                    template_file: None,
-                    filters: None,
-                }),
+                .map(get_template_mapping_for_preset)
+                .collect::<Result<Vec<_>>>()?,
         );
     }
 
@@ -80,12 +75,24 @@ This is a simple test document for you to edit or overwrite."#,
     Ok(())
 }
 
+fn get_template_mapping_for_preset(template: &String) -> Result<TemplateMapping> {
+    // NOTE: As this is just the preset templates, we set the minimal implementation.
+    Ok(TemplateMapping {
+        name: template.clone(),
+        template_type: get_template_type_from_path(template)?,
+        output: None,
+        template_file: None,
+        filters: None,
+    })
+}
+
 pub(crate) fn add_template(
     project: Option<String>,
     template_name: String,
-    template_file: PathBuf,
-    output: PathBuf,
-    filters: Vec<String>,
+    template_type: Option<TemplateType>,
+    template_file: Option<PathBuf>,
+    output: Option<PathBuf>,
+    filters: Option<Vec<String>>,
 ) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
@@ -94,10 +101,14 @@ pub(crate) fn add_template(
     let mut manifest = load_and_convert_manifest(&manifest_path)?;
 
     let template = TemplateMapping {
-        name: template_name,
-        output: Some(output),
-        template_file: Some(template_file),
-        filters: Some(filters),
+        name: template_name.clone(),
+        template_type: template_type.unwrap_or(get_template_type_from_path(get_template_path(
+            template_file.clone(),
+            &template_name,
+        ))?),
+        output,
+        template_file,
+        filters,
     };
 
     manifest.templates.extend([template.clone()]);
@@ -161,7 +172,7 @@ fn load_and_convert_manifest(manifest_path: &std::path::PathBuf) -> Result<Manif
 
     let mut manifest: Table = toml::from_str(&manifest_content)?;
 
-    let current_manifest_version: u32 = manifest["version"].as_integer().into();
+    let current_manifest_version: u32 = manifest["version"].as_integer().unwrap_or(0).try_into()?;
     if current_manifest_version < CURRENT_MANIFEST_VERSION {
         upgrade_manifest(&mut manifest, current_manifest_version)?;
     } else if current_manifest_version > CURRENT_MANIFEST_VERSION {
@@ -170,7 +181,7 @@ fn load_and_convert_manifest(manifest_path: &std::path::PathBuf) -> Result<Manif
         ));
     }
 
-    let mut manifest: Manifest = toml::from_str(&toml::to_string(&manifest)?)?;
+    let manifest: Manifest = toml::from_str(&toml::to_string(&manifest)?)?;
 
     Ok(manifest)
 }

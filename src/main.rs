@@ -1,6 +1,9 @@
+use std::path::PathBuf;
+
 use clap::{builder::PossibleValuesParser, Parser, Subcommand};
 use color_eyre::eyre::Result;
 use consts::POSSIBLE_TEMPLATES;
+use manifest_model::TemplateType;
 mod consts;
 mod conversion;
 mod conversion_decider;
@@ -52,7 +55,7 @@ enum Commands {
             help = r#"The preset templates to use. If not provided, the default template.tex will be used.
 For custom templates, use the update command after initializing the project.
 If using a LiX template, make sure to install the corresponding .sty and .cls files from https://github.com/NicklasVraa/LiX. Adjust the metadata in template/meta.tex accordingly."#,
-            value_parser = PossibleValuesParser::new(POSSIBLE_TEMPLATES),
+            value_parser = PossibleValuesParser::new(&*POSSIBLE_TEMPLATES),
             use_value_delimiter = true,
             value_delimiter = ',',
             num_args = 1..,
@@ -92,9 +95,13 @@ enum UpdateCommands {
             short,
             long,
             help = r#"The templates to use. If not provided, the default template.tex will be used. If using a LiX template, make sure to install the corresponding .sty and .cls files from https://github.com/NicklasVraa/LiX. Adjust the metadata in template/meta.tex accordingly."#,
-            value_parser = PossibleValuesParser::new(POSSIBLE_TEMPLATES),
+            value_parser = PossibleValuesParser::new(&*POSSIBLE_TEMPLATES),
         )]
         template: String,
+        template_file: Option<PathBuf>,
+        template_type: Option<TemplateType>,
+        output: Option<PathBuf>,
+        filters: Option<Vec<String>>,
     },
     #[command(about = "Remove a template from the project.")]
     RemoveTemplate {
@@ -102,7 +109,7 @@ enum UpdateCommands {
             short,
             long,
             help = r#"The templates to remove."#,
-            value_parser = PossibleValuesParser::new(POSSIBLE_TEMPLATES),
+            value_parser = PossibleValuesParser::new(&*POSSIBLE_TEMPLATES),
         )]
         template: String,
     },
@@ -123,9 +130,20 @@ fn main() -> Result<()> {
             markdown_dir,
         } => project_management::init(project, templates, no_templates, force, markdown_dir)?,
         Commands::Update { project, command } => match command {
-            UpdateCommands::AddTemplate { template } => {
-                project_management::add_template(project, template)?
-            }
+            UpdateCommands::AddTemplate {
+                template,
+                template_file,
+                template_type,
+                output,
+                filters,
+            } => project_management::add_template(
+                project,
+                template,
+                template_type,
+                template_file,
+                output,
+                filters,
+            )?,
             UpdateCommands::RemoveTemplate { template } => {
                 project_management::remove_template(project, template)?
             }

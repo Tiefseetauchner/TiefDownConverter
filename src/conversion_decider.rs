@@ -1,20 +1,27 @@
 use std::path::PathBuf;
 
-use color_eyre::eyre::{eyre, Result};
+use color_eyre::eyre::Result;
 
-use crate::converters;
+use crate::{
+    converters,
+    manifest_model::{TemplateMapping, TemplateType},
+    template_management::get_template_type_from_path,
+};
 
-pub fn get_converter(template: &str) -> Result<fn(&PathBuf, &str) -> Result<PathBuf>> {
-    if template.ends_with(".tex") {
-        Ok(converters::convert_latex)
-    } else if template.trim_matches('/').ends_with("_epub") {
-        Ok(converters::convert_epub)
-    } else if template.ends_with(".typ") {
-        Ok(converters::convert_typst)
-    } else {
-        Err(eyre!(
-            "Unsupported template type for template name '{}'.",
-            template
-        ))
-    }
+pub fn get_converter(
+    template: &str,
+) -> Result<
+    fn(
+        compiled_markdown_path: &PathBuf,
+        compiled_directory_path: &PathBuf,
+        template: &TemplateMapping,
+    ) -> Result<PathBuf>,
+> {
+    let template_type = get_template_type_from_path(template)?;
+
+    return match template_type {
+        TemplateType::Tex => Ok(converters::convert_latex),
+        TemplateType::Typst => Ok(converters::convert_typst),
+        TemplateType::Epub => Ok(converters::convert_epub),
+    };
 }

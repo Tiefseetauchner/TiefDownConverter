@@ -1,6 +1,10 @@
-use color_eyre::eyre::Result;
+use clap::{
+    builder::{EnumValueParser, PossibleValue, ValueParserFactory},
+    ValueEnum,
+};
+use color_eyre::eyre::{self, eyre, Result};
 use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
+use std::{path::PathBuf, str::FromStr};
 use toml::Table;
 
 use crate::consts::CURRENT_MANIFEST_VERSION;
@@ -15,9 +19,74 @@ pub(crate) struct Manifest {
 #[derive(Deserialize, Serialize, Clone)]
 pub(crate) struct TemplateMapping {
     pub name: String,
+    pub template_type: TemplateType,
     pub template_file: Option<PathBuf>,
     pub output: Option<PathBuf>,
     pub filters: Option<Vec<String>>,
+}
+
+#[derive(Deserialize, Serialize, Clone, Debug, PartialEq, Eq)]
+pub(crate) enum TemplateType {
+    Tex = 0,
+    Typst = 1,
+    Epub = 2,
+}
+
+impl From<&str> for TemplateType {
+    fn from(s: &str) -> Self {
+        match s.to_lowercase().as_str() {
+            "tex" => TemplateType::Tex,
+            "typst" => TemplateType::Typst,
+            "epub" => TemplateType::Epub,
+            _ => panic!("Invalid template type: {}", s),
+        }
+    }
+}
+
+impl FromStr for TemplateType {
+    type Err = eyre::Report;
+
+    fn from_str(s: &str) -> Result<Self> {
+        match s.to_lowercase().as_str() {
+            "tex" => Ok(TemplateType::Tex),
+            "typst" => Ok(TemplateType::Typst),
+            "epub" => Ok(TemplateType::Epub),
+            _ => Err(eyre!("Invalid template type: {}", s)),
+        }
+    }
+}
+
+impl From<usize> for TemplateType {
+    fn from(value: usize) -> Self {
+        match value {
+            0 => TemplateType::Tex,
+            1 => TemplateType::Typst,
+            2 => TemplateType::Epub,
+            _ => panic!("Invalid template type index: {}", value),
+        }
+    }
+}
+
+impl ValueEnum for TemplateType {
+    fn to_possible_value(&self) -> Option<PossibleValue> {
+        match self {
+            TemplateType::Tex => Some(PossibleValue::new("tex")),
+            TemplateType::Typst => Some(PossibleValue::new("typst")),
+            TemplateType::Epub => Some(PossibleValue::new("epub")),
+        }
+    }
+
+    fn value_variants<'a>() -> &'a [Self] {
+        &[TemplateType::Tex, TemplateType::Typst, TemplateType::Epub]
+    }
+}
+
+impl ValueParserFactory for TemplateType {
+    type Parser = EnumValueParser<Self>;
+
+    fn value_parser() -> Self::Parser {
+        EnumValueParser::new()
+    }
 }
 
 pub(crate) fn upgrade_manifest(manifest: &mut Table, current_version: u32) -> Result<()> {
