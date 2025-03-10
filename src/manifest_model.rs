@@ -166,11 +166,11 @@ version = 1
 
 [[templates]]
 name = "template1.tex"
-template_type = "tex"
+template_type = "Tex"
 
 [[templates]]
 name = "template2.typ"
-template_type = "typst"
+template_type = "Typst"
 "#;
 
         let actual_manifest = toml::to_string(&manifest).unwrap();
