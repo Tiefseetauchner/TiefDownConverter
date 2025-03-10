@@ -74,9 +74,9 @@ impl From<usize> for TemplateType {
 impl Display for TemplateType {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let text = match self {
-            TemplateType::Tex => "tex",
-            TemplateType::Typst => "typst",
-            TemplateType::Epub => "epub",
+            TemplateType::Tex => "Tex",
+            TemplateType::Typst => "Typst",
+            TemplateType::Epub => "Epub",
         };
         write!(f, "{}", text)
     }

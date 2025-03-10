@@ -1,14 +1,14 @@
 use chrono::prelude::DateTime;
 use chrono::prelude::Utc;
-use color_eyre::eyre::eyre;
 use color_eyre::eyre::Result;
+use color_eyre::eyre::eyre;
 use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
 
 use crate::conversion_decider;
-use crate::manifest_model::Manifest;
 use crate::manifest_model::TemplateMapping;
+use crate::project_management::load_and_convert_manifest;
 
 pub(crate) fn convert(project: Option<String>, templates: Option<Vec<String>>) -> Result<()> {
     let project = project.unwrap_or_else(|| ".".to_string());
@@ -19,14 +19,7 @@ pub(crate) fn convert(project: Option<String>, templates: Option<Vec<String>>) -
     }
 
     let manifest_path = project_path.join("manifest.toml");
-    if !manifest_path.exists() {
-        return Err(eyre!(
-            "No manifest file found. Please initialize a project first."
-        ));
-    }
-
-    let manifest_content = fs::read_to_string(&manifest_path)?;
-    let manifest: Manifest = toml::from_str(&manifest_content).unwrap();
+    let manifest = load_and_convert_manifest(&manifest_path)?;
 
     println!("Converting project: {}", project);
 

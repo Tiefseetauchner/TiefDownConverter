@@ -1,11 +1,11 @@
 use std::{fs, path::PathBuf};
 
-use color_eyre::eyre::{eyre, Result};
-use toml::Table;
+use color_eyre::eyre::{Result, eyre};
+use toml::{Table, Value};
 
 use crate::{
     consts::CURRENT_MANIFEST_VERSION,
-    manifest_model::{upgrade_manifest, Manifest, TemplateMapping, TemplateType},
+    manifest_model::{Manifest, TemplateMapping, TemplateType, upgrade_manifest},
     template_management::{self, get_template_path, get_template_type_from_path},
 };
 
@@ -169,7 +169,7 @@ pub(crate) fn remove_template(project: Option<String>, template_name: String) ->
     Ok(())
 }
 
-fn load_and_convert_manifest(manifest_path: &std::path::PathBuf) -> Result<Manifest> {
+pub(crate) fn load_and_convert_manifest(manifest_path: &std::path::PathBuf) -> Result<Manifest> {
     if !manifest_path.exists() {
         return Err(eyre!(
             "Manifest file does not exist. Please initialize a project before editing it."
@@ -180,7 +180,12 @@ fn load_and_convert_manifest(manifest_path: &std::path::PathBuf) -> Result<Manif
 
     let mut manifest: Table = toml::from_str(&manifest_content)?;
 
-    let current_manifest_version: u32 = manifest["version"].as_integer().unwrap_or(0).try_into()?;
+    let current_manifest_version: u32 = manifest
+        .get("version")
+        .unwrap_or(&Value::Integer(0))
+        .as_integer()
+        .unwrap_or(0)
+        .try_into()?;
     if current_manifest_version < CURRENT_MANIFEST_VERSION {
         upgrade_manifest(&mut manifest, current_manifest_version)?;
     } else if current_manifest_version > CURRENT_MANIFEST_VERSION {
@@ -189,7 +194,10 @@ fn load_and_convert_manifest(manifest_path: &std::path::PathBuf) -> Result<Manif
         ));
     }
 
-    let manifest: Manifest = toml::from_str(&toml::to_string(&manifest)?)?;
+    let manifest = &toml::to_string(&manifest)?;
+    fs::write(manifest_path, manifest)?;
+
+    let manifest: Manifest = toml::from_str(manifest)?;
 
     Ok(manifest)
 }

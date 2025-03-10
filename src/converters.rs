@@ -1,4 +1,5 @@
 use std::{
+    fs,
     path::PathBuf,
     process::{Command, Stdio},
 };
@@ -17,10 +18,7 @@ pub(crate) fn convert_latex(
     compiled_directory_path: &PathBuf,
     template: &TemplateMapping,
 ) -> Result<PathBuf> {
-    let template_path = compiled_directory_path.join(get_template_path(
-        template.template_file.clone(),
-        &template.name,
-    ));
+    let template_path = get_template_path(template.template_file.clone(), &template.name);
     let output_path = compiled_directory_path.join(get_output_path(
         template.output.clone(),
         &template_path,
@@ -34,8 +32,13 @@ pub(crate) fn convert_latex(
         combined_markdown_path,
     )?;
 
-    compile_latex(compiled_directory_path, &template_path, &output_path)?;
-    compile_latex(compiled_directory_path, &template_path, &output_path)?;
+    compile_latex(compiled_directory_path, &template_path)?;
+    compile_latex(compiled_directory_path, &template_path)?;
+
+    let template_path = compiled_directory_path.join(&template_path.with_extension("pdf"));
+    if template_path.exists() && template_path.as_os_str() != output_path.as_os_str() {
+        fs::copy(&template_path, &output_path)?;
+    }
 
     Ok(output_path)
 }
@@ -62,20 +65,15 @@ fn convert_md_to_tex(
 
 // NOTE: This requires xelatex to be installed. I don't particularly like that, but I tried tectonic and it didn't work.
 //       For now we'll keep it simple and just use xelatex. I'm not sure if there's a way to get tectonic to work with the current setup.
-fn compile_latex(
-    compiled_directory_path: &std::path::PathBuf,
-    template_path: &PathBuf,
-    output_path: &PathBuf,
-) -> Result<()> {
+fn compile_latex(compiled_directory_path: &PathBuf, template_path: &PathBuf) -> Result<()> {
     Command::new("xelatex")
         .current_dir(compiled_directory_path)
         .arg("-interaction=nonstopmode")
         .arg("-synctex=1")
         .arg(template_path)
-        .arg("-output")
-        .arg(output_path)
         .stdout(Stdio::null())
         .status()?;
+
     Ok(())
 }
 
