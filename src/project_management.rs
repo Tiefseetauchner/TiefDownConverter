@@ -169,6 +169,47 @@ pub(crate) fn remove_template(project: Option<String>, template_name: String) ->
     Ok(())
 }
 
+pub(crate) fn update_manifest(project: Option<String>, markdown_dir: Option<String>) -> Result<()> {
+    let project = project.as_deref().unwrap_or(".");
+    let project_path = std::path::Path::new(&project);
+    let manifest_path = project_path.join("manifest.toml");
+
+    let mut manifest = load_and_convert_manifest(&manifest_path)?;
+
+    manifest.markdown_dir = markdown_dir;
+
+    let manifest_content = toml::to_string(&manifest)?;
+    std::fs::write(&manifest_path, manifest_content)?;
+
+    Ok(())
+}
+
+pub(crate) fn list_templates(project: Option<String>) -> Result<()> {
+    let project = project.as_deref().unwrap_or(".");
+    let project_path = std::path::Path::new(&project);
+    let manifest_path = project_path.join("manifest.toml");
+
+    let manifest = load_and_convert_manifest(&manifest_path)?;
+
+    let templates = manifest.templates;
+
+    for template in templates {
+        println!("{}:", template.name);
+        println!("  Template type: {}", &template.template_type);
+        if let Some(file) = &template.template_file {
+            println!("  Template file: {}", file.display());
+        }
+        if let Some(output) = &template.output {
+            println!("  Output file: {}", output.display());
+        }
+        if let Some(filters) = &template.filters {
+            println!("  Filters: {}", filters.join(", "));
+        }
+    }
+
+    Ok(())
+}
+
 pub(crate) fn load_and_convert_manifest(manifest_path: &std::path::PathBuf) -> Result<Manifest> {
     if !manifest_path.exists() {
         return Err(eyre!(

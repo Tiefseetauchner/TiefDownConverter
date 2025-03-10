@@ -118,6 +118,26 @@ enum UpdateCommands {
         )]
         template: String,
     },
+    #[command(about = "Update the project manifest.")]
+    UpdateManifest {
+        #[arg(
+            help = "The project to manipulate. If not provided, the current directory will be used."
+        )]
+        project: Option<String>,
+        #[arg(
+            short,
+            long,
+            help = "The directory where the Markdown files are located."
+        )]
+        markdown_dir: Option<String>,
+    },
+    #[command(about = "List the templates in the project.")]
+    ListTemplates {
+        #[arg(
+            help = "The project to manipulate. If not provided, the current directory will be used."
+        )]
+        project: Option<String>,
+    },
 }
 
 fn main() -> Result<()> {
@@ -151,6 +171,13 @@ fn main() -> Result<()> {
             )?,
             UpdateCommands::RemoveTemplate { template } => {
                 project_management::remove_template(project, template)?
+            }
+            UpdateCommands::UpdateManifest {
+                project,
+                markdown_dir,
+            } => project_management::update_manifest(project, markdown_dir)?,
+            UpdateCommands::ListTemplates { project } => {
+                project_management::list_templates(project)?
             }
         },
     }
