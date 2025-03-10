@@ -53,7 +53,8 @@ enum Commands {
             long,
             help = r#"The preset templates to use. If not provided, the default template.tex will be used.
 For custom templates, use the update command after initializing the project.
-If using a LiX template, make sure to install the corresponding .sty and .cls files from https://github.com/NicklasVraa/LiX. Adjust the metadata in template/meta.tex accordingly."#,
+If using a LiX template, make sure to install the corresponding .sty and .cls files from https://github.com/NicklasVraa/LiX. Adjust the metadata in template/meta.tex accordingly.
+"#,
             value_parser = PossibleValuesParser::new(&*POSSIBLE_TEMPLATES),
             use_value_delimiter = true,
             value_delimiter = ',',
