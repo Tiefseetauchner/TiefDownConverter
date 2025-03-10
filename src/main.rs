@@ -1,9 +1,8 @@
-use std::path::PathBuf;
-
-use clap::{builder::PossibleValuesParser, Parser, Subcommand};
+use clap::{Parser, Subcommand, builder::PossibleValuesParser};
 use color_eyre::eyre::Result;
 use consts::POSSIBLE_TEMPLATES;
 use manifest_model::TemplateType;
+use std::path::PathBuf;
 mod consts;
 mod conversion;
 mod conversion_decider;

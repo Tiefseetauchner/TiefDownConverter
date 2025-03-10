@@ -13,7 +13,6 @@ use crate::{
 pub(crate) fn get_template_creator(
     template: &str,
 ) -> Result<fn(project_path: &Path, template: &TemplateMapping) -> Result<()>> {
-    // TODO: Handle existing templates
     if is_preset_template(template) {
         let template_type = get_template_type_from_path(template)?;
         return match template_type {
@@ -165,7 +164,7 @@ pub(crate) fn get_template_output_extension(template_type: TemplateType) -> &'st
 pub(crate) fn get_template_type_from_path<P: AsRef<Path>>(path: P) -> Result<TemplateType> {
     let path = path.as_ref();
 
-    if path.is_dir() {
+    if path.to_string_lossy().ends_with("_epub") {
         return Ok(TemplateType::Epub);
     }
 
