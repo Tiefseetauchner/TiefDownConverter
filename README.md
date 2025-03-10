@@ -18,7 +18,8 @@ TiefDown Converter is a command-line tool designed to streamline the conversion 
 - Converts Markdown projects into PDFs, EPUB, and Typst-based documents.
 - Reads structured project metadata from `manifest.toml`.
 - Supports customizable LaTeX, Typst, and EPUB templates.
-- Allows users to add and modify Lua filters.
+- Allows users to add, remove, and update templates.
+- Enables users to validate project structure and clean temporary files.
 - Simple command-line interface with easy project setup and updates.
 
 ## Installation
@@ -61,6 +62,18 @@ sudo apt install pandoc texlive-xetex typst
 
 ## Usage
 
+### Available Commands
+
+- **Convert** – Converts a TiefDown project, using either the current directory or a specified project. Templates can be selected manually or default ones from the manifest will be used.
+- **Initialize** – Creates a new TiefDown project with optional templates. Supports setting up a Markdown directory, skipping default templates, and overwriting existing projects.
+- **Project Management** – Offers various subcommands to manage TiefDown projects:
+  - Add, remove, and update templates.
+  - Update the project manifest.
+  - List available templates.
+  - Validate the project structure and metadata.
+  - Clean temporary files.
+- **Help** – Displays help information for any command.
+
 ### Initializing a Project
 
 ```sh
@@ -87,7 +100,19 @@ tiefdownconverter convert -t lix_novel_book.tex
 
 #### Adding a Lua Filter
 
-Currently done manually by adding `filters = ["path/to/your/filter.lua", "path/to/multpile/filters/in/a/folder/"]` to the corresponding `[[template]]` directive.
+Lua filters can be added to a template using the `tiefdownconverter project update-template` command:
+
+```sh
+tiefdownconverter project update-template <TEMPLATE> --add-filters path/to/filter.lua
+```
+
+To remove a filter:
+
+```sh
+tiefdownconverter project update-template <TEMPLATE> --remove-filters path/to/filter.lua
+```
+
+Filters are stored in the project manifest and used during the conversion process.
 
 ## Project Structure
 
@@ -188,5 +213,3 @@ This project is licensed under MIT. See `LICENSE` for details.
 If you appreciate this project, consider supporting it by contributing or donating.
 
 [![](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/tiefseetauchner)
-
-
