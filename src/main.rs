@@ -1,5 +1,5 @@
 use clap::{Parser, Subcommand, builder::PossibleValuesParser};
-use color_eyre::eyre::Result;
+use color_eyre::eyre::{Result, eyre};
 use consts::POSSIBLE_TEMPLATES;
 use manifest_model::TemplateType;
 use std::path::PathBuf;
@@ -90,7 +90,7 @@ enum ProjectCommands {
     #[command(about = "Add a new template to the project.")]
     AddTemplate {
         #[arg(
-            help = r#"The templates to use. If not provided, the default template.tex will be used. If using a LiX template, make sure to install the corresponding .sty and .cls files from https://github.com/NicklasVraa/LiX. Adjust the metadata in template/meta.tex accordingly."#
+            help = r#"The name of the template to create. If using a LiX template, make sure to install the corresponding .sty and .cls files from https://github.com/NicklasVraa/LiX. Adjust the metadata in template/meta.tex accordingly."#
         )]
         template: String,
         #[arg(
@@ -108,13 +108,45 @@ enum ProjectCommands {
     },
     #[command(about = "Remove a template from the project.")]
     RemoveTemplate {
-        #[arg(
-            short,
-            long,
-            help = r#"The templates to remove."#,
-            value_parser = PossibleValuesParser::new(&*POSSIBLE_TEMPLATES),
-        )]
+        #[arg(short, long, help = r#"The template to remove."#)]
         template: String,
+    },
+    #[command(about = "Update a template in the project.")]
+    UpdateTemplate {
+        #[arg(help = r#"The template to update."#)]
+        template: String,
+        #[arg(
+            long,
+            help = "The file to use as the template. If not provided, the template name will be used."
+        )]
+        template_file: Option<PathBuf>,
+        #[arg(
+            long,
+            help = r#"The type of the template. If not provided, the type will be inferred from the template file.
+Changing this is not recommended, as it is highly unlikely the type and only the type has changed. It is recommended to create a new template instead."#
+        )]
+        template_type: Option<TemplateType>,
+        #[arg(
+            long,
+            help = "The output file. If not provided, the template name will be used."
+        )]
+        output: Option<PathBuf>,
+        #[arg(long,help = "The luafilters to use for pandoc conversion of this templates markdown.", num_args = 1.., value_delimiter = ',')]
+        filters: Option<Vec<String>>,
+        #[arg(
+            long,
+            help = "The luafilters add to the template.",
+            num_args = 1..,
+            value_delimiter = ',',
+        )]
+        add_filters: Option<Vec<String>>,
+        #[arg(
+            long,
+            help = "The luafilters to remove from the template.",
+            num_args = 1..,
+            value_delimiter = ',',
+        )]
+        remove_filters: Option<Vec<String>>,
     },
     #[command(about = "Update the project manifest.")]
     UpdateManifest {
@@ -181,6 +213,30 @@ fn main() -> Result<()> {
             )?,
             ProjectCommands::RemoveTemplate { template } => {
                 project_management::remove_template(project, template)?
+            }
+            ProjectCommands::UpdateTemplate {
+                template,
+                template_file,
+                template_type,
+                output,
+                filters,
+                add_filters,
+                remove_filters,
+            } => {
+                if filters.is_some() && (add_filters.is_some() || remove_filters.is_some()) {
+                    return Err(eyre!("Cannot specify both filters and add/remove filters."));
+                }
+
+                project_management::update_template(
+                    project,
+                    template,
+                    template_type,
+                    template_file,
+                    output,
+                    filters,
+                    add_filters,
+                    remove_filters,
+                )?
             }
             ProjectCommands::UpdateManifest {
                 project,

@@ -107,7 +107,6 @@ pub(crate) fn add_template(
         ));
     }
 
-    // TODO: Handle existing templates
     let template = TemplateMapping {
         name: template_name.clone(),
         template_type: template_type.unwrap_or(get_template_type_from_path(get_template_path(
@@ -165,6 +164,58 @@ pub(crate) fn remove_template(project: Option<String>, template_name: String) ->
             template_name
         ));
     }
+
+    Ok(())
+}
+
+pub(crate) fn update_template(
+    project: Option<String>,
+    template_name: String,
+    template_type: Option<TemplateType>,
+    template_file: Option<PathBuf>,
+    output: Option<PathBuf>,
+    filters: Option<Vec<String>>,
+    add_filters: Option<Vec<String>>,
+    remove_filters: Option<Vec<String>>,
+) -> Result<()> {
+    let project = project.as_deref().unwrap_or(".");
+    let project_path = std::path::Path::new(&project);
+    let manifest_path = project_path.join("manifest.toml");
+
+    let mut manifest = load_and_convert_manifest(&manifest_path)?;
+
+    if let Some(index) = manifest
+        .templates
+        .iter()
+        .position(|t| t.name == template_name)
+    {
+        let template = &mut manifest.templates[index];
+
+        template.template_type = template_type.unwrap_or(template.template_type.clone());
+        template.output = output.or(template.output.clone());
+        template.template_file = template_file.or(template.template_file.clone());
+        if let Some(filters) = filters {
+            template.filters = Some(filters);
+        } else if let Some(add_filters) = add_filters {
+            if let Some(filters) = &mut template.filters {
+                filters.extend(add_filters);
+            } else {
+                template.filters = Some(add_filters);
+            }
+        } else if let Some(remove_filters) = remove_filters {
+            if let Some(filters) = &mut template.filters {
+                filters.retain(|filter| !remove_filters.contains(filter));
+            }
+        }
+    } else {
+        return Err(eyre!(
+            "Template with name '{}' does not exist.",
+            template_name
+        ));
+    }
+
+    let manifest_content = toml::to_string(&manifest)?;
+    std::fs::write(&manifest_path, manifest_content)?;
 
     Ok(())
 }
