@@ -77,18 +77,16 @@ If using a LiX template, make sure to install the corresponding .sty and .cls fi
         markdown_dir: Option<String>,
     },
     #[command(about = "Update the TiefDown project.")]
-    Update {
-        #[arg(
-            help = "The project to initialize. If not provided, the current directory will be used."
-        )]
+    Project {
+        #[arg(help = "The project to edit. If not provided, the current directory will be used.")]
         project: Option<String>,
         #[command(subcommand)]
-        command: UpdateCommands,
+        command: ProjectCommands,
     },
 }
 
 #[derive(Subcommand)]
-enum UpdateCommands {
+enum ProjectCommands {
     #[command(about = "Add a new template to the project.")]
     AddTemplate {
         #[arg(
@@ -138,6 +136,18 @@ enum UpdateCommands {
         )]
         project: Option<String>,
     },
+    #[command(about = "Validate the TiefDown project structure and metadata.")]
+    Validate {
+        #[arg(
+            help = "The project to validate. If not provided, the current directory will be used."
+        )]
+        project: Option<String>,
+    },
+    #[command(about = "Clean temporary files from the TiefDown project.")]
+    Clean {
+        #[arg(help = "The project to clean. If not provided, the current directory will be used.")]
+        project: Option<String>,
+    },
 }
 
 fn main() -> Result<()> {
@@ -154,8 +164,8 @@ fn main() -> Result<()> {
             force,
             markdown_dir,
         } => project_management::init(project, templates, no_templates, force, markdown_dir)?,
-        Commands::Update { project, command } => match command {
-            UpdateCommands::AddTemplate {
+        Commands::Project { project, command } => match command {
+            ProjectCommands::AddTemplate {
                 template,
                 template_file,
                 template_type,
@@ -169,16 +179,18 @@ fn main() -> Result<()> {
                 output,
                 filters,
             )?,
-            UpdateCommands::RemoveTemplate { template } => {
+            ProjectCommands::RemoveTemplate { template } => {
                 project_management::remove_template(project, template)?
             }
-            UpdateCommands::UpdateManifest {
+            ProjectCommands::UpdateManifest {
                 project,
                 markdown_dir,
             } => project_management::update_manifest(project, markdown_dir)?,
-            UpdateCommands::ListTemplates { project } => {
+            ProjectCommands::ListTemplates { project } => {
                 project_management::list_templates(project)?
             }
+            ProjectCommands::Validate { project } => project_management::validate(project)?,
+            ProjectCommands::Clean { project } => project_management::clean(project)?,
         },
     }
 

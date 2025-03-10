@@ -210,6 +210,105 @@ pub(crate) fn list_templates(project: Option<String>) -> Result<()> {
     Ok(())
 }
 
+pub(crate) fn validate(project: Option<String>) -> Result<()> {
+    let project = project.as_deref().unwrap_or(".");
+    let project_path = std::path::Path::new(&project);
+    let manifest_path = project_path.join("manifest.toml");
+
+    let manifest = load_and_convert_manifest(&manifest_path)?;
+
+    let mut errors: Vec<Result<()>> = Vec::new();
+
+    let templates = manifest.templates;
+    let markdown_dir = project_path.join(manifest.markdown_dir.unwrap_or("Markdown".to_string()));
+
+    for template in templates {
+        let template_path = project_path
+            .join("template")
+            .join(get_template_path(template.template_file, &template.name));
+        if template_path.exists() {
+            let template_should_be_dir = match template.template_type {
+                TemplateType::Tex => false,
+                TemplateType::Typst => false,
+                TemplateType::Epub => true,
+            };
+            if template_should_be_dir && !template_path.is_dir() {
+                errors.push(Err(eyre!(
+                    "Template '{}' is of type 'Epub' but not a directory.",
+                    template.name
+                )));
+            }
+
+            let template_should_be_file = match template.template_type {
+                TemplateType::Tex => true,
+                TemplateType::Typst => true,
+                TemplateType::Epub => false,
+            };
+            if template_should_be_file && !template_path.is_file() {
+                errors.push(Err(eyre!(
+                    "Template '{}' is of type 'Tex' but is a directory.",
+                    template.name
+                )));
+            }
+        } else {
+            errors.push(Err(eyre!("Template '{}' does not exist.", template.name)));
+        }
+
+        if let Some(filters) = &template.filters {
+            for filter in filters {
+                if !project_path.join(filter).exists() {
+                    errors.push(Err(eyre!("Filter(s) '{}' do not exist.", filter)));
+                }
+            }
+        }
+    }
+
+    if !markdown_dir.exists() || !markdown_dir.is_dir() {
+        errors.push(Err(eyre!(
+            "Markdown directory '{}' does not exist.",
+            markdown_dir.display()
+        )));
+    }
+
+    if errors.is_empty() {
+        println!("Manifest is valid.");
+    } else {
+        for error in errors {
+            println!("{}", error.unwrap_err());
+        }
+
+        return Err(eyre!("Manifest is invalid."));
+    }
+
+    Ok(())
+}
+
+pub(crate) fn clean(project: Option<String>) -> Result<()> {
+    let project = project.as_deref().unwrap_or(".");
+    let project_path = std::path::Path::new(&project);
+
+    // Delete all folders matching '2025-03-10_08-40-18'
+
+    let mut files_to_delete = Vec::new();
+    for entry in fs::read_dir(project_path)? {
+        let entry = entry?;
+        let path = entry.path();
+        if path.is_dir() {
+            let dir_name = path.file_name().unwrap().to_str().unwrap();
+            let regex = regex::Regex::new(r"^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}$")?;
+            if regex.is_match(dir_name) {
+                files_to_delete.push(path);
+            }
+        }
+    }
+
+    for file in files_to_delete {
+        fs::remove_dir_all(file)?;
+    }
+
+    Ok(())
+}
+
 pub(crate) fn load_and_convert_manifest(manifest_path: &std::path::PathBuf) -> Result<Manifest> {
     if !manifest_path.exists() {
         return Err(eyre!(
