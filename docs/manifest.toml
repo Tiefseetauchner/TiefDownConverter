@@ -1,0 +1,6 @@
+version = 1
+
+[[templates]]
+filters = ["luafilters/chapter_filter.lua"]
+name = "template.tex"
+template_type = "Tex"
