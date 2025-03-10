@@ -4,7 +4,7 @@ use std::{
     process::{Command, Stdio},
 };
 
-use color_eyre::eyre::Result;
+use color_eyre::eyre::{Result, eyre};
 use pandoc::{OutputFormat, Pandoc};
 
 use crate::{
@@ -56,7 +56,7 @@ fn convert_md_to_tex(
         compiled_directory_path.join("output.tex"),
     ));
 
-    add_lua_filters(template, project_directory_path, &mut pandoc);
+    add_lua_filters(template, project_directory_path, &mut pandoc)?;
 
     pandoc.execute()?;
 
@@ -98,7 +98,7 @@ pub(crate) fn convert_epub(
     pandoc.set_output(pandoc::OutputKind::File(output_path.clone()));
     pandoc.set_output_format(OutputFormat::Epub3, vec![]);
 
-    add_lua_filters(template, project_directory_path, &mut pandoc);
+    add_lua_filters(template, project_directory_path, &mut pandoc)?;
 
     pandoc.execute()?;
 
@@ -152,7 +152,7 @@ fn convert_md_to_typst(
         compiled_directory_path.join("output.typ"),
     ));
 
-    add_lua_filters(template, project_directory_path, &mut pandoc);
+    add_lua_filters(template, project_directory_path, &mut pandoc)?;
 
     pandoc.execute()?;
 
@@ -163,9 +163,30 @@ fn add_lua_filters(
     template: &TemplateMapping,
     project_directory_path: &PathBuf,
     pandoc: &mut Pandoc,
-) {
+) -> Result<()> {
     for filter in template.filters.clone().unwrap_or_default() {
         let filter = project_directory_path.join(&filter);
+
+        if !filter.exists() {
+            return Err(eyre!("Filter file does not exist: {}", filter.display()));
+        }
+
+        add_lua_filter_or_directory(filter, pandoc)?;
+    }
+
+    Ok(())
+}
+
+fn add_lua_filter_or_directory(filter: PathBuf, pandoc: &mut Pandoc) -> Result<()> {
+    if filter.is_dir() {
+        for entry in fs::read_dir(filter)? {
+            let entry = entry?.path();
+
+            add_lua_filter_or_directory(entry, pandoc)?;
+        }
+    } else if filter.is_file() && filter.extension().unwrap_or_default() == "lua" {
         pandoc.add_option(pandoc::PandocOption::LuaFilter(filter));
     }
+
+    Ok(())
 }
