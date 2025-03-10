@@ -1,15 +1,14 @@
 use chrono::prelude::DateTime;
 use chrono::prelude::Utc;
-use color_eyre::eyre::eyre;
 use color_eyre::eyre::Result;
-use pandoc::Pandoc;
+use color_eyre::eyre::eyre;
 use std::fs;
-use std::fs::DirEntry;
 use std::path::Path;
 use std::path::PathBuf;
 
 use crate::conversion_decider;
-use crate::manifest_model::Manifest;
+use crate::manifest_model::TemplateMapping;
+use crate::project_management::load_and_convert_manifest;
 
 pub(crate) fn convert(project: Option<String>, templates: Option<Vec<String>>) -> Result<()> {
     let project = project.unwrap_or_else(|| ".".to_string());
@@ -20,14 +19,7 @@ pub(crate) fn convert(project: Option<String>, templates: Option<Vec<String>>) -
     }
 
     let manifest_path = project_path.join("manifest.toml");
-    if !manifest_path.exists() {
-        return Err(eyre!(
-            "No manifest file found. Please initialize a project first."
-        ));
-    }
-
-    let manifest_content = fs::read_to_string(&manifest_path)?;
-    let manifest: Manifest = toml::from_str(&manifest_content).unwrap();
+    let manifest = load_and_convert_manifest(&manifest_path)?;
 
     println!("Converting project: {}", project);
 
@@ -48,63 +40,23 @@ pub(crate) fn convert(project: Option<String>, templates: Option<Vec<String>>) -
 
     fs::write(&combined_markdown_path, combined_content)?;
 
-    convert_md_to_tex(
-        project_path,
-        &compiled_directory_path,
-        &combined_markdown_path,
-    )?;
-
-    convert_md_to_typst(&compiled_directory_path, &combined_markdown_path)?;
-
+    let templates = templates.map(|t| {
+        manifest
+            .templates
+            .iter()
+            .filter(|template| t.contains(&template.name))
+            .cloned()
+            .collect()
+    });
     let templates = templates.unwrap_or_else(|| manifest.templates);
 
     for template in &templates {
-        convert_template(&compiled_directory_path, &template, &project_path)?;
-    }
-
-    Ok(())
-}
-
-fn convert_md_to_tex(
-    project_path: &Path,
-    compiled_directory_path: &PathBuf,
-    combined_markdown_path: &PathBuf,
-) -> Result<(), color_eyre::eyre::Error> {
-    let mut pandoc = Pandoc::new();
-    pandoc.add_input(&combined_markdown_path);
-    pandoc.set_output(pandoc::OutputKind::File(
-        compiled_directory_path.join("output.tex"),
-    ));
-    for filter in get_lua_filters(project_path)? {
-        pandoc.add_option(pandoc::PandocOption::LuaFilter(filter.path()));
-    }
-    let pandoc_result = pandoc.execute();
-    if pandoc_result.is_err() {
-        return Err(eyre!(
-            "Pandoc conversion to .tex failed: {}",
-            pandoc_result.err().unwrap()
-        ));
-    }
-
-    Ok(())
-}
-
-fn convert_md_to_typst(
-    compiled_directory_path: &PathBuf,
-    combined_markdown_path: &PathBuf,
-) -> Result<(), color_eyre::eyre::Error> {
-    let mut pandoc = Pandoc::new();
-    pandoc.add_input(&combined_markdown_path);
-    pandoc.set_output(pandoc::OutputKind::File(
-        compiled_directory_path.join("output.typ"),
-    ));
-    let pandoc_result = pandoc.execute();
-
-    if pandoc_result.is_err() {
-        return Err(eyre!(
-            "Pandoc conversion to .typ failed: {}",
-            pandoc_result.err().unwrap()
-        ));
+        convert_template(
+            &combined_markdown_path,
+            &compiled_directory_path,
+            &template,
+            &project_path,
+        )?;
     }
 
     Ok(())
@@ -135,37 +87,40 @@ fn get_markdown_files(markdown_dir: std::path::PathBuf) -> Result<Vec<fs::DirEnt
     Ok(markdown_files)
 }
 
-fn get_lua_filters(project_path: &Path) -> Result<Vec<DirEntry>> {
-    let luafilters_path = project_path.join("luafilters");
-
-    if !luafilters_path.exists() {
-        return Ok(Vec::new());
-    }
-    let dirs: Vec<DirEntry> = fs::read_dir(luafilters_path)?
-        .filter_map(Result::ok)
-        .collect();
-
-    Ok(dirs)
-}
-
 fn convert_template(
+    combined_markdown_path: &PathBuf,
     compiled_directory_path: &PathBuf,
-    template: &str,
+    template: &TemplateMapping,
     project_path: &Path,
 ) -> Result<()> {
-    let template_path = compiled_directory_path.join(template);
+    let template_path = compiled_directory_path.join(get_template_path(template)?);
     if !template_path.exists() {
-        return Err(eyre!("Warning: Template path does not exist: {}", template));
+        return Err(eyre!(
+            "Template path does not exist: {}",
+            template_path.display()
+        ));
     }
 
-    let converter = conversion_decider::get_converter(template)?;
+    let converter = conversion_decider::get_converter(&template.name)?;
 
-    let result_file_path = converter(&compiled_directory_path, &template)?;
+    let result_file_path = converter(
+        &project_path.to_path_buf(),
+        combined_markdown_path,
+        compiled_directory_path,
+        template,
+    )?;
     fs::copy(
         &result_file_path,
         project_path.join(result_file_path.file_name().unwrap_or_default()),
     )?;
 
-    println!("Converted template: {}", template);
+    println!("Converted template: {}", template.name);
     Ok(())
+}
+
+fn get_template_path(template: &TemplateMapping) -> Result<PathBuf> {
+    Ok(template
+        .template_file
+        .clone()
+        .unwrap_or(PathBuf::from(template.name.clone())))
 }

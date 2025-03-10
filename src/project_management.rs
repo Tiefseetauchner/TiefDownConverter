@@ -1,16 +1,22 @@
-use std::fs;
+use std::{fs, path::PathBuf};
 
-use color_eyre::eyre::{eyre, Result};
+use color_eyre::eyre::{Result, eyre};
+use toml::{Table, Value};
 
-use crate::manifest_model::Manifest;
+use crate::{
+    consts::CURRENT_MANIFEST_VERSION,
+    manifest_model::{Manifest, TemplateMapping, TemplateType, upgrade_manifest},
+    template_management::{self, get_template_path, get_template_type_from_path},
+};
 
 pub fn init(
     project: Option<String>,
-    templates: Option<Vec<String>>,
+    template_names: Option<Vec<String>>,
+    no_templates: bool,
     force: bool,
     markdown_dir: Option<String>,
 ) -> Result<()> {
-    let project = project.unwrap_or_else(|| ".".to_string());
+    let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
 
     if project_path.exists() && force {
@@ -29,11 +35,21 @@ pub fn init(
     let manifest_path = project_path.join("manifest.toml");
     if manifest_path.exists() {
         return Err(eyre!(
-            "Manifest file already exists. Please remove it before initializing a new project."
+            "Manifest file already exists. Please remove it before initializing a new project or use the --force flag."
         ));
     }
 
-    let templates = templates.unwrap_or(vec!["template.tex".to_string()]);
+    let mut templates: Vec<TemplateMapping> = Vec::new();
+
+    if !no_templates {
+        templates.extend(
+            template_names
+                .unwrap_or(vec!["template.tex".to_string()])
+                .iter()
+                .map(get_template_mapping_for_preset)
+                .collect::<Result<Vec<_>>>()?,
+        );
+    }
 
     let markdown_dir_path =
         project_path.join(markdown_dir.clone().unwrap_or("Markdown".to_string()));
@@ -47,160 +63,153 @@ This is a simple test document for you to edit or overwrite."#,
     }
 
     let manifest: Manifest = Manifest {
+        version: CURRENT_MANIFEST_VERSION,
         markdown_dir,
         templates: templates.clone(),
     };
 
-    let manifest_content = toml::to_string(&manifest)?;
-    std::fs::write(&manifest_path, manifest_content)?;
+    std::fs::write(manifest_path, toml::to_string(&manifest)?)?;
 
-    create_templates(project_path, templates)?;
+    create_templates(project_path, &templates)?;
 
     Ok(())
 }
 
-pub(crate) fn add_template(project: Option<String>, template: String) -> Result<()> {
-    let project = project.unwrap_or_else(|| ".".to_string());
-    let project_path = std::path::Path::new(&project);
+fn get_template_mapping_for_preset(template: &String) -> Result<TemplateMapping> {
+    // NOTE: As this is just the preset templates, we set the minimal implementation.
+    Ok(TemplateMapping {
+        name: template.clone(),
+        template_type: get_template_type_from_path(template)?,
+        output: None,
+        template_file: None,
+        filters: None,
+    })
+}
 
+pub(crate) fn add_template(
+    project: Option<String>,
+    template_name: String,
+    template_type: Option<TemplateType>,
+    template_file: Option<PathBuf>,
+    output: Option<PathBuf>,
+    filters: Option<Vec<String>>,
+) -> Result<()> {
+    let project = project.as_deref().unwrap_or(".");
+    let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
-    if !manifest_path.exists() {
+
+    let mut manifest = load_and_convert_manifest(&manifest_path)?;
+
+    if manifest.templates.iter().any(|t| t.name == template_name) {
         return Err(eyre!(
-            "Manifest file does not exist. Please initialize a project before adding templates."
+            "Template with name '{}' already exists.",
+            template_name
         ));
     }
 
-    let manifest_content = fs::read_to_string(&manifest_path)?;
-    let mut manifest: Manifest = toml::from_str(&manifest_content)?;
+    // TODO: Handle existing templates
+    let template = TemplateMapping {
+        name: template_name.clone(),
+        template_type: template_type.unwrap_or(get_template_type_from_path(get_template_path(
+            template_file.clone(),
+            &template_name,
+        ))?),
+        output,
+        template_file,
+        filters,
+    };
+
     manifest.templates.extend([template.clone()]);
 
     let manifest_content = toml::to_string(&manifest)?;
     std::fs::write(&manifest_path, manifest_content)?;
 
-    create_templates(project_path, vec![template.clone()])?;
+    create_templates(project_path, &vec![template.clone()])?;
 
     Ok(())
 }
 
-pub(crate) fn remove_template(project: Option<String>, template: String) -> Result<()> {
-    let project = project.unwrap_or_else(|| ".".to_string());
+pub(crate) fn remove_template(project: Option<String>, template_name: String) -> Result<()> {
+    let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
-
     let manifest_path = project_path.join("manifest.toml");
-    if !manifest_path.exists() {
+
+    let mut manifest = load_and_convert_manifest(&manifest_path)?;
+
+    if let Some(pos) = manifest
+        .templates
+        .iter()
+        .position(|t| t.name == template_name)
+    {
+        let removed_template = manifest.templates.swap_remove(pos);
+
+        let manifest_content = toml::to_string(&manifest)?;
+        std::fs::write(&manifest_path, manifest_content)?;
+
+        let template_dir = project_path.join("template");
+        let template_path = template_dir.join(
+            removed_template
+                .template_file
+                .as_ref()
+                .unwrap_or(&PathBuf::from(&removed_template.name)),
+        );
+
+        if template_path.is_dir() {
+            std::fs::remove_dir_all(&template_path)?;
+        } else {
+            fs::remove_file(template_path)?;
+        }
+    } else {
         return Err(eyre!(
-            "Manifest file does not exist. Please initialize a project before removing templates."
+            "Template {} could not be found in the project.",
+            template_name
         ));
     }
 
-    let manifest_content = fs::read_to_string(&manifest_path)?;
-    let mut manifest: Manifest = toml::from_str(&manifest_content)?;
-    manifest.templates.retain(|t| t != &template);
-
-    let manifest_content = toml::to_string(&manifest)?;
-    std::fs::write(&manifest_path, manifest_content)?;
-
-    let template_dir = project_path.join("template");
-    let template_path = template_dir.join(&template);
-
-    fs::remove_file(template_path)?;
-
     Ok(())
+}
+
+pub(crate) fn load_and_convert_manifest(manifest_path: &std::path::PathBuf) -> Result<Manifest> {
+    if !manifest_path.exists() {
+        return Err(eyre!(
+            "Manifest file does not exist. Please initialize a project before editing it."
+        ));
+    }
+
+    let manifest_content = fs::read_to_string(manifest_path)?;
+
+    let mut manifest: Table = toml::from_str(&manifest_content)?;
+
+    let current_manifest_version: u32 = manifest
+        .get("version")
+        .unwrap_or(&Value::Integer(0))
+        .as_integer()
+        .unwrap_or(0)
+        .try_into()?;
+    if current_manifest_version < CURRENT_MANIFEST_VERSION {
+        upgrade_manifest(&mut manifest, current_manifest_version)?;
+    } else if current_manifest_version > CURRENT_MANIFEST_VERSION {
+        return Err(eyre!(
+            "Manifest file is from a newer version of the program. Please update the program."
+        ));
+    }
+
+    let manifest = &toml::to_string(&manifest)?;
+    fs::write(manifest_path, manifest)?;
+
+    let manifest: Manifest = toml::from_str(manifest)?;
+
+    Ok(manifest)
 }
 
 fn create_templates(
     project_path: &std::path::Path,
-    templates: Vec<String>,
-) -> Result<(), color_eyre::eyre::Error> {
-    let t = filter_templates(&templates, ".tex");
-    if !t.is_empty() {
-        create_tex_templates(&project_path, t)?;
-    }
-
-    let t = filter_templates(&templates, "_epub");
-    if !t.is_empty() {
-        create_epub_templates(&project_path, t)?;
-    }
-
-    let t = filter_templates(&templates, ".typ");
-    if !t.is_empty() {
-        create_typst_templates(&project_path, t)?;
-    }
-
-    Ok(())
-}
-
-fn filter_templates<'a>(templates: &'a Vec<String>, suffix: &str) -> Vec<&'a str> {
-    templates
-        .iter()
-        .map(|t| t.as_str())
-        .filter(|t| t.ends_with(suffix))
-        .collect()
-}
-
-fn create_tex_templates(project_path: &std::path::Path, templates: Vec<&str>) -> Result<()> {
-    let template_dir = project_path.join("template");
-    std::fs::create_dir_all(&template_dir)?;
-
+    templates: &Vec<TemplateMapping>,
+) -> Result<()> {
     for template in templates {
-        let content: Vec<u8> = match template {
-            "template.tex" => include_bytes!("resources/templates/default/default.tex").to_vec(),
-            "booklet.tex" => include_bytes!("resources/templates/default/booklet.tex").to_vec(),
-            "lix_novel_a4.tex" => {
-                println!("Using the lix_novel_a4 template. Make sure to install lix.sty and novel.cls. -h for more information.");
-                include_bytes!("resources/templates/lix_novel/lix_novel_a4.tex").to_vec()
-            }
-            "lix_novel_book.tex" => {
-                println!("Using the lix_novel_book template. Make sure to install lix.sty and novel.cls. -h for more information.");
-                include_bytes!("resources/templates/lix_novel/lix_novel_book.tex").to_vec()
-            }
-            _ => return Err(eyre!("Unknown template: {}", template)),
-        };
+        let template_creator = template_management::get_template_creator(template.name.as_str())?;
 
-        let template_path = template_dir.join(template);
-        std::fs::write(&template_path, content)?;
-    }
-
-    let meta_path = template_dir.join("meta.tex");
-    if !meta_path.exists() {
-        std::fs::write(&meta_path, include_bytes!("resources/templates/meta.tex"))?;
-        println!("meta.tex was written to the template directory. Make sure to adjust the metadata in the file.");
-    }
-
-    Ok(())
-}
-
-fn create_epub_templates(project_path: &std::path::Path, templates: Vec<&str>) -> Result<()> {
-    let template_dir = project_path.join("template");
-    std::fs::create_dir_all(&template_dir)?;
-
-    for template in templates {
-        fs::create_dir_all(&template_dir.join(template))?;
-    }
-
-    Ok(())
-}
-
-fn create_typst_templates(project_path: &std::path::Path, templates: Vec<&str>) -> Result<()> {
-    let template_dir = project_path.join("template");
-    std::fs::create_dir_all(&template_dir)?;
-
-    for template in templates {
-        let content: Vec<u8> = match template {
-            "template_typ.typ" => {
-                include_bytes!("resources/templates/default/default.typ").to_vec()
-            }
-            _ => return Err(eyre!("Unknown template: {}", template)),
-        };
-
-        let template_path = template_dir.join(template);
-        std::fs::write(&template_path, content)?;
-    }
-
-    let meta_path = template_dir.join("meta.typ");
-    if !meta_path.exists() {
-        std::fs::write(&meta_path, include_bytes!("resources/templates/meta.typ"))?;
-        println!("meta.typ was written to the template directory. Make sure to adjust the metadata in the file.");
+        template_creator(&project_path, template)?;
     }
 
     Ok(())
