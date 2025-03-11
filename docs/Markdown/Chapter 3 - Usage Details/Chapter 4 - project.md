@@ -1,6 +1,6 @@
 ## `tiefdownconverter project`
 
-**Version:** `tiefdownconverter 0.1.0`
+**Version:** `tiefdownconverter 0.3.0`
 
 ### Usage:
 ```
@@ -28,11 +28,11 @@ Options:
 ```
 
 ### Subcommands:
-- [add-template](#add-template)
-- [remove-template](#remove-template)
-- [update-template](#update-template)
-- [update-manifest](#update-manifest)
-- [list-templates](#list-templates)
-- [validate](#validate)
-- [clean](#clean)
+- add-template
+- remove-template
+- update-template
+- update-manifest
+- list-templates
+- validate
+- clean
 

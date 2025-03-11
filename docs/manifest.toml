@@ -2,5 +2,13 @@ version = 1
 
 [[templates]]
 filters = ["luafilters/chapter_filter.lua"]
-name = "template.tex"
+name = "PDF Documentation LaTeX"
+output = "docs_tex.pdf"
+template_file = "docs.tex"
 template_type = "Tex"
+
+[[templates]]
+name = "PDF Documentation"
+output = "docs.pdf"
+template_file = "docs.typ"
+template_type = "Typst"
