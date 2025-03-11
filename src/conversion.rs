@@ -109,7 +109,7 @@ fn convert_template(
         ));
     }
 
-    let converter = conversion_decider::get_converter(&template.name)?;
+    let converter = conversion_decider::get_converter(&template_path.to_string_lossy())?;
 
     let result_file_path = converter(
         &project_path.to_path_buf(),
