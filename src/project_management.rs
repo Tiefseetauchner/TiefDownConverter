@@ -56,7 +56,7 @@ pub fn init(
     if !markdown_dir_path.exists() {
         std::fs::create_dir(&markdown_dir_path)?;
         std::fs::write(
-            &markdown_dir_path.join("Chapter 1 - Introduction.md"),
+            markdown_dir_path.join("Chapter 1 - Introduction.md"),
             r#"# Test Document
 This is a simple test document for you to edit or overwrite."#,
         )?;
@@ -337,6 +337,7 @@ pub(crate) fn validate(project: Option<String>) -> Result<()> {
 pub(crate) fn clean(project: Option<String>) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
+    let regex = regex::Regex::new(r"^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}$")?;
 
     // Delete all folders matching '2025-03-10_08-40-18'
 
@@ -346,7 +347,6 @@ pub(crate) fn clean(project: Option<String>) -> Result<()> {
         let path = entry.path();
         if path.is_dir() {
             let dir_name = path.file_name().unwrap().to_str().unwrap();
-            let regex = regex::Regex::new(r"^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}$")?;
             if regex.is_match(dir_name) {
                 files_to_delete.push(path);
             }
@@ -377,6 +377,7 @@ pub(crate) fn load_and_convert_manifest(manifest_path: &std::path::PathBuf) -> R
         .as_integer()
         .unwrap_or(0)
         .try_into()?;
+
     if current_manifest_version < CURRENT_MANIFEST_VERSION {
         upgrade_manifest(&mut manifest, current_manifest_version)?;
     } else if current_manifest_version > CURRENT_MANIFEST_VERSION {
@@ -400,7 +401,7 @@ fn create_templates(
     for template in templates {
         let template_creator = template_management::get_template_creator(template.name.as_str())?;
 
-        template_creator(&project_path, template)?;
+        template_creator(project_path, template)?;
     }
 
     Ok(())

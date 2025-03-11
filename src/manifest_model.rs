@@ -95,10 +95,7 @@ pub(crate) fn upgrade_manifest(manifest: &mut Table, current_version: u32) -> Re
         let mut updated_version = current_version;
 
         while updated_version < CURRENT_MANIFEST_VERSION {
-            match current_version {
-                0 => upgrade_manifest_v0_to_v1(manifest)?,
-                _ => {}
-            }
+            if current_version == 0 { upgrade_manifest_v0_to_v1(manifest)? }
 
             updated_version += 1;
         }
