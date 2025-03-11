@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use color_eyre::eyre::Result;
 
@@ -9,9 +9,9 @@ use crate::{
 };
 
 type Converter = fn(
-    project_directory_path: &PathBuf,
-    compiled_markdown_path: &PathBuf,
-    compiled_directory_path: &PathBuf,
+    project_directory_path: &Path,
+    compiled_markdown_path: &Path,
+    compiled_directory_path: &Path,
     template: &TemplateMapping,
 ) -> Result<PathBuf>;
 

@@ -62,7 +62,7 @@ fn create_build_directory(project_path: &Path) -> Result<std::path::PathBuf> {
     Ok(compiled_directory_path)
 }
 
-fn combine_markdown(combined_markdown_path: &PathBuf, markdown_dir: &PathBuf) -> Result<String> {
+fn combine_markdown(_combined_markdown_path: &PathBuf, markdown_dir: &PathBuf) -> Result<String> {
     let markdown_files = get_markdown_files(markdown_dir)?;
 
     let mut combined_content = String::new();
@@ -72,7 +72,7 @@ fn combine_markdown(combined_markdown_path: &PathBuf, markdown_dir: &PathBuf) ->
             combined_content.push_str(&fs::read_to_string(entry.path())?);
             combined_content.push_str("\n\n");
         } else if entry.path().is_dir() {
-            combined_content.push_str(&combine_markdown(combined_markdown_path, &entry.path())?);
+            combined_content.push_str(&combine_markdown(_combined_markdown_path, &entry.path())?);
         }
     }
 
@@ -96,8 +96,8 @@ fn get_markdown_files(markdown_dir: &PathBuf) -> Result<Vec<fs::DirEntry>> {
 }
 
 fn convert_template(
-    combined_markdown_path: &PathBuf,
-    compiled_directory_path: &PathBuf,
+    combined_markdown_path: &Path,
+    compiled_directory_path: &Path,
     template: &TemplateMapping,
     project_path: &Path,
 ) -> Result<()> {
@@ -112,7 +112,7 @@ fn convert_template(
     let converter = conversion_decider::get_converter(&template.name)?;
 
     let result_file_path = converter(
-        &project_path.to_path_buf(),
+        project_path,
         combined_markdown_path,
         compiled_directory_path,
         template,

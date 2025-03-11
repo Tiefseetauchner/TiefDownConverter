@@ -13,9 +13,9 @@ use crate::{
 };
 
 pub(crate) fn convert_latex(
-    project_directory_path: &PathBuf,
-    combined_markdown_path: &PathBuf,
-    compiled_directory_path: &PathBuf,
+    project_directory_path: &Path,
+    combined_markdown_path: &Path,
+    compiled_directory_path: &Path,
     template: &TemplateMapping,
 ) -> Result<PathBuf> {
     let template_path = get_template_path(template.template_file.clone(), &template.name);
@@ -45,9 +45,9 @@ pub(crate) fn convert_latex(
 
 fn convert_md_to_tex(
     template: &TemplateMapping,
-    project_directory_path: &PathBuf,
+    project_directory_path: &Path,
     compiled_directory_path: &Path,
-    combined_markdown_path: &PathBuf,
+    combined_markdown_path: &Path,
 ) -> Result<()> {
     let mut pandoc = Pandoc::new();
     pandoc.add_input(&combined_markdown_path);
@@ -66,7 +66,7 @@ fn convert_md_to_tex(
 
 // NOTE: This requires xelatex to be installed. I don't particularly like that, but I tried tectonic and it didn't work.
 //       For now we'll keep it simple and just use xelatex. I'm not sure if there's a way to get tectonic to work with the current setup.
-fn compile_latex(compiled_directory_path: &PathBuf, template_path: &PathBuf) -> Result<()> {
+fn compile_latex(compiled_directory_path: &Path, template_path: &Path) -> Result<()> {
     Command::new("xelatex")
         .current_dir(compiled_directory_path)
         .arg("-interaction=nonstopmode")
@@ -79,9 +79,9 @@ fn compile_latex(compiled_directory_path: &PathBuf, template_path: &PathBuf) -> 
 }
 
 pub(crate) fn convert_epub(
-    project_directory_path: &PathBuf,
-    combined_markdown_path: &PathBuf,
-    compiled_directory_path: &PathBuf,
+    project_directory_path: &Path,
+    combined_markdown_path: &Path,
+    compiled_directory_path: &Path,
     template: &TemplateMapping,
 ) -> Result<PathBuf> {
     let template_path = compiled_directory_path.join(get_template_path(
@@ -107,9 +107,9 @@ pub(crate) fn convert_epub(
 }
 
 pub(crate) fn convert_typst(
-    project_directory_path: &PathBuf,
-    combined_markdown_path: &PathBuf,
-    compiled_directory_path: &PathBuf,
+    project_directory_path: &Path,
+    combined_markdown_path: &Path,
+    compiled_directory_path: &Path,
     template: &TemplateMapping,
 ) -> Result<PathBuf> {
     let template_path = compiled_directory_path.join(get_template_path(
@@ -142,9 +142,9 @@ pub(crate) fn convert_typst(
 
 fn convert_md_to_typst(
     template: &TemplateMapping,
-    project_directory_path: &PathBuf,
+    project_directory_path: &Path,
     compiled_directory_path: &Path,
-    combined_markdown_path: &PathBuf,
+    combined_markdown_path: &Path,
 ) -> Result<()> {
     let mut pandoc = Pandoc::new();
     pandoc.add_input(&combined_markdown_path);
