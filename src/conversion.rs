@@ -27,17 +27,8 @@ pub(crate) fn convert(project: Option<String>, templates: Option<Vec<String>>) -
 
     let combined_markdown_path = compiled_directory_path.join("combined.md");
     let markdown_dir = project_path.join(manifest.markdown_dir.unwrap_or("Markdown".to_string()));
-    let mut combined_content = String::new();
 
-    let markdown_files = get_markdown_files(markdown_dir)?;
-
-    for entry in markdown_files {
-        if entry.path().extension() == Some("md".as_ref()) {
-            combined_content.push_str(&fs::read_to_string(entry.path())?);
-            combined_content.push_str("\n\n");
-        }
-    }
-
+    let combined_content = combine_markdown(&combined_markdown_path, &markdown_dir)?;
     fs::write(&combined_markdown_path, combined_content)?;
 
     let templates = templates.map(|t| {
@@ -71,7 +62,24 @@ fn create_build_directory(project_path: &Path) -> Result<std::path::PathBuf> {
     Ok(compiled_directory_path)
 }
 
-fn get_markdown_files(markdown_dir: std::path::PathBuf) -> Result<Vec<fs::DirEntry>> {
+fn combine_markdown(combined_markdown_path: &PathBuf, markdown_dir: &PathBuf) -> Result<String> {
+    let markdown_files = get_markdown_files(markdown_dir)?;
+
+    let mut combined_content = String::new();
+
+    for entry in markdown_files {
+        if entry.path().extension() == Some("md".as_ref()) {
+            combined_content.push_str(&fs::read_to_string(entry.path())?);
+            combined_content.push_str("\n\n");
+        } else if entry.path().is_dir() {
+            combined_content.push_str(&combine_markdown(&combined_markdown_path, &entry.path())?);
+        }
+    }
+
+    Ok(combined_content)
+}
+
+fn get_markdown_files(markdown_dir: &PathBuf) -> Result<Vec<fs::DirEntry>> {
     let chapter_name_regex = regex::Regex::new(r"Chapter (\d+).*").unwrap();
 
     let mut markdown_files: Vec<_> = fs::read_dir(markdown_dir)?.filter_map(Result::ok).collect();

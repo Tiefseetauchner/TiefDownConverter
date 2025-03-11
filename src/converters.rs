@@ -51,6 +51,7 @@ fn convert_md_to_tex(
 ) -> Result<()> {
     let mut pandoc = Pandoc::new();
     pandoc.add_input(&combined_markdown_path);
+    pandoc.add_option(pandoc::PandocOption::Listings);
     // TODO: Output per template (use template name)
     pandoc.set_output(pandoc::OutputKind::File(
         compiled_directory_path.join("output.tex"),
