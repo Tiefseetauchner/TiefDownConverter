@@ -25,13 +25,16 @@ There are a few dependencies that you need to install.
 - [Typst](https://typst.app/): For converting Typst files to PDF.
 
 Now you should be able to run `tiefdownconverter` from the command line.
-You can test it by initialising a test project using `tiefdown init testproject`
-and running `tiefdown convert` in the project directory or
-`tiefdown convert -p testproject`.
+You can test it by initialising a test project using `tiefdownconverter init testproject`
+and running `tiefdownconverter convert` in the project directory or
+`tiefdownconverter convert -p testproject`.
 
 ## Getting started
 
-First off, you need to create a project using `tiefdownconverter init`. This will
+TL;DR: Make a folder, go into it and run `tiefdownconverter init` and 
+`tiefdownconverter convert`. That's it.
+
+Long anser: First off, you need to create a project using `tiefdownconverter init`. This will
 create a new project **in the current directory**. You can (and maybe should)
 specify a project using the -p flag.
 
@@ -102,6 +105,13 @@ Similarly, you could change the template file and type, though I advice against 
 may break the template. I advice to just add a new template and remove the old one using
 `tiefdownconverter project remove-template <TEMPLATE_NAME>`.
 
+## Writing templates
+
+Importantly, when you write your own template, you need to include the content somehow.
+That somehow is done via `\input{output.tex}` or `#include "./output.typ"`. This will include the 
+output of the Markdown conversion in your template file. In the future, it may be possible to 
+specify per template, what the output should be called, but for now, it's just `output.tex`.
+
 ## Writing filters
 
 > **Note:** This section only really addresses LaTeX, but the concepts are the same for
@@ -147,4 +157,3 @@ function Header(elem)
   -- add more levels here if needed
 end
 ```
-

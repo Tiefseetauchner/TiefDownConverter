@@ -28,11 +28,11 @@ Options:
 ```
 
 ### Subcommands:
-- [add-template](./Chapter-5---project-add-template.md)
-- [remove-template](./Chapter-5---project-remove-template.md)
-- [update-template](./Chapter-5---project-update-template.md)
-- [update-manifest](./Chapter-5---project-update-manifest.md)
-- [list-templates](./Chapter-5---project-list-templates.md)
-- [validate](./Chapter-5---project-validate.md)
-- [clean](./Chapter-5---project-clean.md)
+- [add-template](#add-template)
+- [remove-template](#remove-template)
+- [update-template](#update-template)
+- [update-manifest](#update-manifest)
+- [list-templates](#list-templates)
+- [validate](#validate)
+- [clean](#clean)
 

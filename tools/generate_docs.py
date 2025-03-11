@@ -73,8 +73,7 @@ def generate_markdown(command, subcommand_chain=""):
         if subcommands:
             f.write("### Subcommands:\n")
             for subcmd in subcommands:
-                link = f"Chapter {chapter_counter} - {subcommand_chain}-{subcmd}".strip().replace(" ", "-")
-                f.write(f"- [{subcmd}](./{link}.md)\n")
+                f.write(f"- [{subcmd}](#{subcmd})\n")
             f.write("\n")
 
     print(f"Generated: {filename}")

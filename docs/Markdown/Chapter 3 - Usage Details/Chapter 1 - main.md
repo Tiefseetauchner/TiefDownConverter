@@ -21,7 +21,7 @@ Options:
 ```
 
 ### Subcommands:
-- [convert](./Chapter-2----convert.md)
-- [init](./Chapter-2----init.md)
-- [project](./Chapter-2----project.md)
+- [convert](#convert)
+- [init](#init)
+- [project](#project)
 
