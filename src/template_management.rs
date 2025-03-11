@@ -3,7 +3,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use color_eyre::eyre::{eyre, Result};
+use color_eyre::eyre::{Result, eyre};
 
 use crate::{
     consts::POSSIBLE_TEMPLATES,
@@ -15,14 +15,16 @@ pub(crate) fn get_template_creator(
 ) -> Result<fn(project_path: &Path, template: &TemplateMapping) -> Result<()>> {
     if is_preset_template(template) {
         let template_type = get_template_type_from_path(template)?;
-        return match template_type {
+        match template_type {
             TemplateType::Tex => Ok(create_tex_presets),
             TemplateType::Typst => Ok(create_typst_presets),
             TemplateType::Epub => Ok(create_epub_presets),
-        };
+        }
     } else {
-        return Ok(|_, template| {
-            println!("Creating a custom template. Don't forget to add your template file. The template was created with the following parameters:");
+        Ok(|_, template| {
+            println!(
+                "Creating a custom template. Don't forget to add your template file. The template was created with the following parameters:"
+            );
             println!("  Template name: {}", template.name);
             println!("  Template type: {}", &template.template_type);
             if let Some(file) = &template.template_file {
@@ -36,12 +38,12 @@ pub(crate) fn get_template_creator(
             }
 
             Ok(())
-        });
+        })
     }
 }
 
 fn is_preset_template(template: &str) -> bool {
-    return POSSIBLE_TEMPLATES.contains(&template);
+    POSSIBLE_TEMPLATES.contains(&template)
 }
 
 fn create_tex_presets(project_path: &Path, template: &TemplateMapping) -> Result<()> {
@@ -59,12 +61,16 @@ fn create_tex_presets(project_path: &Path, template: &TemplateMapping) -> Result
         }
         "lix_novel_a4.tex" => {
             create_lix_meta(&template_dir)?;
-            println!("Using the lix_novel_a4 template. Make sure to install lix.sty and novel.cls. -h for more information.");
+            println!(
+                "Using the lix_novel_a4 template. Make sure to install lix.sty and novel.cls. -h for more information."
+            );
             include_bytes!("resources/templates/lix/lix_novel_a4.tex").to_vec()
         }
         "lix_novel_book.tex" => {
             create_lix_meta(&template_dir)?;
-            println!("Using the lix_novel_book template. Make sure to install lix.sty and novel.cls. -h for more information.");
+            println!(
+                "Using the lix_novel_book template. Make sure to install lix.sty and novel.cls. -h for more information."
+            );
             include_bytes!("resources/templates/lix/lix_novel_book.tex").to_vec()
         }
         _ => return Err(eyre!("Unknown template: {}", template.name.as_str())),
@@ -79,33 +85,39 @@ fn create_tex_presets(project_path: &Path, template: &TemplateMapping) -> Result
     Ok(())
 }
 
-fn create_latex_meta(template_dir: &PathBuf) -> Result<(), color_eyre::eyre::Error> {
+fn create_latex_meta(template_dir: &Path) -> Result<(), color_eyre::eyre::Error> {
     let meta_path = template_dir.join("meta.tex");
-    Ok(if !meta_path.exists() {
+    if !meta_path.exists() {
         fs::write(
             &meta_path,
             include_bytes!("resources/templates/default/meta.tex"),
         )?;
-        println!("meta.tex was written to the template directory. Make sure to adjust the metadata in the file.");
-    })
+        println!(
+            "meta.tex was written to the template directory. Make sure to adjust the metadata in the file."
+        );
+    };
+    Ok(())
 }
 
-fn create_lix_meta(template_dir: &PathBuf) -> Result<(), color_eyre::eyre::Error> {
+fn create_lix_meta(template_dir: &Path) -> Result<(), color_eyre::eyre::Error> {
     let meta_path = template_dir.join("meta_lix.tex");
-    Ok(if !meta_path.exists() {
+    if !meta_path.exists() {
         fs::write(
             &meta_path,
             include_bytes!("resources/templates/lix/meta.tex"),
         )?;
-        println!("meta_lix.tex was written to the template directory. Make sure to adjust the metadata in the file.");
-    })
+        println!(
+            "meta_lix.tex was written to the template directory. Make sure to adjust the metadata in the file."
+        );
+    };
+    Ok(())
 }
 
 fn create_epub_presets(project_path: &Path, template: &TemplateMapping) -> Result<()> {
     let template_dir = project_path.join("template");
     fs::create_dir_all(&template_dir)?;
 
-    fs::create_dir_all(&template_dir.join(get_template_path(
+    fs::create_dir_all(template_dir.join(get_template_path(
         template.template_file.clone(),
         &template.name,
     )))?;
@@ -134,7 +146,9 @@ fn create_typst_presets(project_path: &Path, template: &TemplateMapping) -> Resu
             &meta_path,
             include_bytes!("resources/templates/default/meta.typ"),
         )?;
-        println!("meta.typ was written to the template directory. Make sure to adjust the metadata in the file.");
+        println!(
+            "meta.typ was written to the template directory. Make sure to adjust the metadata in the file."
+        );
     }
 
     Ok(())
@@ -146,7 +160,7 @@ pub(crate) fn get_template_path(template_file: Option<PathBuf>, template_name: &
 
 pub(crate) fn get_output_path(
     output_path: Option<PathBuf>,
-    template_path: &PathBuf,
+    template_path: &Path,
     template_type: TemplateType,
 ) -> PathBuf {
     output_path

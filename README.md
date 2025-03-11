@@ -13,6 +13,10 @@ TiefDown Converter is a command-line tool designed to streamline the conversion 
 - **Multi-Format Support**: Convert Markdown into PDFs (via XeTeX), EPUBs, or other formats using Typst.
 - **Extensibility**: Customize projects with templates and Lua filters for advanced document processing.
 
+## Documentation
+
+Documentation is available in [docs/template.pdf](https://github.com/Tiefseetauchner/TiefDownConverter/blob/main/docs/template.pdf)
+
 ## Features
 
 - Converts Markdown projects into PDFs, EPUB, and Typst-based documents.
