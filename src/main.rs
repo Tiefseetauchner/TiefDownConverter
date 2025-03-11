@@ -12,7 +12,7 @@ mod project_management;
 mod template_management;
 
 #[derive(Parser)]
-#[command(name = "tiefdownconverter")]
+#[command(name = "tiefdownconverter", version)]
 #[command(about = "A CLI tool for managing TiefDown Projects", long_about = None)]
 struct Cli {
     #[command(subcommand)]
