@@ -8,21 +8,19 @@ use crate::{
     template_management::get_template_type_from_path,
 };
 
-pub fn get_converter(
-    template: &str,
-) -> Result<
-    fn(
-        project_directory_path: &PathBuf,
-        compiled_markdown_path: &PathBuf,
-        compiled_directory_path: &PathBuf,
-        template: &TemplateMapping,
-    ) -> Result<PathBuf>,
-> {
+type Converter = fn(
+    project_directory_path: &PathBuf,
+    compiled_markdown_path: &PathBuf,
+    compiled_directory_path: &PathBuf,
+    template: &TemplateMapping,
+) -> Result<PathBuf>;
+
+pub fn get_converter(template: &str) -> Result<Converter> {
     let template_type = get_template_type_from_path(template)?;
 
-    return match template_type {
-        TemplateType::Tex => Ok(converters::convert_latex),
-        TemplateType::Typst => Ok(converters::convert_typst),
-        TemplateType::Epub => Ok(converters::convert_epub),
-    };
+    Ok(match template_type {
+        TemplateType::Tex => converters::convert_latex,
+        TemplateType::Typst => converters::convert_typst,
+        TemplateType::Epub => converters::convert_epub,
+    })
 }

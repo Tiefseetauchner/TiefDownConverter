@@ -1,6 +1,6 @@
 use std::{
     fs,
-    path::PathBuf,
+    path::{Path, PathBuf},
     process::{Command, Stdio},
 };
 
@@ -35,7 +35,7 @@ pub(crate) fn convert_latex(
     compile_latex(compiled_directory_path, &template_path)?;
     compile_latex(compiled_directory_path, &template_path)?;
 
-    let template_path = compiled_directory_path.join(&template_path.with_extension("pdf"));
+    let template_path = compiled_directory_path.join(template_path.with_extension("pdf"));
     if template_path.exists() && template_path.as_os_str() != output_path.as_os_str() {
         fs::copy(&template_path, &output_path)?;
     }
@@ -46,7 +46,7 @@ pub(crate) fn convert_latex(
 fn convert_md_to_tex(
     template: &TemplateMapping,
     project_directory_path: &PathBuf,
-    compiled_directory_path: &PathBuf,
+    compiled_directory_path: &Path,
     combined_markdown_path: &PathBuf,
 ) -> Result<()> {
     let mut pandoc = Pandoc::new();
@@ -143,7 +143,7 @@ pub(crate) fn convert_typst(
 fn convert_md_to_typst(
     template: &TemplateMapping,
     project_directory_path: &PathBuf,
-    compiled_directory_path: &PathBuf,
+    compiled_directory_path: &Path,
     combined_markdown_path: &PathBuf,
 ) -> Result<()> {
     let mut pandoc = Pandoc::new();
@@ -162,7 +162,7 @@ fn convert_md_to_typst(
 
 fn add_lua_filters(
     template: &TemplateMapping,
-    project_directory_path: &PathBuf,
+    project_directory_path: &Path,
     pandoc: &mut Pandoc,
 ) -> Result<()> {
     for filter in template.filters.clone().unwrap_or_default() {

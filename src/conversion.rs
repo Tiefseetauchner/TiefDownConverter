@@ -39,14 +39,14 @@ pub(crate) fn convert(project: Option<String>, templates: Option<Vec<String>>) -
             .cloned()
             .collect()
     });
-    let templates = templates.unwrap_or_else(|| manifest.templates);
+    let templates = templates.unwrap_or(manifest.templates);
 
     for template in &templates {
         convert_template(
             &combined_markdown_path,
             &compiled_directory_path,
-            &template,
-            &project_path,
+            template,
+            project_path,
         )?;
     }
 
@@ -72,7 +72,7 @@ fn combine_markdown(combined_markdown_path: &PathBuf, markdown_dir: &PathBuf) ->
             combined_content.push_str(&fs::read_to_string(entry.path())?);
             combined_content.push_str("\n\n");
         } else if entry.path().is_dir() {
-            combined_content.push_str(&combine_markdown(&combined_markdown_path, &entry.path())?);
+            combined_content.push_str(&combine_markdown(combined_markdown_path, &entry.path())?);
         }
     }
 
