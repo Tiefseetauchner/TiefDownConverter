@@ -38,6 +38,9 @@ add a upgrade logic to `manifest_model.rs`.
 
 Practically non-existant but I would be happy if you added some.
 
+I'm using `rstest` for tests, and you can see an example in `manifest_model.rs`.
+Just make sure to somewhat follow that example.
+
 ## Documentation
 
 Make sure this documentation is up to date. If you add a command or flag, make sure to
