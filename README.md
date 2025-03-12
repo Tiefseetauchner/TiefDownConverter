@@ -211,6 +211,8 @@ Contributions are welcome via pull requests on GitHub. Please be kind.
 
 Report issues on the [GitHub Issues page](https://github.com/Tiefseetauchner/TiefDownConverter/issues).
 
+You can also join my [Discord Server](https://discord.gg/GAG7yn7g)
+
 ## License
 
 This project is licensed under MIT. See `LICENSE` for details.
