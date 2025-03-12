@@ -1,3 +1,15 @@
+---
+title:
+- type: main
+  text: "TiefDownConverter Documentation"
+- type: subtitle
+  text: "A Markdown to PDF/EPUB/Typst conversion helper"
+creator:
+- role: author
+  text: Tiefseetauchner et al.
+rights: "Copyright (c) 2025 Tiefseetauchner, MIT Licensed (see below)"
+---
+
 # LICENSE
 
 ```

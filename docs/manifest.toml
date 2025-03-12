@@ -12,3 +12,8 @@ name = "PDF Documentation"
 output = "docs.pdf"
 template_file = "docs.typ"
 template_type = "Typst"
+
+[[templates]]
+name = "Epub Documentation"
+template_file = "prim_epub"
+template_type = "Epub"

@@ -4,7 +4,7 @@ use std::{
     process::{Command, Stdio},
 };
 
-use color_eyre::eyre::{Result, eyre};
+use color_eyre::eyre::{Ok, Result, eyre};
 use pandoc::{OutputFormat, Pandoc};
 
 use crate::{
@@ -88,22 +88,61 @@ pub(crate) fn convert_epub(
         template.template_file.clone(),
         &template.name,
     ));
-    let output_path = compiled_directory_path.join(get_output_path(
+    let output_path = get_output_path(
         template.output.clone(),
         &template_path,
         template.template_type.clone(),
-    ));
+    );
 
     let mut pandoc = Pandoc::new();
     pandoc.add_input(combined_markdown_path);
     pandoc.set_output(pandoc::OutputKind::File(output_path.clone()));
     pandoc.set_output_format(OutputFormat::Epub3, vec![]);
 
+    add_css_files(&template_path, &mut pandoc)?;
+    add_fonts(&template_path, &mut pandoc)?;
+
     add_lua_filters(template, project_directory_path, &mut pandoc)?;
 
     pandoc.execute()?;
 
     Ok(output_path)
+}
+
+fn add_css_files(template_path: &PathBuf, pandoc: &mut Pandoc) -> Result<()> {
+    let css_files = template_path.read_dir()?;
+    for css_file in css_files {
+        let css_file = css_file?.path();
+        if css_file.is_file() && css_file.extension().unwrap_or_default() == "css" {
+            pandoc.add_option(pandoc::PandocOption::Css(
+                css_file.to_string_lossy().into_owned(),
+            ));
+        }
+    }
+
+    Ok(())
+}
+
+fn add_fonts(template_path: &PathBuf, pandoc: &mut Pandoc) -> Result<()> {
+    let fonts_dir = template_path.join("fonts");
+
+    if !fonts_dir.exists() {
+        return Ok(());
+    }
+
+    let font_files = fonts_dir.read_dir()?;
+
+    for font_file in font_files {
+        let font_file = font_file?.path();
+        if font_file.is_file()
+            && ["ttf", "otf", "woff"]
+                .contains(&&*font_file.extension().unwrap_or_default().to_string_lossy())
+        {
+            pandoc.add_option(pandoc::PandocOption::EpubEmbedFont(font_file));
+        }
+    }
+
+    Ok(())
 }
 
 pub(crate) fn convert_typst(
