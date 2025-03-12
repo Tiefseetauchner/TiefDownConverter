@@ -15,7 +15,9 @@ TiefDown Converter is a command-line tool designed to streamline the conversion 
 
 ## Documentation
 
-Documentation is available in [docs/template.pdf](https://github.com/Tiefseetauchner/TiefDownConverter/blob/main/docs/template.pdf)
+Documentation is available in [docs/docs.pdf](https://github.com/Tiefseetauchner/TiefDownConverter/blob/main/docs/docs.pdf) or [docs/docs_tex.pdf](https://github.com/Tiefseetauchner/TiefDownConverter/blob/main/docs/docs_tex.pdf)
+
+These are generated using `tiefdownconverter` as well, thus the two files. It's essentially a demo.
 
 ## Features
 

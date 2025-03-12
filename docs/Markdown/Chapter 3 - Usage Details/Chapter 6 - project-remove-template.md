@@ -1,6 +1,6 @@
 ## `tiefdownconverter project remove-template`
 
-**Version:** `tiefdownconverter 0.1.0`
+**Version:** `tiefdownconverter 0.3.0`
 
 ### Usage:
 ```

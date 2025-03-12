@@ -112,15 +112,12 @@ pub(crate) fn convert_typst(
     compiled_directory_path: &Path,
     template: &TemplateMapping,
 ) -> Result<PathBuf> {
-    let template_path = compiled_directory_path.join(get_template_path(
-        template.template_file.clone(),
-        &template.name,
-    ));
-    let output_path = compiled_directory_path.join(get_output_path(
+    let template_path = get_template_path(template.template_file.clone(), &template.name);
+    let output_path = get_output_path(
         template.output.clone(),
         &template_path,
         template.template_type.clone(),
-    ));
+    );
 
     convert_md_to_typst(
         template,
@@ -136,6 +133,8 @@ pub(crate) fn convert_typst(
         .arg(&output_path)
         .stdout(Stdio::null())
         .status()?;
+
+    let output_path = compiled_directory_path.join(output_path);
 
     Ok(output_path)
 }

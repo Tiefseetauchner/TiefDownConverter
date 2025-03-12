@@ -1,6 +1,6 @@
 ## `tiefdownconverter `
 
-**Version:** `tiefdownconverter 0.1.0`
+**Version:** `tiefdownconverter 0.3.0`
 
 ### Usage:
 ```
@@ -21,7 +21,7 @@ Options:
 ```
 
 ### Subcommands:
-- [convert](#convert)
-- [init](#init)
-- [project](#project)
+- convert
+- init
+- project
 
