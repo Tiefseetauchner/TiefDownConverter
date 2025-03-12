@@ -2,6 +2,8 @@
 
 [![Build and Upload Artifacts](https://github.com/Tiefseetauchner/TiefDownConverter/actions/workflows/main_push.yml/badge.svg)](https://github.com/Tiefseetauchner/TiefDownConverter/actions/workflows/main_push.yml)
 
+[![](https://dcbadge.limes.pink/api/server/https://discord.gg/EG3zU9cTFx)](https://discord.gg/EG3zU9cTFx)
+
 ## Overview
 
 TiefDown Converter is a command-line tool designed to streamline the conversion of structured Markdown projects into various output formats, such as PDF, EPUB, and Typst-based documents. It simplifies the process by acting as a wrapper around Pandoc and XeTeX, enabling users to set up a project once and reproducibly generate multiple formats with a single command.
