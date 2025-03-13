@@ -1,7 +1,7 @@
 # TiefDown Converter
 
-[![Build and Upload Artifacts](https://github.com/Tiefseetauchner/TiefDownConverter/actions/workflows/main_push.yml/badge.svg)](https://github.com/Tiefseetauchner/TiefDownConverter/actions/workflows/main_push.yml)
-
+[![GitHub Release](https://img.shields.io/github/v/release/tiefseetauchner/tiefdownconverter?sort=semver&style=for-the-badge)](https://github.com/Tiefseetauchner/TiefDownConverter/releases)
+[![Crates.io Version](https://img.shields.io/crates/v/tiefdownconverter?style=for-the-badge)](https://crates.io/crates/tiefdownconverter)
 [![](https://dcbadge.limes.pink/api/server/https://discord.gg/EG3zU9cTFx)](https://discord.gg/EG3zU9cTFx)
 
 ## Overview
