@@ -109,7 +109,7 @@ pub(crate) fn convert_epub(
     Ok(output_path)
 }
 
-fn add_css_files(template_path: &PathBuf, pandoc: &mut Pandoc) -> Result<()> {
+fn add_css_files(template_path: &Path, pandoc: &mut Pandoc) -> Result<()> {
     let css_files = template_path.read_dir()?;
     for css_file in css_files {
         let css_file = css_file?.path();
@@ -123,7 +123,7 @@ fn add_css_files(template_path: &PathBuf, pandoc: &mut Pandoc) -> Result<()> {
     Ok(())
 }
 
-fn add_fonts(template_path: &PathBuf, pandoc: &mut Pandoc) -> Result<()> {
+fn add_fonts(template_path: &Path, pandoc: &mut Pandoc) -> Result<()> {
     let fonts_dir = template_path.join("fonts");
 
     if !fonts_dir.exists() {
