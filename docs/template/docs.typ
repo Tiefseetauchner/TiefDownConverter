@@ -1,6 +1,11 @@
 #import "@preview/ilm:1.4.1": *
 #import "@preview/zebraw:0.4.6": *
 
+#set par(
+  first-line-indent: 1em,
+  spacing: 0.65em,
+)
+
 #show: zebraw.with()
 #set text(lang: "en")
 
