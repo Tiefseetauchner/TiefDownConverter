@@ -94,16 +94,24 @@ enum ProjectCommands {
         )]
         template: String,
         #[arg(
+            short = 'f',
+            long,
             help = "The file to use as the template. If not provided, the template name will be used."
         )]
         template_file: Option<PathBuf>,
         #[arg(
+            short,
+            long,
             help = "The type of the template. If not provided, the type will be inferred from the template file."
         )]
         template_type: Option<TemplateType>,
-        #[arg(help = "The output file. If not provided, the template name will be used.")]
+        #[arg(
+            short,
+            long,
+            help = "The output file. If not provided, the template name will be used."
+        )]
         output: Option<PathBuf>,
-        #[arg(help = "The luafilters to use for pandoc conversion of this templates markdown.", num_args = 1.., value_delimiter = ',')]
+        #[arg(long, help = "The luafilters to use for pandoc conversion of this templates markdown.", num_args = 1.., value_delimiter = ',')]
         filters: Option<Vec<String>>,
     },
     #[command(about = "Remove a template from the project.")]

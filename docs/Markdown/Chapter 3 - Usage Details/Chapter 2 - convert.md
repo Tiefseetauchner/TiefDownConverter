@@ -1,6 +1,6 @@
 ## `tiefdownconverter convert`
 
-**Version:** `tiefdownconverter 0.3.0`
+**Version:** `tiefdownconverter 0.4.0`
 
 ### Usage:
 ```
