@@ -23,6 +23,12 @@ jobs:
           toolchain: stable
           override: true
 
+      - name: Install pandoc, texlive-xelatex and typst
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc texlive-xetex
+          cargo install typst-cli
+
       - name: Build
         run: cargo build --verbose
 
