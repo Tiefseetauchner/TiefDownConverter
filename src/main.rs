@@ -83,6 +83,8 @@ If using a LiX template, make sure to install the corresponding .sty and .cls fi
         #[command(subcommand)]
         command: ProjectCommands,
     },
+    #[command(about = "Validate dependencies are installed.")]
+    CheckDependencies,
 }
 
 #[derive(Subcommand)]
@@ -241,6 +243,9 @@ fn main() -> Result<()> {
             ProjectCommands::Validate => project_management::validate(project)?,
             ProjectCommands::Clean => project_management::clean(project)?,
         },
+        Commands::CheckDependencies => {
+            project_management::check_dependencies(vec!["pandoc", "xelatex", "typst"])?
+        }
     }
 
     Ok(())

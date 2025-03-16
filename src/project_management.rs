@@ -1,4 +1,4 @@
-use std::{fs, path::PathBuf};
+use std::{fs, path::PathBuf, process::Command};
 
 use color_eyre::eyre::{Result, eyre};
 use toml::{Table, Value};
@@ -378,6 +378,32 @@ pub(crate) fn clean(project: Option<String>) -> Result<()> {
     Ok(())
 }
 
+pub(crate) fn check_dependencies(dependencies: Vec<&str>) -> Result<()> {
+    let mut errors = Vec::new();
+
+    for dependency in dependencies {
+        let output = Command::new(dependency).arg("--version").output();
+
+        if !output.is_ok() {
+            errors.push(format!(
+                "Could not call {}:\n{}",
+                dependency,
+                output.unwrap_err()
+            ));
+        }
+    }
+
+    if !errors.is_empty() {
+        for error in errors {
+            println!("{}", error);
+        }
+        return Err(eyre!("Some dependencies are missing."));
+    }
+
+    println!("All dependencies are installed.");
+    Ok(())
+}
+
 pub(crate) fn load_and_convert_manifest(manifest_path: &std::path::PathBuf) -> Result<Manifest> {
     if !manifest_path.exists() {
         return Err(eyre!(
@@ -424,4 +450,23 @@ fn create_templates(
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use rstest::rstest;
+
+    use super::*;
+
+    #[rstest]
+    fn check_dependencies_valid() {
+        let dependencies = vec!["ls", "echo"];
+        assert!(check_dependencies(dependencies).is_ok());
+    }
+
+    #[rstest]
+    fn check_dependencies_invalid() {
+        let dependencies = vec!["ls", "invalid_command_that_no_sane_person_would_have"];
+        assert!(check_dependencies(dependencies).is_err());
+    }
 }
