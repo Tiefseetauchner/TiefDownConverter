@@ -397,6 +397,7 @@ pub(crate) fn load_and_convert_manifest(manifest_path: &std::path::PathBuf) -> R
 
     if current_manifest_version < CURRENT_MANIFEST_VERSION {
         upgrade_manifest(&mut manifest, current_manifest_version)?;
+        println!("Manifest upgraded to version {}.", CURRENT_MANIFEST_VERSION,);
     } else if current_manifest_version > CURRENT_MANIFEST_VERSION {
         return Err(eyre!(
             "Manifest file is from a newer version of the program. Please update the program."
