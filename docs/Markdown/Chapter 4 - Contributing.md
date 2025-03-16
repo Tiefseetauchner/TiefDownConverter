@@ -36,10 +36,16 @@ add a upgrade logic to `manifest_model.rs`.
 
 ## Tests
 
-Practically non-existant but I would be happy if you added some.
+Currently primarily integration tests. See the `tests` folder for examples. Any pull
+request to main will automatically run tests, and the expectation is that at least the
+existing tests work. If they break, fix your code or, if you changed behavior on purpose, 
+the tests.
 
-I'm using `rstest` for tests, and you can see an example in `manifest_model.rs`.
-Just make sure to somewhat follow that example.
+I appreciate it if you add test coverage for your changes. I especially would
+appreciate more unit tests, but the tests I have are sufficient for now.
+Integration tests take priority over unit tests for me, as the overall behavior
+is more important to me than the individual functions, and I only have so much
+time that I want to spend on this project.
 
 ## Documentation
 
