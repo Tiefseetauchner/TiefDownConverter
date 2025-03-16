@@ -9,3 +9,15 @@ macro_rules! assert_contains {
         );
     };
 }
+
+#[macro_export]
+macro_rules! assert_not_contains {
+    ($haystack:expr, $needle:expr) => {
+        assert!(
+            !$haystack.contains($needle),
+            "Expected '{}' to not contain '{}'",
+            $haystack,
+            $needle
+        )
+    };
+}

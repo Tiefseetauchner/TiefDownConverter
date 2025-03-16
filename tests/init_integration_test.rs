@@ -3,6 +3,10 @@ use rstest::rstest;
 use std::{fs, path::Path};
 use tempfile::tempdir;
 
+#[path = "assertions.rs"]
+#[macro_use]
+mod assertions;
+
 const DEFAULT_MANIFEST_CONTENT: &str = r#"version = 1
 
 [[templates]]
@@ -89,10 +93,7 @@ fn test_init_project_no_templates() {
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
     let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-    assert!(
-        !manifest_content.contains("[[templates]]"),
-        "Manifest file should not contain any templates."
-    );
+    assert_not_contains!(manifest_content, "[[templates]]");
 }
 
 #[rstest]
@@ -180,30 +181,11 @@ fn test_init_project_templates() {
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
     let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-    assert!(
-        manifest_content.contains("[[templates]]"),
-        "Manifest file should contain templates."
-    );
-    assert!(
-        manifest_content.contains("template.tex"),
-        "Manifest file should contain template.tex."
-    );
-    assert!(
-        manifest_content.contains("booklet.tex"),
-        "Manifest file should contain booklet.tex."
-    );
-    assert!(
-        manifest_content.contains("template_typ.typ"),
-        "Manifest file should contain template_typ.typ."
-    );
-    assert!(
-        manifest_content.contains("lix_novel_a4.tex"),
-        "Manifest file should contain lix_novel_a4.tex."
-    );
-    assert!(
-        manifest_content.contains("default_epub"),
-        "Manifest file should contain default_epub."
-    );
+    assert_contains!(manifest_content, r#"name = "template.tex""#);
+    assert_contains!(manifest_content, r#"name = "booklet.tex""#);
+    assert_contains!(manifest_content, r#"name = "template_typ.typ""#);
+    assert_contains!(manifest_content, r#"name = "lix_novel_a4.tex""#);
+    assert_contains!(manifest_content, r#"name = "default_epub""#);
 
     let template_dir = project_path.join("template");
     assert!(template_dir.exists(), "Template directory should exist");
