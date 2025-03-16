@@ -27,4 +27,4 @@ toml = "0.8.20"
 assert_cmd = "2.0.16"
 rstest = "0.25.0"
 tempfile = "3.19.0"
-
+predicates = "3.1.3"
