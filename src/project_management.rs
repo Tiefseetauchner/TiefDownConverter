@@ -107,12 +107,16 @@ pub(crate) fn add_template(
         ));
     }
 
+    let template_type = match template_type {
+        Some(t) => t,
+        None => {
+            get_template_type_from_path(get_template_path(template_file.clone(), &template_name))?
+        }
+    };
+
     let template = TemplateMapping {
         name: template_name.clone(),
-        template_type: template_type.unwrap_or(get_template_type_from_path(get_template_path(
-            template_file.clone(),
-            &template_name,
-        ))?),
+        template_type,
         output,
         template_file,
         filters,
@@ -127,7 +131,6 @@ pub(crate) fn add_template(
 
     Ok(())
 }
-
 pub(crate) fn remove_template(project: Option<String>, template_name: String) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
