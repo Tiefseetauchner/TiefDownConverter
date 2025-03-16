@@ -27,7 +27,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y pandoc texlive-xetex
-          cargo install typst-cli
+          curl -fsSL https://typst.community/typst-install/install.sh | sh
 
       - name: Build
         run: cargo build --verbose
