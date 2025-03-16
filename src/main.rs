@@ -170,24 +170,11 @@ Changing this is not recommended, as it is highly unlikely the type and only the
         markdown_dir: Option<String>,
     },
     #[command(about = "List the templates in the project.")]
-    ListTemplates {
-        #[arg(
-            help = "The project to manipulate. If not provided, the current directory will be used."
-        )]
-        project: Option<String>,
-    },
+    ListTemplates,
     #[command(about = "Validate the TiefDown project structure and metadata.")]
-    Validate {
-        #[arg(
-            help = "The project to validate. If not provided, the current directory will be used."
-        )]
-        project: Option<String>,
-    },
+    Validate,
     #[command(about = "Clean temporary files from the TiefDown project.")]
-    Clean {
-        #[arg(help = "The project to clean. If not provided, the current directory will be used.")]
-        project: Option<String>,
-    },
+    Clean,
 }
 
 fn main() -> Result<()> {
@@ -250,11 +237,9 @@ fn main() -> Result<()> {
                 project,
                 markdown_dir,
             } => project_management::update_manifest(project, markdown_dir)?,
-            ProjectCommands::ListTemplates { project } => {
-                project_management::list_templates(project)?
-            }
-            ProjectCommands::Validate { project } => project_management::validate(project)?,
-            ProjectCommands::Clean { project } => project_management::clean(project)?,
+            ProjectCommands::ListTemplates => project_management::list_templates(project)?,
+            ProjectCommands::Validate => project_management::validate(project)?,
+            ProjectCommands::Clean => project_management::clean(project)?,
         },
     }
 

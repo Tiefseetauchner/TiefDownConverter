@@ -354,9 +354,10 @@ pub(crate) fn validate(project: Option<String>) -> Result<()> {
 pub(crate) fn clean(project: Option<String>) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
-    let regex = regex::Regex::new(r"^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}$")?;
+    let manifest_path = project_path.join("manifest.toml");
+    let _ = load_and_convert_manifest(&manifest_path)?;
 
-    // Delete all folders matching '2025-03-10_08-40-18'
+    let regex = regex::Regex::new(r"^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}$")?;
 
     let mut files_to_delete = Vec::new();
     for entry in fs::read_dir(project_path)? {
