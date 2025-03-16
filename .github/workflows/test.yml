@@ -1,0 +1,33 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - name: Install pandoc, texlive-xelatex and typst
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc texlive-xetex
+          cargo install typst-cli
+
+      - name: Run tests
+        run: cargo test --verbose

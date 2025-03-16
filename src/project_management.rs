@@ -107,12 +107,16 @@ pub(crate) fn add_template(
         ));
     }
 
+    let template_type = match template_type {
+        Some(t) => t,
+        None => {
+            get_template_type_from_path(get_template_path(template_file.clone(), &template_name))?
+        }
+    };
+
     let template = TemplateMapping {
         name: template_name.clone(),
-        template_type: template_type.unwrap_or(get_template_type_from_path(get_template_path(
-            template_file.clone(),
-            &template_name,
-        ))?),
+        template_type,
         output,
         template_file,
         filters,
@@ -127,7 +131,6 @@ pub(crate) fn add_template(
 
     Ok(())
 }
-
 pub(crate) fn remove_template(project: Option<String>, template_name: String) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
@@ -197,12 +200,26 @@ pub(crate) fn update_template(
         if let Some(filters) = filters {
             template.filters = Some(filters);
         } else if let Some(add_filters) = add_filters {
+            if add_filters.iter().any(|filter| filter.is_empty()) {
+                return Err(eyre!(
+                    "Cannot add an empty filter to the template '{}'.",
+                    template_name
+                ));
+            }
+
             if let Some(filters) = &mut template.filters {
                 filters.extend(add_filters);
             } else {
                 template.filters = Some(add_filters);
             }
         } else if let Some(remove_filters) = remove_filters {
+            if remove_filters.iter().any(|filter| filter.is_empty()) {
+                return Err(eyre!(
+                    "Cannot remove an empty filter from the template '{}'.",
+                    template_name
+                ));
+            }
+
             if let Some(filters) = &mut template.filters {
                 filters.retain(|filter| !remove_filters.contains(filter));
             }
@@ -380,6 +397,7 @@ pub(crate) fn load_and_convert_manifest(manifest_path: &std::path::PathBuf) -> R
 
     if current_manifest_version < CURRENT_MANIFEST_VERSION {
         upgrade_manifest(&mut manifest, current_manifest_version)?;
+        println!("Manifest upgraded to version {}.", CURRENT_MANIFEST_VERSION,);
     } else if current_manifest_version > CURRENT_MANIFEST_VERSION {
         return Err(eyre!(
             "Manifest file is from a newer version of the program. Please update the program."
