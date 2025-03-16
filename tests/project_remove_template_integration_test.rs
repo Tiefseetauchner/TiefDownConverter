@@ -1,4 +1,5 @@
 use assert_cmd::Command;
+use predicates::prelude::*;
 use rstest::rstest;
 use std::{
     fs,
@@ -91,7 +92,7 @@ fn test_remove_template_with_invalid_name() {
         .arg("invalid_name")
         .assert()
         .failure()
-        .stderr(predicates::prelude::predicate::str::contains(
+        .stderr(predicate::str::contains(
             "Template invalid_name could not be found in the project.",
         ));
 }

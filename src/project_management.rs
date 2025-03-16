@@ -200,12 +200,26 @@ pub(crate) fn update_template(
         if let Some(filters) = filters {
             template.filters = Some(filters);
         } else if let Some(add_filters) = add_filters {
+            if add_filters.iter().any(|filter| filter.is_empty()) {
+                return Err(eyre!(
+                    "Cannot add an empty filter to the template '{}'.",
+                    template_name
+                ));
+            }
+
             if let Some(filters) = &mut template.filters {
                 filters.extend(add_filters);
             } else {
                 template.filters = Some(add_filters);
             }
         } else if let Some(remove_filters) = remove_filters {
+            if remove_filters.iter().any(|filter| filter.is_empty()) {
+                return Err(eyre!(
+                    "Cannot remove an empty filter from the template '{}'.",
+                    template_name
+                ));
+            }
+
             if let Some(filters) = &mut template.filters {
                 filters.retain(|filter| !remove_filters.contains(filter));
             }

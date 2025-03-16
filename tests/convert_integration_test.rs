@@ -228,21 +228,9 @@ fn test_convert_giant_file() {
     create_manifest_file(&project_path, VALID_MANIFEST_CONTENT_ONE_TEMPLATE);
     create_template(&project_path, "templ1.tex", VALID_TEMPLATE_CONTENT_TEX);
     let content = include_str!("testdata/large_document_markdown.md");
-    create_markdown_file(&project_path, "Chapter 1.md", content);
-    create_markdown_file(&project_path, "Chapter 2.md", content);
-    create_markdown_file(&project_path, "Chapter 3.md", content);
-    create_markdown_file(&project_path, "Chapter 4.md", content);
-    create_markdown_file(&project_path, "Chapter 5.md", content);
-    create_markdown_file(&project_path, "Chapter 6.md", content);
-    create_markdown_file(&project_path, "Chapter 7.md", content);
-    create_markdown_file(&project_path, "Chapter 8.md", content);
-    create_markdown_file(&project_path, "Chapter 9.md", content);
-    create_markdown_file(&project_path, "Chapter 10.md", content);
-    create_markdown_file(&project_path, "Chapter 11.md", content);
-    create_markdown_file(&project_path, "Chapter 12.md", content);
-    create_markdown_file(&project_path, "Chapter 13.md", content);
-    create_markdown_file(&project_path, "Chapter 14.md", content);
-    create_markdown_file(&project_path, "Chapter 15.md", content);
+    for i in 0..5 {
+        create_markdown_file(&project_path, &format!("Chapter {}.md", i), content);
+    }
 
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
