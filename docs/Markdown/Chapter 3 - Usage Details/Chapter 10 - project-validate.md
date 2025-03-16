@@ -6,11 +6,7 @@
 ```
 Validate the TiefDown project structure and metadata.
 
-Usage: tiefdownconverter project validate [PROJECT]
-
-Arguments:
-  [PROJECT]  The project to validate. If not provided, the current
-    directory will be used.
+Usage: tiefdownconverter project validate
 
 Options:
   -h, --help  Print help

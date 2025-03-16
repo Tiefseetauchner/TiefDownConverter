@@ -6,11 +6,7 @@
 ```
 Clean temporary files from the TiefDown project.
 
-Usage: tiefdownconverter project clean [PROJECT]
-
-Arguments:
-  [PROJECT]  The project to clean. If not provided, the current directory
-    will be used.
+Usage: tiefdownconverter project clean
 
 Options:
   -h, --help  Print help

@@ -1,4 +1,4 @@
-use std::{fs, path::PathBuf};
+use std::{fs, path::PathBuf, process::Command};
 
 use color_eyre::eyre::{Result, eyre};
 use toml::{Table, Value};
@@ -354,9 +354,10 @@ pub(crate) fn validate(project: Option<String>) -> Result<()> {
 pub(crate) fn clean(project: Option<String>) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
-    let regex = regex::Regex::new(r"^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}$")?;
+    let manifest_path = project_path.join("manifest.toml");
+    let _ = load_and_convert_manifest(&manifest_path)?;
 
-    // Delete all folders matching '2025-03-10_08-40-18'
+    let regex = regex::Regex::new(r"^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}$")?;
 
     let mut files_to_delete = Vec::new();
     for entry in fs::read_dir(project_path)? {
@@ -374,6 +375,32 @@ pub(crate) fn clean(project: Option<String>) -> Result<()> {
         fs::remove_dir_all(file)?;
     }
 
+    Ok(())
+}
+
+pub(crate) fn check_dependencies(dependencies: Vec<&str>) -> Result<()> {
+    let mut errors = Vec::new();
+
+    for dependency in dependencies {
+        let output = Command::new(dependency).arg("--version").output();
+
+        if !output.is_ok() {
+            errors.push(format!(
+                "Could not call {}:\n{}",
+                dependency,
+                output.unwrap_err()
+            ));
+        }
+    }
+
+    if !errors.is_empty() {
+        for error in errors {
+            println!("{}", error);
+        }
+        return Err(eyre!("Some dependencies are missing."));
+    }
+
+    println!("All dependencies are installed.");
     Ok(())
 }
 
@@ -423,4 +450,23 @@ fn create_templates(
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use rstest::rstest;
+
+    use super::*;
+
+    #[rstest]
+    fn check_dependencies_valid() {
+        let dependencies = vec!["ls", "echo"];
+        assert!(check_dependencies(dependencies).is_ok());
+    }
+
+    #[rstest]
+    fn check_dependencies_invalid() {
+        let dependencies = vec!["ls", "invalid_command_that_no_sane_person_would_have"];
+        assert!(check_dependencies(dependencies).is_err());
+    }
 }
