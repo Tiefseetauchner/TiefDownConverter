@@ -7,11 +7,14 @@ how to customise it for your usecases. Presets can only do so much.
 ## Installation
 
 Currently the only way to install `tiefdownconverter` is to either build
-it yourself or download a precompiled binary from the
+it yourself, install it from cargo, or download a precompiled binary from the
 [releases page](https://github.com/tiefseetauchner/tiefdownconverter/releases).
 Then just add it to the path and you're good to go. You can of course
 also just call it relatively by placing the binary in your project folder or
 something like that.
+
+That said, the recommended way to install TiefDownConverter is 
+`cargo install tiefdownconverter`. This will always install the latest version.
 
 There are a few dependencies that you need to install.
 
@@ -24,10 +27,18 @@ There are a few dependencies that you need to install.
   - If using [MikTeX](https://miktex.org/), no need to do anything.
 - [Typst](https://typst.app/): For converting Typst files to PDF.
 
+Windows is easy enough: `winget install miktex pandoc typst`.
+
+Linux varies by distro of course, but for ubuntu it's `apt install texlive-xetex pandoc` 
+and `cargo install typst` or downloading the typst binary and adding it to the path.
+
 Now you should be able to run `tiefdownconverter` from the command line.
 You can test it by initialising a test project using `tiefdownconverter init testproject`
 and running `tiefdownconverter convert` in the project directory or
-`tiefdownconverter convert -p testproject`.
+`tiefdownconverter convert -p testproject`. You could also, as a test, clone the
+[Github Repo](https://github.com/Tiefseetauchner/TiefDownConverter) and run
+`tiefdownconverter convert -p docs` (this may however throw warnings if you don't
+have the appropriate fonts installed).
 
 ## Getting started
 

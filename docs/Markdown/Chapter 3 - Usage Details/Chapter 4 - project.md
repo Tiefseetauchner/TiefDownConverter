@@ -1,4 +1,4 @@
-## `tiefdownconverter project`
+## `tiefdownconverter project` {#project}
 
 **Version:** `tiefdownconverter 0.6.0-ALPHA-preprocessors`
 
@@ -29,12 +29,12 @@ Options:
 ```
 
 ### Subcommands:
-- add-template
-- remove-template
-- update-template
-- update-manifest
-- add-preprocessor
-- list-templates
-- validate
-- clean
+- [add-template](#projectadd-template)
+- [remove-template](#projectremove-template)
+- [update-template](#projectupdate-template)
+- [update-manifest](#projectupdate-manifest)
+- [add-preprocessor](#projectadd-preprocessor)
+- [list-templates](#projectlist-templates)
+- [validate](#projectvalidate)
+- [clean](#projectclean)
 

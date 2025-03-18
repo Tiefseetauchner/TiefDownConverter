@@ -1,4 +1,4 @@
-## `tiefdownconverter project update-template`
+## `tiefdownconverter project update-template` {#projectupdate-template}
 
 **Version:** `tiefdownconverter 0.6.0-ALPHA-preprocessors`
 

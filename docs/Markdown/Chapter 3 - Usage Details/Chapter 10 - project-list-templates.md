@@ -1,4 +1,4 @@
-## `tiefdownconverter project list-templates`
+## `tiefdownconverter project list-templates` {#projectlist-templates}
 
 **Version:** `tiefdownconverter 0.6.0-ALPHA-preprocessors`
 

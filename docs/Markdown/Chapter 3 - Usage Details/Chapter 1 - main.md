@@ -1,4 +1,4 @@
-## `tiefdownconverter `
+## `tiefdownconverter ` {#main}
 
 **Version:** `tiefdownconverter 0.6.0-ALPHA-preprocessors`
 
@@ -23,8 +23,8 @@ Options:
 ```
 
 ### Subcommands:
-- convert
-- init
-- project
-- check-dependencies
+- [convert](#convert)
+- [init](#init)
+- [project](#project)
+- [check-dependencies](#check-dependencies)
 

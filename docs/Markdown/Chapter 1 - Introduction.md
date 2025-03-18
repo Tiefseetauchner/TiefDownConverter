@@ -139,3 +139,10 @@ a few scenarios where it saves the day:
 - **Multi-format Exports** - Need a A4 PDF, a Book PDF, a letter PDF, EPUB, so on? TiefDown can generate them all from the same source.
 
 Basically, if your workflow involves Markdown and you’re sick of manually converting everything, TiefDown is your new best friend.
+
+## Support
+
+Now, you want support? Check out the Discord or write an issue on GitHub!
+
+- [Discord Server](https://discord.gg/EG3zU9cTFx)
+- [GitHub Issues](https://github.com/Tiefseetauchner/TiefDownConverter/issues)
