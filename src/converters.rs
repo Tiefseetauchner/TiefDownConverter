@@ -83,13 +83,6 @@ pub(crate) fn convert_epub(
         template.template_type.clone(),
     );
 
-    println!(
-        "Converting to {}",
-        &output_path
-            .strip_prefix(compiled_directory_path)?
-            .to_string_lossy()
-    );
-
     let mut pandoc = Command::new("pandoc");
     pandoc
         .current_dir(compiled_directory_path)
