@@ -204,13 +204,12 @@ mod tests {
 
     #[rstest]
     fn test_upgrade_manifest_v0_to_v1() {
-        let current_version = 0u32;
         let manifest_content = r#"
 markdown_dir = "Custom Markdown Directory"
 templates = ["template1.tex", "template2.typ"]"#;
         let mut manifest = toml::from_str(manifest_content).unwrap();
 
-        let result = upgrade_manifest(&mut manifest, current_version);
+        let result = upgrade_manifest_v0_to_v1(&mut manifest);
 
         assert!(result.is_ok());
 
@@ -232,7 +231,6 @@ template_type = "Typst"
 
     #[rstest]
     fn test_upgrade_manifest_v1_to_v2() {
-        let current_version = 1u32;
         let manifest_content = r#"
 markdown_dir = "Custom Markdown Directory"
 version = 1
@@ -247,11 +245,14 @@ template_type = "Typst"
 "#;
 
         let mut manifest = toml::from_str(manifest_content).unwrap();
-        let result = upgrade_manifest(&mut manifest, current_version);
+        let result = upgrade_manifest_v1_to_v2(&mut manifest);
         assert!(result.is_ok());
 
         let expected_manifest = r#"markdown_dir = "Custom Markdown Directory"
 version = 2
+
+[custom_processors]
+preprocessors = []
 
 [[templates]]
 name = "template1.tex"
@@ -260,8 +261,6 @@ template_type = "Tex"
 [[templates]]
 name = "template2.typ"
 template_type = "Typst"
-
-[custom_preprocessors]
 "#;
 
         let actual_manifest = toml::to_string(&manifest).unwrap();

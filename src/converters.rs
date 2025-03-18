@@ -91,7 +91,10 @@ pub(crate) fn convert_epub(
         .arg("-t")
         .arg("epub3")
         .arg("-o")
-        .arg(&output_path.strip_prefix(compiled_directory_path)?);
+        .arg(get_path_relative_to_compiled_directory(
+            &output_path,
+            project_directory_path,
+        )?);
 
     add_css_files(project_directory_path, &template_path, &mut pandoc)?;
     add_fonts(project_directory_path, &template_path, &mut pandoc)?;
@@ -275,5 +278,8 @@ fn get_path_relative_to_compiled_directory(
     original_path: &Path,
     project_directory_path: &Path,
 ) -> Result<PathBuf> {
+    if project_directory_path.to_string_lossy() == "." {
+        return Ok(PathBuf::from("../").join(original_path));
+    }
     Ok(PathBuf::from("../").join(original_path.strip_prefix(project_directory_path)?))
 }

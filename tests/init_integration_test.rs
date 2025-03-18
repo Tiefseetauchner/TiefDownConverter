@@ -7,11 +7,14 @@ use tempfile::tempdir;
 #[macro_use]
 mod assertions;
 
-const DEFAULT_MANIFEST_CONTENT: &str = r#"version = 1
+const DEFAULT_MANIFEST_CONTENT: &str = r#"version = 2
 
 [[templates]]
 name = "template.tex"
 template_type = "Tex"
+
+[custom_processors]
+preprocessors = []
 "#;
 
 fn assert_default_project(project_path: &Path) {
