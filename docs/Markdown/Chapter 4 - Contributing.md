@@ -6,6 +6,7 @@ There's a few things you should know before you start.
 ## Pull Requests
 
 Pull Requests should be made with either a link to an issue or an explanation of
+
 1. What was the problem
 2. How is it solved now
 3. How did it affect the documentation
