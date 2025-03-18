@@ -1,9 +1,14 @@
-version = 1
+version = 2
+
+[[custom_processors.preprocessors]]
+name = "Enable Listings"
+pandoc_args = ["-o", "output.tex", "-t", "latex", "--listings"]
 
 [[templates]]
 filters = ["luafilters/chapter_filter.lua"]
 name = "PDF Documentation LaTeX"
 output = "docs_tex.pdf"
+preprocessor = "Enable Listings"
 template_file = "docs.tex"
 template_type = "Tex"
 
