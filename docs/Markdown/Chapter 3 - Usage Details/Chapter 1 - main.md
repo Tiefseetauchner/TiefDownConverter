@@ -1,10 +1,16 @@
 ## `tiefdownconverter `
 
-**Version:** `tiefdownconverter 0.4.0`
+**Version:** `tiefdownconverter 0.5.0`
 
 ### Usage:
 ```
-A CLI tool for managing TiefDown Projects
+TiefDownConverter manages TiefDown projects.
+TiefDown is a project structure meant to simplify the conversion process
+    from Markdown to PDFs.
+TiefDownConverter consolidates multiple conversion processes and templating
+    systems to generate a configurable set or subset of output documents.
+It is not in itself a converter, but a wrapper around pandoc, xelatex and
+    typst. As such, it requires these dependencies to be installed.
 
 Usage: tiefdownconverter <COMMAND>
 
@@ -18,8 +24,11 @@ Commands:
     subcommand(s)
 
 Options:
-  -h, --help     Print help
-  -V, --version  Print version
+  -h, --help
+          Print help (see a summary with '-h')
+
+  -V, --version
+          Print version
 ```
 
 ### Subcommands:

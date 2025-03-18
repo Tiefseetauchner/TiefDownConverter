@@ -13,7 +13,13 @@ mod template_management;
 
 #[derive(Parser)]
 #[command(name = "tiefdownconverter", version)]
-#[command(about = "A CLI tool for managing TiefDown Projects", long_about = None)]
+#[command(
+    about = "A CLI tool for managing TiefDown Projects",
+    long_about = r#"TiefDownConverter manages TiefDown projects.
+TiefDown is a project structure meant to simplify the conversion process from Markdown to PDFs.
+TiefDownConverter consolidates multiple conversion processes and templating systems to generate a configurable set or subset of output documents.
+It is not in itself a converter, but a wrapper around pandoc, xelatex and typst. As such, it requires these dependencies to be installed."#
+)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
@@ -34,7 +40,6 @@ enum Commands {
         #[arg(
             short,
             long,
-
             help = "The templates to use. If not provided, the default templates from the manifest file will be used.",
             use_value_delimiter = true,
             value_delimiter = ',',
