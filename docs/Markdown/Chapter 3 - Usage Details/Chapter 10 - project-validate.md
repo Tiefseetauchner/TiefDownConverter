@@ -1,4 +1,4 @@
-## `tiefdownconverter project validate`
+## `tiefdownconverter project validate` {#projectvalidate}
 
 **Version:** `tiefdownconverter 0.5.0`
 

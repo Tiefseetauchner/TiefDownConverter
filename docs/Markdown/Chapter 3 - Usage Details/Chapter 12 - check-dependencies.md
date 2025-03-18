@@ -1,4 +1,4 @@
-## `tiefdownconverter check-dependencies`
+## `tiefdownconverter check-dependencies` {#check-dependencies}
 
 **Version:** `tiefdownconverter 0.5.0`
 

@@ -1,4 +1,4 @@
-## `tiefdownconverter project remove-template`
+## `tiefdownconverter project remove-template` {#projectremove-template}
 
 **Version:** `tiefdownconverter 0.5.0`
 

@@ -60,7 +60,7 @@ def generate_markdown(command, subcommand_chain=""):
 
     # Write Markdown documentation
     with open(filename, "w", encoding="utf-8") as f:
-        f.write(f"## `{CLI_EXEC} {subcommand_chain}`\n\n")
+        f.write(f"## `{CLI_EXEC} {subcommand_chain}` {{#{subcommand_chain.replace(' ', '') or 'main'}}}\n\n")
         f.write(f"**Version:** `{version}`\n\n")
         f.write("### Usage:\n```\n")
 
@@ -73,7 +73,7 @@ def generate_markdown(command, subcommand_chain=""):
         if subcommands:
             f.write("### Subcommands:\n")
             for subcmd in subcommands:
-                f.write(f"- {subcmd}\n")
+                f.write(f"- [{subcmd}](#{subcommand_chain.replace(' ', '')}{subcmd})\n")
             f.write("\n")
 
     print(f"Generated: {filename}")

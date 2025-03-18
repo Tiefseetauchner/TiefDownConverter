@@ -1,4 +1,4 @@
-## `tiefdownconverter project clean`
+## `tiefdownconverter project clean` {#projectclean}
 
 **Version:** `tiefdownconverter 0.5.0`
 

@@ -1,4 +1,4 @@
-## `tiefdownconverter convert`
+## `tiefdownconverter convert` {#convert}
 
 **Version:** `tiefdownconverter 0.5.0`
 
