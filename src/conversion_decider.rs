@@ -4,8 +4,7 @@ use color_eyre::eyre::Result;
 
 use crate::{
     converters,
-    manifest_model::{TemplateMapping, TemplateType},
-    template_management::get_template_type_from_path,
+    manifest_model::{PreProcessor, TemplateMapping, TemplateType},
 };
 
 type Converter = fn(
@@ -13,11 +12,10 @@ type Converter = fn(
     compiled_markdown_path: &Path,
     compiled_directory_path: &Path,
     template: &TemplateMapping,
+    preprocessors: &Vec<PreProcessor>,
 ) -> Result<PathBuf>;
 
-pub fn get_converter(template: &str) -> Result<Converter> {
-    let template_type = get_template_type_from_path(template)?;
-
+pub fn get_converter(template_type: &TemplateType) -> Result<Converter> {
     Ok(match template_type {
         TemplateType::Tex => converters::convert_latex,
         TemplateType::Typst => converters::convert_typst,

@@ -8,6 +8,7 @@ use std::{
     fmt::{Display, Formatter},
     path::PathBuf,
     str::FromStr,
+    sync::LazyLock,
 };
 use toml::Table;
 
@@ -18,7 +19,37 @@ pub(crate) struct Manifest {
     pub version: u32,
     pub markdown_dir: Option<String>,
     pub templates: Vec<TemplateMapping>,
+    pub custom_processors: Processors,
 }
+
+#[derive(Deserialize, Serialize, Clone)]
+pub(crate) struct Processors {
+    pub preprocessors: Vec<PreProcessor>,
+}
+
+#[derive(Deserialize, Serialize, Clone)]
+pub(crate) struct PreProcessor {
+    pub name: String,
+    pub pandoc_args: Vec<String>,
+}
+
+pub(crate) static DEFAULT_TEX_PREPROCESSOR: LazyLock<PreProcessor> =
+    LazyLock::new(|| PreProcessor {
+        name: "default_tex_preprocessor".to_string(),
+        pandoc_args: vec!["-o", "output.tex", "-t", "latex"]
+            .iter()
+            .map(|s| s.to_string())
+            .collect(),
+    });
+
+pub(crate) static DEFAULT_TYPST_PREPROCESSOR: LazyLock<PreProcessor> =
+    LazyLock::new(|| PreProcessor {
+        name: "default_typst_preprocessor".to_string(),
+        pandoc_args: vec!["-o", "output.typ", "-t", "typst"]
+            .iter()
+            .map(|s| s.to_string())
+            .collect(),
+    });
 
 #[derive(Deserialize, Serialize, Clone)]
 pub(crate) struct TemplateMapping {
@@ -27,6 +58,7 @@ pub(crate) struct TemplateMapping {
     pub template_file: Option<PathBuf>,
     pub output: Option<PathBuf>,
     pub filters: Option<Vec<String>>,
+    pub preprocessor: Option<String>,
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug, PartialEq, Eq, ValueEnum)]
@@ -97,6 +129,13 @@ pub(crate) fn upgrade_manifest(manifest: &mut Table, current_version: u32) -> Re
         while updated_version < CURRENT_MANIFEST_VERSION {
             if current_version == 0 {
                 upgrade_manifest_v0_to_v1(manifest)?
+            } else if current_version == 1 {
+                upgrade_manifest_v1_to_v2(manifest)?
+            } else {
+                return Err(eyre!(
+                    "Manifest version {} is not supported for upgrades.",
+                    current_version
+                ));
             }
 
             updated_version += 1;
@@ -142,6 +181,21 @@ fn upgrade_manifest_v0_to_v1(manifest: &mut Table) -> Result<()> {
     Ok(())
 }
 
+fn upgrade_manifest_v1_to_v2(manifest: &mut Table) -> Result<()> {
+    manifest.insert("version".to_string(), toml::Value::Integer(2));
+
+    manifest.insert(
+        "custom_processors".to_string(),
+        toml::Value::Table(Table::new()),
+    );
+    manifest["custom_processors"]
+        .as_table_mut()
+        .unwrap()
+        .insert("preprocessors".to_string(), toml::Value::Array(Vec::new()));
+
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use rstest::rstest;
@@ -170,6 +224,44 @@ template_type = "Tex"
 [[templates]]
 name = "template2.typ"
 template_type = "Typst"
+"#;
+
+        let actual_manifest = toml::to_string(&manifest).unwrap();
+        assert_eq!(expected_manifest, actual_manifest);
+    }
+
+    #[rstest]
+    fn test_upgrade_manifest_v1_to_v2() {
+        let current_version = 1u32;
+        let manifest_content = r#"
+markdown_dir = "Custom Markdown Directory"
+version = 1
+
+[[templates]]
+name = "template1.tex"
+template_type = "Tex"
+
+[[templates]]
+name = "template2.typ"
+template_type = "Typst"
+"#;
+
+        let mut manifest = toml::from_str(manifest_content).unwrap();
+        let result = upgrade_manifest(&mut manifest, current_version);
+        assert!(result.is_ok());
+
+        let expected_manifest = r#"markdown_dir = "Custom Markdown Directory"
+version = 2
+
+[[templates]]
+name = "template1.tex"
+template_type = "Tex"
+
+[[templates]]
+name = "template2.typ"
+template_type = "Typst"
+
+[custom_preprocessors]
 "#;
 
         let actual_manifest = toml::to_string(&manifest).unwrap();

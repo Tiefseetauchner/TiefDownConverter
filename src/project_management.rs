@@ -5,7 +5,9 @@ use toml::{Table, Value};
 
 use crate::{
     consts::CURRENT_MANIFEST_VERSION,
-    manifest_model::{Manifest, TemplateMapping, TemplateType, upgrade_manifest},
+    manifest_model::{
+        Manifest, PreProcessor, Processors, TemplateMapping, TemplateType, upgrade_manifest,
+    },
     template_management::{self, get_template_path, get_template_type_from_path},
 };
 
@@ -66,6 +68,9 @@ This is a simple test document for you to edit or overwrite."#,
         version: CURRENT_MANIFEST_VERSION,
         markdown_dir,
         templates: templates.clone(),
+        custom_processors: Processors {
+            preprocessors: Vec::new(),
+        },
     };
 
     std::fs::write(manifest_path, toml::to_string(&manifest)?)?;
@@ -83,6 +88,7 @@ fn get_template_mapping_for_preset(template: &String) -> Result<TemplateMapping>
         output: None,
         template_file: None,
         filters: None,
+        preprocessor: None,
     })
 }
 
@@ -120,6 +126,7 @@ pub(crate) fn add_template(
         output,
         template_file,
         filters,
+        preprocessor: None,
     };
 
     manifest.templates.extend([template.clone()]);
@@ -180,6 +187,7 @@ pub(crate) fn update_template(
     filters: Option<Vec<String>>,
     add_filters: Option<Vec<String>>,
     remove_filters: Option<Vec<String>>,
+    preprocessor: Option<String>,
 ) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
@@ -224,6 +232,7 @@ pub(crate) fn update_template(
                 filters.retain(|filter| !remove_filters.contains(filter));
             }
         }
+        template.preprocessor = preprocessor.or(template.preprocessor.clone());
     } else {
         return Err(eyre!(
             "Template with name '{}' does not exist.",
@@ -245,6 +254,26 @@ pub(crate) fn update_manifest(project: Option<String>, markdown_dir: Option<Stri
     let mut manifest = load_and_convert_manifest(&manifest_path)?;
 
     manifest.markdown_dir = markdown_dir;
+
+    let manifest_content = toml::to_string(&manifest)?;
+    std::fs::write(&manifest_path, manifest_content)?;
+
+    Ok(())
+}
+
+pub(crate) fn add_preprocessor(
+    project: Option<String>,
+    name: String,
+    pandoc_args: Vec<String>,
+) -> Result<()> {
+    let project = project.as_deref().unwrap_or(".");
+    let project_path = std::path::Path::new(&project);
+    let manifest_path = project_path.join("manifest.toml");
+
+    let mut manifest = load_and_convert_manifest(&manifest_path)?;
+
+    let preprocessor = PreProcessor { name, pandoc_args };
+    manifest.custom_processors.preprocessors.push(preprocessor);
 
     let manifest_content = toml::to_string(&manifest)?;
     std::fs::write(&manifest_path, manifest_content)?;

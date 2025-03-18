@@ -34,7 +34,6 @@ enum Commands {
         #[arg(
             short,
             long,
-
             help = "The templates to use. If not provided, the default templates from the manifest file will be used.",
             use_value_delimiter = true,
             value_delimiter = ',',
@@ -157,6 +156,8 @@ Changing this is not recommended, as it is highly unlikely the type and only the
             value_delimiter = ',',
         )]
         remove_filters: Option<Vec<String>>,
+        #[arg(short, long, help = "The preprocessor to use for this template.")]
+        preprocessor: Option<String>,
     },
     #[command(about = "Update the project manifest.")]
     UpdateManifest {
@@ -171,6 +172,18 @@ Changing this is not recommended, as it is highly unlikely the type and only the
         )]
         markdown_dir: Option<String>,
     },
+    #[command(about = "Add a new preprocessor to the project.")]
+    AddPreprocessor {
+        #[arg(help = "The name of the preprocessor to create.")]
+        name: String,
+        #[arg(help = "The arguments to pass to the preprocessor.", num_args = 1.., value_delimiter = ' ', last = true, allow_hyphen_values = true)]
+        pandoc_args: Vec<String>,
+    },
+    // #[command(about = "Remove a preprocessor from the project.")]
+    // RemovePreprocessor {
+    //     #[arg(help = "The name of the preprocessor to remove.")]
+    //     name: String,
+    // },
     #[command(about = "List the templates in the project.")]
     ListTemplates,
     #[command(about = "Validate the TiefDown project structure and metadata.")]
@@ -219,6 +232,7 @@ fn main() -> Result<()> {
                 filters,
                 add_filters,
                 remove_filters,
+                preprocessor,
             } => {
                 if filters.is_some() && (add_filters.is_some() || remove_filters.is_some()) {
                     return Err(eyre!("Cannot specify both filters and add/remove filters."));
@@ -233,12 +247,16 @@ fn main() -> Result<()> {
                     filters,
                     add_filters,
                     remove_filters,
+                    preprocessor,
                 )?
             }
             ProjectCommands::UpdateManifest {
                 project,
                 markdown_dir,
             } => project_management::update_manifest(project, markdown_dir)?,
+            ProjectCommands::AddPreprocessor { name, pandoc_args } => {
+                project_management::add_preprocessor(project, name, pandoc_args)?
+            }
             ProjectCommands::ListTemplates => project_management::list_templates(project)?,
             ProjectCommands::Validate => project_management::validate(project)?,
             ProjectCommands::Clean => project_management::clean(project)?,
