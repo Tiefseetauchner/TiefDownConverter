@@ -121,7 +121,7 @@ fn test_remove_preprocessor_does_not_exist() {
         .assert()
         .failure()
         .stderr(predicate::str::contains(
-            "Preprocessor Remove this could not be found in the project.",
+            "Preprocessor with name 'Remove this' does not exist.",
         ));
 
     let manifest_path = project_path.join("manifest.toml");

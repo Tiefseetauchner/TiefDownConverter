@@ -15,6 +15,21 @@ template_file = "templ1.tex"
 template_type = "Tex"
 "#;
 
+const VALID_MANIFEST_CONTENT_TWO_TEMPLATE_ONE_EPUB: &str = r#"version = 1
+
+[[templates]]
+name = "Template for Testing"
+output = "templ1.pdf"
+template_file = "templ1.tex"
+template_type = "Tex"
+
+[[templates]]
+name = "Epub Template"
+output = "out.epub"
+template_file = "epub_template"
+template_type = "Epub"
+"#;
+
 const VALID_MANIFEST_CONTENT_THREE_TEMPLATES: &str = r#"version = 1
 
 [[templates]]
@@ -59,9 +74,11 @@ const VALID_TEMPLATE_CONTENT_TYP: &str = r#"#include "output.typ""#;
 const VALID_MARKDOWN_CONTENT: &str = r#"# Chapter 1
 Basic test content"#;
 
-fn create_project_dir(temp_dir: &TempDir) -> PathBuf {
-    let project_path = temp_dir.path().join("project");
-    fs::create_dir(&project_path).expect("Failed to create project directory");
+fn create_project_dir(temp_dir: &TempDir, project_path: &Path) -> PathBuf {
+    let project_path = temp_dir.path().join(project_path);
+    if !project_path.exists() {
+        fs::create_dir(&project_path).expect("Failed to create project directory");
+    }
 
     project_path
 }
@@ -89,7 +106,7 @@ fn create_markdown_file(project_path: &Path, filename: &str, content: &str) {
 fn test_convert() {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
 
-    let project_path = create_project_dir(&temp_dir);
+    let project_path = create_project_dir(&temp_dir, Path::new("project"));
 
     create_manifest_file(&project_path, VALID_MANIFEST_CONTENT_ONE_TEMPLATE);
 
@@ -111,7 +128,7 @@ fn test_convert() {
 fn test_convert_with_multiple_templates() {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
 
-    let project_path = create_project_dir(&temp_dir);
+    let project_path = create_project_dir(&temp_dir, Path::new("project"));
     create_manifest_file(&project_path, VALID_MANIFEST_CONTENT_THREE_TEMPLATES);
     create_template(&project_path, "templ1.tex", VALID_TEMPLATE_CONTENT_TEX);
     create_template(&project_path, "templ2.tex", VALID_TEMPLATE_CONTENT_TEX);
@@ -146,7 +163,7 @@ fn test_convert_specific_template(
 ) {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
 
-    let project_path = create_project_dir(&temp_dir);
+    let project_path = create_project_dir(&temp_dir, Path::new("project"));
     create_manifest_file(&project_path, VALID_MANIFEST_CONTENT_THREE_TEMPLATES);
     create_template(&project_path, "templ1.tex", VALID_TEMPLATE_CONTENT_TEX);
     create_template(&project_path, "templ2.tex", VALID_TEMPLATE_CONTENT_TEX);
@@ -183,9 +200,10 @@ fn test_convert_specific_template(
 fn test_convert_specific_project_folder(#[case] project_path_name: &str) {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
 
-    let project_path = create_project_dir(&temp_dir);
-    create_manifest_file(&project_path, VALID_MANIFEST_CONTENT_ONE_TEMPLATE);
+    let project_path = create_project_dir(&temp_dir, Path::new("project"));
+    create_manifest_file(&project_path, VALID_MANIFEST_CONTENT_TWO_TEMPLATE_ONE_EPUB);
     create_template(&project_path, "templ1.tex", VALID_TEMPLATE_CONTENT_TEX);
+    fs::create_dir_all(&project_path.join("template").join("epub_template")).expect("Failed to create epub template directory");
     create_markdown_file(&project_path, "Chapter 1.md", VALID_MARKDOWN_CONTENT);
 
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
@@ -203,9 +221,8 @@ fn test_convert_specific_project_folder(#[case] project_path_name: &str) {
 #[rstest]
 fn test_convert_epub() {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
-
     
-    let project_path = create_project_dir(&temp_dir);
+    let project_path = create_project_dir(&temp_dir, Path::new("project"));
     
     create_manifest_file(&project_path, VALID_MANIFEST_CONTENT_EPUB_TEMPLATE);
     fs::create_dir_all(project_path.join("template").join("template_epub"))
@@ -226,7 +243,7 @@ fn test_convert_epub() {
 fn test_convert_giant_file() {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
 
-    let project_path = create_project_dir(&temp_dir);
+    let project_path = create_project_dir(&temp_dir, Path::new("project"));
     create_manifest_file(&project_path, VALID_MANIFEST_CONTENT_ONE_TEMPLATE);
     create_template(&project_path, "templ1.tex", VALID_TEMPLATE_CONTENT_TEX);
     let content = include_str!("testdata/large_document_markdown.md");
@@ -248,7 +265,7 @@ fn test_convert_giant_file() {
 fn test_convert_many_files() {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
 
-    let project_path = create_project_dir(&temp_dir);
+    let project_path = create_project_dir(&temp_dir, Path::new("project"));
     create_manifest_file(&project_path, VALID_MANIFEST_CONTENT_ONE_TEMPLATE);
     create_template(&project_path, "templ1.tex", VALID_TEMPLATE_CONTENT_TEX);
     for i in 1..=1000 {
@@ -273,7 +290,7 @@ fn test_convert_many_files() {
 fn test_convert_far_nested_markdown_file() {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
 
-    let project_path = create_project_dir(&temp_dir);
+    let project_path = create_project_dir(&temp_dir, Path::new("project"));
     create_manifest_file(&project_path, VALID_MANIFEST_CONTENT_ONE_TEMPLATE);
     create_template(&project_path, "templ1.tex", VALID_TEMPLATE_CONTENT_TEX);
 
@@ -301,7 +318,7 @@ fn test_convert_far_nested_markdown_file() {
 fn test_convert_long_markdown_file_name() {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
 
-    let project_path = create_project_dir(&temp_dir);
+    let project_path = create_project_dir(&temp_dir, Path::new("project"));
     create_manifest_file(&project_path, VALID_MANIFEST_CONTENT_ONE_TEMPLATE);
     create_template(&project_path, "templ1.tex", VALID_TEMPLATE_CONTENT_TEX);
     let long_markdown_file_name =
@@ -326,7 +343,7 @@ fn test_convert_long_markdown_file_name() {
 fn test_convert_no_markdown_files() {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
 
-    let project_path = create_project_dir(&temp_dir);
+    let project_path = create_project_dir(&temp_dir, Path::new("project"));
     create_manifest_file(&project_path, VALID_MANIFEST_CONTENT_ONE_TEMPLATE);
     create_template(&project_path, "templ1.tex", VALID_TEMPLATE_CONTENT_TEX);
     fs::create_dir_all(project_path.join("Markdown")).expect("Failed to create Markdown directory");
