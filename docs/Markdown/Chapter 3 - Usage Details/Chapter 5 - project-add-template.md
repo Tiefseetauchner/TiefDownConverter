@@ -24,6 +24,8 @@ Options:
     the template name will be used.
       --filters <FILTERS>...           The luafilters to use for pandoc
     conversion of this templates markdown.
+      --preprocessor <PREPROCESSOR>    The preprocessor to use for this
+    template.
   -h, --help                           Print help
 ```
 

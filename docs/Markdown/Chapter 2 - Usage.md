@@ -120,15 +120,20 @@ may break the template. I advice to just add a new template and remove the old o
 
 Importantly, when you write your own template, you need to include the content somehow.
 That somehow is done via `\input{output.tex}` or `#include "./output.typ"`. This will include the 
-output of the Markdown conversion in your template file. In the future, it may be possible to 
-specify per template, what the output should be called, but for now, it's just `output.tex`.
+output of the Markdown conversion in your template file. If you're using custom preprocessors, you
+can change the output file of the conversion. See [Preprocessing](#preprocessing) for more
+information.
 
 ### EPUB Customization
 
-EPUB support in TiefDownConverter isn’t as fancy as LaTeX or Typst, but you can still tweak it to look nice. You don’t get full-blown templates, but you can mess with CSS, fonts, and Lua filters to make it work how you want.
+EPUB support in TiefDownConverter isn’t as fancy as LaTeX or Typst, but you can still tweak it to 
+look nice. You don’t get full-blown templates, but you can mess with CSS, fonts, and Lua filters 
+to make it work how you want.
 
 #### Customizing CSS
-EPUBs use stylesheets to control how everything looks. The good news? Any `.css` file you drop into `template/my_epub_template/` gets automatically loaded. No need to mess with the manifest—just throw in your styles and you’re good.
+EPUBs use stylesheets to control how everything looks. The good news? Any `.css` file you drop into 
+`template/my_epub_template/` gets automatically loaded. No need to mess with the manifest—just 
+throw in your styles and you’re good.
 
 Example CSS:
 ```css
@@ -291,11 +296,19 @@ to the intermediate output file (in case of LaTeX, this is `output.tex`). But if
 are using lua filters, you may want to export to a different path. This can be done by defining
 a preprocessor.
 
-If you want to define a preprocessor, you can do so by running 
-`tiefdownconverter project update-template <TEMPLATE_NAME> --preprocessor <PREPROCESSOR_NAME>` 
+If you want to define a preprocessor, you can do so by running
+
+```bash
+tiefdownconverter project update-template <TEMPLATE_NAME> --preprocessor <PREPROCESSOR_NAME>
+``` 
+
 to assign it to a template and 
-`tiefdownconverter project add-preprocessor <PREPROCESSOR_NAME> -- [PANDOC_ARGS]` to create a 
-new preprocessor.
+
+```bash
+tiefdownconverter project add-preprocessor <PREPROCESSOR_NAME> -- [PANDOC_ARGS]
+```
+
+to create a new preprocessor.
 
 For example, if you want to add `--listings` to the pandoc command, you could do so by adding
 `--listings` to the preprocessor. But importantly, **this overwrites the default preprocessor**.
