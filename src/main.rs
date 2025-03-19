@@ -120,6 +120,8 @@ enum ProjectCommands {
         output: Option<PathBuf>,
         #[arg(long, help = "The luafilters to use for pandoc conversion of this templates markdown.", num_args = 1.., value_delimiter = ',')]
         filters: Option<Vec<String>>,
+        #[arg(long, help = "The preprocessor to use for this template.")]
+        preprocessor: Option<String>,
     },
     #[command(about = "Remove a template from the project.")]
     RemoveTemplate {
@@ -162,7 +164,7 @@ Changing this is not recommended, as it is highly unlikely the type and only the
             value_delimiter = ',',
         )]
         remove_filters: Option<Vec<String>>,
-        #[arg(short, long, help = "The preprocessor to use for this template.")]
+        #[arg(long, help = "The preprocessor to use for this template.")]
         preprocessor: Option<String>,
     },
     #[command(about = "Update the project manifest.")]
@@ -185,11 +187,11 @@ Changing this is not recommended, as it is highly unlikely the type and only the
         #[arg(help = "The arguments to pass to the preprocessor.", num_args = 1.., value_delimiter = ' ', last = true, allow_hyphen_values = true)]
         pandoc_args: Vec<String>,
     },
-    // #[command(about = "Remove a preprocessor from the project.")]
-    // RemovePreprocessor {
-    //     #[arg(help = "The name of the preprocessor to remove.")]
-    //     name: String,
-    // },
+    #[command(about = "Remove a preprocessor from the project.")]
+    RemovePreprocessor {
+        #[arg(help = "The name of the preprocessor to remove.")]
+        name: String,
+    },
     #[command(about = "List the templates in the project.")]
     ListTemplates,
     #[command(about = "Validate the TiefDown project structure and metadata.")]
@@ -219,6 +221,7 @@ fn main() -> Result<()> {
                 template_type,
                 output,
                 filters,
+                preprocessor,
             } => project_management::add_template(
                 project,
                 template,
@@ -226,6 +229,7 @@ fn main() -> Result<()> {
                 template_file,
                 output,
                 filters,
+                preprocessor,
             )?,
             ProjectCommands::RemoveTemplate { template } => {
                 project_management::remove_template(project, template)?
@@ -262,6 +266,9 @@ fn main() -> Result<()> {
             } => project_management::update_manifest(project, markdown_dir)?,
             ProjectCommands::AddPreprocessor { name, pandoc_args } => {
                 project_management::add_preprocessor(project, name, pandoc_args)?
+            }
+            ProjectCommands::RemovePreprocessor { name } => {
+                project_management::remove_preprocessor(project, name)?
             }
             ProjectCommands::ListTemplates => project_management::list_templates(project)?,
             ProjectCommands::Validate => project_management::validate(project)?,

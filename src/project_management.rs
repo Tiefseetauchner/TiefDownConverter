@@ -99,6 +99,7 @@ pub(crate) fn add_template(
     template_file: Option<PathBuf>,
     output: Option<PathBuf>,
     filters: Option<Vec<String>>,
+    preprocessor: Option<String>,
 ) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
@@ -126,7 +127,7 @@ pub(crate) fn add_template(
         output,
         template_file,
         filters,
-        preprocessor: None,
+        preprocessor,
     };
 
     manifest.templates.extend([template.clone()]);
@@ -138,6 +139,7 @@ pub(crate) fn add_template(
 
     Ok(())
 }
+
 pub(crate) fn remove_template(project: Option<String>, template_name: String) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
@@ -274,6 +276,30 @@ pub(crate) fn add_preprocessor(
 
     let preprocessor = PreProcessor { name, pandoc_args };
     manifest.custom_processors.preprocessors.push(preprocessor);
+
+    let manifest_content = toml::to_string(&manifest)?;
+    std::fs::write(&manifest_path, manifest_content)?;
+
+    Ok(())
+}
+
+pub(crate) fn remove_preprocessor(project: Option<String>, name: String) -> Result<()> {
+    let project = project.as_deref().unwrap_or(".");
+    let project_path = std::path::Path::new(&project);
+    let manifest_path = project_path.join("manifest.toml");
+
+    let mut manifest = load_and_convert_manifest(&manifest_path)?;
+
+    if let Some(pos) = manifest
+        .custom_processors
+        .preprocessors
+        .iter()
+        .position(|p| p.name == name)
+    {
+        manifest.custom_processors.preprocessors.remove(pos);
+    } else {
+        return Err(eyre!("Preprocessor with name '{}' does not exist.", name));
+    }
 
     let manifest_content = toml::to_string(&manifest)?;
     std::fs::write(&manifest_path, manifest_content)?;
