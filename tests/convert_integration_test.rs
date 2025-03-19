@@ -203,7 +203,8 @@ fn test_convert_specific_project_folder(#[case] project_path_name: &str) {
     let project_path = create_project_dir(&temp_dir, Path::new("project"));
     create_manifest_file(&project_path, VALID_MANIFEST_CONTENT_TWO_TEMPLATE_ONE_EPUB);
     create_template(&project_path, "templ1.tex", VALID_TEMPLATE_CONTENT_TEX);
-    fs::create_dir_all(&project_path.join("template").join("epub_template")).expect("Failed to create epub template directory");
+    fs::create_dir_all(&project_path.join("template").join("epub_template"))
+        .expect("Failed to create epub template directory");
     create_markdown_file(&project_path, "Chapter 1.md", VALID_MARKDOWN_CONTENT);
 
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
@@ -221,9 +222,9 @@ fn test_convert_specific_project_folder(#[case] project_path_name: &str) {
 #[rstest]
 fn test_convert_epub() {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
-    
+
     let project_path = create_project_dir(&temp_dir, Path::new("project"));
-    
+
     create_manifest_file(&project_path, VALID_MANIFEST_CONTENT_EPUB_TEMPLATE);
     fs::create_dir_all(project_path.join("template").join("template_epub"))
         .expect("Failed to create template directory");
