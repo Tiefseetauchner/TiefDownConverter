@@ -354,6 +354,7 @@ pub(crate) fn validate(project: Option<String>) -> Result<()> {
                 TemplateType::Tex => false,
                 TemplateType::Typst => false,
                 TemplateType::Epub => true,
+                TemplateType::CustomPandoc => false,
             };
             if template_should_be_dir && !template_path.is_dir() {
                 errors.push(Err(eyre!(
@@ -362,11 +363,7 @@ pub(crate) fn validate(project: Option<String>) -> Result<()> {
                 )));
             }
 
-            let template_should_be_file = match template.template_type {
-                TemplateType::Tex => true,
-                TemplateType::Typst => true,
-                TemplateType::Epub => false,
-            };
+            let template_should_be_file = !template_should_be_dir;
             if template_should_be_file && !template_path.is_file() {
                 errors.push(Err(eyre!(
                     "Template '{}' is of type 'Tex' but is a directory.",

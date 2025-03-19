@@ -66,6 +66,7 @@ pub(crate) enum TemplateType {
     Tex = 0,
     Typst = 1,
     Epub = 2,
+    CustomPandoc = 3,
 }
 
 impl From<&str> for TemplateType {
@@ -74,6 +75,7 @@ impl From<&str> for TemplateType {
             "tex" => TemplateType::Tex,
             "typst" => TemplateType::Typst,
             "epub" => TemplateType::Epub,
+            "custompandoc" => TemplateType::CustomPandoc,
             _ => panic!("Invalid template type: {}", s),
         }
     }
@@ -87,6 +89,7 @@ impl FromStr for TemplateType {
             "tex" => Ok(TemplateType::Tex),
             "typst" => Ok(TemplateType::Typst),
             "epub" => Ok(TemplateType::Epub),
+            "custompandoc" => Ok(TemplateType::CustomPandoc),
             _ => Err(eyre!("Invalid template type: {}", s)),
         }
     }
@@ -98,6 +101,7 @@ impl From<usize> for TemplateType {
             0 => TemplateType::Tex,
             1 => TemplateType::Typst,
             2 => TemplateType::Epub,
+            3 => TemplateType::CustomPandoc,
             _ => panic!("Invalid template type index: {}", value),
         }
     }
@@ -109,6 +113,7 @@ impl Display for TemplateType {
             TemplateType::Tex => "Tex",
             TemplateType::Typst => "Typst",
             TemplateType::Epub => "Epub",
+            TemplateType::CustomPandoc => "CustomPandoc",
         };
         write!(f, "{}", text)
     }

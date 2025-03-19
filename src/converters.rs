@@ -7,6 +7,7 @@ use std::{
 use color_eyre::eyre::{Ok, Result, eyre};
 
 use crate::{
+    TemplateType,
     manifest_model::{
         DEFAULT_TEX_PREPROCESSOR, DEFAULT_TYPST_PREPROCESSOR, PreProcessor, TemplateMapping,
     },
@@ -25,7 +26,7 @@ pub(crate) fn convert_latex(
         template.output.clone(),
         &template_path,
         template.template_type.clone(),
-    ));
+    )?);
 
     run_preprocessor_on_markdown(
         template,
@@ -33,7 +34,7 @@ pub(crate) fn convert_latex(
         compiled_directory_path,
         combined_markdown_path,
         preprocessors,
-        &DEFAULT_TEX_PREPROCESSOR,
+        Some(&DEFAULT_TEX_PREPROCESSOR),
     )?;
 
     compile_latex(compiled_directory_path, &template_path)?;
@@ -61,6 +62,44 @@ fn compile_latex(compiled_directory_path: &Path, template_path: &Path) -> Result
     Ok(())
 }
 
+pub(crate) fn convert_custom_pandoc(
+    project_directory_path: &Path,
+    combined_markdown_path: &Path,
+    compiled_directory_path: &Path,
+    template: &TemplateMapping,
+    preprocessors: &Vec<PreProcessor>,
+) -> Result<PathBuf> {
+    if template.preprocessor == None {
+        return Err(eyre!(
+            "Template type {} has to define a preprocessor.",
+            TemplateType::CustomPandoc
+        ));
+    }
+
+    let output_path = template.output.clone();
+
+    if output_path == None {
+        return Err(eyre!(
+            "Output Path is required for Custom Pandoc conversions."
+        ));
+    }
+
+    let output_path = output_path.unwrap();
+
+    run_preprocessor_on_markdown(
+        template,
+        project_directory_path,
+        compiled_directory_path,
+        combined_markdown_path,
+        preprocessors,
+        None,
+    )?;
+
+    let output_path = compiled_directory_path.join(&output_path);
+
+    Ok(output_path)
+}
+
 pub(crate) fn convert_epub(
     project_directory_path: &Path,
     combined_markdown_path: &Path,
@@ -81,7 +120,7 @@ pub(crate) fn convert_epub(
         template.output.clone(),
         &template_path,
         template.template_type.clone(),
-    );
+    )?;
 
     let mut pandoc = Command::new("pandoc");
     pandoc
@@ -172,7 +211,7 @@ pub(crate) fn convert_typst(
         template.output.clone(),
         &template_path,
         template.template_type.clone(),
-    );
+    )?;
 
     run_preprocessor_on_markdown(
         template,
@@ -180,7 +219,7 @@ pub(crate) fn convert_typst(
         compiled_directory_path,
         combined_markdown_path,
         preprocessors,
-        &DEFAULT_TYPST_PREPROCESSOR,
+        Some(&DEFAULT_TYPST_PREPROCESSOR),
     )?;
 
     Command::new("typst")
@@ -202,7 +241,7 @@ fn run_preprocessor_on_markdown(
     compiled_directory_path: &Path,
     combined_markdown_path: &Path,
     preprocessors: &Vec<PreProcessor>,
-    default_preprocessor: &PreProcessor,
+    default_preprocessor: Option<&PreProcessor>,
 ) -> Result<()> {
     let mut pandoc = Command::new("pandoc");
 
@@ -215,8 +254,13 @@ fn run_preprocessor_on_markdown(
                 preprocessor
             ));
         }
+    } else if let Some(preprocessor) = default_preprocessor {
+        pandoc.args(&preprocessor.pandoc_args);
     } else {
-        pandoc.args(&default_preprocessor.pandoc_args);
+        return Err(eyre!(
+            "Preprocessor not defined and no custom preprocessor found for template '{}'",
+            template.name
+        ));
     }
 
     pandoc
