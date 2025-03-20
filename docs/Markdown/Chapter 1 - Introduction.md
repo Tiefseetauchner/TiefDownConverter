@@ -135,7 +135,7 @@ a few scenarios where it saves the day:
 - **Writing Books** - Markdown is great for writing, but formatting a 300-page novel? Not so much. TiefDown handles that for you.
   Well, at least the part where you need to convert stuff, you still need to write out your templates.
 - **Technical Documentation** - Software projects need structured documentation, and TiefDown makes sure it's consistent.
-  Case and point, this documentation is managed as a TiefDown project.
+  Case in point, this documentation is managed as a TiefDown project.
 - **Multi-format Exports** - Need a A4 PDF, a Book PDF, a letter PDF, EPUB, so on? TiefDown can generate them all from the same source.
 
 Basically, if your workflow involves Markdown and you’re sick of manually converting everything, TiefDown is your new best friend.
