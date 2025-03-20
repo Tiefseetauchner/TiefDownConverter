@@ -110,8 +110,8 @@ of how it works internally:
   - Create a new folder for the current compilation. That way, you have a
     history.
   - Combine all the markdown files into one megafile called `combined.md`.
-  - Run Pandoc conversion to TeX, EPUB, or Typst. This uses Lua filters that are
-    defined in the `manifest.toml` file.
+  - Run Pandoc conversion to TeX, EPUB, or Typst. This uses Lua filters and 
+    preprocessors that are defined in the `manifest.toml` file.
   - Run XeLaTeX on all TeX templates, Typst on all Typst templates, and so on. It even 
     supports EPUB conversion.
   - Copy the files around so you end up with your output files in the right places.
@@ -144,5 +144,5 @@ Basically, if your workflow involves Markdown and you’re sick of manually conv
 
 Now, you want support? Check out the Discord or write an issue on GitHub!
 
-- [Discord Server](https://discord.gg/EG3zU9cTFx)
-- [GitHub Issues](https://github.com/Tiefseetauchner/TiefDownConverter/issues)
+- [Discord Server](https://discord.gg/EG3zU9cTFx) (https://discord.gg/EG3zU9cTFx)
+- [GitHub Issues](https://github.com/Tiefseetauchner/TiefDownConverter/issues) (https://github.com/Tiefseetauchner/TiefDownConverter/issues)

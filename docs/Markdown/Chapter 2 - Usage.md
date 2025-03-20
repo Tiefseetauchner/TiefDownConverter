@@ -47,7 +47,7 @@ TL;DR: Make a folder, go into it and run `tiefdownconverter init` and
 
 Long anser: First off, you need to create a project using `tiefdownconverter init`. This will
 create a new project **in the current directory**. You can (and maybe should)
-specify a project using the -p flag.
+specify a project.
 
 This command creates the basic template structure like so:
 
@@ -110,7 +110,7 @@ containing lua filters.
 
 You can also change the name of the exported file by setting the `output` option. For example,
 `tiefdownconverter project update-template <TEMPLATE_NAME> --output <NEW_NAME>`. This will
-export the template to `<NEW_NAME>.pdf` instead of the default `<TEMPLATE_NAME>.pdf`.
+export the template to `<NEW_NAME>` instead of the default `<TEMPLATE_NAME>.pdf`.
 
 Similarly, you could change the template file and type, though I advice against it, as this
 may break the template. I advice to just add a new template and remove the old one using
@@ -132,7 +132,7 @@ to make it work how you want.
 
 #### Customizing CSS
 EPUBs use stylesheets to control how everything looks. The good news? Any `.css` file you drop into 
-`template/my_epub_template/` gets automatically loaded. No need to mess with the manifest—just 
+`template/my_epub_template/` gets automatically loaded. No need to mess with the manifest - just 
 throw in your styles and you’re good.
 
 Example CSS:
@@ -200,7 +200,7 @@ And that’s it. You get a customized EPUB without having to fight with the defa
 
 ## Conversion Engines
 
-There are currently three ways to convert your Markdown files. All of them are based on the same
+There are currently four ways to convert your Markdown files. All of them are based on the same
 system. The main difference is the output format and the program it gets converted with.
 
 ### LaTeX
@@ -237,6 +237,23 @@ Of course you can add multiple epub templates, but I don't know why you would wa
 
 EPUB output is particularly useful for digital publishing, ensuring compatibility with e-readers
 and mobile devices.
+
+### Custom Pandoc Converter
+
+Okay. Stick with me here. The idea is, you are already converting my Markdown files with Pandoc, why not let
+me convert them to whatever format? Well, this is where Custom Pandoc Conversion comes in. This long
+fabled feature is the most complicated one, and you need a deep understanding of how TiefDownConverter works
+and at least the ability to read Pandoc's documentation to even use it.
+But if you're willing to put in the effort, you can do some pretty cool things.
+
+The basic idea is, just, let the user decide what pandoc does. The result is chaos.
+
+I'm being facetious, but this is actually the most powerful way to customize the
+output. You add a preprocessor as described in [Preprocessing](#preprocessing) and
+set the output path of the preprocessor and template to the same path. Then you can
+do whatever pandoc allows. Want to convert to RTF? No issue. But beware:
+you need to actually understand what's going on, otherwise you'll end up in
+implementation hell.
 
 ## Writing filters
 
@@ -338,3 +355,30 @@ template_type = "Tex"
 
 ...
 ```
+
+## Custom Pandoc Conversion
+
+I already hinted at it in [Custom Pandoc Converter](#custom-pandoc-converter),
+but I'll go into more detail here. The idea is to run a preprocessor
+and just skip any further processing. Straight from pandoc to the output.
+
+You can do this by first defining a preprocessor, for example:
+
+```bash
+tiefdownconverter project add-preprocessor "RTF Preprocessor" -- -o documentation.rtf
+```
+
+As you can see, we're outputting as an RTF file, and the file name is
+`documentation.rtf`. This means we need to add a template that deals with the 
+same output:
+
+```bash
+tiefdownconverter project add-template "RTF Template" -o documentation.rtf -t custompandoc
+```
+
+And that's it. TiefDownConverter will run the preprocessor, which 
+outputs to documentation.rtf, and then the templating system will 
+copy that output to your directory. Hopefully. Did I mention that
+this is experimental? Yeah, so if you have issues, please report 
+them. Even if you're thinking "this is not a bug, it's a feature". 
+It likely isn't.

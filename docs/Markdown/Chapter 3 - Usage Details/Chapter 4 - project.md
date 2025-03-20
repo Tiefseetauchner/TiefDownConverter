@@ -9,17 +9,15 @@ Update the TiefDown project.
 Usage: tiefdownconverter project [PROJECT] <COMMAND>
 
 Commands:
-  add-template         Add a new template to the project.
-  remove-template      Remove a template from the project.
-  update-template      Update a template in the project.
-  update-manifest      Update the project manifest.
-  add-preprocessor     Add a new preprocessor to the project.
-  remove-preprocessor  Remove a preprocessor from the project.
-  list-templates       List the templates in the project.
-  validate             Validate the TiefDown project structure and
-    metadata.
-  clean                Clean temporary files from the TiefDown project.
-  help                 Print this message or the help of the given
+  add-template      Add a new template to the project.
+  remove-template   Remove a template from the project.
+  update-template   Update a template in the project.
+  update-manifest   Update the project manifest.
+  add-preprocessor  Add a new preprocessor to the project.
+  list-templates    List the templates in the project.
+  validate          Validate the TiefDown project structure and metadata.
+  clean             Clean temporary files from the TiefDown project.
+  help              Print this message or the help of the given
     subcommand(s)
 
 Arguments:
@@ -36,7 +34,6 @@ Options:
 - [update-template](#projectupdate-template)
 - [update-manifest](#projectupdate-manifest)
 - [add-preprocessor](#projectadd-preprocessor)
-- [remove-preprocessor](#projectremove-preprocessor)
 - [list-templates](#projectlist-templates)
 - [validate](#projectvalidate)
 - [clean](#projectclean)

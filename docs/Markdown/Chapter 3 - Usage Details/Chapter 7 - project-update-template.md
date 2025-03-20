@@ -30,7 +30,7 @@ Options:
           The luafilters add to the template.
       --remove-filters <REMOVE_FILTERS>...
           The luafilters to remove from the template.
-      --preprocessor <PREPROCESSOR>
+  -p, --preprocessor <PREPROCESSOR>
           The preprocessor to use for this template.
   -h, --help
           Print help
