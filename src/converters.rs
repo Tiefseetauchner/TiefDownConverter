@@ -112,15 +112,14 @@ pub(crate) fn convert_epub(
             "EPUB conversion is not supported with a preprocessor. Please remove the preprocessor from the template."
         ));
     }
-    let template_path = compiled_directory_path.join(get_template_path(
-        template.template_file.clone(),
-        &template.name,
-    ));
+    let template_path = get_template_path(template.template_file.clone(), &template.name);
     let output_path = get_output_path(
         template.output.clone(),
         &template_path,
         template.template_type.clone(),
     )?;
+
+    let template_path = compiled_directory_path.join(template_path);
 
     let mut pandoc = Command::new("pandoc");
     pandoc

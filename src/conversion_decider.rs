@@ -20,5 +20,6 @@ pub fn get_converter(template_type: &TemplateType) -> Result<Converter> {
         TemplateType::Tex => converters::convert_latex,
         TemplateType::Typst => converters::convert_typst,
         TemplateType::Epub => converters::convert_epub,
+        TemplateType::CustomPandoc => converters::convert_custom_pandoc,
     })
 }
