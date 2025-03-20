@@ -125,6 +125,38 @@ fn add_template(
     assert!(template_dir.exists(), "Template directory should exist");
 }
 
+fn add_custom_pandoc_template(
+    project_path: &Path,
+    template_name: &str,
+    preprocessor: &str,
+    preprocessor_args: &str,
+    output_file: &str,
+) {
+    let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
+    cmd.current_dir(&project_path)
+        .arg("project")
+        .arg("add-template")
+        .arg(template_name)
+        .arg("--preprocessor")
+        .arg(preprocessor)
+        .arg("--output")
+        .arg(output_file)
+        .arg("--template-type")
+        .arg("custom-pandoc")
+        .assert()
+        .success();
+
+    let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
+    cmd.current_dir(&project_path)
+        .arg("project")
+        .arg("add-preprocessor")
+        .arg(preprocessor)
+        .arg("--")
+        .arg(preprocessor_args)
+        .assert()
+        .success();
+}
+
 fn create_markdown_file(project_path: &Path, filename: &str, content: &str) {
     let markdown_dir = project_path.join("Markdown");
     let markdown_path = markdown_dir.join(filename);
@@ -172,6 +204,13 @@ fn test_convert_with_multiple_templates() {
         "epub_template",
         Some("custom_epub_out.epub"),
     );
+    add_custom_pandoc_template(
+        &project_path,
+        "Template 4",
+        "RTF Preprocessor",
+        "-t rtf -o output.rtf",
+        "output.rtf",
+    );
 
     create_markdown_file(&project_path, "Chapter 1.md", VALID_MARKDOWN_CONTENT);
 
@@ -186,6 +225,7 @@ fn test_convert_with_multiple_templates() {
         project_path.join("custom_out.pdf"),
         project_path.join("templ3.pdf"),
         project_path.join("custom_epub_out.epub"),
+        project_path.join("output.rtf"),
     ];
 
     for output_file in output_files {
@@ -267,6 +307,13 @@ fn test_convert_specific_project_folder(#[case] project_path_name: &str) {
         "epub_template",
         Some("custom_epub_out.epub"),
     );
+    add_custom_pandoc_template(
+        &project_path,
+        "Template 4",
+        "RTF Preprocessor",
+        "-t rtf -o output.rtf",
+        "output.rtf",
+    );
 
     create_markdown_file(&project_path, "Chapter 1.md", VALID_MARKDOWN_CONTENT);
 
@@ -283,6 +330,7 @@ fn test_convert_specific_project_folder(#[case] project_path_name: &str) {
         project_path.join("custom_out.pdf"),
         project_path.join("templ3.pdf"),
         project_path.join("custom_epub_out.epub"),
+        project_path.join("output.rtf"),
     ];
 
     for output_file in output_files {
@@ -437,7 +485,28 @@ fn test_convert_no_markdown_files() {
     assert!(output_pdf.exists(), "Output PDF should exist");
 }
 
-// #[rstest]
-// fn test_convert_custom_pandoc_conversion() {
-//     let temp_dir = tempdir().expect("Failed to create temporary directory");
-// }
+#[rstest]
+fn test_convert_custom_pandoc_conversion() {
+    let temp_dir = tempdir().expect("Failed to create temporary directory");
+
+    let project_path = create_empty_project(&temp_dir.path());
+
+    add_custom_pandoc_template(
+        &project_path,
+        "Template 1",
+        "RTF Preprocessor",
+        "-t rtf -o output.rtf",
+        "output.rtf",
+    );
+
+    create_markdown_file(&project_path, "Chapter 1.md", VALID_MARKDOWN_CONTENT);
+
+    let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
+    cmd.current_dir(&project_path)
+        .arg("convert")
+        .assert()
+        .success();
+
+    let output_rtf = project_path.join("output.rtf");
+    assert!(output_rtf.exists(), "Output RTF should exist");
+}
