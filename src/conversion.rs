@@ -105,14 +105,6 @@ fn convert_template(
     project_path: &Path,
     preprocessors: &Vec<PreProcessor>,
 ) -> Result<()> {
-    let template_path = compiled_directory_path.join(get_template_path(template)?);
-    if !template_path.exists() {
-        return Err(eyre!(
-            "Template path does not exist: {}",
-            template_path.display()
-        ));
-    }
-
     let converter = conversion_decider::get_converter(&template.template_type)?;
 
     let result_file_path = converter(
@@ -130,11 +122,4 @@ fn convert_template(
 
     println!("Converted template: {}", template.name);
     Ok(())
-}
-
-fn get_template_path(template: &TemplateMapping) -> Result<PathBuf> {
-    Ok(template
-        .template_file
-        .clone()
-        .unwrap_or(PathBuf::from(template.name.clone())))
 }
