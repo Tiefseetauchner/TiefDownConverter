@@ -7,11 +7,14 @@ how to customise it for your usecases. Presets can only do so much.
 ## Installation
 
 Currently the only way to install `tiefdownconverter` is to either build
-it yourself or download a precompiled binary from the
+it yourself, install it from cargo, or download a precompiled binary from the
 [releases page](https://github.com/tiefseetauchner/tiefdownconverter/releases).
 Then just add it to the path and you're good to go. You can of course
 also just call it relatively by placing the binary in your project folder or
 something like that.
+
+That said, the recommended way to install TiefDownConverter is 
+`cargo install tiefdownconverter`. This will always install the latest version.
 
 There are a few dependencies that you need to install.
 
@@ -24,10 +27,18 @@ There are a few dependencies that you need to install.
   - If using [MikTeX](https://miktex.org/), no need to do anything.
 - [Typst](https://typst.app/): For converting Typst files to PDF.
 
+Windows is easy enough: `winget install miktex pandoc typst`.
+
+Linux varies by distro of course, but for ubuntu it's `apt install texlive-xetex pandoc` 
+and `cargo install typst` or downloading the typst binary and adding it to the path.
+
 Now you should be able to run `tiefdownconverter` from the command line.
 You can test it by initialising a test project using `tiefdownconverter init testproject`
 and running `tiefdownconverter convert` in the project directory or
-`tiefdownconverter convert -p testproject`.
+`tiefdownconverter convert -p testproject`. You could also, as a test, clone the
+[Github Repo](https://github.com/Tiefseetauchner/TiefDownConverter) and run
+`tiefdownconverter convert -p docs` (this may however throw warnings if you don't
+have the appropriate fonts installed).
 
 ## Getting started
 
@@ -36,7 +47,7 @@ TL;DR: Make a folder, go into it and run `tiefdownconverter init` and
 
 Long anser: First off, you need to create a project using `tiefdownconverter init`. This will
 create a new project **in the current directory**. You can (and maybe should)
-specify a project using the -p flag.
+specify a project.
 
 This command creates the basic template structure like so:
 
@@ -99,7 +110,7 @@ containing lua filters.
 
 You can also change the name of the exported file by setting the `output` option. For example,
 `tiefdownconverter project update-template <TEMPLATE_NAME> --output <NEW_NAME>`. This will
-export the template to `<NEW_NAME>.pdf` instead of the default `<TEMPLATE_NAME>.pdf`.
+export the template to `<NEW_NAME>` instead of the default `<TEMPLATE_NAME>.pdf`.
 
 Similarly, you could change the template file and type, though I advice against it, as this
 may break the template. I advice to just add a new template and remove the old one using
@@ -109,13 +120,143 @@ may break the template. I advice to just add a new template and remove the old o
 
 Importantly, when you write your own template, you need to include the content somehow.
 That somehow is done via `\input{output.tex}` or `#include "./output.typ"`. This will include the 
-output of the Markdown conversion in your template file. In the future, it may be possible to 
-specify per template, what the output should be called, but for now, it's just `output.tex`.
+output of the Markdown conversion in your template file. If you're using custom preprocessors, you
+can change the output file of the conversion. See [Preprocessing](#preprocessing) for more
+information.
+
+EPUB support in TiefDownConverter isn’t as fancy as LaTeX or Typst, but you can still tweak it to 
+look nice. You don’t get full-blown templates, but you can mess with CSS, fonts, and Lua filters 
+to make it work how you want.
+
+### Customizing CSS
+EPUBs use stylesheets to control how everything looks. The good news? Any `.css` file you drop into 
+`template/my_epub_template/` gets automatically loaded. No need to mess with the manifest - just 
+throw in your styles and you’re good.
+
+Example CSS:
+```css
+body {
+    font-family: "Noto Serif", serif;
+    line-height: 1.6;
+    margin: 1em;
+}
+blockquote {
+    font-style: italic;
+    border-left: 3px solid #ccc;
+    padding-left: 10px;
+}
+```
+
+### Adding Fonts
+Fonts go into `template/my_epub_template/fonts/`, and TiefDownConverter will automatically pick them up. To use them, you just need to reference them properly in your CSS:
+
+```css
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: normal;
+  font-weight: normal;
+  src: url('../fonts/EBGaramond-Regular.ttf');
+}
+
+body {
+    font-family: "EB Garamond", serif;
+}
+```
+
+### Metadata and Structure
+EPUBs need some basic metadata, which you define in the YAML front matter of your Markdown files. Stuff like title, author, and language goes here:
+
+```yaml
+---
+title:
+- type: main
+  text: "My Publication"
+- type: subtitle
+  text: "A tale of loss and partying hard"
+creator:
+- role: author
+  text: Your Name
+rights: "Copyright © 2012 Your Name"
+---
+```
+
+This makes sure your EPUB doesn’t look like a nameless file when opened in an e-reader.
+
+### Using Lua Filters
+Want to tweak the structure? That’s what Lua filters are for. You can use them to rename chapters, remove junk, or modify how elements are processed.
+
+Example: Automatically renaming chapter headers:
+```lua
+function Header(el)
+  if el.level == 1 then
+    return pandoc.Header(el.level, "Chapter: " .. pandoc.utils.stringify(el.content))
+  end
+end
+```
+
+And that’s it. You get a customized EPUB without having to fight with the defaults. Enjoy!
+
+## Conversion Engines
+
+There are currently four ways to convert your Markdown files. All of them are based on the same
+system. The main difference is the output format and the program it gets converted with.
+
+### LaTeX
+
+LaTeX is the best supported by TiefDownConverter, with the most presets. But as TiefDownConverter 
+is a general-purpose Markdown to PDF converter, the format doesn't matter. LaTeX provides the 
+highest degree of customization, making it ideal for structured documents, novels, and academic papers.
+
+The primary way to interact with LaTeX is through templates. Lua filters and such are secondary, but an
+important part of the conversion process to adjust behavior for different document classes.
+
+### Typst
+
+Typst is another supported engine, offering a more modern alternative to LaTeX with a simpler syntax and 
+automatic layout adjustments. TiefDownConverter allows you to specify Typst templates in the project manifest.
+
+Typst templates work similarly to LaTeX templates but are easier to modify if you need structured documents 
+without deep LaTeX knowledge.
+
+As far as I could tell, typst templates are also far more adherent to the general typst syntax, so Lua filters
+are not as important. But they can still be used to adjust the output, especially for more advanced use cases.
+
+### EPUB
+
+TiefDownConverter also supports EPUB conversion, making it suitable for e-book generation. The conversion 
+process uses Pandoc to transform the Markdown content into EPUB, applying any Lua filters defined in the manifest.
+
+This however does not really support much in the way of templating. Customization should be done primarily via
+Lua filters. Custom preprocessors are currently not supported at all.
+
+However, you can still get some customization by including CSS and font files in your template folder. That's
+the reason epub has to have a folder in the first place, so you can place CSS and font files in there.
+Of course you can add multiple epub templates, but I don't know why you would want to.
+
+EPUB output is particularly useful for digital publishing, ensuring compatibility with e-readers
+and mobile devices.
+
+### Custom Pandoc Converter
+
+Okay. Stick with me here. The idea is, you are already converting my Markdown files with Pandoc, why not let
+me convert them to whatever format? Well, this is where Custom Pandoc Conversion comes in. This long
+fabled feature is the most complicated one, and you need a deep understanding of how TiefDownConverter works
+and at least the ability to read Pandoc's documentation to even use it.
+But if you're willing to put in the effort, you can do some pretty cool things.
+
+The basic idea is, just, let the user decide what pandoc does. The result is chaos.
+
+I'm being facetious, but this is actually the most powerful way to customize the
+output. You add a preprocessor as described in [Preprocessing](#preprocessing) and
+set the output path of the preprocessor and template to the same path. Then you can
+do whatever pandoc allows. Want to convert to RTF? No issue. But beware:
+you need to actually understand what's going on, otherwise you'll end up in
+implementation hell.
 
 ## Writing filters
 
 > **Note:** This section only really addresses LaTeX, but the concepts are the same for
-> Typst.
+> Typst and epub.
 
 If you are in the business of writing filters (and don't just solve everything in TeX itself), 
 I advice checking out the documentation at 
@@ -157,3 +298,85 @@ function Header(elem)
   -- add more levels here if needed
 end
 ```
+
+## Preprocessing
+
+A "Preprocessor" is a stupid word for defining your own pandoc conversion parameters. You can
+(and should) use this to adjust the behaviour of the converter. For example, you could
+define a preprocessor to add `--listings` to the pandoc command. This is useful if you want
+to have reasonable code output in your pdf.
+
+If no preprocessor is defined, the converter will use default pandoc parameters, converting
+to the intermediate output file (in case of LaTeX, this is `output.tex`). But if you for example
+are using lua filters, you may want to export to a different path. This can be done by defining
+a preprocessor.
+
+If you want to define a preprocessor, you can do so by running
+
+```bash
+tiefdownconverter project update-template <TEMPLATE_NAME> --preprocessor <PREPROCESSOR_NAME>
+``` 
+
+to assign it to a template and 
+
+```bash
+tiefdownconverter project add-preprocessor <PREPROCESSOR_NAME> -- [PANDOC_ARGS]
+```
+
+to create a new preprocessor.
+
+For example, if you want to add `--listings` to the pandoc command, you could do so by adding
+`--listings` to the preprocessor. But importantly, **this overwrites the default preprocessor**.
+So you will have to add the `-o output.tex` argument to the preprocessor as well. The full command
+then would be:
+
+```bash
+tiefdownconverter project add-preprocessor "Enable Listings" -- -o output.tex --listings
+```
+
+The manifest would look something like this:
+
+```toml
+...
+
+[[custom_processors.preprocessors]]
+name = "Enable Listings"
+pandoc_args = ["-o", "output.tex", "--listings"]
+
+[[templates]]
+filters = ["luafilters/chapter_filter.lua"]
+name = "PDF Documentation LaTeX"
+output = "docs_tex.pdf"
+preprocessor = "Enable Listings"
+template_file = "docs.tex"
+template_type = "Tex"
+
+...
+```
+
+## Custom Pandoc Conversion
+
+I already hinted at it in [Custom Pandoc Converter](#custom-pandoc-converter),
+but I'll go into more detail here. The idea is to run a preprocessor
+and just skip any further processing. Straight from pandoc to the output.
+
+You can do this by first defining a preprocessor, for example:
+
+```bash
+tiefdownconverter project add-preprocessor "RTF Preprocessor" -- -o documentation.rtf
+```
+
+As you can see, we're outputting as an RTF file, and the file name is
+`documentation.rtf`. This means we need to add a template that deals with the 
+same output:
+
+```bash
+tiefdownconverter project add-template "RTF Template" -o documentation.rtf -t custompandoc
+```
+
+And that's it. TiefDownConverter will run the preprocessor, which 
+outputs to documentation.rtf, and then the templating system will 
+copy that output to your directory. Hopefully. Did I mention that
+this is experimental? Yeah, so if you have issues, please report 
+them. Even if you're thinking "this is not a bug, it's a feature". 
+It likely isn't.

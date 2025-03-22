@@ -3,6 +3,18 @@
 This project is open source, and I'd love for you to contribute!
 There's a few things you should know before you start.
 
+## Pull Requests
+
+Pull Requests should be made with either a link to an issue or an explanation of
+
+1. What was the problem
+2. How is it solved now
+3. How did it affect the documentation
+
+It takes a lot of work to understand the intention of code you didn't write and
+then judging whether this was indeed the intended outcome. That's why it's helpful
+for everyone if there's an explanation on what was changed and why.
+
 ## Conversion
 
 Conversion is split in a few different steps:
@@ -49,9 +61,20 @@ time that I want to spend on this project.
 
 ## Documentation
 
-Make sure this documentation is up to date. If you add a command or flag, make sure to
-run `tools/generate_docs.py` as well as `tiefdownconverter convert -p docs`. Then commit
-the changes.
+When changing the documentation, it is of utmost importance that the documentation outputs
+are correctly generated. *These are not automatically generated on release* but rather held 
+in git to more easily track changes during a pull request.
+
+To make sure this documentation is up to date, consider whether your changes significantly
+affect the workflow of using TiefDownConverter. If you add a command or flag, make sure to
+run `tools/generate_docs.py`. Either way, when changing the documentation, always run 
+`tiefdownconverter convert -p docs` before committing the changes.
+
+**You need to have the fonts Iosevka and Fira Mono installed!** If you don't, we cannot 
+accept documentation changes. TiefDownConverter will throw a warning should the fonts 
+not be installed.
+
+
 
 ## Code Style
 

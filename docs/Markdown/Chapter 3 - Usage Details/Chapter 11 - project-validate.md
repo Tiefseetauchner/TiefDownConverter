@@ -1,6 +1,6 @@
-## `tiefdownconverter project validate`
+## `tiefdownconverter project validate` {#projectvalidate}
 
-**Version:** `tiefdownconverter 0.4.0`
+**Version:** `tiefdownconverter 0.6.0-ALPHA-preprocessors`
 
 ### Usage:
 ```
