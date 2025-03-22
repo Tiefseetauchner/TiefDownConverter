@@ -10,6 +10,7 @@ use crate::conversion_decider;
 use crate::manifest_model::PreProcessor;
 use crate::manifest_model::TemplateMapping;
 use crate::project_management::load_and_convert_manifest;
+use crate::project_management::run_smart_clean;
 
 pub(crate) fn convert(project: Option<String>, templates: Option<Vec<String>>) -> Result<()> {
     let project = project.unwrap_or_else(|| ".".to_string());
@@ -21,6 +22,11 @@ pub(crate) fn convert(project: Option<String>, templates: Option<Vec<String>>) -
 
     let manifest_path = project_path.join("manifest.toml");
     let manifest = load_and_convert_manifest(&manifest_path)?;
+
+    if let Some(true) = manifest.smart_clean {
+        let threshold = manifest.smart_clean_threshold.unwrap_or(5);
+        run_smart_clean(project_path, threshold.saturating_sub(1))?;
+    }
 
     println!("Converting project: {}", project);
 

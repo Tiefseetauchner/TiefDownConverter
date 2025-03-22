@@ -7,7 +7,7 @@ use tempfile::tempdir;
 #[macro_use]
 mod assertions;
 
-const DEFAULT_MANIFEST_CONTENT: &str = r#"version = 2
+const DEFAULT_MANIFEST_CONTENT: &str = r#"version = 3
 
 [[templates]]
 name = "template.tex"
@@ -216,4 +216,49 @@ fn test_init_project_templates() {
         template_dir.join("default_epub").is_dir(),
         "default_epub should be a directory."
     );
+}
+
+#[rstest]
+fn test_init_project_smart_clean() {
+    let temp_dir = tempdir().expect("Failed to create temporary directory");
+
+    let project_path = temp_dir.path().join("project");
+    fs::create_dir(&project_path).expect("Failed to create project directory");
+
+    let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
+    cmd.current_dir(&project_path)
+        .arg("init")
+        .arg("--smart-clean")
+        .assert()
+        .success();
+
+    let manifest_path = project_path.join("manifest.toml");
+    assert!(manifest_path.exists(), "Manifest file should exist");
+
+    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
+
+    assert_contains!(manifest_content, r#"smart_clean = true"#);
+}
+
+#[rstest]
+fn test_init_project_smart_clean_threshold() {
+    let temp_dir = tempdir().expect("Failed to create temporary directory");
+
+    let project_path = temp_dir.path().join("project");
+    fs::create_dir(&project_path).expect("Failed to create project directory");
+
+    let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
+    cmd.current_dir(&project_path)
+        .arg("init")
+        .arg("--smart-clean-threshold")
+        .arg("2")
+        .assert()
+        .success();
+
+    let manifest_path = project_path.join("manifest.toml");
+    assert!(manifest_path.exists(), "Manifest file should exist");
+
+    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
+
+    assert_contains!(manifest_content, r#"smart_clean_threshold = 2"#);
 }

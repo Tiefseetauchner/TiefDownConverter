@@ -20,6 +20,8 @@ pub(crate) struct Manifest {
     pub markdown_dir: Option<String>,
     pub templates: Vec<TemplateMapping>,
     pub custom_processors: Processors,
+    pub smart_clean: Option<bool>,
+    pub smart_clean_threshold: Option<u32>,
 }
 
 #[derive(Deserialize, Serialize, Clone)]
@@ -136,6 +138,8 @@ pub(crate) fn upgrade_manifest(manifest: &mut Table, current_version: u32) -> Re
                 upgrade_manifest_v0_to_v1(manifest)?
             } else if current_version == 1 {
                 upgrade_manifest_v1_to_v2(manifest)?
+            } else if current_version == 2 {
+                upgrade_manifest_v2_to_v3(manifest)?
             } else {
                 return Err(eyre!(
                     "Manifest version {} is not supported for upgrades.",
@@ -201,6 +205,12 @@ fn upgrade_manifest_v1_to_v2(manifest: &mut Table) -> Result<()> {
     Ok(())
 }
 
+fn upgrade_manifest_v2_to_v3(manifest: &mut Table) -> Result<()> {
+    manifest.insert("version".to_string(), toml::Value::Integer(3));
+
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use rstest::rstest;
@@ -255,6 +265,46 @@ template_type = "Typst"
 
         let expected_manifest = r#"markdown_dir = "Custom Markdown Directory"
 version = 2
+
+[custom_processors]
+preprocessors = []
+
+[[templates]]
+name = "template1.tex"
+template_type = "Tex"
+
+[[templates]]
+name = "template2.typ"
+template_type = "Typst"
+"#;
+
+        let actual_manifest = toml::to_string(&manifest).unwrap();
+        assert_eq!(expected_manifest, actual_manifest);
+    }
+
+    #[rstest]
+    fn test_upgrade_manifest_v2_to_v3() {
+        let manifest_content = r#"markdown_dir = "Custom Markdown Directory"
+version = 2
+
+[custom_processors]
+preprocessors = []
+
+[[templates]]
+name = "template1.tex"
+template_type = "Tex"
+
+[[templates]]
+name = "template2.typ"
+template_type = "Typst"
+"#;
+
+        let mut manifest = toml::from_str(manifest_content).unwrap();
+        let result = upgrade_manifest_v2_to_v3(&mut manifest);
+        assert!(result.is_ok());
+
+        let expected_manifest = r#"markdown_dir = "Custom Markdown Directory"
+version = 3
 
 [custom_processors]
 preprocessors = []
