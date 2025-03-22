@@ -120,6 +120,8 @@ enum ProjectCommands {
         output: Option<PathBuf>,
         #[arg(long, help = "The luafilters to use for pandoc conversion of this templates markdown.", num_args = 1.., value_delimiter = ',')]
         filters: Option<Vec<String>>,
+        #[arg(long, help = "The preprocessor to use for this template.")]
+        preprocessor: Option<String>,
     },
     #[command(about = "Remove a template from the project.")]
     RemoveTemplate {
@@ -162,6 +164,8 @@ Changing this is not recommended, as it is highly unlikely the type and only the
             value_delimiter = ',',
         )]
         remove_filters: Option<Vec<String>>,
+        #[arg(long, help = "The preprocessor to use for this template.")]
+        preprocessor: Option<String>,
     },
     #[command(about = "Update the project manifest.")]
     UpdateManifest {
@@ -175,6 +179,18 @@ Changing this is not recommended, as it is highly unlikely the type and only the
             help = "The directory where the Markdown files are located."
         )]
         markdown_dir: Option<String>,
+    },
+    #[command(about = "Add a new preprocessor to the project.")]
+    AddPreprocessor {
+        #[arg(help = "The name of the preprocessor to create.")]
+        name: String,
+        #[arg(help = "The arguments to pass to the preprocessor.", num_args = 1.., value_delimiter = ' ', last = true, allow_hyphen_values = true)]
+        pandoc_args: Vec<String>,
+    },
+    #[command(about = "Remove a preprocessor from the project.")]
+    RemovePreprocessor {
+        #[arg(help = "The name of the preprocessor to remove.")]
+        name: String,
     },
     #[command(about = "List the templates in the project.")]
     ListTemplates,
@@ -205,6 +221,7 @@ fn main() -> Result<()> {
                 template_type,
                 output,
                 filters,
+                preprocessor,
             } => project_management::add_template(
                 project,
                 template,
@@ -212,6 +229,7 @@ fn main() -> Result<()> {
                 template_file,
                 output,
                 filters,
+                preprocessor,
             )?,
             ProjectCommands::RemoveTemplate { template } => {
                 project_management::remove_template(project, template)?
@@ -224,6 +242,7 @@ fn main() -> Result<()> {
                 filters,
                 add_filters,
                 remove_filters,
+                preprocessor,
             } => {
                 if filters.is_some() && (add_filters.is_some() || remove_filters.is_some()) {
                     return Err(eyre!("Cannot specify both filters and add/remove filters."));
@@ -238,12 +257,19 @@ fn main() -> Result<()> {
                     filters,
                     add_filters,
                     remove_filters,
+                    preprocessor,
                 )?
             }
             ProjectCommands::UpdateManifest {
                 project,
                 markdown_dir,
             } => project_management::update_manifest(project, markdown_dir)?,
+            ProjectCommands::AddPreprocessor { name, pandoc_args } => {
+                project_management::add_preprocessor(project, name, pandoc_args)?
+            }
+            ProjectCommands::RemovePreprocessor { name } => {
+                project_management::remove_preprocessor(project, name)?
+            }
             ProjectCommands::ListTemplates => project_management::list_templates(project)?,
             ProjectCommands::Validate => project_management::validate(project)?,
             ProjectCommands::Clean => project_management::clean(project)?,

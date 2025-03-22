@@ -110,8 +110,8 @@ of how it works internally:
   - Create a new folder for the current compilation. That way, you have a
     history.
   - Combine all the markdown files into one megafile called `combined.md`.
-  - Run Pandoc conversion to TeX, EPUB, or Typst. This uses Lua filters that are
-    defined in the `manifest.toml` file.
+  - Run Pandoc conversion to TeX, EPUB, or Typst. This uses Lua filters and 
+    preprocessors that are defined in the `manifest.toml` file.
   - Run XeLaTeX on all TeX templates, Typst on all Typst templates, and so on. It even 
     supports EPUB conversion.
   - Copy the files around so you end up with your output files in the right places.
@@ -135,7 +135,7 @@ a few scenarios where it saves the day:
 - **Writing Books** - Markdown is great for writing, but formatting a 300-page novel? Not so much. TiefDown handles that for you.
   Well, at least the part where you need to convert stuff, you still need to write out your templates.
 - **Technical Documentation** - Software projects need structured documentation, and TiefDown makes sure it's consistent.
-  Case and point, this documentation is managed as a TiefDown project.
+  Case in point, this documentation is managed as a TiefDown project.
 - **Multi-format Exports** - Need a A4 PDF, a Book PDF, a letter PDF, EPUB, so on? TiefDown can generate them all from the same source.
 
 Basically, if your workflow involves Markdown and you’re sick of manually converting everything, TiefDown is your new best friend.
@@ -144,5 +144,5 @@ Basically, if your workflow involves Markdown and you’re sick of manually conv
 
 Now, you want support? Check out the Discord or write an issue on GitHub!
 
-- [Discord Server](https://discord.gg/EG3zU9cTFx)
-- [GitHub Issues](https://github.com/Tiefseetauchner/TiefDownConverter/issues)
+- [Discord Server](https://discord.gg/EG3zU9cTFx) (https://discord.gg/EG3zU9cTFx)
+- [GitHub Issues](https://github.com/Tiefseetauchner/TiefDownConverter/issues) (https://github.com/Tiefseetauchner/TiefDownConverter/issues)

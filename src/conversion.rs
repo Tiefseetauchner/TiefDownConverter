@@ -7,6 +7,7 @@ use std::path::Path;
 use std::path::PathBuf;
 
 use crate::conversion_decider;
+use crate::manifest_model::PreProcessor;
 use crate::manifest_model::TemplateMapping;
 use crate::project_management::load_and_convert_manifest;
 
@@ -25,7 +26,8 @@ pub(crate) fn convert(project: Option<String>, templates: Option<Vec<String>>) -
 
     let compiled_directory_path = create_build_directory(project_path)?;
 
-    let combined_markdown_path = compiled_directory_path.join("combined.md");
+    let combined_markdown_name = PathBuf::from("combined.md");
+    let combined_markdown_path = compiled_directory_path.join(&combined_markdown_name);
     let markdown_dir = project_path.join(manifest.markdown_dir.unwrap_or("Markdown".to_string()));
 
     let combined_content = combine_markdown(&combined_markdown_path, &markdown_dir)?;
@@ -43,10 +45,11 @@ pub(crate) fn convert(project: Option<String>, templates: Option<Vec<String>>) -
 
     for template in &templates {
         convert_template(
-            &combined_markdown_path,
+            &combined_markdown_name,
             &compiled_directory_path,
             template,
             project_path,
+            &manifest.custom_processors.preprocessors,
         )?;
     }
 
@@ -100,23 +103,18 @@ fn convert_template(
     compiled_directory_path: &Path,
     template: &TemplateMapping,
     project_path: &Path,
+    preprocessors: &Vec<PreProcessor>,
 ) -> Result<()> {
-    let template_path = compiled_directory_path.join(get_template_path(template)?);
-    if !template_path.exists() {
-        return Err(eyre!(
-            "Template path does not exist: {}",
-            template_path.display()
-        ));
-    }
-
-    let converter = conversion_decider::get_converter(&template_path.to_string_lossy())?;
+    let converter = conversion_decider::get_converter(&template.template_type)?;
 
     let result_file_path = converter(
         project_path,
         combined_markdown_path,
         compiled_directory_path,
         template,
+        preprocessors,
     )?;
+
     fs::copy(
         &result_file_path,
         project_path.join(result_file_path.file_name().unwrap_or_default()),
@@ -124,11 +122,4 @@ fn convert_template(
 
     println!("Converted template: {}", template.name);
     Ok(())
-}
-
-fn get_template_path(template: &TemplateMapping) -> Result<PathBuf> {
-    Ok(template
-        .template_file
-        .clone()
-        .unwrap_or(PathBuf::from(template.name.clone())))
 }

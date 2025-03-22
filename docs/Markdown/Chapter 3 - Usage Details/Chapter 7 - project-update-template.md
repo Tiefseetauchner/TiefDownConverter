@@ -1,6 +1,6 @@
 ## `tiefdownconverter project update-template` {#projectupdate-template}
 
-**Version:** `tiefdownconverter 0.5.0`
+**Version:** `tiefdownconverter 0.6.0-ALPHA-preprocessors`
 
 ### Usage:
 ```
@@ -30,6 +30,8 @@ Options:
           The luafilters add to the template.
       --remove-filters <REMOVE_FILTERS>...
           The luafilters to remove from the template.
+  -p, --preprocessor <PREPROCESSOR>
+          The preprocessor to use for this template.
   -h, --help
           Print help
 ```

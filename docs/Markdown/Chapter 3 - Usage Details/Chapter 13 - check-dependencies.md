@@ -1,6 +1,6 @@
 ## `tiefdownconverter check-dependencies` {#check-dependencies}
 
-**Version:** `tiefdownconverter 0.5.0`
+**Version:** `tiefdownconverter 0.6.0-ALPHA-preprocessors`
 
 ### Usage:
 ```

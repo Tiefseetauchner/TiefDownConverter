@@ -19,6 +19,9 @@ pub(crate) fn get_template_creator(
             TemplateType::Tex => Ok(create_tex_presets),
             TemplateType::Typst => Ok(create_typst_presets),
             TemplateType::Epub => Ok(create_epub_presets),
+            TemplateType::CustomPandoc => {
+                Err(eyre!("No templates for Custom Pandoc Conversion found."))
+            }
         }
     } else {
         Ok(|_, template| {
@@ -162,16 +165,19 @@ pub(crate) fn get_output_path(
     output_path: Option<PathBuf>,
     template_path: &Path,
     template_type: TemplateType,
-) -> PathBuf {
-    output_path
-        .unwrap_or(template_path.with_extension(get_template_output_extension(template_type)))
+) -> Result<PathBuf> {
+    Ok(output_path
+        .unwrap_or(template_path.with_extension(get_template_output_extension(template_type)?)))
 }
 
-pub(crate) fn get_template_output_extension(template_type: TemplateType) -> &'static str {
+pub(crate) fn get_template_output_extension(template_type: TemplateType) -> Result<&'static str> {
     match template_type {
-        TemplateType::Tex => "pdf",
-        TemplateType::Typst => "pdf",
-        TemplateType::Epub => "epub",
+        TemplateType::Tex => Ok("pdf"),
+        TemplateType::Typst => Ok("pdf"),
+        TemplateType::Epub => Ok("epub"),
+        TemplateType::CustomPandoc => Err(eyre!(
+            "Cannot determine the output extension of a custom conversion. Specify the output to be equal to the output of your preprocessor."
+        )),
     }
 }
 
