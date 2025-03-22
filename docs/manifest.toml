@@ -1,3 +1,5 @@
+smart_clean = true
+smart_clean_threshold = 3
 version = 2
 
 [[custom_processors.preprocessors]]

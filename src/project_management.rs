@@ -466,7 +466,7 @@ pub(crate) fn run_smart_clean(
         })
         .collect();
 
-    files_to_delete.sort_by(|a, b| b.cmp(a));
+    files_to_delete.sort_by(|a, b| a.cmp(b));
     files_to_delete.truncate(
         files_to_delete
             .len()

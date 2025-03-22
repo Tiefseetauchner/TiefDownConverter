@@ -25,7 +25,7 @@ pub(crate) fn convert(project: Option<String>, templates: Option<Vec<String>>) -
 
     if let Some(true) = manifest.smart_clean {
         let threshold = manifest.smart_clean_threshold.unwrap_or(5);
-        run_smart_clean(project_path, threshold)?;
+        run_smart_clean(project_path, threshold.saturating_sub(1))?;
     }
 
     println!("Converting project: {}", project);

@@ -185,10 +185,6 @@ Changing this is not recommended, as it is highly unlikely the type and only the
     #[command(about = "Update the project manifest.")]
     UpdateManifest {
         #[arg(
-            help = "The project to manipulate. If not provided, the current directory will be used."
-        )]
-        project: Option<String>,
-        #[arg(
             short,
             long,
             help = "The directory where the Markdown files are located."
@@ -307,7 +303,6 @@ fn main() -> Result<()> {
                 )?
             }
             ProjectCommands::UpdateManifest {
-                project,
                 markdown_dir,
                 smart_clean,
                 smart_clean_threshold,

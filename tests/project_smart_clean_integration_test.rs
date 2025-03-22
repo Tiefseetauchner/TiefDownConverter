@@ -13,6 +13,7 @@ mod assertions;
 fn create_empty_project(temp_dir: &Path, threshold: Option<u32>) -> PathBuf {
     let project_path = temp_dir.join("project");
     fs::create_dir(&project_path).expect("Failed to create project directory");
+
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path).arg("init").arg("-n");
 
