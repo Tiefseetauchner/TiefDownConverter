@@ -415,7 +415,7 @@ fn preprocess_pandoc_args(pandoc_args: &[String], metadata_fields: &Table) -> Ve
         let mut processed_arg = arg.clone();
         for (metadata_key, metadata_value) in metadata_fields.iter() {
             let value = metadata_value.as_str().unwrap_or("");
-            processed_arg = processed_arg.replace(&format!("{{{}}}", metadata_key), value);
+            processed_arg = processed_arg.replace(&format!("{{{{{}}}}}", metadata_key), value);
         }
         processed_args.push(processed_arg);
     }
