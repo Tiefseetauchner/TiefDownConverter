@@ -556,6 +556,8 @@ fn test_convert_smart_clean() {
             .arg("convert")
             .assert()
             .success();
+
+        std::thread::sleep(std::time::Duration::from_secs(1));
     }
 
     let conversion_folders = get_conversion_folders(&project_path);
