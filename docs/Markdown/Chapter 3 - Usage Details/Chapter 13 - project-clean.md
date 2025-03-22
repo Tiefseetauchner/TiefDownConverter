@@ -1,6 +1,6 @@
 ## `tiefdownconverter project clean` {#projectclean}
 
-**Version:** `tiefdownconverter 0.6.0-ALPHA-preprocessors`
+**Version:** `tiefdownconverter 0.6.0`
 
 ### Usage:
 ```

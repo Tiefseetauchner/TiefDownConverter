@@ -184,6 +184,16 @@ This makes sure your EPUB doesn’t look like a nameless file when opened in an 
 
 ### Using Lua Filters
 Want to tweak the structure? That’s what Lua filters are for. You can use them to rename chapters, remove junk, or modify how elements are processed.
+markdown_dir = "Custom Markdown Directory"
+version = 1
+
+[[templates]]
+name = "template1.tex"
+template_type = "Tex"
+
+[[templates]]
+name = "template2.typ"
+template_type = "Typst"
 
 Example: Automatically renaming chapter headers:
 ```lua
@@ -380,3 +390,18 @@ copy that output to your directory. Hopefully. Did I mention that
 this is experimental? Yeah, so if you have issues, please report 
 them. Even if you're thinking "this is not a bug, it's a feature". 
 It likely isn't.
+
+## Smart Cleaning
+
+Smart cleaning is a feature that is relatively simple. If you
+enable it in your manifest, it will automatically remove stale or
+old conversion directories.
+
+Enable it with the `--smart-clean` and set the threshold with
+`--smart-clean-threshold`. The threshold is 5 by default.
+
+You can also manually trigger a smart clean with 
+`tiefdownconverter project smart-clean` or a normal clean with
+`tiefdownconverter project clean`. The latter will remove all
+conversion directories, while the former will only remove the ones
+that are older than the threshold.

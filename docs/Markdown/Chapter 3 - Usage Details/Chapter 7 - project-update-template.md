@@ -1,6 +1,6 @@
 ## `tiefdownconverter project update-template` {#projectupdate-template}
 
-**Version:** `tiefdownconverter 0.6.0-ALPHA-preprocessors`
+**Version:** `tiefdownconverter 0.6.0`
 
 ### Usage:
 ```
@@ -20,7 +20,7 @@ Options:
     inferred from the template file.
           Changing this is not recommended, as it is highly unlikely the
     type and only the type has changed. It is recommended to create a new
-    template instead. [possible values: tex, typst, epub]
+    template instead. [possible values: tex, typst, epub, custom-pandoc]
       --output <OUTPUT>
           The output file. If not provided, the template name will be used.
       --filters <FILTERS>...
@@ -30,7 +30,7 @@ Options:
           The luafilters add to the template.
       --remove-filters <REMOVE_FILTERS>...
           The luafilters to remove from the template.
-  -p, --preprocessor <PREPROCESSOR>
+      --preprocessor <PREPROCESSOR>
           The preprocessor to use for this template.
   -h, --help
           Print help

@@ -1,6 +1,6 @@
 ## `tiefdownconverter project add-template` {#projectadd-template}
 
-**Version:** `tiefdownconverter 0.6.0-ALPHA-preprocessors`
+**Version:** `tiefdownconverter 0.6.0`
 
 ### Usage:
 ```
@@ -19,11 +19,13 @@ Options:
     not provided, the template name will be used.
   -t, --template-type <TEMPLATE_TYPE>  The type of the template. If not
     provided, the type will be inferred from the template file. [possible
-    values: tex, typst, epub]
+    values: tex, typst, epub, custom-pandoc]
   -o, --output <OUTPUT>                The output file. If not provided,
     the template name will be used.
       --filters <FILTERS>...           The luafilters to use for pandoc
     conversion of this templates markdown.
+      --preprocessor <PREPROCESSOR>    The preprocessor to use for this
+    template.
   -h, --help                           Print help
 ```
 
