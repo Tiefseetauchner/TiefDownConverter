@@ -1,15 +1,18 @@
 use std::{
     fs,
+    io::Write,
     path::{Path, PathBuf},
     process::{Command, Stdio},
 };
 
 use color_eyre::eyre::{Ok, Result, eyre};
+use toml::Table;
 
 use crate::{
     TemplateType,
     manifest_model::{
-        DEFAULT_TEX_PREPROCESSOR, DEFAULT_TYPST_PREPROCESSOR, PreProcessor, TemplateMapping,
+        DEFAULT_TEX_PREPROCESSOR, DEFAULT_TYPST_PREPROCESSOR, MetadataSettings, PreProcessor,
+        TemplateMapping,
     },
     template_management::{get_output_path, get_template_path},
 };
@@ -20,6 +23,8 @@ pub(crate) fn convert_latex(
     compiled_directory_path: &Path,
     template: &TemplateMapping,
     preprocessors: &Vec<PreProcessor>,
+    metadata_fields: &Table,
+    metadata_settings: &MetadataSettings,
 ) -> Result<PathBuf> {
     let template_path = get_template_path(template.template_file.clone(), &template.name);
     let output_path = compiled_directory_path.join(get_output_path(
@@ -33,8 +38,16 @@ pub(crate) fn convert_latex(
         project_directory_path,
         compiled_directory_path,
         combined_markdown_path,
+        metadata_fields,
+        metadata_settings,
         preprocessors,
         Some(&DEFAULT_TEX_PREPROCESSOR),
+    )?;
+
+    generate_tex_metadata(
+        compiled_directory_path,
+        &metadata_fields,
+        &metadata_settings,
     )?;
 
     compile_latex(compiled_directory_path, &template_path)?;
@@ -46,6 +59,55 @@ pub(crate) fn convert_latex(
     }
 
     Ok(output_path)
+}
+
+fn generate_tex_metadata(
+    compiled_directory_path: &Path,
+    metadata_fields: &Table,
+    metadata_settings: &MetadataSettings,
+) -> Result<()> {
+    let metadata_path = compiled_directory_path.join("metadata.tex");
+    if metadata_path.exists() {
+        println!("Metadata file already exists, skipping generation.");
+        return Ok(());
+    }
+
+    let mut metadata_file = fs::File::create(&metadata_path)?;
+    let mut metadata_file_content = String::new();
+
+    let prefix = metadata_settings
+        .metadata_prefix
+        .as_deref()
+        .unwrap_or("meta");
+
+    metadata_file_content.push_str(
+        format!(
+            r"\newcommand{{\{}}}[1]{{\csname {}@#1\endcsname}}",
+            prefix, prefix
+        )
+        .as_str(),
+    );
+
+    metadata_file_content.push_str("\n\n");
+
+    for (key, value) in metadata_fields {
+        if let Some(value) = value.as_str() {
+            metadata_file_content.push_str(&format!(
+                r"\expandafter\def\csname {}@{}\endcsname{{{}}}",
+                prefix, key, value
+            ));
+            metadata_file_content.push('\n');
+        } else {
+            return Err(eyre!(
+                "Metadata field {} is not a string, and is not supported by TiefDownConverter.",
+                key
+            ));
+        }
+    }
+
+    metadata_file.write_all(metadata_file_content.as_bytes())?;
+
+    Ok(())
 }
 
 // NOTE: This requires xelatex to be installed. I don't particularly like that, but I tried tectonic and it didn't work.
@@ -68,6 +130,8 @@ pub(crate) fn convert_custom_pandoc(
     compiled_directory_path: &Path,
     template: &TemplateMapping,
     preprocessors: &Vec<PreProcessor>,
+    metadata_fields: &Table,
+    metadata_settings: &MetadataSettings,
 ) -> Result<PathBuf> {
     if template.preprocessor == None {
         return Err(eyre!(
@@ -91,6 +155,8 @@ pub(crate) fn convert_custom_pandoc(
         project_directory_path,
         compiled_directory_path,
         combined_markdown_path,
+        metadata_fields,
+        metadata_settings,
         preprocessors,
         None,
     )?;
@@ -106,6 +172,8 @@ pub(crate) fn convert_epub(
     compiled_directory_path: &Path,
     template: &TemplateMapping,
     _preprocessors: &Vec<PreProcessor>,
+    metadata_fields: &Table,
+    metadata_settings: &MetadataSettings,
 ) -> Result<PathBuf> {
     if template.preprocessor.is_some() {
         return Err(eyre!(
@@ -204,6 +272,8 @@ pub(crate) fn convert_typst(
     compiled_directory_path: &Path,
     template: &TemplateMapping,
     preprocessors: &Vec<PreProcessor>,
+    metadata_fields: &Table,
+    metadata_settings: &MetadataSettings,
 ) -> Result<PathBuf> {
     let template_path = get_template_path(template.template_file.clone(), &template.name);
     let output_path = get_output_path(
@@ -217,9 +287,13 @@ pub(crate) fn convert_typst(
         project_directory_path,
         compiled_directory_path,
         combined_markdown_path,
+        metadata_fields,
+        metadata_settings,
         preprocessors,
         Some(&DEFAULT_TYPST_PREPROCESSOR),
     )?;
+
+    generate_typst_metadata(compiled_directory_path, metadata_fields, metadata_settings)?;
 
     Command::new("typst")
         .current_dir(compiled_directory_path)
@@ -234,11 +308,54 @@ pub(crate) fn convert_typst(
     Ok(output_path)
 }
 
+fn generate_typst_metadata(
+    compiled_directory_path: &Path,
+    metadata_fields: &Table,
+    metadata_settings: &MetadataSettings,
+) -> Result<()> {
+    let metadata_path = compiled_directory_path.join("metadata.typ");
+    if metadata_path.exists() {
+        println!("Metadata file already exists, skipping generation.");
+        return Ok(());
+    }
+
+    let mut metadata_file = fs::File::create(&metadata_path)?;
+    let mut metadata_file_content = String::new();
+
+    let prefix = metadata_settings
+        .metadata_prefix
+        .as_deref()
+        .unwrap_or("meta");
+
+    metadata_file_content.push_str(format!(r"#let {} = (", prefix).as_str());
+    metadata_file_content.push_str("\n");
+
+    for (key, value) in metadata_fields.iter() {
+        if let Some(value) = value.as_str() {
+            metadata_file_content.push_str(format!(r#"  {}: "{}","#, key, value).as_str());
+            metadata_file_content.push_str("\n");
+        } else {
+            return Err(eyre!(
+                "Metadata field {} is not a string, and is not supported by TiefDownConverter.",
+                key
+            ));
+        }
+    }
+
+    metadata_file_content.push_str(")");
+
+    metadata_file.write_all(metadata_file_content.as_bytes())?;
+
+    Ok(())
+}
+
 fn run_preprocessor_on_markdown(
     template: &TemplateMapping,
     project_directory_path: &Path,
     compiled_directory_path: &Path,
     combined_markdown_path: &Path,
+    metadata_fields: &Table,
+    metadata_settings: &MetadataSettings,
     preprocessors: &Vec<PreProcessor>,
     default_preprocessor: Option<&PreProcessor>,
 ) -> Result<()> {
@@ -246,6 +363,7 @@ fn run_preprocessor_on_markdown(
 
     if let Some(preprocessor) = template.preprocessor.as_ref() {
         if let Some(preprocessor) = preprocessors.iter().find(|p| &p.name == preprocessor) {
+            // TODO: preprocess preprocessor args with metadata fields
             pandoc.args(&preprocessor.pandoc_args);
         } else {
             return Err(eyre!(

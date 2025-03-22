@@ -5,8 +5,10 @@ use color_eyre::eyre::eyre;
 use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
+use toml::Table;
 
 use crate::conversion_decider;
+use crate::manifest_model::MetadataSettings;
 use crate::manifest_model::PreProcessor;
 use crate::manifest_model::TemplateMapping;
 use crate::project_management::load_and_convert_manifest;
@@ -56,6 +58,8 @@ pub(crate) fn convert(project: Option<String>, templates: Option<Vec<String>>) -
             template,
             project_path,
             &manifest.custom_processors.preprocessors,
+            &manifest.metadata_fields,
+            &manifest.metadata_settings,
         )?;
     }
 
@@ -110,6 +114,8 @@ fn convert_template(
     template: &TemplateMapping,
     project_path: &Path,
     preprocessors: &Vec<PreProcessor>,
+    metadata_fields: &Table,
+    metadata_settings: &MetadataSettings,
 ) -> Result<()> {
     let converter = conversion_decider::get_converter(&template.template_type)?;
 
@@ -119,6 +125,8 @@ fn convert_template(
         compiled_directory_path,
         template,
         preprocessors,
+        metadata_fields,
+        metadata_settings,
     )?;
 
     fs::copy(

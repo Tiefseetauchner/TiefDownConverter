@@ -6,7 +6,8 @@ use toml::{Table, Value};
 use crate::{
     consts::CURRENT_MANIFEST_VERSION,
     manifest_model::{
-        Manifest, PreProcessor, Processors, TemplateMapping, TemplateType, upgrade_manifest,
+        Manifest, MetadataSettings, PreProcessor, Processors, TemplateMapping, TemplateType,
+        upgrade_manifest,
     },
     template_management::{self, get_template_path, get_template_type_from_path},
 };
@@ -76,7 +77,11 @@ This is a simple test document for you to edit or overwrite."#,
             preprocessors: Vec::new(),
         },
         smart_clean: smart_clean_value,
-        smart_clean_threshold: smart_clean_threshold,
+        smart_clean_threshold,
+        metadata_fields: Table::new(),
+        metadata_settings: MetadataSettings {
+            metadata_prefix: None,
+        },
     };
 
     std::fs::write(manifest_path, toml::to_string(&manifest)?)?;
