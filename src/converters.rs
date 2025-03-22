@@ -68,7 +68,6 @@ fn generate_tex_metadata(
 ) -> Result<()> {
     let metadata_path = compiled_directory_path.join("metadata.tex");
     if metadata_path.exists() {
-        println!("Metadata file already exists, skipping generation.");
         return Ok(());
     }
 
@@ -173,7 +172,7 @@ pub(crate) fn convert_epub(
     template: &TemplateMapping,
     _preprocessors: &Vec<PreProcessor>,
     metadata_fields: &Table,
-    metadata_settings: &MetadataSettings,
+    _metadata_settings: &MetadataSettings,
 ) -> Result<PathBuf> {
     if template.preprocessor.is_some() {
         return Err(eyre!(
@@ -199,6 +198,8 @@ pub(crate) fn convert_epub(
         .arg("-o")
         .arg(&output_path);
 
+    add_meta_args(metadata_fields, &mut pandoc)?;
+
     add_css_files(project_directory_path, &template_path, &mut pandoc)?;
     add_fonts(project_directory_path, &template_path, &mut pandoc)?;
 
@@ -212,6 +213,21 @@ pub(crate) fn convert_epub(
     let output_path = compiled_directory_path.join(output_path);
 
     Ok(output_path)
+}
+
+fn add_meta_args(metadata_fields: &Table, pandoc: &mut Command) -> Result<()> {
+    for (key, value) in metadata_fields {
+        if let Some(value) = value.as_str() {
+            pandoc.arg("-M").arg(format!("{}:{}", key, value));
+        } else {
+            return Err(eyre!(
+                "Metadata field {} is not a string, and is not supported by TiefDownConverter.",
+                key
+            ));
+        }
+    }
+
+    Ok(())
 }
 
 fn add_css_files(
@@ -315,7 +331,6 @@ fn generate_typst_metadata(
 ) -> Result<()> {
     let metadata_path = compiled_directory_path.join("metadata.typ");
     if metadata_path.exists() {
-        println!("Metadata file already exists, skipping generation.");
         return Ok(());
     }
 
@@ -355,7 +370,7 @@ fn run_preprocessor_on_markdown(
     compiled_directory_path: &Path,
     combined_markdown_path: &Path,
     metadata_fields: &Table,
-    metadata_settings: &MetadataSettings,
+    _metadata_settings: &MetadataSettings,
     preprocessors: &Vec<PreProcessor>,
     default_preprocessor: Option<&PreProcessor>,
 ) -> Result<()> {
@@ -363,8 +378,8 @@ fn run_preprocessor_on_markdown(
 
     if let Some(preprocessor) = template.preprocessor.as_ref() {
         if let Some(preprocessor) = preprocessors.iter().find(|p| &p.name == preprocessor) {
-            // TODO: preprocess preprocessor args with metadata fields
-            pandoc.args(&preprocessor.pandoc_args);
+            let pandoc_args = preprocess_pandoc_args(&preprocessor.pandoc_args, &metadata_fields);
+            pandoc.args(&pandoc_args);
         } else {
             return Err(eyre!(
                 "Preprocessor {} not found. Please define it in your manifest file.",
@@ -391,6 +406,21 @@ fn run_preprocessor_on_markdown(
     pandoc.stdout(Stdio::null()).status()?;
 
     Ok(())
+}
+
+fn preprocess_pandoc_args(pandoc_args: &[String], metadata_fields: &Table) -> Vec<String> {
+    let mut processed_args = Vec::new();
+
+    for arg in pandoc_args.iter() {
+        let mut processed_arg = arg.clone();
+        for (metadata_key, metadata_value) in metadata_fields.iter() {
+            let value = metadata_value.as_str().unwrap_or("");
+            processed_arg = processed_arg.replace(&format!("{{{}}}", metadata_key), value);
+        }
+        processed_args.push(processed_arg);
+    }
+
+    processed_args
 }
 
 fn add_lua_filters(

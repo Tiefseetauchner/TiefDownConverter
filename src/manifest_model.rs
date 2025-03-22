@@ -141,16 +141,16 @@ pub(crate) fn upgrade_manifest(manifest: &mut Table, current_version: u32) -> Re
         let mut updated_version = current_version;
 
         while updated_version < CURRENT_MANIFEST_VERSION {
-            if current_version == 0 {
+            if updated_version == 0 {
                 upgrade_manifest_v0_to_v1(manifest)?
-            } else if current_version == 1 {
+            } else if updated_version == 1 {
                 upgrade_manifest_v1_to_v2(manifest)?
-            } else if current_version == 2 {
+            } else if updated_version == 2 {
                 upgrade_manifest_v2_to_v3(manifest)?
             } else {
                 return Err(eyre!(
                     "Manifest version {} is not supported for upgrades.",
-                    current_version
+                    updated_version
                 ));
             }
 
@@ -172,6 +172,7 @@ fn upgrade_manifest_v0_to_v1(manifest: &mut Table) -> Result<()> {
                     .as_array()
                     .unwrap_or(&Vec::new())
                     .iter()
+                    .filter(|t| t.is_str())
                     .map(|template| {
                         let template_name = template.as_str().unwrap();
                         let template_type =
@@ -214,6 +215,15 @@ fn upgrade_manifest_v1_to_v2(manifest: &mut Table) -> Result<()> {
 
 fn upgrade_manifest_v2_to_v3(manifest: &mut Table) -> Result<()> {
     manifest.insert("version".to_string(), toml::Value::Integer(3));
+
+    manifest.insert(
+        "metadata_fields".to_string(),
+        toml::Value::Table(Table::new()),
+    );
+    manifest.insert(
+        "metadata_settings".to_string(),
+        toml::Value::Table(Table::new()),
+    );
 
     Ok(())
 }
