@@ -7,7 +7,7 @@ use tempfile::tempdir;
 #[macro_use]
 mod assertions;
 
-const DEFAULT_MANIFEST_CONTENT: &str = r#"version = 2
+const DEFAULT_MANIFEST_CONTENT: &str = r#"version = 3
 
 [[templates]]
 name = "template.tex"

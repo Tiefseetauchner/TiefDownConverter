@@ -55,6 +55,8 @@ fn convert(project_path: &Path) {
         .arg("convert")
         .assert()
         .success();
+
+    std::thread::sleep(std::time::Duration::from_secs(1));
 }
 
 fn get_conversion_folders(project_path: &Path) -> Vec<PathBuf> {
