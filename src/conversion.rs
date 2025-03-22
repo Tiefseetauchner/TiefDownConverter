@@ -11,6 +11,7 @@ use crate::manifest_model::PreProcessor;
 use crate::manifest_model::TemplateMapping;
 use crate::project_management::load_and_convert_manifest;
 
+// TODO: Smart Clean
 pub(crate) fn convert(project: Option<String>, templates: Option<Vec<String>>) -> Result<()> {
     let project = project.unwrap_or_else(|| ".".to_string());
     let project_path = Path::new(&project);

@@ -17,6 +17,8 @@ pub fn init(
     no_templates: bool,
     force: bool,
     markdown_dir: Option<String>,
+    smart_clean: bool,
+    smart_clean_threshold: Option<u32>,
 ) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
@@ -64,6 +66,8 @@ This is a simple test document for you to edit or overwrite."#,
         )?;
     }
 
+    let smart_clean_value = if smart_clean { Some(true) } else { None };
+
     let manifest: Manifest = Manifest {
         version: CURRENT_MANIFEST_VERSION,
         markdown_dir,
@@ -71,6 +75,8 @@ This is a simple test document for you to edit or overwrite."#,
         custom_processors: Processors {
             preprocessors: Vec::new(),
         },
+        smart_clean: smart_clean_value,
+        smart_clean_threshold: smart_clean_threshold,
     };
 
     std::fs::write(manifest_path, toml::to_string(&manifest)?)?;
@@ -248,14 +254,30 @@ pub(crate) fn update_template(
     Ok(())
 }
 
-pub(crate) fn update_manifest(project: Option<String>, markdown_dir: Option<String>) -> Result<()> {
+pub(crate) fn update_manifest(
+    project: Option<String>,
+    markdown_dir: Option<String>,
+    smart_clean: Option<bool>,
+    smart_clean_threshold: Option<u32>,
+) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
 
     let mut manifest = load_and_convert_manifest(&manifest_path)?;
 
-    manifest.markdown_dir = markdown_dir;
+    if let Some(markdown_dir) = markdown_dir {
+        manifest.markdown_dir = Some(markdown_dir);
+    }
+
+    if let Some(smart_clean_value) = smart_clean {
+        let smart_clean_value = if smart_clean_value { Some(true) } else { None };
+        manifest.smart_clean = smart_clean_value;
+    }
+
+    if let Some(smart_clean_threshold) = smart_clean_threshold {
+        manifest.smart_clean_threshold = Some(smart_clean_threshold);
+    }
 
     let manifest_content = toml::to_string(&manifest)?;
     std::fs::write(&manifest_path, manifest_content)?;
@@ -409,8 +431,28 @@ pub(crate) fn clean(project: Option<String>) -> Result<()> {
     let manifest_path = project_path.join("manifest.toml");
     let _ = load_and_convert_manifest(&manifest_path)?;
 
-    let regex = regex::Regex::new(r"^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}$")?;
+    run_smart_clean(project_path, 0)?;
 
+    Ok(())
+}
+
+pub(crate) fn smart_clean(project: Option<String>) -> Result<()> {
+    let project = project.as_deref().unwrap_or(".");
+    let project_path = std::path::Path::new(&project);
+    let manifest_path = project_path.join("manifest.toml");
+    let manifest = load_and_convert_manifest(&manifest_path)?;
+    let smart_clean_threshold = manifest.smart_clean_threshold.unwrap_or(5);
+
+    run_smart_clean(project_path, smart_clean_threshold)?;
+
+    Ok(())
+}
+
+fn run_smart_clean(
+    project_path: &std::path::Path,
+    smart_clean_threshold: u32,
+) -> Result<(), color_eyre::eyre::Error> {
+    let regex = regex::Regex::new(r"^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}$")?;
     let mut files_to_delete = Vec::new();
     for entry in fs::read_dir(project_path)? {
         let entry = entry?;
@@ -422,12 +464,16 @@ pub(crate) fn clean(project: Option<String>) -> Result<()> {
             }
         }
     }
-
-    for file in files_to_delete {
-        fs::remove_dir_all(file)?;
+    files_to_delete.sort_by(|a, b| b.cmp(a));
+    for _ in 0..smart_clean_threshold {
+        if files_to_delete.is_empty() {
+            break;
+        }
+        files_to_delete.pop();
     }
-
-    Ok(())
+    Ok(for file in files_to_delete {
+        fs::remove_dir_all(file)?;
+    })
 }
 
 pub(crate) fn check_dependencies(dependencies: Vec<&str>) -> Result<()> {

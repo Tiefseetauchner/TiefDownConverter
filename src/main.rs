@@ -80,6 +80,21 @@ If using a LiX template, make sure to install the corresponding .sty and .cls fi
             help = "The directory where the Markdown files are located. If not provided, Markdown/ will be used."
         )]
         markdown_dir: Option<String>,
+        #[arg(
+            long,
+            action,
+            help = r#"Enables smart clean for the project with a default threshold of 5."#,
+            long_help = r#"Enables smart clean for the project with a default threshold of 5.
+If the number of conversion folders in the project is above this threshold, old folders will be cleaned, leaving only the threshold amount of folders."#
+        )]
+        smart_clean: bool,
+        #[arg(
+            long,
+            help = r#"The threshold for smart clean. If not provided, the default threshold of 5 will be used."#,
+            long_help = r#"The threshold for smart clean. If not provided, the default threshold of 5 will be used.
+If the number of conversion folders in the project is above this threshold, old folders will be cleaned, leaving only the threshold amount of folders."#
+        )]
+        smart_clean_threshold: Option<u32>,
     },
     #[command(about = "Update the TiefDown project.")]
     Project {
@@ -179,6 +194,20 @@ Changing this is not recommended, as it is highly unlikely the type and only the
             help = "The directory where the Markdown files are located."
         )]
         markdown_dir: Option<String>,
+        #[arg(
+            long,
+            help = r#"Enables smart clean for the project with a default threshold of 5."#,
+            long_help = r#"Enables smart clean for the project with a default threshold of 5.
+If the number of conversion folders in the project is above this threshold, old folders will be cleaned, leaving only the threshold amount of folders."#
+        )]
+        smart_clean: Option<bool>,
+        #[arg(
+            long,
+            help = r#"The threshold for smart clean. If not provided, the default threshold of 5 will be used."#,
+            long_help = r#"The threshold for smart clean. If not provided, the default threshold of 5 will be used.
+If the number of conversion folders in the project is above this threshold, old folders will be cleaned, leaving only the threshold amount of folders."#
+        )]
+        smart_clean_threshold: Option<u32>,
     },
     #[command(about = "Add a new preprocessor to the project.")]
     AddPreprocessor {
@@ -198,6 +227,13 @@ Changing this is not recommended, as it is highly unlikely the type and only the
     Validate,
     #[command(about = "Clean temporary files from the TiefDown project.")]
     Clean,
+    #[command(
+        about = "Clean temporary files from the TiefDown project, leaving only the threshold amount of folders.",
+        long_about = r#"Clean temporary files from the TiefDown project.
+If the number of conversion folders in the project is above this threshold, old folders will be cleaned, leaving only the threshold amount of folders.
+The threshold is set to 5 by default, and is overwritten by the threshold in the manifest."#
+    )]
+    SmartClean,
 }
 
 fn main() -> Result<()> {
@@ -213,7 +249,17 @@ fn main() -> Result<()> {
             no_templates,
             force,
             markdown_dir,
-        } => project_management::init(project, templates, no_templates, force, markdown_dir)?,
+            smart_clean,
+            smart_clean_threshold,
+        } => project_management::init(
+            project,
+            templates,
+            no_templates,
+            force,
+            markdown_dir,
+            smart_clean,
+            smart_clean_threshold,
+        )?,
         Commands::Project { project, command } => match command {
             ProjectCommands::AddTemplate {
                 template,
@@ -263,7 +309,14 @@ fn main() -> Result<()> {
             ProjectCommands::UpdateManifest {
                 project,
                 markdown_dir,
-            } => project_management::update_manifest(project, markdown_dir)?,
+                smart_clean,
+                smart_clean_threshold,
+            } => project_management::update_manifest(
+                project,
+                markdown_dir,
+                smart_clean,
+                smart_clean_threshold,
+            )?,
             ProjectCommands::AddPreprocessor { name, pandoc_args } => {
                 project_management::add_preprocessor(project, name, pandoc_args)?
             }
@@ -273,6 +326,7 @@ fn main() -> Result<()> {
             ProjectCommands::ListTemplates => project_management::list_templates(project)?,
             ProjectCommands::Validate => project_management::validate(project)?,
             ProjectCommands::Clean => project_management::clean(project)?,
+            ProjectCommands::SmartClean => project_management::smart_clean(project)?,
         },
         Commands::CheckDependencies => {
             project_management::check_dependencies(vec!["pandoc", "xelatex", "typst"])?

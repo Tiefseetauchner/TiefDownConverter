@@ -20,6 +20,8 @@ pub(crate) struct Manifest {
     pub markdown_dir: Option<String>,
     pub templates: Vec<TemplateMapping>,
     pub custom_processors: Processors,
+    pub smart_clean: Option<bool>,
+    pub smart_clean_threshold: Option<u32>,
 }
 
 #[derive(Deserialize, Serialize, Clone)]
