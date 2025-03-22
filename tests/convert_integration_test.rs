@@ -21,13 +21,14 @@ const VALID_TEMPLATE_CONTENT_TYP: &str = r#"#include "output.typ""#;
 const VALID_MARKDOWN_CONTENT: &str = r#"# Chapter 1
 Basic test content"#;
 
-fn create_empty_project(temp_dir: &Path) -> PathBuf {
+fn create_empty_project(temp_dir: &Path, custom_args: Vec<&str>) -> PathBuf {
     let project_path = temp_dir.join("project");
     fs::create_dir(&project_path).expect("Failed to create project directory");
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("init")
         .arg("-n")
+        .args(custom_args)
         .assert()
         .success();
 
@@ -168,7 +169,7 @@ fn create_markdown_file(project_path: &Path, filename: &str, content: &str) {
 fn test_convert() {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
 
-    let project_path = create_empty_project(&temp_dir.path());
+    let project_path = create_empty_project(&temp_dir.path(), vec![]);
 
     add_tex_template(&project_path, "Template 1", "templ1.tex", None);
 
@@ -188,7 +189,7 @@ fn test_convert() {
 fn test_convert_with_multiple_templates() {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
 
-    let project_path = create_empty_project(&temp_dir.path());
+    let project_path = create_empty_project(&temp_dir.path(), vec![]);
 
     add_tex_template(&project_path, "Template 1", "templ1.tex", None);
     add_tex_template(
@@ -248,7 +249,7 @@ fn test_convert_specific_template(
 ) {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
 
-    let project_path = create_empty_project(&temp_dir.path());
+    let project_path = create_empty_project(&temp_dir.path(), vec![]);
 
     add_tex_template(&project_path, "Template 1", "templ1.tex", None);
     add_tex_template(
@@ -291,7 +292,7 @@ fn test_convert_specific_template(
 fn test_convert_specific_project_folder(#[case] project_path_name: &str) {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
 
-    let project_path = create_empty_project(&temp_dir.path());
+    let project_path = create_empty_project(&temp_dir.path(), vec![]);
 
     add_tex_template(&project_path, "Template 1", "templ1.tex", None);
     add_tex_template(
@@ -346,7 +347,7 @@ fn test_convert_specific_project_folder(#[case] project_path_name: &str) {
 fn test_convert_epub() {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
 
-    let project_path = create_empty_project(&temp_dir.path());
+    let project_path = create_empty_project(&temp_dir.path(), vec![]);
 
     add_epub_template(&project_path, "Epub Template", "epub_template", None);
 
@@ -366,7 +367,7 @@ fn test_convert_epub() {
 fn test_convert_giant_file() {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
 
-    let project_path = create_empty_project(&temp_dir.path());
+    let project_path = create_empty_project(&temp_dir.path(), vec![]);
 
     add_tex_template(&project_path, "Template 1", "templ1.tex", None);
 
@@ -389,7 +390,7 @@ fn test_convert_giant_file() {
 fn test_convert_many_files() {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
 
-    let project_path = create_empty_project(&temp_dir.path());
+    let project_path = create_empty_project(&temp_dir.path(), vec![]);
 
     add_tex_template(&project_path, "Template 1", "templ1.tex", None);
 
@@ -415,7 +416,7 @@ fn test_convert_many_files() {
 fn test_convert_far_nested_markdown_file() {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
 
-    let project_path = create_empty_project(&temp_dir.path());
+    let project_path = create_empty_project(&temp_dir.path(), vec![]);
 
     add_tex_template(&project_path, "Template 1", "templ1.tex", None);
 
@@ -443,7 +444,7 @@ fn test_convert_far_nested_markdown_file() {
 fn test_convert_long_markdown_file_name() {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
 
-    let project_path = create_empty_project(&temp_dir.path());
+    let project_path = create_empty_project(&temp_dir.path(), vec![]);
 
     add_tex_template(&project_path, "Template 1", "templ1.tex", None);
 
@@ -469,7 +470,7 @@ fn test_convert_long_markdown_file_name() {
 fn test_convert_no_markdown_files() {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
 
-    let project_path = create_empty_project(&temp_dir.path());
+    let project_path = create_empty_project(&temp_dir.path(), vec![]);
 
     add_tex_template(&project_path, "Template 1", "templ1.tex", None);
 
@@ -489,7 +490,7 @@ fn test_convert_no_markdown_files() {
 fn test_convert_custom_pandoc_conversion() {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
 
-    let project_path = create_empty_project(&temp_dir.path());
+    let project_path = create_empty_project(&temp_dir.path(), vec![]);
 
     add_custom_pandoc_template(
         &project_path,
@@ -509,4 +510,57 @@ fn test_convert_custom_pandoc_conversion() {
 
     let output_rtf = project_path.join("output.rtf");
     assert!(output_rtf.exists(), "Output RTF should exist");
+}
+
+fn get_conversion_folders(project_path: &Path) -> Vec<PathBuf> {
+    let regex = regex::Regex::new(r"^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}$")
+        .expect("Failed to compile regex");
+    let conversion_folders = fs::read_dir(project_path)
+        .expect("Failed to read project directory")
+        .filter_map(|entry| {
+            let entry = entry.ok()?;
+            let path = entry.path();
+            if path.is_dir()
+                && regex.is_match(
+                    path.file_name()
+                        .expect("Failed to get file name")
+                        .to_str()
+                        .expect("Failed to convert file name to string"),
+                )
+            {
+                Some(path)
+            } else {
+                None
+            }
+        });
+
+    conversion_folders.collect()
+}
+
+#[rstest]
+fn test_convert_smart_clean() {
+    let temp_dir = tempdir().expect("Failed to create temporary directory");
+
+    let project_path = create_empty_project(
+        &temp_dir.path(),
+        vec!["--smart-clean", "--smart-clean-threshold", "2"],
+    );
+
+    add_tex_template(&project_path, "Template 1", "templ1.tex", None);
+
+    create_markdown_file(&project_path, "Chapter 1.md", VALID_MARKDOWN_CONTENT);
+
+    for _ in 1..5 {
+        let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
+        cmd.current_dir(&project_path)
+            .arg("convert")
+            .assert()
+            .success();
+    }
+
+    let conversion_folders = get_conversion_folders(&project_path);
+    assert_eq!(conversion_folders.len(), 2);
+
+    let output_pdf = project_path.join("templ1.pdf");
+    assert!(output_pdf.exists(), "Output PDF should exist");
 }

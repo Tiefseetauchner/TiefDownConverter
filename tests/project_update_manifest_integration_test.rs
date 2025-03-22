@@ -46,3 +46,101 @@ fn test_update_manifest_change_markdown_dir() {
 
     assert_contains!(manifest_content, r#"markdown_dir = "new_markdown_dir""#);
 }
+
+#[rstest]
+fn test_update_manifest_enable_smart_clean() {
+    let temp_dir = tempdir().expect("Failed to create temporary directory");
+
+    let project_path = create_empty_project(&temp_dir.path());
+
+    let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
+    cmd.current_dir(&project_path)
+        .arg("project")
+        .arg("update-manifest")
+        .arg("--smart-clean")
+        .assert()
+        .success();
+
+    let manifest_path = project_path.join("manifest.toml");
+    assert!(manifest_path.exists(), "Manifest file should exist");
+    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
+
+    assert_contains!(manifest_content, r#"smart_clean = true"#);
+}
+
+#[rstest]
+fn test_update_manifest_enable_smart_clean_with_arg() {
+    let temp_dir = tempdir().expect("Failed to create temporary directory");
+
+    let project_path = create_empty_project(&temp_dir.path());
+
+    let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
+    cmd.current_dir(&project_path)
+        .arg("project")
+        .arg("update-manifest")
+        .arg("--smart-clean")
+        .arg("true")
+        .assert()
+        .success();
+
+    let manifest_path = project_path.join("manifest.toml");
+    assert!(manifest_path.exists(), "Manifest file should exist");
+    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
+
+    assert_contains!(manifest_content, r#"smart_clean = true"#);
+}
+
+#[rstest]
+fn test_update_manifest_disable_smart_clean() {
+    let temp_dir = tempdir().expect("Failed to create temporary directory");
+
+    let project_path = create_empty_project(&temp_dir.path());
+
+    let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
+    cmd.current_dir(&project_path)
+        .arg("project")
+        .arg("update-manifest")
+        .arg("--smart-clean")
+        .arg("false")
+        .assert()
+        .success();
+
+    let manifest_path = project_path.join("manifest.toml");
+    assert!(manifest_path.exists(), "Manifest file should exist");
+
+    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
+
+    assert_not_contains!(manifest_content, r#"smart_clean"#);
+}
+
+#[rstest]
+#[case("10000")]
+#[case("1000")]
+#[case("100")]
+#[case("10")]
+#[case("1")]
+#[case("0")]
+fn test_update_manifest_change_smart_clean_threshold(#[case] threshold: &str) {
+    let temp_dir = tempdir().expect("Failed to create temporary directory");
+
+    let project_path = create_empty_project(&temp_dir.path());
+
+    let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
+    cmd.current_dir(&project_path)
+        .arg("project")
+        .arg("update-manifest")
+        .arg("--smart-clean-threshold")
+        .arg(threshold)
+        .assert()
+        .success();
+
+    let manifest_path = project_path.join("manifest.toml");
+    assert!(manifest_path.exists(), "Manifest file should exist");
+
+    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
+
+    assert_contains!(
+        manifest_content,
+        format!("smart_clean_threshold = {}", threshold).as_str()
+    );
+}
