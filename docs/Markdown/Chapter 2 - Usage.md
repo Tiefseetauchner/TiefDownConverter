@@ -124,13 +124,11 @@ output of the Markdown conversion in your template file. If you're using custom 
 can change the output file of the conversion. See [Preprocessing](#preprocessing) for more
 information.
 
-### EPUB Customization
-
 EPUB support in TiefDownConverter isn’t as fancy as LaTeX or Typst, but you can still tweak it to 
 look nice. You don’t get full-blown templates, but you can mess with CSS, fonts, and Lua filters 
 to make it work how you want.
 
-#### Customizing CSS
+### Customizing CSS
 EPUBs use stylesheets to control how everything looks. The good news? Any `.css` file you drop into 
 `template/my_epub_template/` gets automatically loaded. No need to mess with the manifest - just 
 throw in your styles and you’re good.
@@ -149,7 +147,7 @@ blockquote {
 }
 ```
 
-#### Adding Fonts
+### Adding Fonts
 Fonts go into `template/my_epub_template/fonts/`, and TiefDownConverter will automatically pick them up. To use them, you just need to reference them properly in your CSS:
 
 ```css
@@ -165,7 +163,7 @@ body {
 }
 ```
 
-#### Metadata and Structure
+### Metadata and Structure
 EPUBs need some basic metadata, which you define in the YAML front matter of your Markdown files. Stuff like title, author, and language goes here:
 
 ```yaml
@@ -184,7 +182,7 @@ rights: "Copyright © 2012 Your Name"
 
 This makes sure your EPUB doesn’t look like a nameless file when opened in an e-reader.
 
-#### Using Lua Filters
+### Using Lua Filters
 Want to tweak the structure? That’s what Lua filters are for. You can use them to rename chapters, remove junk, or modify how elements are processed.
 
 Example: Automatically renaming chapter headers:
