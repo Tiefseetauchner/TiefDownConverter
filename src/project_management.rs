@@ -448,32 +448,36 @@ pub(crate) fn smart_clean(project: Option<String>) -> Result<()> {
     Ok(())
 }
 
-fn run_smart_clean(
+pub(crate) fn run_smart_clean(
     project_path: &std::path::Path,
     smart_clean_threshold: u32,
 ) -> Result<(), color_eyre::eyre::Error> {
     let regex = regex::Regex::new(r"^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}$")?;
-    let mut files_to_delete = Vec::new();
-    for entry in fs::read_dir(project_path)? {
-        let entry = entry?;
-        let path = entry.path();
-        if path.is_dir() {
-            let dir_name = path.file_name().unwrap().to_str().unwrap();
-            if regex.is_match(dir_name) {
-                files_to_delete.push(path);
-            }
-        }
-    }
+
+    let mut files_to_delete: Vec<_> = fs::read_dir(project_path)?
+        .filter_map(Result::ok)
+        .map(|entry| entry.path())
+        .filter(|path| {
+            path.is_dir()
+                && path
+                    .file_name()
+                    .and_then(|name| name.to_str())
+                    .map_or(false, |name| regex.is_match(name))
+        })
+        .collect();
+
     files_to_delete.sort_by(|a, b| b.cmp(a));
-    for _ in 0..smart_clean_threshold {
-        if files_to_delete.is_empty() {
-            break;
-        }
-        files_to_delete.pop();
-    }
-    Ok(for file in files_to_delete {
+    files_to_delete.truncate(
+        files_to_delete
+            .len()
+            .saturating_sub(smart_clean_threshold as usize),
+    );
+
+    for file in files_to_delete {
         fs::remove_dir_all(file)?;
-    })
+    }
+
+    Ok(())
 }
 
 pub(crate) fn check_dependencies(dependencies: Vec<&str>) -> Result<()> {
