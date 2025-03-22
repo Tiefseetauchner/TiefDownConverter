@@ -1,12 +1,12 @@
 [package]
 name = "tiefdownconverter"
-version = "0.6.0"
+version = "0.7.0-alpha"
 edition = "2024"
 authors = ["Lena Tauchner <tiefseetauchner@lukechriswalker.at>"]
 license = "MIT"
 repository = "https://github.com/Tiefseetauchner/tiefdownconverter"
 homepage = "https://github.com/Tiefseetauchner/tiefdownconverter"
-documentation = "https://docs.rs/tiefdownconverter"
+documentation = "https://github.com/Tiefseetauchner/TiefDownConverter/blob/main/docs/docs.pdf"
 description = "A CLI tool to manage and convert Markdown-based projects."
 readme = "README.md"
 keywords = ["markdown", "pandoc", "cli", "document-conversion"]
