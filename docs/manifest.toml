@@ -7,6 +7,8 @@ name = "Enable Listings"
 pandoc_args = ["-o", "output.tex", "-t", "latex", "--listings"]
 
 [metadata_fields]
+author = "Tiefseetauchner et al."
+title = "TiefDownConverter Documentation"
 
 [metadata_settings]
 

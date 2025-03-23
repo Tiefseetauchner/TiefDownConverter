@@ -1,6 +1,8 @@
 #import "@preview/ilm:1.4.1": *
 #import "@preview/zebraw:0.4.6": *
 
+#import "./metadata.typ": meta
+
 #set par(
   first-line-indent: 1em,
   spacing: 0.65em,
@@ -12,9 +14,9 @@
 #show link: it => underline(text(fill: blue)[#it])
 
 #show: ilm.with(
-  title: [TiefDownConverter Documentation],
+  title: [#meta.title],
   paper-size: "a4",
-  author: "Tiefseetauchner et al",
+  author: meta.author,
   date: datetime.today(),
   listing-index: (enabled: true)
 )
