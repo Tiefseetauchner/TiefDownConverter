@@ -72,7 +72,38 @@ ommitting the -p flag if you're already in the project directory) and it should
 generate a PDF file in the project directory. You can now adjust the template, add
 your own Markdown files, and so on.
 
-## Adjusting the markdown directory
+## The markdown directory
+
+Markdown files are the main input for the converter, and as such their structure is
+important. The converter will look for markdown files in the `Markdown` directory, and
+will sort them by a chapter number. Namely, your files should be named 
+`Chapter X Whatever else.md`, where X is a number (you don't have to name them 01, 02
+etc., as we parse the number as an integer anyways). The converter will then sort them
+by the number and combine them in that order.
+
+You can also add subdirectories in the Markdown directory. These will be combined after
+the file with the same number. For example, consider the following directory structure:
+
+```
+Markdown/
+├── Chapter 1 - Introduction.md
+├── Chapter 2 - Usage.md
+├── Chapter 2 - Usage/
+│   ├── Chapter 1 - Usage detail 1.md
+│   └── Chapter 2 - Usage detail 2.md
+└── Chapter 3 - Customisation.md
+```
+
+The converter will combine the files in the following order:
+
+1. Chapter 1 - Introduction.md
+2. Chapter 2 - Usage.md
+3. Chapter 2 - Usage/Chapter 1 - Usage detail 1.md
+4. Chapter 2 - Usage/Chapter 2 - Usage detail 2.md
+5. Chapter 3 - Customisation.md
+
+That is, the converter orders a directory by the same logic as other files (and even
+does so recursively), and directories are combined after the file with the same number.
 
 You can change what directory the converter looks for markdown files in by changing the
 `markdown_dir` field in the manifest.toml file or saying `-m path/to/markdown/dir` when
