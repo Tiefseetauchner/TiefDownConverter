@@ -97,14 +97,35 @@ fn get_markdown_files(markdown_dir: &PathBuf) -> Result<Vec<fs::DirEntry>> {
 
     let mut markdown_files: Vec<_> = fs::read_dir(markdown_dir)?.filter_map(Result::ok).collect();
 
-    markdown_files.sort_by_key(|entry| {
-        let binding = entry.file_name();
-        let filename = binding.to_string_lossy();
-        chapter_name_regex
-            .captures(&filename)
+    markdown_files.sort_by(|a, b| {
+        let a_binding = a.file_name();
+        let b_binding = b.file_name();
+        let a_name = a_binding.to_string_lossy();
+        let b_name = b_binding.to_string_lossy();
+
+        let a_num = chapter_name_regex
+            .captures(&a_name)
             .and_then(|caps| caps.get(1)?.as_str().parse::<u32>().ok())
-            .unwrap_or(0)
+            .unwrap_or(0);
+        let b_num = chapter_name_regex
+            .captures(&b_name)
+            .and_then(|caps| caps.get(1)?.as_str().parse::<u32>().ok())
+            .unwrap_or(0);
+
+        match a_num.cmp(&b_num) {
+            std::cmp::Ordering::Equal => {
+                let a_is_file = a.metadata().map(|m| m.is_file()).unwrap_or(false);
+                let b_is_file = b.metadata().map(|m| m.is_file()).unwrap_or(false);
+                match (a_is_file, b_is_file) {
+                    (true, false) => std::cmp::Ordering::Less,
+                    (false, true) => std::cmp::Ordering::Greater,
+                    _ => std::cmp::Ordering::Equal,
+                }
+            }
+            other => other,
+        }
     });
+
     Ok(markdown_files)
 }
 
