@@ -41,10 +41,6 @@ def parse_subcommands(help_text):
             subcommands.append(match.group(1))
     return subcommands
 
-def wrap_text(text, indent=4):
-    """Wraps text for LaTeX-friendly output, indenting continuation lines."""
-    return textwrap.fill(text, width=MAX_LINE_LENGTH, subsequent_indent=" " * indent)
-
 def generate_markdown(command, subcommand_chain=""):
     """Generates Markdown for the given command and its subcommands recursively."""
     global chapter_counter
@@ -66,7 +62,7 @@ def generate_markdown(command, subcommand_chain=""):
 
         # Wrap and format the help output
         for line in help_text.splitlines():
-            f.write(wrap_text(line) + "\n")
+            f.write(line + "\n")
 
         f.write("```\n\n")
 
