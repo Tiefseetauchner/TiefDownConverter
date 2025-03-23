@@ -1,6 +1,6 @@
 ## `tiefdownconverter project update-template` {#projectupdate-template}
 
-**Version:** `tiefdownconverter 0.6.0`
+**Version:** `tiefdownconverter 0.7.0-alpha`
 
 ### Usage:
 ```
@@ -13,19 +13,14 @@ Arguments:
 
 Options:
       --template-file <TEMPLATE_FILE>
-          The file to use as the template. If not provided, the template
-    name will be used.
+          The file to use as the template. If not provided, the template name will be used.
       --template-type <TEMPLATE_TYPE>
-          The type of the template. If not provided, the type will be
-    inferred from the template file.
-          Changing this is not recommended, as it is highly unlikely the
-    type and only the type has changed. It is recommended to create a new
-    template instead. [possible values: tex, typst, epub, custom-pandoc]
+          The type of the template. If not provided, the type will be inferred from the template file.
+          Changing this is not recommended, as it is highly unlikely the type and only the type has changed. It is recommended to create a new template instead. [possible values: tex, typst, epub, custom-pandoc]
       --output <OUTPUT>
           The output file. If not provided, the template name will be used.
       --filters <FILTERS>...
-          The luafilters to use for pandoc conversion of this templates
-    markdown.
+          The luafilters to use for pandoc conversion of this templates markdown.
       --add-filters <ADD_FILTERS>...
           The luafilters add to the template.
       --remove-filters <REMOVE_FILTERS>...
