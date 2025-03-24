@@ -26,8 +26,11 @@ jobs:
       - name: Install pandoc, texlive-xelatex and typst
         run: |
           sudo apt-get update
-          sudo apt-get install -y pandoc texlive-xetex
-          cargo install typst-cli
+          sudo apt-get install -y pandoc texlive-xetex curl xz-utils
+          curl -L -o typst.tar.xz https://github.com/typst/typst/releases/download/v0.13.1/typst-aarch64-unknown-linux-musl.tar.xz
+          mkdir typst-bin
+          tar -xf typst.tar.xz -C typst-bin --strip-components=1
+          sudo mv typst-bin/typst /usr/local/bin/
 
       - name: Run tests
         run: cargo test --verbose
