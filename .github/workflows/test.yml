@@ -27,10 +27,14 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y pandoc texlive-xetex curl xz-utils
-          curl -L -o typst.tar.xz https://github.com/typst/typst/releases/download/v0.13.1/typst-aarch64-unknown-linux-musl.tar.xz
+          curl -L -o typst.tar.xz https://github.com/typst/typst/releases/download/v0.13.1/typst-x86_64-unknown-linux-musl.tar.xz
           mkdir typst-bin
           tar -xf typst.tar.xz -C typst-bin --strip-components=1
-          sudo mv typst-bin/typst /usr/local/bin/
+        env:
+          PATH: ${{ github.workspace }}/typst-bin:${{ env.PATH }}
+
+      - name: Add typst-bin to PATH
+        run: echo "${{ github.workspace }}/typst-bin" >> $GITHUB_PATH
 
       - name: Run tests
         run: cargo test --verbose
