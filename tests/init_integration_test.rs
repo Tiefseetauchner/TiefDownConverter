@@ -177,7 +177,7 @@ fn test_init_project_templates() {
     cmd.current_dir(&project_path)
         .arg("init")
         .arg("-t")
-        .arg("template.tex,booklet.tex,template_typ.typ,lix_novel_a4.tex,default_epub")
+        .arg("template.tex,booklet.tex,template_typ.typ,default_epub")
         .assert()
         .success();
 
@@ -187,7 +187,6 @@ fn test_init_project_templates() {
     assert_contains!(manifest_content, r#"name = "template.tex""#);
     assert_contains!(manifest_content, r#"name = "booklet.tex""#);
     assert_contains!(manifest_content, r#"name = "template_typ.typ""#);
-    assert_contains!(manifest_content, r#"name = "lix_novel_a4.tex""#);
     assert_contains!(manifest_content, r#"name = "default_epub""#);
 
     let template_dir = project_path.join("template");
@@ -203,10 +202,6 @@ fn test_init_project_templates() {
     assert!(
         template_dir.join("template_typ.typ").exists(),
         "template_typ.typ should exist in template directory."
-    );
-    assert!(
-        template_dir.join("lix_novel_a4.tex").exists(),
-        "lix_novel_a4.tex should exist in template directory."
     );
     assert!(
         template_dir.join("default_epub").exists(),

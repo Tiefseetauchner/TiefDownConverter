@@ -1,9 +1,11 @@
 use std::{
     fs,
+    io::{self, Write},
     path::{Path, PathBuf},
 };
 
 use color_eyre::eyre::{Result, eyre};
+use reqwest::blocking::get;
 
 use crate::{
     consts::POSSIBLE_TEMPLATES,
@@ -45,6 +47,18 @@ pub(crate) fn get_template_creator(
     }
 }
 
+pub(crate) fn add_lix_filters(template: &mut TemplateMapping) {
+    if is_preset_template(&template.name)
+        && ["lix_novel_a4.tex", "lix_novel_book.tex"].contains(&template.name.as_str())
+    {
+        if let Some(filters) = &mut template.filters {
+            filters.push("lix_chapter_filter.lua".to_string());
+        } else {
+            template.filters = Some(vec!["lix_chapter_filter.lua".to_string()]);
+        }
+    }
+}
+
 fn is_preset_template(template: &str) -> bool {
     POSSIBLE_TEMPLATES.contains(&template)
 }
@@ -64,16 +78,14 @@ fn create_tex_presets(project_path: &Path, template: &TemplateMapping) -> Result
         }
         "lix_novel_a4.tex" => {
             create_lix_meta(&template_dir)?;
-            println!(
-                "Using the lix_novel_a4 template. Make sure to install lix.sty and novel.cls. -h for more information."
-            );
+            create_lix_luafilter(&template_dir)?;
+            download_lix_files(&template_dir)?;
             include_bytes!("resources/templates/lix/lix_novel_a4.tex").to_vec()
         }
         "lix_novel_book.tex" => {
             create_lix_meta(&template_dir)?;
-            println!(
-                "Using the lix_novel_book template. Make sure to install lix.sty and novel.cls. -h for more information."
-            );
+            create_lix_luafilter(&project_path)?;
+            download_lix_files(&template_dir)?;
             include_bytes!("resources/templates/lix/lix_novel_book.tex").to_vec()
         }
         _ => return Err(eyre!("Unknown template: {}", template.name.as_str())),
@@ -102,7 +114,7 @@ fn create_latex_meta(template_dir: &Path) -> Result<(), color_eyre::eyre::Error>
     Ok(())
 }
 
-fn create_lix_meta(template_dir: &Path) -> Result<(), color_eyre::eyre::Error> {
+fn create_lix_meta(template_dir: &Path) -> Result<()> {
     let meta_path = template_dir.join("meta_lix.tex");
     if !meta_path.exists() {
         fs::write(
@@ -113,6 +125,67 @@ fn create_lix_meta(template_dir: &Path) -> Result<(), color_eyre::eyre::Error> {
             "meta_lix.tex was written to the template directory. Make sure to adjust the metadata in the file."
         );
     };
+    Ok(())
+}
+
+fn create_lix_luafilter(project_path: &Path) -> Result<()> {
+    let lufilter_path = project_path.join("lix_chapter_filter.lua");
+    if !lufilter_path.exists() {
+        fs::write(
+            &lufilter_path,
+            include_bytes!("resources/templates/lix/lix_chapter_filter.lua"),
+        )?;
+    };
+    Ok(())
+}
+
+pub fn download_lix_files(template_dir: &Path) -> Result<()> {
+    let lix_files = [
+        "https://raw.githubusercontent.com/NicklasVraa/LiX/refs/heads/master/lix.sty",
+        "https://raw.githubusercontent.com/NicklasVraa/LiX/refs/heads/master/classes/custom_classes/novel.cls",
+    ];
+
+    let all_exist = lix_files.iter().all(|file_url| {
+        let filename = file_url.split('/').last().unwrap();
+        let file_path = template_dir.join(filename);
+        file_path.exists()
+    });
+
+    if all_exist {
+        return Ok(());
+    }
+
+    println!("Some required LaTeX files (licensed under GPLv3) are not included in this tool.");
+    print!("Do you want to download them now? [Y/n] ");
+    io::stdout().flush()?; // ensure the prompt is shown before read
+
+    let mut input = String::new();
+    io::stdin().read_line(&mut input)?;
+    let input = input.trim().to_lowercase();
+
+    if !["", "y", "yes"].contains(&input.as_str()) {
+        println!(
+            "Download cancelled. You must manually install the required files. -h for more information."
+        );
+        return Ok(());
+    }
+
+    for file_url in &lix_files {
+        let filename = file_url.split('/').last().unwrap();
+        let file_path = template_dir.join(filename);
+
+        if file_path.exists() {
+            println!("{} already exists, skipping...", filename);
+            continue;
+        }
+
+        println!("Downloading {}...", filename);
+        let response = get(*file_url)?;
+        let content = response.bytes()?;
+        fs::write(&file_path, &content)?;
+        println!("Saved to {}", file_path.display());
+    }
+
     Ok(())
 }
 
