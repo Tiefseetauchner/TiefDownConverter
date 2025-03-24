@@ -8,7 +8,7 @@ use crate::{
     manifest_model::{
         Manifest, PreProcessor, Processors, TemplateMapping, TemplateType, upgrade_manifest,
     },
-    template_management::{self, get_template_path, get_template_type_from_path},
+    template_management::{self, add_lix_filters, get_template_path, get_template_type_from_path},
 };
 
 pub fn init(
@@ -68,6 +68,8 @@ This is a simple test document for you to edit or overwrite."#,
 
     let smart_clean_value = if smart_clean { Some(true) } else { None };
 
+    create_templates(project_path, &templates)?;
+
     let manifest: Manifest = Manifest {
         version: CURRENT_MANIFEST_VERSION,
         markdown_dir,
@@ -76,26 +78,28 @@ This is a simple test document for you to edit or overwrite."#,
             preprocessors: Vec::new(),
         },
         smart_clean: smart_clean_value,
-        smart_clean_threshold: smart_clean_threshold,
+        smart_clean_threshold,
     };
 
     std::fs::write(manifest_path, toml::to_string(&manifest)?)?;
-
-    create_templates(project_path, &templates)?;
 
     Ok(())
 }
 
 fn get_template_mapping_for_preset(template: &String) -> Result<TemplateMapping> {
     // NOTE: As this is just the preset templates, we set the minimal implementation.
-    Ok(TemplateMapping {
+    let mut template = TemplateMapping {
         name: template.clone(),
         template_type: get_template_type_from_path(template)?,
         output: None,
         template_file: None,
         filters: None,
         preprocessor: None,
-    })
+    };
+
+    add_lix_filters(&mut template);
+
+    Ok(template)
 }
 
 pub(crate) fn add_template(
@@ -127,7 +131,7 @@ pub(crate) fn add_template(
         }
     };
 
-    let template = TemplateMapping {
+    let mut template = TemplateMapping {
         name: template_name.clone(),
         template_type,
         output,
@@ -136,12 +140,13 @@ pub(crate) fn add_template(
         preprocessor,
     };
 
+    create_templates(project_path, &vec![template.clone()])?;
+    add_lix_filters(&mut template);
+
     manifest.templates.extend([template.clone()]);
 
     let manifest_content = toml::to_string(&manifest)?;
     std::fs::write(&manifest_path, manifest_content)?;
-
-    create_templates(project_path, &vec![template.clone()])?;
 
     Ok(())
 }
