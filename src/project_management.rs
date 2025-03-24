@@ -8,7 +8,7 @@ use crate::{
     manifest_model::{
         Manifest, PreProcessor, Processors, TemplateMapping, TemplateType, upgrade_manifest,
     },
-    template_management::{self, get_template_path, get_template_type_from_path},
+    template_management::{self, add_lix_filters, get_template_path, get_template_type_from_path},
 };
 
 pub fn init(
@@ -76,7 +76,7 @@ This is a simple test document for you to edit or overwrite."#,
             preprocessors: Vec::new(),
         },
         smart_clean: smart_clean_value,
-        smart_clean_threshold: smart_clean_threshold,
+        smart_clean_threshold,
     };
 
     std::fs::write(manifest_path, toml::to_string(&manifest)?)?;
@@ -127,7 +127,7 @@ pub(crate) fn add_template(
         }
     };
 
-    let template = TemplateMapping {
+    let mut template = TemplateMapping {
         name: template_name.clone(),
         template_type,
         output,
@@ -142,6 +142,7 @@ pub(crate) fn add_template(
     std::fs::write(&manifest_path, manifest_content)?;
 
     create_templates(project_path, &vec![template.clone()])?;
+    add_lix_filters(&mut template);
 
     Ok(())
 }
