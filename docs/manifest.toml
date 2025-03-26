@@ -6,9 +6,9 @@ version = 3
 name = "Enable Listings"
 pandoc_args = ["-o", "output.tex", "-t", "latex", "--listings"]
 
-[metadata_fields]
-
-[metadata_settings]
+[[profiles]]
+name = "PDF"
+templates = ["PDF Documentation LaTeX", "PDF Documentation"]
 
 [[templates]]
 filters = ["luafilters/chapter_filter.lua"]

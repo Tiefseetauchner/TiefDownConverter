@@ -22,6 +22,7 @@ pub(crate) struct Manifest {
     pub custom_processors: Processors,
     pub smart_clean: Option<bool>,
     pub smart_clean_threshold: Option<u32>,
+    pub profiles: Option<Vec<Profile>>,
 }
 
 #[derive(Deserialize, Serialize, Clone)]
@@ -52,6 +53,12 @@ pub(crate) static DEFAULT_TYPST_PREPROCESSOR: LazyLock<PreProcessor> =
             .map(|s| s.to_string())
             .collect(),
     });
+
+#[derive(Deserialize, Serialize, Clone)]
+pub(crate) struct Profile {
+    pub name: String,
+    pub templates: Vec<String>,
+}
 
 #[derive(Deserialize, Serialize, Clone)]
 pub(crate) struct TemplateMapping {
