@@ -6,8 +6,8 @@ use toml::{Table, Value};
 use crate::{
     consts::CURRENT_MANIFEST_VERSION,
     manifest_model::{
-        Manifest, MetadataSettings, PreProcessor, Processors, TemplateMapping, TemplateType,
-        upgrade_manifest,
+        Manifest, MetadataSettings, PreProcessor, Processors, Profile, TemplateMapping,
+        TemplateType, upgrade_manifest,
     },
     template_management::{self, add_lix_filters, get_template_path, get_template_type_from_path},
 };
@@ -84,6 +84,7 @@ This is a simple test document for you to edit or overwrite."#,
         metadata_settings: MetadataSettings {
             metadata_prefix: None,
         },
+        profiles: None,
     };
 
     std::fs::write(manifest_path, toml::to_string(&manifest)?)?;
@@ -339,6 +340,51 @@ pub(crate) fn remove_preprocessor(project: Option<String>, name: String) -> Resu
     Ok(())
 }
 
+pub(crate) fn add_profile(
+    project: Option<String>,
+    name: String,
+    templates: Vec<String>,
+) -> Result<()> {
+    let project = project.as_deref().unwrap_or(".");
+    let project_path = std::path::Path::new(&project);
+    let manifest_path = project_path.join("manifest.toml");
+
+    let mut manifest = load_and_convert_manifest(&manifest_path)?;
+
+    let profile = Profile { name, templates };
+
+    if manifest.profiles.is_none() {
+        manifest.profiles = Some(vec![]);
+    }
+
+    manifest.profiles.as_mut().unwrap().push(profile);
+
+    let manifest_content = toml::to_string(&manifest)?;
+    std::fs::write(&manifest_path, manifest_content)?;
+
+    Ok(())
+}
+
+pub(crate) fn remove_profile(project: Option<String>, name: String) -> Result<()> {
+    let project = project.as_deref().unwrap_or(".");
+    let project_path = std::path::Path::new(&project);
+    let manifest_path = project_path.join("manifest.toml");
+
+    let mut manifest = load_and_convert_manifest(&manifest_path)?;
+
+    if let Some(profiles) = &mut manifest.profiles {
+        if let Some(pos) = profiles.iter().position(|p| p.name == name) {
+            profiles.remove(pos);
+        } else {
+            return Err(eyre!("Profile with name '{}' does not exist.", name));
+        }
+    } else {
+        return Err(eyre!("Profile with name '{}' does not exist.", name));
+    }
+
+    Ok(())
+}
+
 pub(crate) fn list_templates(project: Option<String>) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
@@ -360,6 +406,45 @@ pub(crate) fn list_templates(project: Option<String>) -> Result<()> {
         if let Some(filters) = &template.filters {
             println!("  Filters: {}", filters.join(", "));
         }
+    }
+
+    Ok(())
+}
+
+pub(crate) fn list_profiles(project: Option<String>) -> Result<()> {
+    let project = project.as_deref().unwrap_or(".");
+    let project_path = std::path::Path::new(&project);
+    let manifest_path = project_path.join("manifest.toml");
+
+    let manifest = load_and_convert_manifest(&manifest_path)?;
+
+    let profiles = manifest.profiles;
+
+    for profile in profiles.unwrap_or_default() {
+        println!("{}:", profile.name);
+        for template in profile.templates {
+            println!("  {}", template);
+        }
+    }
+
+    Ok(())
+}
+
+pub(crate) fn list_preprocessors(project: Option<String>) -> Result<()> {
+    let project = project.as_deref().unwrap_or(".");
+    let project_path = std::path::Path::new(&project);
+    let manifest_path = project_path.join("manifest.toml");
+
+    let manifest = load_and_convert_manifest(&manifest_path)?;
+
+    let preprocessors = manifest.custom_processors.preprocessors;
+
+    for preprocessor in preprocessors {
+        println!(
+            "{}: {}",
+            preprocessor.name,
+            preprocessor.pandoc_args.join(" ")
+        );
     }
 
     Ok(())

@@ -12,6 +12,10 @@ title = "TiefDownConverter Documentation"
 
 [metadata_settings]
 
+[[profiles]]
+name = "PDF"
+templates = ["PDF Documentation LaTeX", "PDF Documentation"]
+
 [[templates]]
 filters = ["luafilters/chapter_filter.lua"]
 name = "PDF Documentation LaTeX"

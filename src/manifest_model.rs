@@ -24,6 +24,7 @@ pub(crate) struct Manifest {
     pub smart_clean_threshold: Option<u32>,
     pub metadata_fields: Table,
     pub metadata_settings: MetadataSettings,
+    pub profiles: Option<Vec<Profile>>,
 }
 
 #[derive(Deserialize, Serialize, Clone)]
@@ -58,6 +59,12 @@ pub(crate) static DEFAULT_TYPST_PREPROCESSOR: LazyLock<PreProcessor> =
 #[derive(Deserialize, Serialize, Clone)]
 pub(crate) struct MetadataSettings {
     pub metadata_prefix: Option<String>,
+}
+
+#[derive(Deserialize, Serialize, Clone)]
+pub(crate) struct Profile {
+    pub name: String,
+    pub templates: Vec<String>,
 }
 
 #[derive(Deserialize, Serialize, Clone)]

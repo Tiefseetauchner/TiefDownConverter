@@ -217,8 +217,31 @@ If the number of conversion folders in the project is above this threshold, old 
         #[arg(help = "The name of the preprocessor to remove.")]
         name: String,
     },
+    #[command(
+        about = "Add a new conversion profile to the project.",
+        long_about = "Add a new conversion profile to the project. These profiles contain a list of templates to preset conversion workflows."
+    )]
+    AddProfile {
+        #[arg(help = "The name of the profile to create.")]
+        name: String,
+        #[arg(
+            help = "The templates to add to the profile.",
+            num_args = 1..,
+            value_delimiter = ',',
+        )]
+        templates: Vec<String>,
+    },
+    #[command(about = "Remove a conversion profile from the project.")]
+    RemoveProfile {
+        #[arg(help = "The name of the profile to remove.")]
+        name: String,
+    },
     #[command(about = "List the templates in the project.")]
     ListTemplates,
+    #[command(about = "List the conversion profiles in the project.")]
+    ListProfiles,
+    #[command(about = "List the preprocessors in the project.")]
+    ListPreprocessors,
     #[command(about = "Validate the TiefDown project structure and metadata.")]
     Validate,
     #[command(about = "Clean temporary files from the TiefDown project.")]
@@ -318,7 +341,15 @@ fn main() -> Result<()> {
             ProjectCommands::RemovePreprocessor { name } => {
                 project_management::remove_preprocessor(project, name)?
             }
+            ProjectCommands::AddProfile { name, templates } => {
+                project_management::add_profile(project, name, templates)?
+            }
+            ProjectCommands::RemoveProfile { name } => {
+                project_management::remove_profile(project, name)?
+            }
             ProjectCommands::ListTemplates => project_management::list_templates(project)?,
+            ProjectCommands::ListProfiles => project_management::list_profiles(project)?,
+            ProjectCommands::ListPreprocessors => project_management::list_preprocessors(project)?,
             ProjectCommands::Validate => project_management::validate(project)?,
             ProjectCommands::Clean => project_management::clean(project)?,
             ProjectCommands::SmartClean => project_management::smart_clean(project)?,
