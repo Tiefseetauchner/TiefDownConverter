@@ -566,3 +566,47 @@ fn test_convert_smart_clean() {
     let output_pdf = project_path.join("templ1.pdf");
     assert!(output_pdf.exists(), "Output PDF should exist");
 }
+
+#[rstest]
+fn test_convert_profile() {
+    let temp_dir = tempdir().expect("Failed to create temporary directory");
+
+    let project_path = create_empty_project(&temp_dir.path(), vec![]);
+
+    add_tex_template(&project_path, "Template 1", "templ1.tex", None);
+    add_tex_template(&project_path, "Template 2", "templ2.tex", None);
+    add_tex_template(&project_path, "Template 3", "templ3.typ", None);
+
+    add_profile(&project_path, "Profile 1", vec!["Template 1", "Template 3"]);
+
+    create_markdown_file(&project_path, "Chapter 1.md", VALID_MARKDOWN_CONTENT);
+
+    let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
+
+    cmd.current_dir(&project_path)
+        .arg("convert")
+        .arg("--profile")
+        .arg("Profile 1")
+        .assert()
+        .success();
+
+    let output_pdf = project_path.join("templ1.pdf");
+    assert!(output_pdf.exists(), "Output PDF should exist");
+
+    let output_pdf_2 = project_path.join("templ2.pdf");
+    assert!(!output_pdf_2.exists(), "Output PDF should not exist");
+
+    let output_pdf_3 = project_path.join("templ3.pdf");
+    assert!(output_pdf_3.exists(), "Output PDF should exist");
+}
+
+fn add_profile(project_path: &Path, profile_name: &str, templates: Vec<&str>) {
+    let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
+    cmd.current_dir(&project_path)
+        .arg("project")
+        .arg("add-profile")
+        .arg(profile_name)
+        .arg(templates.join(","))
+        .assert()
+        .success();
+}
