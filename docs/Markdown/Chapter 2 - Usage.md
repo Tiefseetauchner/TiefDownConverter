@@ -13,8 +13,14 @@ Then just add it to the path and you're good to go. You can of course
 also just call it relatively by placing the binary in your project folder or
 something like that.
 
+If you build from source, run `cargo build [--release]` or `cargo install --path .`.
+
 That said, the recommended way to install TiefDownConverter is 
 `cargo install tiefdownconverter`. This will always install the latest version.
+
+Downloading from the release is as simple as downloading the appropriate version
+(Windows, Mac, Linux) and adding it to a folder in the path. You could also add
+tiefdownconverter to a folder and run it from there.
 
 There are a few dependencies that you need to install.
 
@@ -32,6 +38,8 @@ Windows is easy enough: `winget install miktex pandoc typst`.
 Linux varies by distro of course, but for ubuntu it's `apt install texlive-xetex pandoc` 
 and `cargo install typst` or downloading the typst binary and adding it to the path.
 
+Mac is still to be tested, but MacTex should have XeTeX installed.
+
 Now you should be able to run `tiefdownconverter` from the command line.
 You can test it by initialising a test project using `tiefdownconverter init testproject`
 and running `tiefdownconverter convert` in the project directory or
@@ -42,10 +50,10 @@ have the appropriate fonts installed).
 
 ## Getting started
 
-TL;DR: Make a folder, go into it and run `tiefdownconverter init` and 
-`tiefdownconverter convert`. That's it.
+TL;DR: Make a folder, go into it and run `tiefdownconverter init`[[1]](#init) and 
+`tiefdownconverter convert`[[2]](#convert). That's it.
 
-Long anser: First off, you need to create a project using `tiefdownconverter init`. This will
+Long anser: First off, you need to create a project using `tiefdownconverter init`[[1]](#init). This will
 create a new project **in the current directory**. You can (and maybe should)
 specify a project.
 
@@ -61,13 +69,13 @@ your_project/
 └── manifest.toml
 ```
 
-The Markdown folder contains an example Markdown file. When placing your markdown files
+The Markdown folder[[3]](#adjusting-the-markdown-directory) contains an example Markdown file. When placing your markdown files
 in this folder, make sure they're named like `Chapter X.md`, with anything following the
 number being ignored. *This is important*, as the converter will use this to sort the
 files for conversion, as otherwise it'd have no idea in which order they should be
 converted.
 
-Now you should be able to run `tiefdownconverter convert -p path/to/your_project` (or
+Now you should be able to run `tiefdownconverter convert -p path/to/your_project`[[2]](#convert) (or
 ommitting the -p flag if you're already in the project directory) and it should
 generate a PDF file in the project directory. You can now adjust the template, add
 your own Markdown files, and so on.
@@ -107,8 +115,8 @@ does so recursively), and directories are combined after the file with the same 
 
 You can change what directory the converter looks for markdown files in by changing the
 `markdown_dir` field in the manifest.toml file or saying `-m path/to/markdown/dir` when
-initialising the project. You can also change it post-initialisation using
-`tiefdownconverter project update-manifest -m path/to/markdown/dir`. If you don't do so,
+initialising the project[[1]](#init). You can also change it post-initialisation using
+`tiefdownconverter project update-manifest -m path/to/markdown/dir`[[4]](#projectupdate-manifest). If you don't do so,
 the converter will look for markdown files in the `project_dir/Markdown` directory.
 
 ## Customising the template
@@ -118,10 +126,10 @@ same time. This is done by creating a template file in the template directory an
 it to the project's manifest.toml file.
 
 You could do this manually, if you were so inclined, but using 
-`tiefdownconverter project add-template` is much easier. Check the 
+`tiefdownconverter project add-template`[[5]](#projectadd-template) is much easier. Check the 
 [Usage Details](#usage-details) for the usage of this command. But importantly, once you
 created the template and added it to the manifest, you will be able to convert using it.
-`tiefdownconverter convert -p path/to/your_project --templates <TEMPLATE_NAME>` will convert
+`tiefdownconverter convert -p path/to/your_project --templates <TEMPLATE_NAME>`[[2]](#convert) will convert
 only the selected template, aiding in debugging.
 
 And now, you're pretty much free to do whatever you want with the template. Write tex or typst
@@ -135,17 +143,41 @@ course edit the template files directly, but there are a few more options.
 Mainly and most interestingly, lua filters can adjust the behaviour of the markdown conversion.
 These are lua scripts that are run before the markdown is converted to tex or typst. You can
 add lua filters to a template by either editing the manifest or using 
-`tiefdownconverter project update-template <TEMPLATE_NAME> --add-filters <FILTER_NAME>`. This
+`tiefdownconverter project update-template <TEMPLATE_NAME> --add-filters <FILTER_NAME>`[[6]](#projectupdate-template). This
 can be either the path to a lua filter (relative to the project directory) or a directory
 containing lua filters.
 
 You can also change the name of the exported file by setting the `output` option. For example,
-`tiefdownconverter project update-template <TEMPLATE_NAME> --output <NEW_NAME>`. This will
+`tiefdownconverter project update-template <TEMPLATE_NAME> --output <NEW_NAME>`[[6]](#projectupdate-template). This will
 export the template to `<NEW_NAME>` instead of the default `<TEMPLATE_NAME>.pdf`.
 
 Similarly, you could change the template file and type, though I advice against it, as this
 may break the template. I advice to just add a new template and remove the old one using
-`tiefdownconverter project remove-template <TEMPLATE_NAME>`.
+`tiefdownconverter project remove-template <TEMPLATE_NAME>`[[7]](#projectremove-template).
+
+## Conversion Profiles
+
+A conversion profile is a shortcut to defining templates for the conversion. If you're dealing with
+a lot of templates, you may be considering only converting some at any time - for example, web ready
+PDFs vs. print ready PDFs, or only converting a certain size of PDF.
+
+For that, there are conversion profiles which simply are a list of templates. It's essentially like
+saving your --templates[[2]](#convert) arguments.
+
+You can create these profiles with the `project add-profile`[[8]](#projectadd-profile) command, setting a name and a comma
+seperated list of templates. Removing a profile is also possible with the `project remove-profile`[[9]](#projectremove-profile)
+command.
+
+Running a conversion with a profile is as simple as adding the `--profile` flag[[2]](#convert).
+
+The manifest file can optionally contain a section for this, if you desire to configure them
+manually:
+
+```toml
+[[profiles]]
+name = "PDF"
+templates = ["PDF Documentation LaTeX", "PDF Documentation"]
+```
 
 ## Writing templates
 
@@ -348,13 +380,14 @@ If you want to define a preprocessor, you can do so by running
 
 ```bash
 tiefdownconverter project update-template <TEMPLATE_NAME> --preprocessor <PREPROCESSOR_NAME>
-``` 
+```
 
-to assign it to a template and 
+[[9]](#projectupdate-template) to assign it to a template and 
 
 ```bash
 tiefdownconverter project add-preprocessor <PREPROCESSOR_NAME> -- [PANDOC_ARGS]
 ```
+[[10]](#projectadd-preprocessor) to assign it to a template and 
 
 to create a new preprocessor.
 
@@ -366,6 +399,8 @@ then would be:
 ```bash
 tiefdownconverter project add-preprocessor "Enable Listings" -- -o output.tex --listings
 ```
+
+[[10]](#projectadd-preprocessor)
 
 The manifest would look something like this:
 
@@ -398,6 +433,7 @@ You can do this by first defining a preprocessor, for example:
 ```bash
 tiefdownconverter project add-preprocessor "RTF Preprocessor" -- -o documentation.rtf
 ```
+[[10]](#projectadd-preprocessor)
 
 As you can see, we're outputting as an RTF file, and the file name is
 `documentation.rtf`. This means we need to add a template that deals with the 
@@ -406,6 +442,7 @@ same output:
 ```bash
 tiefdownconverter project add-template "RTF Template" -o documentation.rtf -t custompandoc
 ```
+[[10]](#projectadd-template)
 
 And that's it. TiefDownConverter will run the preprocessor, which 
 outputs to documentation.rtf, and then the templating system will 
@@ -421,10 +458,10 @@ enable it in your manifest, it will automatically remove stale or
 old conversion directories.
 
 Enable it with the `--smart-clean` and set the threshold with
-`--smart-clean-threshold`. The threshold is 5 by default.
+`--smart-clean-threshold`. The threshold is 5 by default. [[1]](#init) [[4]](#projectupdate-manifest)
 
 You can also manually trigger a smart clean with 
-`tiefdownconverter project smart-clean` or a normal clean with
-`tiefdownconverter project clean`. The latter will remove all
+`tiefdownconverter project smart-clean` [[11]](#projectsmart-clean) or a normal clean with
+`tiefdownconverter project clean` [[12]](#projectclean). The latter will remove all
 conversion directories, while the former will only remove the ones
 that are older than the threshold.
