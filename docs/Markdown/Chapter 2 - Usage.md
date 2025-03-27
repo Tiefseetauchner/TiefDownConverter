@@ -69,7 +69,7 @@ your_project/
 └── manifest.toml
 ```
 
-The Markdown folder[[3]](#adjusting-the-markdown-directory) contains an example Markdown file. When placing your markdown files
+The Markdown folder[[3]](#the-markdown-directory) contains an example Markdown file. When placing your markdown files
 in this folder, make sure they're named like `Chapter X.md`, with anything following the
 number being ignored. *This is important*, as the converter will use this to sort the
 files for conversion, as otherwise it'd have no idea in which order they should be
