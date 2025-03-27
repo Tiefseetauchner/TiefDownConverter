@@ -40,12 +40,18 @@ enum Commands {
         #[arg(
             short,
             long,
-            help = "The templates to use. If not provided, the default templates from the manifest file will be used.",
+            help = "The templates to use. If not provided, the default templates from the manifest file will be used. Cannot be used with --profile.",
             use_value_delimiter = true,
             value_delimiter = ',',
             num_args = 1..,
         )]
         templates: Option<Vec<String>>,
+        #[arg(
+            short = 'P',
+            long,
+            help = "The conversion profile to use. Cannot be used with --templates."
+        )]
+        profile: Option<String>,
     },
     #[command(about = "Initialize a new TiefDown project.")]
     Init {
@@ -261,7 +267,17 @@ fn main() -> Result<()> {
     let args = Cli::parse();
 
     match args.command {
-        Commands::Convert { project, templates } => conversion::convert(project, templates)?,
+        Commands::Convert {
+            project,
+            templates,
+            profile,
+        } => {
+            if profile.is_some() && templates.is_some() {
+                return Err(eyre!("Cannot specify both templates and a profile."));
+            }
+
+            conversion::convert(project, templates, profile)?
+        }
         Commands::Init {
             project,
             templates,

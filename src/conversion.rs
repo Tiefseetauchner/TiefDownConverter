@@ -8,13 +8,18 @@ use std::path::PathBuf;
 use toml::Table;
 
 use crate::conversion_decider;
+use crate::manifest_model::Manifest;
 use crate::manifest_model::MetadataSettings;
 use crate::manifest_model::PreProcessor;
 use crate::manifest_model::TemplateMapping;
 use crate::project_management::load_and_convert_manifest;
 use crate::project_management::run_smart_clean;
 
-pub(crate) fn convert(project: Option<String>, templates: Option<Vec<String>>) -> Result<()> {
+pub(crate) fn convert(
+    project: Option<String>,
+    templates: Option<Vec<String>>,
+    profile: Option<String>,
+) -> Result<()> {
     let project = project.unwrap_or_else(|| ".".to_string());
     let project_path = Path::new(&project);
 
@@ -36,20 +41,13 @@ pub(crate) fn convert(project: Option<String>, templates: Option<Vec<String>>) -
 
     let combined_markdown_name = PathBuf::from("combined.md");
     let combined_markdown_path = compiled_directory_path.join(&combined_markdown_name);
-    let markdown_dir = project_path.join(manifest.markdown_dir.unwrap_or("Markdown".to_string()));
+    let markdown_dir = project_path.join(manifest.markdown_dir.as_deref().unwrap_or("Markdown"));
 
     let combined_content = combine_markdown(&combined_markdown_path, &markdown_dir)?;
     fs::write(&combined_markdown_path, combined_content)?;
 
-    let templates = templates.map(|t| {
-        manifest
-            .templates
-            .iter()
-            .filter(|template| t.contains(&template.name))
-            .cloned()
-            .collect()
-    });
-    let templates = templates.unwrap_or(manifest.templates);
+    let templates = get_template_names(templates, profile, &manifest)?;
+    let templates = get_template_mappings_from_names(&templates, &manifest)?;
 
     for template in &templates {
         convert_template(
@@ -64,6 +62,47 @@ pub(crate) fn convert(project: Option<String>, templates: Option<Vec<String>>) -
     }
 
     Ok(())
+}
+
+fn get_template_names(
+    templates: Option<Vec<String>>,
+    profile: Option<String>,
+    manifest: &Manifest,
+) -> Result<Vec<String>> {
+    if let Some(profile) = profile {
+        if let Some(available_profiles) = &manifest.profiles {
+            if let Some(profile_pos) = available_profiles.iter().position(|p| p.name == profile) {
+                return Ok(available_profiles[profile_pos]
+                    .templates
+                    .iter()
+                    .map(|t| t.clone())
+                    .collect());
+            } else {
+                return Err(eyre!("Profile '{}' could not be found.", profile));
+            }
+        } else {
+            return Err(eyre!("No profiles are defined in the manifest.toml file."));
+        }
+    }
+
+    if let Some(templates) = templates {
+        return Ok(templates);
+    }
+
+    Ok(manifest.templates.iter().map(|t| t.name.clone()).collect())
+}
+
+fn get_template_mappings_from_names(
+    templates: &Vec<String>,
+    manifest: &Manifest,
+) -> Result<Vec<TemplateMapping>> {
+    let templates = templates
+        .iter()
+        .map(|t| manifest.templates.iter().find(|mapping| mapping.name == *t))
+        .filter_map(|t| t.cloned())
+        .collect::<Vec<_>>();
+
+    Ok(templates)
 }
 
 fn create_build_directory(project_path: &Path) -> Result<std::path::PathBuf> {
