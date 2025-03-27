@@ -15,7 +15,11 @@ Commands:
   update-manifest      Update the project manifest.
   add-preprocessor     Add a new preprocessor to the project.
   remove-preprocessor  Remove a preprocessor from the project.
+  add-profile          Add a new conversion profile to the project.
+  remove-profile       Remove a conversion profile from the project.
   list-templates       List the templates in the project.
+  list-profiles        List the conversion profiles in the project.
+  list-preprocessors   List the preprocessors in the project.
   validate             Validate the TiefDown project structure and metadata.
   clean                Clean temporary files from the TiefDown project.
   smart-clean          Clean temporary files from the TiefDown project, leaving only the threshold amount of folders.
@@ -35,7 +39,11 @@ Options:
 - [update-manifest](#projectupdate-manifest)
 - [add-preprocessor](#projectadd-preprocessor)
 - [remove-preprocessor](#projectremove-preprocessor)
+- [add-profile](#projectadd-profile)
+- [remove-profile](#projectremove-profile)
 - [list-templates](#projectlist-templates)
+- [list-profiles](#projectlist-profiles)
+- [list-preprocessors](#projectlist-preprocessors)
 - [validate](#projectvalidate)
 - [clean](#projectclean)
 - [smart-clean](#projectsmart-clean)
