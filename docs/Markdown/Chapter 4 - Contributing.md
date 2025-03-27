@@ -70,7 +70,7 @@ affect the workflow of using TiefDownConverter. If you add a command or flag, ma
 run `tools/generate_docs.py`. Either way, when changing the documentation, always run 
 `tiefdownconverter convert -p docs` before committing the changes.
 
-**You need to have the fonts EB Garamond, and Iosevka installed!** 
+**You need to have the font Iosevka installed!** 
 If you don't, we cannot accept documentation changes. TiefDownConverter will 
 throw a warning should the fonts not be installed. **The warning about Fira
 Mono missing is normal. This is the fallback font and not a requirement

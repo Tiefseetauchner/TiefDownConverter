@@ -7,7 +7,6 @@
   first-line-indent: 1em,
   spacing: 0.65em,
 )
-#set text(font: "EB Garamond")
 
 #show: zebraw.with()
 #set text(lang: "en")
