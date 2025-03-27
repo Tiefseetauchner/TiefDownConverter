@@ -382,6 +382,9 @@ pub(crate) fn remove_profile(project: Option<String>, name: String) -> Result<()
         return Err(eyre!("Profile with name '{}' does not exist.", name));
     }
 
+    let manifest_content = toml::to_string(&manifest)?;
+    std::fs::write(&manifest_path, manifest_content)?;
+
     Ok(())
 }
 
