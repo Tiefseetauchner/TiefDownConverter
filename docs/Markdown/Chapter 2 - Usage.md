@@ -421,7 +421,7 @@ this is experimental? Yeah, so if you have issues, please report
 them. Even if you're thinking "this is not a bug, it's a feature". 
 It likely isn't.
 
-## Custom Processor Arguements
+## Custom Processor Arguments
 
 You can define custom arguments for your processors. These are
 passed to the processor, so xelatex, typst, so on, on compilation.
