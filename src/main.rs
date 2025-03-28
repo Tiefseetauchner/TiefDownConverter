@@ -115,78 +115,12 @@ If the number of conversion folders in the project is above this threshold, old 
 
 #[derive(Subcommand)]
 enum ProjectCommands {
-    #[command(about = "Add a new template to the project.")]
-    AddTemplate {
-        #[arg(
-            help = r#"The name of the template to create. If using a LiX template, make sure to install the corresponding .sty and .cls files from https://github.com/NicklasVraa/LiX. Adjust the metadata in template/meta.tex accordingly."#
-        )]
+    #[command(about = "Add or modify templates in the project.")]
+    Templates {
+        #[arg(help = "The template name to edit or add.")]
         template: String,
-        #[arg(
-            short = 'f',
-            long,
-            help = "The file to use as the template. If not provided, the template name will be used."
-        )]
-        template_file: Option<PathBuf>,
-        #[arg(
-            short,
-            long,
-            help = "The type of the template. If not provided, the type will be inferred from the template file."
-        )]
-        template_type: Option<TemplateType>,
-        #[arg(
-            short,
-            long,
-            help = "The output file. If not provided, the template name will be used."
-        )]
-        output: Option<PathBuf>,
-        #[arg(long, help = "The luafilters to use for pandoc conversion of this templates markdown.", num_args = 1.., value_delimiter = ',')]
-        filters: Option<Vec<String>>,
-        #[arg(long, help = "The preprocessor to use for this template.")]
-        preprocessor: Option<String>,
-    },
-    #[command(about = "Remove a template from the project.")]
-    RemoveTemplate {
-        #[arg(short, long, help = r#"The template to remove."#)]
-        template: String,
-    },
-    #[command(about = "Update a template in the project.")]
-    UpdateTemplate {
-        #[arg(help = r#"The template to update."#)]
-        template: String,
-        #[arg(
-            long,
-            help = "The file to use as the template. If not provided, the template name will be used."
-        )]
-        template_file: Option<PathBuf>,
-        #[arg(
-            long,
-            help = r#"The type of the template. If not provided, the type will be inferred from the template file.
-Changing this is not recommended, as it is highly unlikely the type and only the type has changed. It is recommended to create a new template instead."#
-        )]
-        template_type: Option<TemplateType>,
-        #[arg(
-            long,
-            help = "The output file. If not provided, the template name will be used."
-        )]
-        output: Option<PathBuf>,
-        #[arg(long,help = "The luafilters to use for pandoc conversion of this templates markdown.", num_args = 1.., value_delimiter = ',')]
-        filters: Option<Vec<String>>,
-        #[arg(
-            long,
-            help = "The luafilters add to the template.",
-            num_args = 1..,
-            value_delimiter = ',',
-        )]
-        add_filters: Option<Vec<String>>,
-        #[arg(
-            long,
-            help = "The luafilters to remove from the template.",
-            num_args = 1..,
-            value_delimiter = ',',
-        )]
-        remove_filters: Option<Vec<String>>,
-        #[arg(long, help = "The preprocessor to use for this template.")]
-        preprocessor: Option<String>,
+        #[command(subcommand)]
+        command: TemplatesCommands,
     },
     #[command(about = "Update the project manifest.")]
     UpdateManifest {
@@ -261,6 +195,74 @@ The threshold is set to 5 by default, and is overwritten by the threshold in the
     SmartClean,
 }
 
+#[derive(Subcommand)]
+enum TemplatesCommands {
+    #[command(about = "Add a new template to the project.")]
+    Add {
+        #[arg(
+            short = 'f',
+            long,
+            help = "The file to use as the template. If not provided, the template name will be used."
+        )]
+        template_file: Option<PathBuf>,
+        #[arg(
+            short,
+            long,
+            help = "The type of the template. If not provided, the type will be inferred from the template file."
+        )]
+        template_type: Option<TemplateType>,
+        #[arg(
+            short,
+            long,
+            help = "The output file. If not provided, the template name will be used."
+        )]
+        output: Option<PathBuf>,
+        #[arg(long, help = "The luafilters to use for pandoc conversion of this templates markdown.", num_args = 1.., value_delimiter = ',')]
+        filters: Option<Vec<String>>,
+        #[arg(long, help = "The preprocessor to use for this template.")]
+        preprocessor: Option<String>,
+    },
+    #[command(about = "Remove a template from the project.")]
+    Remove,
+    #[command(about = "Update a template in the project.")]
+    Update {
+        #[arg(
+            long,
+            help = "The file to use as the template. If not provided, the template name will be used."
+        )]
+        template_file: Option<PathBuf>,
+        #[arg(
+            long,
+            help = r#"The type of the template. If not provided, the type will be inferred from the template file.
+Changing this is not recommended, as it is highly unlikely the type and only the type has changed. It is recommended to create a new template instead."#
+        )]
+        template_type: Option<TemplateType>,
+        #[arg(
+            long,
+            help = "The output file. If not provided, the template name will be used."
+        )]
+        output: Option<PathBuf>,
+        #[arg(long,help = "The luafilters to use for pandoc conversion of this templates markdown.", num_args = 1.., value_delimiter = ',')]
+        filters: Option<Vec<String>>,
+        #[arg(
+            long,
+            help = "The luafilters add to the template.",
+            num_args = 1..,
+            value_delimiter = ',',
+        )]
+        add_filters: Option<Vec<String>>,
+        #[arg(
+            long,
+            help = "The luafilters to remove from the template.",
+            num_args = 1..,
+            value_delimiter = ',',
+        )]
+        remove_filters: Option<Vec<String>>,
+        #[arg(long, help = "The preprocessor to use for this template.")]
+        preprocessor: Option<String>,
+    },
+}
+
 fn main() -> Result<()> {
     color_eyre::install()?;
 
@@ -296,51 +298,51 @@ fn main() -> Result<()> {
             smart_clean_threshold,
         )?,
         Commands::Project { project, command } => match command {
-            ProjectCommands::AddTemplate {
-                template,
-                template_file,
-                template_type,
-                output,
-                filters,
-                preprocessor,
-            } => project_management::add_template(
-                project,
-                template,
-                template_type,
-                template_file,
-                output,
-                filters,
-                preprocessor,
-            )?,
-            ProjectCommands::RemoveTemplate { template } => {
-                project_management::remove_template(project, template)?
-            }
-            ProjectCommands::UpdateTemplate {
-                template,
-                template_file,
-                template_type,
-                output,
-                filters,
-                add_filters,
-                remove_filters,
-                preprocessor,
-            } => {
-                if filters.is_some() && (add_filters.is_some() || remove_filters.is_some()) {
-                    return Err(eyre!("Cannot specify both filters and add/remove filters."));
-                }
-
-                project_management::update_template(
+            ProjectCommands::Templates { template, command } => match command {
+                TemplatesCommands::Add {
+                    template_file,
+                    template_type,
+                    output,
+                    filters,
+                    preprocessor,
+                } => project_management::add_template(
                     project,
                     template,
                     template_type,
                     template_file,
                     output,
                     filters,
+                    preprocessor,
+                )?,
+                TemplatesCommands::Remove => {
+                    project_management::remove_template(project, template)?
+                }
+                TemplatesCommands::Update {
+                    template_file,
+                    template_type,
+                    output,
+                    filters,
                     add_filters,
                     remove_filters,
                     preprocessor,
-                )?
-            }
+                } => {
+                    if filters.is_some() && (add_filters.is_some() || remove_filters.is_some()) {
+                        return Err(eyre!("Cannot specify both filters and add/remove filters."));
+                    }
+
+                    project_management::update_template(
+                        project,
+                        template,
+                        template_type,
+                        template_file,
+                        output,
+                        filters,
+                        add_filters,
+                        remove_filters,
+                        preprocessor,
+                    )?
+                }
+            },
             ProjectCommands::UpdateManifest {
                 markdown_dir,
                 smart_clean,
