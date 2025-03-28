@@ -1,6 +1,23 @@
 \documentclass[a4paper,12pt]{article}
 
-\usepackage[utf8]{inputenc}
+\usepackage{fontspec}
+
+\setmainfont[
+  Path=fonts/,
+  UprightFont = CormorantGaramond-Regular.ttf,
+  ItalicFont = CormorantGaramond-Italic.ttf,
+  BoldFont = CormorantGaramond-Bold.ttf,
+  BoldItalicFont = CormorantGaramond-BoldItalic.ttf,
+]{Cormorant Garamond}
+
+\setmonofont[
+  Path=fonts/,
+  UprightFont = IosevkaSS10-Regular.ttf,
+  ItalicFont = IosevkaSS10-Oblique.ttf,
+  BoldFont = IosevkaSS10-Bold.ttf,
+  BoldItalicFont = IosevkaSS10-BoldOblique.ttf,
+]{Iosevka SS10}
+
 \usepackage{geometry}
 \usepackage{hyperref}
 \usepackage{listings}
