@@ -145,55 +145,23 @@ If the number of conversion folders in the project is above this threshold, old 
         )]
         smart_clean_threshold: Option<u32>,
     },
-    #[command(about = "Add a new preprocessor to the project.")]
-    AddPreprocessor {
-        #[arg(help = "The name of the preprocessor to create.")]
-        name: String,
-        #[arg(help = "The arguments to pass to the preprocessor.", num_args = 1.., value_delimiter = ' ', last = true, allow_hyphen_values = true)]
-        pandoc_args: Vec<String>,
+    #[command(about = "Manage the preprocessors of the project.")]
+    PreProcessors {
+        #[command(subcommand)]
+        command: PreProcessorsCommands,
     },
-    #[command(about = "Remove a preprocessor from the project.")]
-    RemovePreprocessor {
-        #[arg(help = "The name of the preprocessor to remove.")]
-        name: String,
+    #[command(about = "Manage the preprocessors of the project.")]
+    Processors {
+        #[command(subcommand)]
+        command: ProcessorsCommands,
     },
-    #[command(about = "Add a new processor to the project.")]
-    AddProcessor {
-        #[arg(help = "The name of the processor to create.")]
-        name: String,
-        #[arg(help = "The arguments to pass to the processor.", num_args = 1.., value_delimiter = ' ', last = true, allow_hyphen_values = true)]
-        processor_args: Vec<String>,
-    },
-    #[command(about = "Remove a processor from the project.")]
-    RemoveProcessor {
-        #[arg(help = "The name of the processor to remove.")]
-        name: String,
-    },
-    #[command(
-        about = "Add a new conversion profile to the project.",
-        long_about = "Add a new conversion profile to the project. These profiles contain a list of templates to preset conversion workflows."
-    )]
-    AddProfile {
-        #[arg(help = "The name of the profile to create.")]
-        name: String,
-        #[arg(
-            help = "The templates to add to the profile.",
-            num_args = 1..,
-            value_delimiter = ',',
-        )]
-        templates: Vec<String>,
-    },
-    #[command(about = "Remove a conversion profile from the project.")]
-    RemoveProfile {
-        #[arg(help = "The name of the profile to remove.")]
-        name: String,
+    #[command(about = "Manage the conversion profiles of the project.")]
+    Profiles {
+        #[command(subcommand)]
+        command: ProfilesCommands,
     },
     #[command(about = "List the templates in the project.")]
     ListTemplates,
-    #[command(about = "List the conversion profiles in the project.")]
-    ListProfiles,
-    #[command(about = "List the preprocessors in the project.")]
-    ListPreprocessors,
     #[command(about = "Validate the TiefDown project structure and metadata.")]
     Validate,
     #[command(about = "Clean temporary files from the TiefDown project.")]
@@ -277,6 +245,67 @@ Changing this is not recommended, as it is highly unlikely the type and only the
         #[arg(long, help = "The processor to use for this template.")]
         processor: Option<String>,
     },
+}
+
+#[derive(Subcommand)]
+enum PreProcessorsCommands {
+    #[command(about = "Add a new preprocessor to the project.")]
+    Add {
+        #[arg(help = "The name of the preprocessor to create.")]
+        name: String,
+        #[arg(help = "The arguments to pass to the preprocessor.", num_args = 1.., value_delimiter = ' ', last = true, allow_hyphen_values = true)]
+        pandoc_args: Vec<String>,
+    },
+    #[command(about = "Remove a preprocessor from the project.")]
+    Remove {
+        #[arg(help = "The name of the preprocessor to remove.")]
+        name: String,
+    },
+    #[command(about = "List the preprocessors in the project.")]
+    List,
+}
+
+#[derive(Subcommand)]
+enum ProcessorsCommands {
+    #[command(about = "Add a new processor to the project.")]
+    Add {
+        #[arg(help = "The name of the processor to create.")]
+        name: String,
+        #[arg(help = "The arguments to pass to the processor.", num_args = 1.., value_delimiter = ' ', last = true, allow_hyphen_values = true)]
+        processor_args: Vec<String>,
+    },
+    #[command(about = "Remove a processor from the project.")]
+    Remove {
+        #[arg(help = "The name of the processor to remove.")]
+        name: String,
+    },
+    #[command(about = "List the processors in the project.")]
+    List,
+}
+
+#[derive(Subcommand)]
+enum ProfilesCommands {
+    #[command(
+        about = "Add a new conversion profile to the project.",
+        long_about = "Add a new conversion profile to the project. These profiles contain a list of templates to preset conversion workflows."
+    )]
+    Add {
+        #[arg(help = "The name of the profile to create.")]
+        name: String,
+        #[arg(
+            help = "The templates to add to the profile.",
+            num_args = 1..,
+            value_delimiter = ',',
+        )]
+        templates: Vec<String>,
+    },
+    #[command(about = "Remove a conversion profile from the project.")]
+    Remove {
+        #[arg(help = "The name of the profile to remove.")]
+        name: String,
+    },
+    #[command(about = "List the conversion profiles in the project.")]
+    List,
 }
 
 fn main() -> Result<()> {
@@ -373,28 +402,35 @@ fn main() -> Result<()> {
                 smart_clean,
                 smart_clean_threshold,
             )?,
-            ProjectCommands::AddPreprocessor { name, pandoc_args } => {
-                project_management::add_preprocessor(project, name, pandoc_args)?
-            }
-            ProjectCommands::RemovePreprocessor { name } => {
-                project_management::remove_preprocessor(project, name)?
-            }
-            ProjectCommands::AddProcessor {
-                name,
-                processor_args,
-            } => project_management::add_processor(project, name, processor_args)?,
-            ProjectCommands::RemoveProcessor { name } => {
-                project_management::remove_processor(project, name)?
-            }
-            ProjectCommands::AddProfile { name, templates } => {
-                project_management::add_profile(project, name, templates)?
-            }
-            ProjectCommands::RemoveProfile { name } => {
-                project_management::remove_profile(project, name)?
-            }
+            ProjectCommands::PreProcessors { command } => match command {
+                PreProcessorsCommands::Add { name, pandoc_args } => {
+                    project_management::add_preprocessor(project, name, pandoc_args)?
+                }
+                PreProcessorsCommands::Remove { name } => {
+                    project_management::remove_preprocessor(project, name)?
+                }
+                PreProcessorsCommands::List => project_management::list_preprocessors(project)?,
+            },
+            ProjectCommands::Processors { command } => match command {
+                ProcessorsCommands::Add {
+                    name,
+                    processor_args,
+                } => project_management::add_processor(project, name, processor_args)?,
+                ProcessorsCommands::Remove { name } => {
+                    project_management::remove_processor(project, name)?
+                }
+                ProcessorsCommands::List => project_management::list_processors(project)?,
+            },
+            ProjectCommands::Profiles { command } => match command {
+                ProfilesCommands::Add { name, templates } => {
+                    project_management::add_profile(project, name, templates)?
+                }
+                ProfilesCommands::Remove { name } => {
+                    project_management::remove_profile(project, name)?
+                }
+                ProfilesCommands::List => project_management::list_profiles(project)?,
+            },
             ProjectCommands::ListTemplates => project_management::list_templates(project)?,
-            ProjectCommands::ListProfiles => project_management::list_profiles(project)?,
-            ProjectCommands::ListPreprocessors => project_management::list_preprocessors(project)?,
             ProjectCommands::Validate => project_management::validate(project)?,
             ProjectCommands::Clean => project_management::clean(project)?,
             ProjectCommands::SmartClean => project_management::smart_clean(project)?,

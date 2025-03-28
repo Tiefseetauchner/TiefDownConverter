@@ -1,4 +1,4 @@
-## `tiefdownconverter project list-preprocessors` {#projectlist-preprocessors}
+## `tiefdownconverter project pre-processors list` {#projectpre-processorslist}
 
 **Version:** `tiefdownconverter 0.7.0-alpha`
 
@@ -6,7 +6,7 @@
 ```
 List the preprocessors in the project.
 
-Usage: tiefdownconverter project list-preprocessors
+Usage: tiefdownconverter project pre-processors list
 
 Options:
   -h, --help  Print help

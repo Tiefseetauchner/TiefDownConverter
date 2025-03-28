@@ -389,6 +389,22 @@ pub(crate) fn remove_processor(project: Option<String>, name: String) -> Result<
     Ok(())
 }
 
+pub(crate) fn list_processors(project: Option<String>) -> Result<()> {
+    let project = project.as_deref().unwrap_or(".");
+    let project_path = std::path::Path::new(&project);
+    let manifest_path = project_path.join("manifest.toml");
+
+    let manifest = load_and_convert_manifest(&manifest_path)?;
+
+    let processors = manifest.custom_processors.processors;
+
+    for processor in processors {
+        println!("{}: {}", processor.name, processor.processor_args.join(" "));
+    }
+
+    Ok(())
+}
+
 pub(crate) fn add_profile(
     project: Option<String>,
     name: String,
