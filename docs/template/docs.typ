@@ -19,6 +19,7 @@
 #show link: it => underline(text(fill: blue)[#it])
 
 #set text(font: "Cormorant Garamond")
+#show heading: set text(font: "Cormorant SC")
 #show raw: set text(font: ("Iosevka SS10"), size: 9pt)
 
 #include "output.typ"

@@ -1,6 +1,15 @@
 \documentclass[a4paper,12pt]{article}
 
 \usepackage{fontspec}
+\usepackage{sectsty}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\geometry{margin=1in}
+
+\defaultfontfeatures{Ligatures=TeX}
 
 \setmainfont[
   Path=fonts/,
@@ -18,12 +27,12 @@
   BoldItalicFont = IosevkaSS10-BoldOblique.ttf,
 ]{Iosevka SS10}
 
-\usepackage{geometry}
-\usepackage{hyperref}
-\usepackage{listings}
-\usepackage{xcolor}
+\newfontfamily\CormorantSCBold[
+  Path=fonts/,
+  UprightFont = CormorantSC-Bold.ttf,
+]{Cormorant SC Bold}
 
-\geometry{margin=1in}
+\allsectionsfont{\CormorantSCBold}
 
 \input{./meta.tex}
 
