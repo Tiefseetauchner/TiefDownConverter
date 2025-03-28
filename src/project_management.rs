@@ -6,7 +6,7 @@ use toml::{Table, Value};
 use crate::{
     consts::CURRENT_MANIFEST_VERSION,
     manifest_model::{
-        Manifest, PreProcessor, Processors, Profile, TemplateMapping, TemplateType,
+        Manifest, PreProcessor, Processor, Processors, Profile, TemplateMapping, TemplateType,
         upgrade_manifest,
     },
     template_management::{self, add_lix_filters, get_template_path, get_template_type_from_path},
@@ -77,6 +77,7 @@ This is a simple test document for you to edit or overwrite."#,
         templates: templates.clone(),
         custom_processors: Processors {
             preprocessors: Vec::new(),
+            processors: Vec::new(),
         },
         smart_clean: smart_clean_value,
         smart_clean_threshold,
@@ -97,6 +98,7 @@ fn get_template_mapping_for_preset(template: &String) -> Result<TemplateMapping>
         template_file: None,
         filters: None,
         preprocessor: None,
+        processor: None,
     };
 
     add_lix_filters(&mut template);
@@ -112,6 +114,7 @@ pub(crate) fn add_template(
     output: Option<PathBuf>,
     filters: Option<Vec<String>>,
     preprocessor: Option<String>,
+    processor: Option<String>,
 ) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
@@ -140,6 +143,7 @@ pub(crate) fn add_template(
         template_file,
         filters,
         preprocessor,
+        processor,
     };
 
     create_templates(project_path, &vec![template.clone()])?;
@@ -203,6 +207,7 @@ pub(crate) fn update_template(
     add_filters: Option<Vec<String>>,
     remove_filters: Option<Vec<String>>,
     preprocessor: Option<String>,
+    processor: Option<String>,
 ) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
@@ -248,6 +253,7 @@ pub(crate) fn update_template(
             }
         }
         template.preprocessor = preprocessor.or(template.preprocessor.clone());
+        template.processor = processor.or(template.processor.clone());
     } else {
         return Err(eyre!(
             "Template with name '{}' does not exist.",
@@ -328,6 +334,53 @@ pub(crate) fn remove_preprocessor(project: Option<String>, name: String) -> Resu
         manifest.custom_processors.preprocessors.remove(pos);
     } else {
         return Err(eyre!("Preprocessor with name '{}' does not exist.", name));
+    }
+
+    let manifest_content = toml::to_string(&manifest)?;
+    std::fs::write(&manifest_path, manifest_content)?;
+
+    Ok(())
+}
+
+pub(crate) fn add_processor(
+    project: Option<String>,
+    name: String,
+    processor_args: Vec<String>,
+) -> Result<()> {
+    let project = project.as_deref().unwrap_or(".");
+    let project_path = std::path::Path::new(&project);
+    let manifest_path = project_path.join("manifest.toml");
+
+    let mut manifest = load_and_convert_manifest(&manifest_path)?;
+
+    let processor = Processor {
+        name,
+        processor_args,
+    };
+    manifest.custom_processors.processors.push(processor);
+
+    let manifest_content = toml::to_string(&manifest)?;
+    std::fs::write(&manifest_path, manifest_content)?;
+
+    Ok(())
+}
+
+pub(crate) fn remove_processor(project: Option<String>, name: String) -> Result<()> {
+    let project = project.as_deref().unwrap_or(".");
+    let project_path = std::path::Path::new(&project);
+    let manifest_path = project_path.join("manifest.toml");
+
+    let mut manifest = load_and_convert_manifest(&manifest_path)?;
+
+    if let Some(pos) = manifest
+        .custom_processors
+        .processors
+        .iter()
+        .position(|p| p.name == name)
+    {
+        manifest.custom_processors.processors.remove(pos);
+    } else {
+        return Err(eyre!("Processor with name '{}' does not exist.", name));
     }
 
     let manifest_content = toml::to_string(&manifest)?;

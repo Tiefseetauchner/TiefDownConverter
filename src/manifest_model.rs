@@ -28,12 +28,19 @@ pub(crate) struct Manifest {
 #[derive(Deserialize, Serialize, Clone)]
 pub(crate) struct Processors {
     pub preprocessors: Vec<PreProcessor>,
+    pub processors: Vec<Processor>,
 }
 
 #[derive(Deserialize, Serialize, Clone)]
 pub(crate) struct PreProcessor {
     pub name: String,
     pub pandoc_args: Vec<String>,
+}
+
+#[derive(Deserialize, Serialize, Clone)]
+pub(crate) struct Processor {
+    pub name: String,
+    pub processor_args: Vec<String>,
 }
 
 pub(crate) static DEFAULT_TEX_PREPROCESSOR: LazyLock<PreProcessor> =
@@ -68,6 +75,7 @@ pub(crate) struct TemplateMapping {
     pub output: Option<PathBuf>,
     pub filters: Option<Vec<String>>,
     pub preprocessor: Option<String>,
+    pub processor: Option<String>,
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug, PartialEq, Eq, ValueEnum)]

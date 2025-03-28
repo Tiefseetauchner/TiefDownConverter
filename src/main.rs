@@ -157,6 +157,18 @@ If the number of conversion folders in the project is above this threshold, old 
         #[arg(help = "The name of the preprocessor to remove.")]
         name: String,
     },
+    #[command(about = "Add a new processor to the project.")]
+    AddProcessor {
+        #[arg(help = "The name of the processor to create.")]
+        name: String,
+        #[arg(help = "The arguments to pass to the processor.", num_args = 1.., value_delimiter = ' ', last = true, allow_hyphen_values = true)]
+        processor_args: Vec<String>,
+    },
+    #[command(about = "Remove a processor from the project.")]
+    RemoveProcessor {
+        #[arg(help = "The name of the processor to remove.")]
+        name: String,
+    },
     #[command(
         about = "Add a new conversion profile to the project.",
         long_about = "Add a new conversion profile to the project. These profiles contain a list of templates to preset conversion workflows."
@@ -221,6 +233,8 @@ enum TemplatesCommands {
         filters: Option<Vec<String>>,
         #[arg(long, help = "The preprocessor to use for this template.")]
         preprocessor: Option<String>,
+        #[arg(long, help = "The processor to use for this template.")]
+        processor: Option<String>,
     },
     #[command(about = "Remove a template from the project.")]
     Remove,
@@ -260,6 +274,8 @@ Changing this is not recommended, as it is highly unlikely the type and only the
         remove_filters: Option<Vec<String>>,
         #[arg(long, help = "The preprocessor to use for this template.")]
         preprocessor: Option<String>,
+        #[arg(long, help = "The processor to use for this template.")]
+        processor: Option<String>,
     },
 }
 
@@ -305,6 +321,7 @@ fn main() -> Result<()> {
                     output,
                     filters,
                     preprocessor,
+                    processor,
                 } => project_management::add_template(
                     project,
                     template,
@@ -313,6 +330,7 @@ fn main() -> Result<()> {
                     output,
                     filters,
                     preprocessor,
+                    processor,
                 )?,
                 TemplatesCommands::Remove => {
                     project_management::remove_template(project, template)?
@@ -325,6 +343,7 @@ fn main() -> Result<()> {
                     add_filters,
                     remove_filters,
                     preprocessor,
+                    processor,
                 } => {
                     if filters.is_some() && (add_filters.is_some() || remove_filters.is_some()) {
                         return Err(eyre!("Cannot specify both filters and add/remove filters."));
@@ -340,6 +359,7 @@ fn main() -> Result<()> {
                         add_filters,
                         remove_filters,
                         preprocessor,
+                        processor,
                     )?
                 }
             },
@@ -358,6 +378,13 @@ fn main() -> Result<()> {
             }
             ProjectCommands::RemovePreprocessor { name } => {
                 project_management::remove_preprocessor(project, name)?
+            }
+            ProjectCommands::AddProcessor {
+                name,
+                processor_args,
+            } => project_management::add_processor(project, name, processor_args)?,
+            ProjectCommands::RemoveProcessor { name } => {
+                project_management::remove_processor(project, name)?
             }
             ProjectCommands::AddProfile { name, templates } => {
                 project_management::add_profile(project, name, templates)?
