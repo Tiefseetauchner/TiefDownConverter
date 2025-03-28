@@ -333,6 +333,10 @@ version = 3
 [custom_processors]
 preprocessors = []
 
+[metadata_fields]
+
+[metadata_settings]
+
 [[templates]]
 name = "template1.tex"
 template_type = "Tex"

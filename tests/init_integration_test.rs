@@ -15,6 +15,10 @@ template_type = "Tex"
 
 [custom_processors]
 preprocessors = []
+
+[metadata_fields]
+
+[metadata_settings]
 "#;
 
 fn assert_default_project(project_path: &Path) {

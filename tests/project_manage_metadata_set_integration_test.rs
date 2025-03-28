@@ -1,5 +1,4 @@
 use assert_cmd::Command;
-use predicates::prelude::*;
 use rstest::rstest;
 use std::{
     fs,
@@ -26,68 +25,61 @@ fn create_empty_project(temp_dir: &Path) -> PathBuf {
     project_path
 }
 
-fn add_template(project_path: &Path, template_name: &str) {
+#[rstest]
+fn test_set_metadata() {
+    let temp_dir = tempdir().expect("Failed to create temporary directory");
+    let project_path = create_empty_project(&temp_dir.path());
+
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("add-template")
-        .arg(template_name)
-        .arg("--template-file")
-        .arg(format!("{}.tex", template_name))
+        .arg("manage-metadata")
+        .arg("set")
+        .arg("author")
+        .arg("John Doe")
         .assert()
         .success();
 
-    let template_dir = project_path.join("template");
-    assert!(template_dir.exists(), "Template directory should exist");
-    fs::write(template_dir.join(format!("{}.tex", template_name)), "")
-        .expect("Failed to write example template file");
+    let manifest_path = project_path.join("manifest.toml");
+    assert!(manifest_path.exists(), "Manifest file should exist");
+    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
+
+    assert_contains!(manifest_content, r#"author = "John Doe""#);
 }
 
 #[rstest]
-fn test_list_templates() {
+fn test_set_overwrites_metadata() {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
-
-    let project_path = create_empty_project(&temp_dir.path());
-    add_template(&project_path, "test1");
-    add_template(&project_path, "test2");
-    add_template(&project_path, "test3");
-
-    let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
-    cmd.current_dir(&project_path)
-        .arg("project")
-        .arg("list-templates")
-        .assert()
-        .success()
-        .stdout(
-            predicate::str::contains(
-                r#"test1:
-  Template type: Tex
-  Template file: test1.tex"#,
-            )
-            .and(predicate::str::contains(
-                r#"test2:
-  Template type: Tex
-  Template file: test2.tex"#,
-            ))
-            .and(predicate::str::contains(
-                r#"test3:
-Template type: Tex
-Template file: test3.tex"#,
-            )),
-        );
-}
-
-#[rstest]
-fn test_list_templates_empty() {
-    let temp_dir = tempdir().expect("Failed to create temporary directory");
-
     let project_path = create_empty_project(&temp_dir.path());
 
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("list-templates")
+        .arg("manage-metadata")
+        .arg("set")
+        .arg("author")
+        .arg("John Doe")
         .assert()
-        .success()
-        .stdout(predicate::str::is_empty());
+        .success();
+
+    let manifest_path = project_path.join("manifest.toml");
+    assert!(manifest_path.exists(), "Manifest file should exist");
+    let manifest_content =
+        fs::read_to_string(&manifest_path).expect("Failed to read manifest file");
+
+    assert_contains!(manifest_content, r#"author = "John Doe""#);
+
+    let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
+    cmd.current_dir(&project_path)
+        .arg("project")
+        .arg("manage-metadata")
+        .arg("set")
+        .arg("author")
+        .arg("Tiefseetauchner")
+        .assert()
+        .success();
+
+    let manifest_content =
+        fs::read_to_string(&manifest_path).expect("Failed to read manifest file");
+    assert_contains!(manifest_content, r#"author = "Tiefseetauchner""#);
 }
