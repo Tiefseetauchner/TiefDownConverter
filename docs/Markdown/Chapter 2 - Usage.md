@@ -4,6 +4,9 @@ The basic usage of `tiefdownconverter` is relatively simple.
 The difficult part is understanding the templating system and
 how to customise it for your usecases. Presets can only do so much.
 
+> Note: I wrote this paragraph before the big refactor. The basic
+> usage is no longer simple.
+
 ## Installation
 
 Currently the only way to install `tiefdownconverter` is to either build
@@ -85,7 +88,7 @@ your own Markdown files, and so on.
 You can change what directory the converter looks for markdown files in by changing the
 `markdown_dir` field in the manifest.toml file or saying `-m path/to/markdown/dir` when
 initialising the project. You can also change it post-initialisation using
-`tiefdownconverter project update-manifest -m path/to/markdown/dir`. If you don't do so,
+`tiefdownconverter project [path/to/project] update-manifest -m path/to/markdown/dir`. If you don't do so,
 the converter will look for markdown files in the `project_dir/Markdown` directory.
 
 ## Customising the template
@@ -95,7 +98,7 @@ same time. This is done by creating a template file in the template directory an
 it to the project's manifest.toml file.
 
 You could do this manually, if you were so inclined, but using 
-`tiefdownconverter project add-template` is much easier. Check the 
+`tiefdownconverter project template <TEMPLATE_NAME> add` is much easier. Check the 
 [Usage Details](#usage-details) for the usage of this command. But importantly, once you
 created the template and added it to the manifest, you will be able to convert using it.
 `tiefdownconverter convert -p path/to/your_project --templates <TEMPLATE_NAME>` will convert
@@ -112,17 +115,17 @@ course edit the template files directly, but there are a few more options.
 Mainly and most interestingly, lua filters can adjust the behaviour of the markdown conversion.
 These are lua scripts that are run before the markdown is converted to tex or typst. You can
 add lua filters to a template by either editing the manifest or using 
-`tiefdownconverter project update-template <TEMPLATE_NAME> --add-filters <FILTER_NAME>`. This
+`tiefdownconverter project template <TEMPLATE_NAME> update --add-filters <FILTER_NAME>`. This
 can be either the path to a lua filter (relative to the project directory) or a directory
 containing lua filters.
 
 You can also change the name of the exported file by setting the `output` option. For example,
-`tiefdownconverter project update-template <TEMPLATE_NAME> --output <NEW_NAME>`. This will
+`tiefdownconverter project template <TEMPLATE_NAME> update --output <NEW_NAME>`. This will
 export the template to `<NEW_NAME>` instead of the default `<TEMPLATE_NAME>.pdf`.
 
 Similarly, you could change the template file and type, though I advice against it, as this
 may break the template. I advice to just add a new template and remove the old one using
-`tiefdownconverter project remove-template <TEMPLATE_NAME>`.
+`tiefdownconverter project template <TEMPLATE_NAME> remove`.
 
 ## Conversion Profiles
 
@@ -133,8 +136,8 @@ PDFs vs. print ready PDFs, or only converting a certain size of PDF.
 For that, there are conversion profiles which simply are a list of templates. It's essentially like
 saving your --templates arguments.
 
-You can create these profiles with the `project add-profile` command, setting a name and a comma
-seperated list of templates. Removing a profile is also possible with the `project remove-profile`
+You can create these profiles with the `project profile add` command, setting a name and a comma
+seperated list of templates. Removing a profile is also possible with the `project profile remove`
 command.
 
 Running a conversion with a profile is as simple as adding the `--profile` flag.
@@ -216,16 +219,6 @@ This makes sure your EPUB doesn’t look like a nameless file when opened in an 
 
 ### Using Lua Filters
 Want to tweak the structure? That’s what Lua filters are for. You can use them to rename chapters, remove junk, or modify how elements are processed.
-markdown_dir = "Custom Markdown Directory"
-version = 1
-
-[[templates]]
-name = "template1.tex"
-template_type = "Tex"
-
-[[templates]]
-name = "template2.typ"
-template_type = "Typst"
 
 Example: Automatically renaming chapter headers:
 ```lua
@@ -356,13 +349,13 @@ a preprocessor.
 If you want to define a preprocessor, you can do so by running
 
 ```bash
-tiefdownconverter project update-template <TEMPLATE_NAME> --preprocessor <PREPROCESSOR_NAME>
+tiefdownconverter project template <TEMPLATE_NAME> update --preprocessor <PREPROCESSOR_NAME>
 ```
 
  to assign it to a template and 
 
 ```bash
-tiefdownconverter project add-preprocessor <PREPROCESSOR_NAME> -- [PANDOC_ARGS]
+tiefdownconverter project preprocessor <PREPROCESSOR_NAME> add -- [PANDOC_ARGS]
 ```
  to assign it to a template and 
 
@@ -374,7 +367,7 @@ So you will have to add the `-o output.tex` argument to the preprocessor as well
 then would be:
 
 ```bash
-tiefdownconverter project add-preprocessor "Enable Listings" -- -o output.tex --listings
+tiefdownconverter project preprocessor "Enable Listings" add -- -o output.tex --listings
 ```
 
 
@@ -408,7 +401,7 @@ and just skip any further processing. Straight from pandoc to the output.
 You can do this by first defining a preprocessor, for example:
 
 ```bash
-tiefdownconverter project add-preprocessor "RTF Preprocessor" -- -o documentation.rtf
+tiefdownconverter project preprocessor "RTF Preprocessor" add -- -o documentation.rtf
 ```
 
 
@@ -417,7 +410,7 @@ As you can see, we're outputting as an RTF file, and the file name is
 same output:
 
 ```bash
-tiefdownconverter project add-template "RTF Template" -o documentation.rtf -t custompandoc
+tiefdownconverter project template "RTF Template" add -o documentation.rtf -t custompandoc
 ```
 
 
@@ -427,6 +420,42 @@ copy that output to your directory. Hopefully. Did I mention that
 this is experimental? Yeah, so if you have issues, please report 
 them. Even if you're thinking "this is not a bug, it's a feature". 
 It likely isn't.
+
+## Custom Processor Arguements
+
+You can define custom arguments for your processors. These are
+passed to the processor, so xelatex, typst, so on, on compilation.
+For example, if you needed to add a font directory to your typst
+conversion, you could do so by adding the following to your manifest:
+
+```toml
+...
+
+[[custom_processors.processors]]
+name = "Typst Font Directory"
+processor_args = ["--font-path", "fonts/"]
+
+[[templates]]
+name = "PDF Documentation"
+output = "docs.pdf"
+processor = "Typst Font Directory"
+template_file = "docs.typ"
+template_type = "Typst"
+
+...
+```
+
+Or... Just use the command to create it.
+
+```bash
+tiefdownconverter project processor "Typst Font Directory" add -- --font-path fonts/
+```
+
+Then append it to a template.
+
+```bash
+tiefdownconverter project template "PDF Documentation" update --processor "Typst Font Directory"
+```
 
 ## Smart Cleaning
 
