@@ -51,7 +51,8 @@ templates = ["Template 1", "Template 2"]
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("remove-profile")
+        .arg("profiles")
+        .arg("remove")
         .arg("My funny profile")
         .assert()
         .success();
@@ -72,7 +73,8 @@ fn add_profile(project_path: &Path, profile_name: &str, templates: Vec<&str>) {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("add-profile")
+        .arg("profiles")
+        .arg("add")
         .arg(profile_name)
         .arg(templates.join(","))
         .assert()

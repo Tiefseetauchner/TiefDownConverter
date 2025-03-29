@@ -30,8 +30,9 @@ fn add_template(project_path: &Path, template_name: &str) {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("add-template")
+        .arg("templates")
         .arg(template_name)
+        .arg("add")
         .arg("--template-file")
         .arg(format!("{}.tex", template_name))
         .assert()
@@ -55,9 +56,9 @@ fn test_remove_template(#[case] template_name: &str) {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("remove-template")
-        .arg("-t")
+        .arg("templates")
         .arg(template_name)
+        .arg("remove")
         .assert()
         .success();
 
@@ -87,9 +88,9 @@ fn test_remove_template_with_invalid_name() {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("remove-template")
-        .arg("-t")
+        .arg("templates")
         .arg("invalid_name")
+        .arg("remove")
         .assert()
         .failure()
         .stderr(predicate::str::contains(
@@ -109,9 +110,9 @@ fn test_remove_template_other_templates_remain() {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("remove-template")
-        .arg("-t")
+        .arg("templates")
         .arg("test2")
+        .arg("remove")
         .assert()
         .success();
 

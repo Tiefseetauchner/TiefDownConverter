@@ -217,16 +217,16 @@ fn upgrade_manifest_v1_to_v2(manifest: &mut Table) -> Result<()> {
         .unwrap()
         .insert("preprocessors".to_string(), toml::Value::Array(Vec::new()));
 
-    manifest["custom_processors"]
-        .as_table_mut()
-        .unwrap()
-        .insert("processors".to_string(), toml::Value::Array(Vec::new()));
-
     Ok(())
 }
 
 fn upgrade_manifest_v2_to_v3(manifest: &mut Table) -> Result<()> {
     manifest.insert("version".to_string(), toml::Value::Integer(3));
+
+    manifest["custom_processors"]
+        .as_table_mut()
+        .unwrap()
+        .insert("processors".to_string(), toml::Value::Array(Vec::new()));
 
     Ok(())
 }
