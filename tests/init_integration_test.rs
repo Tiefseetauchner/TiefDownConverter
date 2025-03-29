@@ -15,6 +15,7 @@ template_type = "Tex"
 
 [custom_processors]
 preprocessors = []
+processors = []
 "#;
 
 fn assert_default_project(project_path: &Path) {

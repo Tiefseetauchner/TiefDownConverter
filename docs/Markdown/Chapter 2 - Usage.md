@@ -4,6 +4,9 @@ The basic usage of `tiefdownconverter` is relatively simple.
 The difficult part is understanding the templating system and
 how to customise it for your usecases. Presets can only do so much.
 
+> Note: I wrote this paragraph before the big refactor. The basic
+> usage is no longer simple.
+
 ## Installation
 
 Currently the only way to install `tiefdownconverter` is to either build
@@ -50,10 +53,10 @@ have the appropriate fonts installed).
 
 ## Getting started
 
-TL;DR: Make a folder, go into it and run `tiefdownconverter init`[[1]](#init) and 
-`tiefdownconverter convert`[[2]](#convert). That's it.
+TL;DR: Make a folder, go into it and run `tiefdownconverter init` and 
+`tiefdownconverter convert`. That's it.
 
-Long anser: First off, you need to create a project using `tiefdownconverter init`[[1]](#init). This will
+Long anser: First off, you need to create a project using `tiefdownconverter init`. This will
 create a new project **in the current directory**. You can (and maybe should)
 specify a project.
 
@@ -69,13 +72,13 @@ your_project/
 └── manifest.toml
 ```
 
-The Markdown folder[[3]](#adjusting-the-markdown-directory) contains an example Markdown file. When placing your markdown files
+The Markdown folder contains an example Markdown file. When placing your markdown files
 in this folder, make sure they're named like `Chapter X.md`, with anything following the
 number being ignored. *This is important*, as the converter will use this to sort the
 files for conversion, as otherwise it'd have no idea in which order they should be
 converted.
 
-Now you should be able to run `tiefdownconverter convert -p path/to/your_project`[[2]](#convert) (or
+Now you should be able to run `tiefdownconverter convert -p path/to/your_project` (or
 ommitting the -p flag if you're already in the project directory) and it should
 generate a PDF file in the project directory. You can now adjust the template, add
 your own Markdown files, and so on.
@@ -84,8 +87,8 @@ your own Markdown files, and so on.
 
 You can change what directory the converter looks for markdown files in by changing the
 `markdown_dir` field in the manifest.toml file or saying `-m path/to/markdown/dir` when
-initialising the project[[1]](#init). You can also change it post-initialisation using
-`tiefdownconverter project update-manifest -m path/to/markdown/dir`[[4]](#projectupdate-manifest). If you don't do so,
+initialising the project. You can also change it post-initialisation using
+`tiefdownconverter project [path/to/project] update-manifest -m path/to/markdown/dir`. If you don't do so,
 the converter will look for markdown files in the `project_dir/Markdown` directory.
 
 ## Customising the template
@@ -95,10 +98,10 @@ same time. This is done by creating a template file in the template directory an
 it to the project's manifest.toml file.
 
 You could do this manually, if you were so inclined, but using 
-`tiefdownconverter project add-template`[[5]](#projectadd-template) is much easier. Check the 
+`tiefdownconverter project template <TEMPLATE_NAME> add` is much easier. Check the 
 [Usage Details](#usage-details) for the usage of this command. But importantly, once you
 created the template and added it to the manifest, you will be able to convert using it.
-`tiefdownconverter convert -p path/to/your_project --templates <TEMPLATE_NAME>`[[2]](#convert) will convert
+`tiefdownconverter convert -p path/to/your_project --templates <TEMPLATE_NAME>` will convert
 only the selected template, aiding in debugging.
 
 And now, you're pretty much free to do whatever you want with the template. Write tex or typst
@@ -112,17 +115,17 @@ course edit the template files directly, but there are a few more options.
 Mainly and most interestingly, lua filters can adjust the behaviour of the markdown conversion.
 These are lua scripts that are run before the markdown is converted to tex or typst. You can
 add lua filters to a template by either editing the manifest or using 
-`tiefdownconverter project update-template <TEMPLATE_NAME> --add-filters <FILTER_NAME>`[[6]](#projectupdate-template). This
+`tiefdownconverter project template <TEMPLATE_NAME> update --add-filters <FILTER_NAME>`. This
 can be either the path to a lua filter (relative to the project directory) or a directory
 containing lua filters.
 
 You can also change the name of the exported file by setting the `output` option. For example,
-`tiefdownconverter project update-template <TEMPLATE_NAME> --output <NEW_NAME>`[[6]](#projectupdate-template). This will
+`tiefdownconverter project template <TEMPLATE_NAME> update --output <NEW_NAME>`. This will
 export the template to `<NEW_NAME>` instead of the default `<TEMPLATE_NAME>.pdf`.
 
 Similarly, you could change the template file and type, though I advice against it, as this
 may break the template. I advice to just add a new template and remove the old one using
-`tiefdownconverter project remove-template <TEMPLATE_NAME>`[[7]](#projectremove-template).
+`tiefdownconverter project template <TEMPLATE_NAME> remove`.
 
 ## Conversion Profiles
 
@@ -131,13 +134,13 @@ a lot of templates, you may be considering only converting some at any time - fo
 PDFs vs. print ready PDFs, or only converting a certain size of PDF.
 
 For that, there are conversion profiles which simply are a list of templates. It's essentially like
-saving your --templates[[2]](#convert) arguments.
+saving your --templates arguments.
 
-You can create these profiles with the `project add-profile`[[8]](#projectadd-profile) command, setting a name and a comma
-seperated list of templates. Removing a profile is also possible with the `project remove-profile`[[9]](#projectremove-profile)
+You can create these profiles with the `project profile add` command, setting a name and a comma
+seperated list of templates. Removing a profile is also possible with the `project profile remove`
 command.
 
-Running a conversion with a profile is as simple as adding the `--profile` flag[[2]](#convert).
+Running a conversion with a profile is as simple as adding the `--profile` flag.
 
 The manifest file can optionally contain a section for this, if you desire to configure them
 manually:
@@ -216,16 +219,6 @@ This makes sure your EPUB doesn’t look like a nameless file when opened in an 
 
 ### Using Lua Filters
 Want to tweak the structure? That’s what Lua filters are for. You can use them to rename chapters, remove junk, or modify how elements are processed.
-markdown_dir = "Custom Markdown Directory"
-version = 1
-
-[[templates]]
-name = "template1.tex"
-template_type = "Tex"
-
-[[templates]]
-name = "template2.typ"
-template_type = "Typst"
 
 Example: Automatically renaming chapter headers:
 ```lua
@@ -356,15 +349,15 @@ a preprocessor.
 If you want to define a preprocessor, you can do so by running
 
 ```bash
-tiefdownconverter project update-template <TEMPLATE_NAME> --preprocessor <PREPROCESSOR_NAME>
+tiefdownconverter project template <TEMPLATE_NAME> update --preprocessor <PREPROCESSOR_NAME>
 ```
 
-[[9]](#projectupdate-template) to assign it to a template and 
+ to assign it to a template and 
 
 ```bash
-tiefdownconverter project add-preprocessor <PREPROCESSOR_NAME> -- [PANDOC_ARGS]
+tiefdownconverter project preprocessor <PREPROCESSOR_NAME> add -- [PANDOC_ARGS]
 ```
-[[10]](#projectadd-preprocessor) to assign it to a template and 
+ to assign it to a template and 
 
 to create a new preprocessor.
 
@@ -374,10 +367,10 @@ So you will have to add the `-o output.tex` argument to the preprocessor as well
 then would be:
 
 ```bash
-tiefdownconverter project add-preprocessor "Enable Listings" -- -o output.tex --listings
+tiefdownconverter project preprocessor "Enable Listings" add -- -o output.tex --listings
 ```
 
-[[10]](#projectadd-preprocessor)
+
 
 The manifest would look something like this:
 
@@ -408,18 +401,18 @@ and just skip any further processing. Straight from pandoc to the output.
 You can do this by first defining a preprocessor, for example:
 
 ```bash
-tiefdownconverter project add-preprocessor "RTF Preprocessor" -- -o documentation.rtf
+tiefdownconverter project preprocessor "RTF Preprocessor" add -- -o documentation.rtf
 ```
-[[10]](#projectadd-preprocessor)
+
 
 As you can see, we're outputting as an RTF file, and the file name is
 `documentation.rtf`. This means we need to add a template that deals with the 
 same output:
 
 ```bash
-tiefdownconverter project add-template "RTF Template" -o documentation.rtf -t custompandoc
+tiefdownconverter project template "RTF Template" add -o documentation.rtf -t custompandoc
 ```
-[[10]](#projectadd-template)
+
 
 And that's it. TiefDownConverter will run the preprocessor, which 
 outputs to documentation.rtf, and then the templating system will 
@@ -428,6 +421,42 @@ this is experimental? Yeah, so if you have issues, please report
 them. Even if you're thinking "this is not a bug, it's a feature". 
 It likely isn't.
 
+## Custom Processor Arguments
+
+You can define custom arguments for your processors. These are
+passed to the processor, so xelatex, typst, so on, on compilation.
+For example, if you needed to add a font directory to your typst
+conversion, you could do so by adding the following to your manifest:
+
+```toml
+...
+
+[[custom_processors.processors]]
+name = "Typst Font Directory"
+processor_args = ["--font-path", "fonts/"]
+
+[[templates]]
+name = "PDF Documentation"
+output = "docs.pdf"
+processor = "Typst Font Directory"
+template_file = "docs.typ"
+template_type = "Typst"
+
+...
+```
+
+Or... Just use the command to create it.
+
+```bash
+tiefdownconverter project processor "Typst Font Directory" add -- --font-path fonts/
+```
+
+Then append it to a template.
+
+```bash
+tiefdownconverter project template "PDF Documentation" update --processor "Typst Font Directory"
+```
+
 ## Smart Cleaning
 
 Smart cleaning is a feature that is relatively simple. If you
@@ -435,10 +464,10 @@ enable it in your manifest, it will automatically remove stale or
 old conversion directories.
 
 Enable it with the `--smart-clean` and set the threshold with
-`--smart-clean-threshold`. The threshold is 5 by default. [[1]](#init) [[4]](#projectupdate-manifest)
+`--smart-clean-threshold`. The threshold is 5 by default. 
 
 You can also manually trigger a smart clean with 
-`tiefdownconverter project smart-clean` [[11]](#projectsmart-clean) or a normal clean with
-`tiefdownconverter project clean` [[12]](#projectclean). The latter will remove all
+`tiefdownconverter project smart-clean`  or a normal clean with
+`tiefdownconverter project clean` . The latter will remove all
 conversion directories, while the former will only remove the ones
 that are older than the threshold.

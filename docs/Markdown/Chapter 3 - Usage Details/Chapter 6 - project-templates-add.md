@@ -1,4 +1,4 @@
-## `tiefdownconverter project add-template` {#projectadd-template}
+## `tiefdownconverter project templates add` {#projecttemplatesadd}
 
 **Version:** `tiefdownconverter 0.7.0-alpha`
 
@@ -6,10 +6,7 @@
 ```
 Add a new template to the project.
 
-Usage: tiefdownconverter project add-template [OPTIONS] <TEMPLATE>
-
-Arguments:
-  <TEMPLATE>  The name of the template to create. If using a LiX template, make sure to install the corresponding .sty and .cls files from https://github.com/NicklasVraa/LiX. Adjust the metadata in template/meta.tex accordingly.
+Usage: tiefdownconverter project templates <TEMPLATE> add [OPTIONS]
 
 Options:
   -f, --template-file <TEMPLATE_FILE>  The file to use as the template. If not provided, the template name will be used.
@@ -17,6 +14,7 @@ Options:
   -o, --output <OUTPUT>                The output file. If not provided, the template name will be used.
       --filters <FILTERS>...           The luafilters to use for pandoc conversion of this templates markdown.
       --preprocessor <PREPROCESSOR>    The preprocessor to use for this template.
+      --processor <PROCESSOR>          The processor to use for this template.
   -h, --help                           Print help
 ```
 

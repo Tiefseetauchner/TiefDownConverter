@@ -28,12 +28,19 @@ pub(crate) struct Manifest {
 #[derive(Deserialize, Serialize, Clone)]
 pub(crate) struct Processors {
     pub preprocessors: Vec<PreProcessor>,
+    pub processors: Vec<Processor>,
 }
 
 #[derive(Deserialize, Serialize, Clone)]
 pub(crate) struct PreProcessor {
     pub name: String,
     pub pandoc_args: Vec<String>,
+}
+
+#[derive(Deserialize, Serialize, Clone)]
+pub(crate) struct Processor {
+    pub name: String,
+    pub processor_args: Vec<String>,
 }
 
 pub(crate) static DEFAULT_TEX_PREPROCESSOR: LazyLock<PreProcessor> =
@@ -68,6 +75,7 @@ pub(crate) struct TemplateMapping {
     pub output: Option<PathBuf>,
     pub filters: Option<Vec<String>>,
     pub preprocessor: Option<String>,
+    pub processor: Option<String>,
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug, PartialEq, Eq, ValueEnum)]
@@ -215,6 +223,11 @@ fn upgrade_manifest_v1_to_v2(manifest: &mut Table) -> Result<()> {
 fn upgrade_manifest_v2_to_v3(manifest: &mut Table) -> Result<()> {
     manifest.insert("version".to_string(), toml::Value::Integer(3));
 
+    manifest["custom_processors"]
+        .as_table_mut()
+        .unwrap()
+        .insert("processors".to_string(), toml::Value::Array(Vec::new()));
+
     Ok(())
 }
 
@@ -315,6 +328,7 @@ version = 3
 
 [custom_processors]
 preprocessors = []
+processors = []
 
 [[templates]]
 name = "template1.tex"

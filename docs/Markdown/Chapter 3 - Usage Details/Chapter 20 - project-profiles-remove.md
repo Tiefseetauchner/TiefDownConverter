@@ -1,4 +1,4 @@
-## `tiefdownconverter project remove-profile` {#projectremove-profile}
+## `tiefdownconverter project profiles remove` {#projectprofilesremove}
 
 **Version:** `tiefdownconverter 0.7.0-alpha`
 
@@ -6,7 +6,7 @@
 ```
 Remove a conversion profile from the project.
 
-Usage: tiefdownconverter project remove-profile <NAME>
+Usage: tiefdownconverter project profiles remove <NAME>
 
 Arguments:
   <NAME>  The name of the profile to remove.

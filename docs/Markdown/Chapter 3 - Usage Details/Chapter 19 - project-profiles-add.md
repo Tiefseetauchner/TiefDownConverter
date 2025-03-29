@@ -1,4 +1,4 @@
-## `tiefdownconverter project add-profile` {#projectadd-profile}
+## `tiefdownconverter project profiles add` {#projectprofilesadd}
 
 **Version:** `tiefdownconverter 0.7.0-alpha`
 
@@ -6,7 +6,7 @@
 ```
 Add a new conversion profile to the project. These profiles contain a list of templates to preset conversion workflows.
 
-Usage: tiefdownconverter project add-profile <NAME> [TEMPLATES]...
+Usage: tiefdownconverter project profiles add <NAME> [TEMPLATES]...
 
 Arguments:
   <NAME>

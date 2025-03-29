@@ -1,4 +1,4 @@
-## `tiefdownconverter project list-profiles` {#projectlist-profiles}
+## `tiefdownconverter project profiles list` {#projectprofileslist}
 
 **Version:** `tiefdownconverter 0.7.0-alpha`
 
@@ -6,7 +6,7 @@
 ```
 List the conversion profiles in the project.
 
-Usage: tiefdownconverter project list-profiles
+Usage: tiefdownconverter project profiles list
 
 Options:
   -h, --help  Print help

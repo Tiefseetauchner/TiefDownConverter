@@ -1,12 +1,38 @@
 \documentclass[a4paper,12pt]{article}
 
-\usepackage[utf8]{inputenc}
+\usepackage{fontspec}
+\usepackage{sectsty}
 \usepackage{geometry}
 \usepackage{hyperref}
 \usepackage{listings}
 \usepackage{xcolor}
 
 \geometry{margin=1in}
+
+\defaultfontfeatures{Ligatures=TeX}
+
+\setmainfont[
+  Path=fonts/,
+  UprightFont = CormorantGaramond-Regular.ttf,
+  ItalicFont = CormorantGaramond-Italic.ttf,
+  BoldFont = CormorantGaramond-Bold.ttf,
+  BoldItalicFont = CormorantGaramond-BoldItalic.ttf,
+]{Cormorant Garamond}
+
+\setmonofont[
+  Path=fonts/,
+  UprightFont = IosevkaSS10-Regular.ttf,
+  ItalicFont = IosevkaSS10-Oblique.ttf,
+  BoldFont = IosevkaSS10-Bold.ttf,
+  BoldItalicFont = IosevkaSS10-BoldOblique.ttf,
+]{Iosevka SS10}
+
+\newfontfamily\CormorantSCBold[
+  Path=fonts/,
+  UprightFont = CormorantSC-Bold.ttf,
+]{Cormorant SC Bold}
+
+\allsectionsfont{\CormorantSCBold}
 
 \input{./meta.tex}
 

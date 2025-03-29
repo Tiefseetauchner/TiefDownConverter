@@ -1,4 +1,4 @@
-## `tiefdownconverter project remove-preprocessor` {#projectremove-preprocessor}
+## `tiefdownconverter project pre-processors remove` {#projectpre-processorsremove}
 
 **Version:** `tiefdownconverter 0.7.0-alpha`
 
@@ -6,7 +6,7 @@
 ```
 Remove a preprocessor from the project.
 
-Usage: tiefdownconverter project remove-preprocessor <NAME>
+Usage: tiefdownconverter project pre-processors remove <NAME>
 
 Arguments:
   <NAME>  The name of the preprocessor to remove.

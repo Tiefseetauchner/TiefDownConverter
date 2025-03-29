@@ -1,4 +1,4 @@
-## `tiefdownconverter project update-template` {#projectupdate-template}
+## `tiefdownconverter project templates update` {#projecttemplatesupdate}
 
 **Version:** `tiefdownconverter 0.7.0-alpha`
 
@@ -6,10 +6,7 @@
 ```
 Update a template in the project.
 
-Usage: tiefdownconverter project update-template [OPTIONS] <TEMPLATE>
-
-Arguments:
-  <TEMPLATE>  The template to update.
+Usage: tiefdownconverter project templates <TEMPLATE> update [OPTIONS]
 
 Options:
       --template-file <TEMPLATE_FILE>
@@ -27,6 +24,8 @@ Options:
           The luafilters to remove from the template.
       --preprocessor <PREPROCESSOR>
           The preprocessor to use for this template.
+      --processor <PROCESSOR>
+          The processor to use for this template.
   -h, --help
           Print help
 ```

@@ -24,56 +24,58 @@ fn create_empty_project(temp_dir: &Path) -> PathBuf {
 }
 
 #[rstest]
-fn test_add_profile() {
+fn test_add_processor() {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
     let project_path = create_empty_project(&temp_dir.path());
 
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("add-profile")
-        .arg("My funny profile")
-        .arg("Template 1,Template 2")
+        .arg("processors")
+        .arg("add")
+        .arg("My funny processor")
+        .arg("--")
+        .arg("-t html")
+        .arg("-o mega.html")
         .assert()
         .success();
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-
     let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
 
     assert_contains!(
         manifest_content,
-        r#"[[profiles]]
-name = "My funny profile"
-templates = ["Template 1", "Template 2"]
+        r#"[[custom_processors.processors]]
+name = "My funny processor"
+processor_args = ["-t", "html", "-o", "mega.html"]
 "#
     );
 }
 
 #[rstest]
-fn test_add_profile_no_templates() {
+fn test_add_processor_no_args() {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
     let project_path = create_empty_project(&temp_dir.path());
 
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("add-profile")
-        .arg("My funny profile")
+        .arg("processors")
+        .arg("add")
+        .arg("My funny processor")
         .assert()
         .success();
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-
     let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
 
     assert_contains!(
         manifest_content,
-        r#"[[profiles]]
-name = "My funny profile"
-templates = []
+        r#"[[custom_processors.processors]]
+name = "My funny processor"
+processor_args = []
 "#
     );
 }
