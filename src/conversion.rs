@@ -11,6 +11,7 @@ use crate::conversion_decider;
 use crate::manifest_model::Manifest;
 use crate::manifest_model::MetadataSettings;
 use crate::manifest_model::PreProcessor;
+use crate::manifest_model::Processors;
 use crate::manifest_model::TemplateMapping;
 use crate::project_management::load_and_convert_manifest;
 use crate::project_management::run_smart_clean;
@@ -55,9 +56,9 @@ pub(crate) fn convert(
             &compiled_directory_path,
             template,
             project_path,
-            &manifest.custom_processors.preprocessors,
             &manifest.metadata_fields,
             &manifest.metadata_settings,
+            &manifest.custom_processors,
         )?;
     }
 
@@ -173,9 +174,9 @@ fn convert_template(
     compiled_directory_path: &Path,
     template: &TemplateMapping,
     project_path: &Path,
-    preprocessors: &Vec<PreProcessor>,
     metadata_fields: &Table,
     metadata_settings: &MetadataSettings,
+    custom_processors: &Processors,
 ) -> Result<()> {
     let converter = conversion_decider::get_converter(&template.template_type)?;
 
@@ -184,9 +185,9 @@ fn convert_template(
         combined_markdown_path,
         compiled_directory_path,
         template,
-        preprocessors,
         metadata_fields,
         metadata_settings,
+        custom_processors,
     )?;
 
     fs::copy(

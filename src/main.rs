@@ -116,12 +116,75 @@ If the number of conversion folders in the project is above this threshold, old 
 
 #[derive(Subcommand)]
 enum ProjectCommands {
-    #[command(about = "Add a new template to the project.")]
-    AddTemplate {
-        #[arg(
-            help = r#"The name of the template to create. If using a LiX template, make sure to install the corresponding .sty and .cls files from https://github.com/NicklasVraa/LiX. Adjust the metadata in template/meta.tex accordingly."#
-        )]
+    #[command(about = "Add or modify templates in the project.")]
+    Templates {
+        #[arg(help = "The template name to edit or add.")]
         template: String,
+        #[command(subcommand)]
+        command: TemplatesCommands,
+    },
+    #[command(about = "Update the project manifest.")]
+    UpdateManifest {
+        #[arg(
+            short,
+            long,
+            help = "The directory where the Markdown files are located."
+        )]
+        markdown_dir: Option<String>,
+        #[arg(
+            long,
+            help = r#"Enables smart clean for the project with a default threshold of 5."#,
+            long_help = r#"Enables smart clean for the project with a default threshold of 5.
+If the number of conversion folders in the project is above this threshold, old folders will be cleaned, leaving only the threshold amount of folders."#
+        )]
+        smart_clean: Option<bool>,
+        #[arg(
+            long,
+            help = r#"The threshold for smart clean. If not provided, the default threshold of 5 will be used."#,
+            long_help = r#"The threshold for smart clean. If not provided, the default threshold of 5 will be used.
+If the number of conversion folders in the project is above this threshold, old folders will be cleaned, leaving only the threshold amount of folders."#
+        )]
+        smart_clean_threshold: Option<u32>,
+    },
+    #[command(about = "Manage the preprocessors of the project.")]
+    PreProcessors {
+        #[command(subcommand)]
+        command: PreProcessorsCommands,
+    },
+    #[command(about = "Manage the preprocessors of the project.")]
+    Processors {
+        #[command(subcommand)]
+        command: ProcessorsCommands,
+    },
+    #[command(about = "Manage the conversion profiles of the project.")]
+    Profiles {
+        #[command(subcommand)]
+        command: ProfilesCommands,
+    },
+    #[command(about = "Manage the manifest metadata of the project.")]
+    ManageMetadata {
+        #[command(subcommand)]
+        command: ManageMetadataCommand,
+    },
+    #[command(about = "List the templates in the project.")]
+    ListTemplates,
+    #[command(about = "Validate the TiefDown project structure and metadata.")]
+    Validate,
+    #[command(about = "Clean temporary files from the TiefDown project.")]
+    Clean,
+    #[command(
+        about = "Clean temporary files from the TiefDown project, leaving only the threshold amount of folders.",
+        long_about = r#"Clean temporary files from the TiefDown project.
+If the number of conversion folders in the project is above this threshold, old folders will be cleaned, leaving only the threshold amount of folders.
+The threshold is set to 5 by default, and is overwritten by the threshold in the manifest."#
+    )]
+    SmartClean,
+}
+
+#[derive(Subcommand)]
+enum TemplatesCommands {
+    #[command(about = "Add a new template to the project.")]
+    Add {
         #[arg(
             short = 'f',
             long,
@@ -144,16 +207,13 @@ enum ProjectCommands {
         filters: Option<Vec<String>>,
         #[arg(long, help = "The preprocessor to use for this template.")]
         preprocessor: Option<String>,
+        #[arg(long, help = "The processor to use for this template.")]
+        processor: Option<String>,
     },
     #[command(about = "Remove a template from the project.")]
-    RemoveTemplate {
-        #[arg(short, long, help = r#"The template to remove."#)]
-        template: String,
-    },
+    Remove,
     #[command(about = "Update a template in the project.")]
-    UpdateTemplate {
-        #[arg(help = r#"The template to update."#)]
-        template: String,
+    Update {
         #[arg(
             long,
             help = "The file to use as the template. If not provided, the template name will be used."
@@ -188,47 +248,54 @@ Changing this is not recommended, as it is highly unlikely the type and only the
         remove_filters: Option<Vec<String>>,
         #[arg(long, help = "The preprocessor to use for this template.")]
         preprocessor: Option<String>,
+        #[arg(long, help = "The processor to use for this template.")]
+        processor: Option<String>,
     },
-    #[command(about = "Update the project manifest.")]
-    UpdateManifest {
-        #[arg(
-            short,
-            long,
-            help = "The directory where the Markdown files are located."
-        )]
-        markdown_dir: Option<String>,
-        #[arg(
-            long,
-            help = r#"Enables smart clean for the project with a default threshold of 5."#,
-            long_help = r#"Enables smart clean for the project with a default threshold of 5.
-If the number of conversion folders in the project is above this threshold, old folders will be cleaned, leaving only the threshold amount of folders."#
-        )]
-        smart_clean: Option<bool>,
-        #[arg(
-            long,
-            help = r#"The threshold for smart clean. If not provided, the default threshold of 5 will be used."#,
-            long_help = r#"The threshold for smart clean. If not provided, the default threshold of 5 will be used.
-If the number of conversion folders in the project is above this threshold, old folders will be cleaned, leaving only the threshold amount of folders."#
-        )]
-        smart_clean_threshold: Option<u32>,
-    },
+}
+
+#[derive(Subcommand)]
+enum PreProcessorsCommands {
     #[command(about = "Add a new preprocessor to the project.")]
-    AddPreprocessor {
+    Add {
         #[arg(help = "The name of the preprocessor to create.")]
         name: String,
         #[arg(help = "The arguments to pass to the preprocessor.", num_args = 1.., value_delimiter = ' ', last = true, allow_hyphen_values = true)]
         pandoc_args: Vec<String>,
     },
     #[command(about = "Remove a preprocessor from the project.")]
-    RemovePreprocessor {
+    Remove {
         #[arg(help = "The name of the preprocessor to remove.")]
         name: String,
     },
+    #[command(about = "List the preprocessors in the project.")]
+    List,
+}
+
+#[derive(Subcommand)]
+enum ProcessorsCommands {
+    #[command(about = "Add a new processor to the project.")]
+    Add {
+        #[arg(help = "The name of the processor to create.")]
+        name: String,
+        #[arg(help = "The arguments to pass to the processor.", num_args = 1.., value_delimiter = ' ', last = true, allow_hyphen_values = true)]
+        processor_args: Vec<String>,
+    },
+    #[command(about = "Remove a processor from the project.")]
+    Remove {
+        #[arg(help = "The name of the processor to remove.")]
+        name: String,
+    },
+    #[command(about = "List the processors in the project.")]
+    List,
+}
+
+#[derive(Subcommand)]
+enum ProfilesCommands {
     #[command(
         about = "Add a new conversion profile to the project.",
         long_about = "Add a new conversion profile to the project. These profiles contain a list of templates to preset conversion workflows."
     )]
-    AddProfile {
+    Add {
         #[arg(help = "The name of the profile to create.")]
         name: String,
         #[arg(
@@ -239,32 +306,12 @@ If the number of conversion folders in the project is above this threshold, old 
         templates: Vec<String>,
     },
     #[command(about = "Remove a conversion profile from the project.")]
-    RemoveProfile {
+    Remove {
         #[arg(help = "The name of the profile to remove.")]
         name: String,
     },
-    #[command(about = "Manage the manifest metadata of the project.")]
-    ManageMetadata {
-        #[command(subcommand)]
-        command: ManageMetadataCommand,
-    },
-    #[command(about = "List the templates in the project.")]
-    ListTemplates,
     #[command(about = "List the conversion profiles in the project.")]
-    ListProfiles,
-    #[command(about = "List the preprocessors in the project.")]
-    ListPreprocessors,
-    #[command(about = "Validate the TiefDown project structure and metadata.")]
-    Validate,
-    #[command(about = "Clean temporary files from the TiefDown project.")]
-    Clean,
-    #[command(
-        about = "Clean temporary files from the TiefDown project, leaving only the threshold amount of folders.",
-        long_about = r#"Clean temporary files from the TiefDown project.
-If the number of conversion folders in the project is above this threshold, old folders will be cleaned, leaving only the threshold amount of folders.
-The threshold is set to 5 by default, and is overwritten by the threshold in the manifest."#
-    )]
-    SmartClean,
+    List,
 }
 
 #[derive(Subcommand)]
@@ -330,51 +377,55 @@ fn main() -> Result<()> {
             smart_clean_threshold,
         )?,
         Commands::Project { project, command } => match command {
-            ProjectCommands::AddTemplate {
-                template,
-                template_file,
-                template_type,
-                output,
-                filters,
-                preprocessor,
-            } => project_management::add_template(
-                project,
-                template,
-                template_type,
-                template_file,
-                output,
-                filters,
-                preprocessor,
-            )?,
-            ProjectCommands::RemoveTemplate { template } => {
-                project_management::remove_template(project, template)?
-            }
-            ProjectCommands::UpdateTemplate {
-                template,
-                template_file,
-                template_type,
-                output,
-                filters,
-                add_filters,
-                remove_filters,
-                preprocessor,
-            } => {
-                if filters.is_some() && (add_filters.is_some() || remove_filters.is_some()) {
-                    return Err(eyre!("Cannot specify both filters and add/remove filters."));
-                }
-
-                project_management::update_template(
+            ProjectCommands::Templates { template, command } => match command {
+                TemplatesCommands::Add {
+                    template_file,
+                    template_type,
+                    output,
+                    filters,
+                    preprocessor,
+                    processor,
+                } => project_management::add_template(
                     project,
                     template,
                     template_type,
                     template_file,
                     output,
                     filters,
+                    preprocessor,
+                    processor,
+                )?,
+                TemplatesCommands::Remove => {
+                    project_management::remove_template(project, template)?
+                }
+                TemplatesCommands::Update {
+                    template_file,
+                    template_type,
+                    output,
+                    filters,
                     add_filters,
                     remove_filters,
                     preprocessor,
-                )?
-            }
+                    processor,
+                } => {
+                    if filters.is_some() && (add_filters.is_some() || remove_filters.is_some()) {
+                        return Err(eyre!("Cannot specify both filters and add/remove filters."));
+                    }
+
+                    project_management::update_template(
+                        project,
+                        template,
+                        template_type,
+                        template_file,
+                        output,
+                        filters,
+                        add_filters,
+                        remove_filters,
+                        preprocessor,
+                        processor,
+                    )?
+                }
+            },
             ProjectCommands::UpdateManifest {
                 markdown_dir,
                 smart_clean,
@@ -385,18 +436,34 @@ fn main() -> Result<()> {
                 smart_clean,
                 smart_clean_threshold,
             )?,
-            ProjectCommands::AddPreprocessor { name, pandoc_args } => {
-                project_management::add_preprocessor(project, name, pandoc_args)?
-            }
-            ProjectCommands::RemovePreprocessor { name } => {
-                project_management::remove_preprocessor(project, name)?
-            }
-            ProjectCommands::AddProfile { name, templates } => {
-                project_management::add_profile(project, name, templates)?
-            }
-            ProjectCommands::RemoveProfile { name } => {
-                project_management::remove_profile(project, name)?
-            }
+            ProjectCommands::PreProcessors { command } => match command {
+                PreProcessorsCommands::Add { name, pandoc_args } => {
+                    project_management::add_preprocessor(project, name, pandoc_args)?
+                }
+                PreProcessorsCommands::Remove { name } => {
+                    project_management::remove_preprocessor(project, name)?
+                }
+                PreProcessorsCommands::List => project_management::list_preprocessors(project)?,
+            },
+            ProjectCommands::Processors { command } => match command {
+                ProcessorsCommands::Add {
+                    name,
+                    processor_args,
+                } => project_management::add_processor(project, name, processor_args)?,
+                ProcessorsCommands::Remove { name } => {
+                    project_management::remove_processor(project, name)?
+                }
+                ProcessorsCommands::List => project_management::list_processors(project)?,
+            },
+            ProjectCommands::Profiles { command } => match command {
+                ProfilesCommands::Add { name, templates } => {
+                    project_management::add_profile(project, name, templates)?
+                }
+                ProfilesCommands::Remove { name } => {
+                    project_management::remove_profile(project, name)?
+                }
+                ProfilesCommands::List => project_management::list_profiles(project)?,
+            },
             ProjectCommands::ManageMetadata { command } => match command {
                 ManageMetadataCommand::Set { key, value } => {
                     metadata_management::set_metadata(project, key, value)?

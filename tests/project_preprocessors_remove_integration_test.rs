@@ -28,7 +28,8 @@ fn add_preprocessor(project_path: &Path, preprocessor_name: &str) {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("add-preprocessor")
+        .arg("pre-processors")
+        .arg("add")
         .arg(preprocessor_name)
         .arg("--")
         .arg("-o test.tex")
@@ -47,7 +48,8 @@ fn test_remove_preprocessor() {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("remove-preprocessor")
+        .arg("pre-processors")
+        .arg("remove")
         .arg("My funny preprocessor")
         .assert()
         .success();
@@ -76,7 +78,8 @@ fn test_remove_preprocessor_others_remain() {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("remove-preprocessor")
+        .arg("pre-processors")
+        .arg("remove")
         .arg("Remove this")
         .assert()
         .success();
@@ -116,7 +119,8 @@ fn test_remove_preprocessor_does_not_exist() {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("remove-preprocessor")
+        .arg("pre-processors")
+        .arg("remove")
         .arg("Remove this")
         .assert()
         .failure()

@@ -24,16 +24,16 @@ fn create_empty_project(temp_dir: &Path) -> PathBuf {
 }
 
 #[rstest]
-fn test_add_preprocessor() {
+fn test_add_processor() {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
-
     let project_path = create_empty_project(&temp_dir.path());
 
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("add-preprocessor")
-        .arg("My funny preprocessor")
+        .arg("processors")
+        .arg("add")
+        .arg("My funny processor")
         .arg("--")
         .arg("-t html")
         .arg("-o mega.html")
@@ -46,23 +46,24 @@ fn test_add_preprocessor() {
 
     assert_contains!(
         manifest_content,
-        r#"[[custom_processors.preprocessors]]
-name = "My funny preprocessor"
-pandoc_args = ["-t", "html", "-o", "mega.html"]"#
+        r#"[[custom_processors.processors]]
+name = "My funny processor"
+processor_args = ["-t", "html", "-o", "mega.html"]
+"#
     );
 }
 
 #[rstest]
-fn test_add_preprocessor_no_args() {
+fn test_add_processor_no_args() {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
-
     let project_path = create_empty_project(&temp_dir.path());
 
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("add-preprocessor")
-        .arg("My funny preprocessor")
+        .arg("processors")
+        .arg("add")
+        .arg("My funny processor")
         .assert()
         .success();
 
@@ -72,8 +73,9 @@ fn test_add_preprocessor_no_args() {
 
     assert_contains!(
         manifest_content,
-        r#"[[custom_processors.preprocessors]]
-name = "My funny preprocessor"
-pandoc_args = []"#
+        r#"[[custom_processors.processors]]
+name = "My funny processor"
+processor_args = []
+"#
     );
 }

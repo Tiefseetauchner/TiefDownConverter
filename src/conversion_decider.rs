@@ -6,6 +6,7 @@ use toml::Table;
 use crate::{
     converters,
     manifest_model::{MetadataSettings, PreProcessor, TemplateMapping, TemplateType},
+    manifest_model::{Processors, TemplateMapping, TemplateType},
 };
 
 type Converter = fn(
@@ -13,9 +14,9 @@ type Converter = fn(
     compiled_markdown_path: &Path,
     compiled_directory_path: &Path,
     template: &TemplateMapping,
-    preprocessors: &Vec<PreProcessor>,
     metadata_fields: &Table,
     metadata_settings: &MetadataSettings,
+    custom_processors: &Processors,
 ) -> Result<PathBuf>;
 
 pub fn get_converter(template_type: &TemplateType) -> Result<Converter> {

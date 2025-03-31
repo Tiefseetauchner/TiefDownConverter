@@ -15,6 +15,7 @@ template_type = "Tex"
 
 [custom_processors]
 preprocessors = []
+processors = []
 
 [metadata_fields]
 

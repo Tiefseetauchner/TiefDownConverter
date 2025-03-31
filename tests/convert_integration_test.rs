@@ -109,8 +109,9 @@ fn add_template(
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("add-template")
+        .arg("templates")
         .arg(template_name)
+        .arg("add")
         .arg("--template-file")
         .arg(template_file)
         .arg("--template-type")
@@ -136,8 +137,9 @@ fn add_custom_pandoc_template(
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("add-template")
+        .arg("templates")
         .arg(template_name)
+        .arg("add")
         .arg("--preprocessor")
         .arg(preprocessor)
         .arg("--output")
@@ -150,7 +152,8 @@ fn add_custom_pandoc_template(
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("add-preprocessor")
+        .arg("pre-processors")
+        .arg("add")
         .arg(preprocessor)
         .arg("--")
         .arg(preprocessor_args)
@@ -604,7 +607,8 @@ fn add_profile(project_path: &Path, profile_name: &str, templates: Vec<&str>) {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("add-profile")
+        .arg("profiles")
+        .arg("add")
         .arg(profile_name)
         .arg(templates.join(","))
         .assert()

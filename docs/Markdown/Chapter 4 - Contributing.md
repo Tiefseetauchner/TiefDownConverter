@@ -70,12 +70,18 @@ affect the workflow of using TiefDownConverter. If you add a command or flag, ma
 run `tools/generate_docs.py`. Either way, when changing the documentation, always run 
 `tiefdownconverter convert -p docs` before committing the changes.
 
+<<<<<<< HEAD
 **You need to have the font Iosevka installed!** 
 If you don't, we cannot accept documentation changes. TiefDownConverter will 
 throw a warning should the fonts not be installed. **The warning about Fira
 Mono missing is normal. This is the fallback font and not a requirement
 to compile the documentation**
 
+=======
+Praise be you don't need to have any fonts installed anymore - they are packaged in the fonts
+directory. But if you happen to change the fonts, you will need to replace them in fonts/ and
+add your own fonts to the templates.
+>>>>>>> origin/main
 
 
 ## Code Style

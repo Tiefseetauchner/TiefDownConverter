@@ -33,8 +33,9 @@ fn add_template(project_path: &Path, template_name: &str) {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("add-template")
+        .arg("templates")
         .arg(template_name)
+        .arg("add")
         .arg("--template-file")
         .arg(format!("{}.tex", template_name))
         .assert()

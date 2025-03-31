@@ -32,8 +32,9 @@ fn test_add_template() {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("add-template")
+        .arg("templates")
         .arg("my_template.tex")
+        .arg("add")
         .assert()
         .success();
 
@@ -61,8 +62,9 @@ fn test_add_template_with_custom_type(#[case] template_type: &str) {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("add-template")
+        .arg("templates")
         .arg("My custom template")
+        .arg("add")
         .arg("-f")
         .arg("my_template.template")
         .arg("-t")
@@ -99,8 +101,9 @@ fn test_add_template_with_custom_output(#[case] output_name: &str) {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("add-template")
+        .arg("templates")
         .arg("test.tex")
+        .arg("add")
         .arg("-o")
         .arg(output_name)
         .assert()
@@ -138,8 +141,9 @@ fn test_add_template_with_custom_file_path(#[case] template_path: &str) {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("add-template")
+        .arg("templates")
         .arg("test.tex")
+        .arg("add")
         .arg("-f")
         .arg(template_path)
         .arg("-t")
@@ -182,8 +186,9 @@ fn test_add_template_with_name_chooses_correct_template_type(
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("add-template")
+        .arg("templates")
         .arg(template_name)
+        .arg("add")
         .assert()
         .success();
 
@@ -221,8 +226,9 @@ fn test_add_template_with_file_chooses_correct_template_type(
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("add-template")
+        .arg("templates")
         .arg("Custom Template Name")
+        .arg("add")
         .arg("-f")
         .arg(template_file)
         .assert()
@@ -254,8 +260,9 @@ fn test_add_template_with_filters() {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("add-template")
+        .arg("templates")
         .arg("test.tex")
+        .arg("add")
         .arg("--filters")
         .arg("testfilter.lua,superfilters/,my_filters/the_filter.lua")
         .assert()

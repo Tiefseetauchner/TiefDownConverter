@@ -12,7 +12,7 @@ use crate::{
     TemplateType,
     manifest_model::{
         DEFAULT_TEX_PREPROCESSOR, DEFAULT_TYPST_PREPROCESSOR, MetadataSettings, PreProcessor,
-        TemplateMapping,
+        Processors, TemplateMapping,
     },
     template_management::{get_output_path, get_template_path},
 };
@@ -22,9 +22,9 @@ pub(crate) fn convert_latex(
     combined_markdown_path: &Path,
     compiled_directory_path: &Path,
     template: &TemplateMapping,
-    preprocessors: &Vec<PreProcessor>,
     metadata_fields: &Table,
     metadata_settings: &MetadataSettings,
+    custom_processors: &Processors,
 ) -> Result<PathBuf> {
     let template_path = get_template_path(template.template_file.clone(), &template.name);
     let output_path = compiled_directory_path.join(get_output_path(
@@ -40,18 +40,33 @@ pub(crate) fn convert_latex(
         combined_markdown_path,
         metadata_fields,
         metadata_settings,
-        preprocessors,
+        &custom_processors.preprocessors,
         Some(&DEFAULT_TEX_PREPROCESSOR),
     )?;
 
-    generate_tex_metadata(
-        compiled_directory_path,
-        &metadata_fields,
-        &metadata_settings,
-    )?;
+    let mut processor_args = vec![];
 
-    compile_latex(compiled_directory_path, &template_path)?;
-    compile_latex(compiled_directory_path, &template_path)?;
+    if let Some(processor) = &template.processor {
+        if let Some(processor_pos) = custom_processors
+            .processors
+            .iter()
+            .position(|p| p.name == *processor)
+        {
+            processor_args.extend(
+                custom_processors.processors[processor_pos]
+                    .processor_args
+                    .clone(),
+            );
+        } else {
+            return Err(eyre!(
+                "Processor {} not found in custom processors.",
+                processor
+            ));
+        }
+    }
+
+    compile_latex(compiled_directory_path, &template_path, &processor_args)?;
+    compile_latex(compiled_directory_path, &template_path, &processor_args)?;
 
     let template_path = compiled_directory_path.join(template_path.with_extension("pdf"));
     if template_path.exists() && template_path.as_os_str() != output_path.as_os_str() {
@@ -109,14 +124,17 @@ fn generate_tex_metadata(
     Ok(())
 }
 
-// NOTE: This requires xelatex to be installed. I don't particularly like that, but I tried tectonic and it didn't work.
-//       For now we'll keep it simple and just use xelatex. I'm not sure if there's a way to get tectonic to work with the current setup.
-fn compile_latex(compiled_directory_path: &Path, template_path: &Path) -> Result<()> {
+fn compile_latex(
+    compiled_directory_path: &Path,
+    template_path: &Path,
+    processor_args: &Vec<String>,
+) -> Result<()> {
     Command::new("xelatex")
         .current_dir(compiled_directory_path)
         .arg("-interaction=nonstopmode")
         .arg("-synctex=1")
         .arg(template_path)
+        .args(processor_args)
         .stdout(Stdio::null())
         .status()?;
 
@@ -128,10 +146,16 @@ pub(crate) fn convert_custom_pandoc(
     combined_markdown_path: &Path,
     compiled_directory_path: &Path,
     template: &TemplateMapping,
-    preprocessors: &Vec<PreProcessor>,
     metadata_fields: &Table,
     metadata_settings: &MetadataSettings,
+    custom_processors: &Processors,
 ) -> Result<PathBuf> {
+    if template.processor != None {
+        return Err(eyre!(
+            "Custom Pandoc templates cannot have a processor. Use preprocessors instead.",
+        ));
+    }
+
     if template.preprocessor == None {
         return Err(eyre!(
             "Template type {} has to define a preprocessor.",
@@ -156,7 +180,7 @@ pub(crate) fn convert_custom_pandoc(
         combined_markdown_path,
         metadata_fields,
         metadata_settings,
-        preprocessors,
+        &custom_processors.preprocessors,
         None,
     )?;
 
@@ -170,13 +194,13 @@ pub(crate) fn convert_epub(
     combined_markdown_path: &Path,
     compiled_directory_path: &Path,
     template: &TemplateMapping,
-    _preprocessors: &Vec<PreProcessor>,
     metadata_fields: &Table,
     _metadata_settings: &MetadataSettings,
+    custom_processors: &Processors,
 ) -> Result<PathBuf> {
     if template.preprocessor.is_some() {
         return Err(eyre!(
-            "EPUB conversion is not supported with a preprocessor. Please remove the preprocessor from the template."
+            "EPUB conversion is not supported with a preprocessor. Use processors instead."
         ));
     }
     let template_path = get_template_path(template.template_file.clone(), &template.name);
@@ -204,6 +228,25 @@ pub(crate) fn convert_epub(
     add_fonts(project_directory_path, &template_path, &mut pandoc)?;
 
     add_lua_filters(template, project_directory_path, &mut pandoc)?;
+
+    if let Some(processor) = &template.processor {
+        if let Some(processor_pos) = custom_processors
+            .processors
+            .iter()
+            .position(|p| p.name == *processor)
+        {
+            pandoc.args(
+                custom_processors.processors[processor_pos]
+                    .processor_args
+                    .clone(),
+            );
+        } else {
+            return Err(eyre!(
+                "Processor {} not found in custom processors.",
+                processor
+            ));
+        }
+    }
 
     pandoc
         .arg(combined_markdown_path)
@@ -287,9 +330,9 @@ pub(crate) fn convert_typst(
     combined_markdown_path: &Path,
     compiled_directory_path: &Path,
     template: &TemplateMapping,
-    preprocessors: &Vec<PreProcessor>,
     metadata_fields: &Table,
     metadata_settings: &MetadataSettings,
+    custom_processors: &Processors,
 ) -> Result<PathBuf> {
     let template_path = get_template_path(template.template_file.clone(), &template.name);
     let output_path = get_output_path(
@@ -305,17 +348,37 @@ pub(crate) fn convert_typst(
         combined_markdown_path,
         metadata_fields,
         metadata_settings,
-        preprocessors,
+        &custom_processors.preprocessors,
         Some(&DEFAULT_TYPST_PREPROCESSOR),
     )?;
 
-    generate_typst_metadata(compiled_directory_path, metadata_fields, metadata_settings)?;
+    let mut processor_args = vec![];
+
+    if let Some(processor) = &template.processor {
+        if let Some(processor_pos) = custom_processors
+            .processors
+            .iter()
+            .position(|p| p.name == *processor)
+        {
+            processor_args.extend(
+                custom_processors.processors[processor_pos]
+                    .processor_args
+                    .clone(),
+            );
+        } else {
+            return Err(eyre!(
+                "Processor {} not found in custom processors.",
+                processor
+            ));
+        }
+    }
 
     Command::new("typst")
         .current_dir(compiled_directory_path)
         .arg("compile")
         .arg(template_path)
         .arg(&output_path)
+        .args(processor_args)
         .stdout(Stdio::null())
         .status()?;
 

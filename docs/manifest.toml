@@ -6,11 +6,17 @@ version = 3
 name = "Enable Listings"
 pandoc_args = ["-o", "output.tex", "-t", "latex", "--listings"]
 
+[[custom_processors.processors]]
+name = "Typst Font Directory"
+processor_args = ["--font-path", "fonts/"]
+
 [metadata_fields]
 author = "Tiefseetauchner et al."
 title = "TiefDownConverter Documentation"
 
-[metadata_settings]
+[[profiles]]
+name = "PDF"
+templates = ["PDF Documentation LaTeX", "PDF Documentation"]
 
 [[profiles]]
 name = "PDF"
@@ -27,6 +33,7 @@ template_type = "Tex"
 [[templates]]
 name = "PDF Documentation"
 output = "docs.pdf"
+processor = "Typst Font Directory"
 template_file = "docs.typ"
 template_type = "Typst"
 

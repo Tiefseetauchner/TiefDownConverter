@@ -1,4 +1,4 @@
-## `tiefdownconverter project add-preprocessor` {#projectadd-preprocessor}
+## `tiefdownconverter project pre-processors add` {#projectpre-processorsadd}
 
 **Version:** `tiefdownconverter 0.7.0-alpha`
 
@@ -6,7 +6,7 @@
 ```
 Add a new preprocessor to the project.
 
-Usage: tiefdownconverter project add-preprocessor <NAME> [-- <PANDOC_ARGS>...]
+Usage: tiefdownconverter project pre-processors add <NAME> [-- <PANDOC_ARGS>...]
 
 Arguments:
   <NAME>            The name of the preprocessor to create.
