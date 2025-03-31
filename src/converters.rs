@@ -44,6 +44,8 @@ pub(crate) fn convert_latex(
         Some(&DEFAULT_TEX_PREPROCESSOR),
     )?;
 
+    generate_tex_metadata(compiled_directory_path, metadata_fields, metadata_settings)?;
+
     let mut processor_args = vec![];
 
     if let Some(processor) = &template.processor {
@@ -351,6 +353,8 @@ pub(crate) fn convert_typst(
         &custom_processors.preprocessors,
         Some(&DEFAULT_TYPST_PREPROCESSOR),
     )?;
+
+    generate_typst_metadata(compiled_directory_path, metadata_fields, metadata_settings)?;
 
     let mut processor_args = vec![];
 

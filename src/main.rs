@@ -474,8 +474,6 @@ fn main() -> Result<()> {
                 ManageMetadataCommand::List => metadata_management::list_metadata(project)?,
             },
             ProjectCommands::ListTemplates => project_management::list_templates(project)?,
-            ProjectCommands::ListProfiles => project_management::list_profiles(project)?,
-            ProjectCommands::ListPreprocessors => project_management::list_preprocessors(project)?,
             ProjectCommands::Validate => project_management::validate(project)?,
             ProjectCommands::Clean => project_management::clean(project)?,
             ProjectCommands::SmartClean => project_management::smart_clean(project)?,

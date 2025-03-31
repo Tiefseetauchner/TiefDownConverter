@@ -72,8 +72,8 @@ fn test_list_templates() {
             ))
             .and(predicate::str::contains(
                 r#"test3:
-Template type: Tex
-Template file: test3.tex"#,
+  Template type: Tex
+  Template file: test3.tex"#,
             )),
         );
 }

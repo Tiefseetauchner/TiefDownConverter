@@ -10,7 +10,6 @@ use toml::Table;
 use crate::conversion_decider;
 use crate::manifest_model::Manifest;
 use crate::manifest_model::MetadataSettings;
-use crate::manifest_model::PreProcessor;
 use crate::manifest_model::Processors;
 use crate::manifest_model::TemplateMapping;
 use crate::project_management::load_and_convert_manifest;
