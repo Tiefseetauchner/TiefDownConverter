@@ -14,6 +14,8 @@ processor_args = ["--font-path", "fonts/"]
 author = "Tiefseetauchner et al."
 title = "TiefDownConverter Documentation"
 
+[metadata_settings]
+
 [[profiles]]
 name = "PDF"
 templates = ["PDF Documentation LaTeX", "PDF Documentation"]

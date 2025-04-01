@@ -48,15 +48,14 @@ You can test it by initialising a test project using `tiefdownconverter init tes
 and running `tiefdownconverter convert` in the project directory or
 `tiefdownconverter convert -p testproject`. You could also, as a test, clone the
 [Github Repo](https://github.com/Tiefseetauchner/TiefDownConverter) and run
-`tiefdownconverter convert -p docs` (this may however throw warnings if you don't
-have the appropriate fonts installed).
+`tiefdownconverter convert -p docs`.
 
 ## Getting started
 
-TL;DR: Make a folder, go into it and run `tiefdownconverter init`[[1]](#init) and
-`tiefdownconverter convert`[[2]](#convert). That's it.
+TL;DR: Make a folder, go into it and run `tiefdownconverter init` and
+`tiefdownconverter convert`. That's it.
 
-Long anser: First off, you need to create a project using `tiefdownconverter init`[[1]](#init). This will
+Long anser: First off, you need to create a project using `tiefdownconverter init`. This will
 create a new project **in the current directory**. You can (and maybe should)
 specify a project.
 
@@ -72,13 +71,13 @@ your_project/
 └── manifest.toml
 ```
 
-The Markdown folder[[3]](#the-markdown-directory) contains an example Markdown file. When placing your markdown files
+The Markdown folder contains an example Markdown file. When placing your markdown files
 in this folder, make sure they're named like `Chapter X.md`, with anything following the
 number being ignored. _This is important_, as the converter will use this to sort the
 files for conversion, as otherwise it'd have no idea in which order they should be
 converted.
 
-Now you should be able to run `tiefdownconverter convert -p path/to/your_project`[[2]](#convert) (or
+Now you should be able to run `tiefdownconverter convert -p path/to/your_project` (or
 ommitting the -p flag if you're already in the project directory) and it should
 generate a PDF file in the project directory. You can now adjust the template, add
 your own Markdown files, and so on.
@@ -129,10 +128,11 @@ same time. This is done by creating a template file in the template directory an
 it to the project's manifest.toml file.
 
 You could do this manually, if you were so inclined, but using
-`tiefdownconverter project add-template` is much easier. Check the
-[Usage Details](#usage-details) for the usage of this command. But importantly, once you
+`tiefdownconverter project template <TEMPLATE_NAME> add` is much easier. Check the
+[Usage Details](#usage-details) and specifically [the templates add command](#projecttemplatesadd)
+for the usage of this command. But importantly, once you
 created the template and added it to the manifest, you will be able to convert using it.
-`tiefdownconverter convert -p path/to/your_project --templates <TEMPLATE_NAME>`[[2]](#convert) will convert
+`tiefdownconverter convert -p path/to/your_project --templates <TEMPLATE_NAME>` will convert
 only the selected template, aiding in debugging.
 
 And now, you're pretty much free to do whatever you want with the template. Write tex or typst
@@ -146,17 +146,17 @@ course edit the template files directly, but there are a few more options.
 Mainly and most interestingly, lua filters can adjust the behaviour of the markdown conversion.
 These are lua scripts that are run before the markdown is converted to tex or typst. You can
 add lua filters to a template by either editing the manifest or using
-`tiefdownconverter project update-template <TEMPLATE_NAME> --add-filters <FILTER_NAME>`. This
+`tiefdownconverter project templates <TEMPLATE_NAME> update --add-filters <FILTER_NAME>`. This
 can be either the path to a lua filter (relative to the project directory) or a directory
 containing lua filters.
 
 You can also change the name of the exported file by setting the `output` option. For example,
-`tiefdownconverter project update-template <TEMPLATE_NAME> --output <NEW_NAME>`. This will
+`tiefdownconverter project templates <TEMPLATE_NAME> update --output <NEW_NAME>`. This will
 export the template to `<NEW_NAME>` instead of the default `<TEMPLATE_NAME>.pdf`.
 
 Similarly, you could change the template file and type, though I advice against it, as this
 may break the template. I advice to just add a new template and remove the old one using
-`tiefdownconverter project remove-template <TEMPLATE_NAME>`.
+`tiefdownconverter project templates <TEMPLATE_NAME> remove`.
 
 ## Writing templates
 
@@ -170,15 +170,15 @@ information.
 
 EPUB support in TiefDownConverter isn’t as fancy as LaTeX or Typst, but you can still tweak it to
 look nice. You don’t get full-blown templates, but you can mess with CSS, fonts, and Lua filters
-to make it work how you want.
+to make it work how you want. *This template type is however somewhat depricated. It will not be
+removed but there likely won't be any new features added to it.*
 
 ### Customizing CSS
 
-EPUBs use stylesheets to control how everything looks. The good news? Any `.css` file you drop into
-`template/my_epub_template/` gets automatically loaded. No need to mess with the manifest - just
-throw in your styles and you’re good.
+EPUBs use stylesheets to control how everything looks. Any `.css` file you drop into
+`template/my_epub_template/` gets automatically loaded. 
 
-Example CSS:
+For exammple, you can change the font, line height, and margins like so:
 
 ```css
 body {
@@ -195,7 +195,9 @@ blockquote {
 
 ### Adding Fonts
 
-Fonts go into `template/my_epub_template/fonts/`, and TiefDownConverter will automatically pick them up. To use them, you just need to reference them properly in your CSS:
+Fonts go into `template/my_epub_template/fonts/`, and TiefDownConverter will 
+automatically pick them up. To use them, you just need to reference them 
+properly in your CSS:
 
 ```css
 @font-face {
@@ -210,9 +212,16 @@ body {
 }
 ```
 
+This is a good time to mention, epub is just a zip file. As such, as it is generated by 
+pandoc, it has a predefined structure, and you have to bend to that. Fonts are in a 
+font directory, and stylesheets in a styles directory. Thus you have to *break out* of
+the styles directory with .. to get to the fonts directory. Keep that in mind, it took
+me a while to figure out.
+
 ### Metadata and Structure
 
-EPUBs need some basic metadata, which you define in the YAML front matter of your Markdown files. Stuff like title, author, and language goes here:
+EPUBs need some basic metadata, which you define in the YAML front matter of your Markdown 
+files. Stuff like title, author, and language goes here:
 
 ```yaml
 ---
@@ -228,7 +237,17 @@ rights: "Copyright © 2012 Your Name"
 ---
 ```
 
-This makes sure your EPUB doesn’t look like a nameless file when opened in an e-reader.
+You can also do this via the custom processor arguments, adding metadata as described
+in the pandoc documentation. For example, to use a seperate metadata file, you can do this:
+
+```bash
+tiefdownconverter project [PROJECT_NAME] processors add "Metadata for EPUB" -- --metadata-file metadata.yaml
+tiefdownconverter project [PROJECT_NAME] templates <TEMPLATE_NAME> update --processor "Metadata for EPUB"
+```
+
+This will include the metadata file in the conversion process, removing the 
+need for the YAML front matter in your Markdown files and allowing you to use
+different metadata files for different templates.
 
 ### Using Lua Filters
 
