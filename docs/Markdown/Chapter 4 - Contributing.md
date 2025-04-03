@@ -3,6 +3,13 @@
 This project is open source, and I'd love for you to contribute!
 There's a few things you should know before you start.
 
+## The architecture
+
+The project has a relatively straight forward conversion process, as
+shown in the diagram below.
+
+![Conversion Process](./resources/architecture.jpg){width=135mm height=90mm}
+
 ## Pull Requests
 
 Pull Requests should be made with either a link to an issue or an explanation of
