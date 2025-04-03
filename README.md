@@ -4,6 +4,8 @@
 [![Crates.io Version](https://img.shields.io/crates/v/tiefdownconverter?style=for-the-badge)](https://crates.io/crates/tiefdownconverter)
 [![](https://dcbadge.limes.pink/api/server/https://discord.gg/EG3zU9cTFx)](https://discord.gg/EG3zU9cTFx)
 
+![Fibschiiiiiiiiiiiii_smol](https://github.com/user-attachments/assets/f964e2b3-c728-4547-bd29-1ca6c861bf01)
+
 ## Overview
 
 TiefDown Converter is a command-line tool designed to streamline the conversion of structured Markdown projects into various output formats, such as PDF, EPUB, and Typst-based documents. It simplifies the process by acting as a wrapper around Pandoc and XeTeX, enabling users to set up a project once and reproducibly generate multiple formats with a single command.
@@ -223,3 +225,7 @@ This project is licensed under MIT. See `LICENSE` for details.
 If you appreciate this project, consider supporting it by contributing or donating.
 
 [![](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/tiefseetauchner)
+
+## Attributions
+
+Mascot (Fibschiiiiiiiiiiiii) by my lovely boyfriend Finn <3
