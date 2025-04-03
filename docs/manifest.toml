@@ -10,6 +10,16 @@ pandoc_args = ["-o", "output.tex", "-t", "latex", "--listings"]
 name = "Typst Font Directory"
 processor_args = ["--font-path", "fonts/"]
 
+[metadata_fields]
+author = "Tiefseetauchner et al."
+title = "TiefDownConverter Documentation"
+
+[metadata_settings]
+
+[[profiles]]
+name = "PDF"
+templates = ["PDF Documentation LaTeX", "PDF Documentation"]
+
 [[profiles]]
 name = "PDF"
 templates = ["PDF Documentation LaTeX", "PDF Documentation"]

@@ -1,10 +1,11 @@
 use std::path::{Path, PathBuf};
 
 use color_eyre::eyre::Result;
+use toml::Table;
 
 use crate::{
     converters,
-    manifest_model::{Processors, TemplateMapping, TemplateType},
+    manifest_model::{MetadataSettings, Processors, TemplateMapping, TemplateType},
 };
 
 type Converter = fn(
@@ -12,6 +13,8 @@ type Converter = fn(
     compiled_markdown_path: &Path,
     compiled_directory_path: &Path,
     template: &TemplateMapping,
+    metadata_fields: &Table,
+    metadata_settings: &MetadataSettings,
     custom_processors: &Processors,
 ) -> Result<PathBuf>;
 

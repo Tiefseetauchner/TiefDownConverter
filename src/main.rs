@@ -8,6 +8,7 @@ mod conversion;
 mod conversion_decider;
 mod converters;
 mod manifest_model;
+mod metadata_management;
 mod project_management;
 mod template_management;
 
@@ -160,6 +161,11 @@ If the number of conversion folders in the project is above this threshold, old 
         #[command(subcommand)]
         command: ProfilesCommands,
     },
+    #[command(about = "Manage the manifest metadata of the project.")]
+    ManageMetadata {
+        #[command(subcommand)]
+        command: ManageMetadataCommand,
+    },
     #[command(about = "List the templates in the project.")]
     ListTemplates,
     #[command(about = "Validate the TiefDown project structure and metadata.")]
@@ -308,6 +314,34 @@ enum ProfilesCommands {
     List,
 }
 
+#[derive(Subcommand)]
+enum ManageMetadataCommand {
+    #[command(about = "Add or change the metadata of the project.")]
+    Set {
+        #[arg(help = "The key to set.")]
+        key: String,
+        #[arg(help = "The value to set.")]
+        value: String,
+    },
+    #[command(about = "Remove metadata from the project.")]
+    Remove {
+        #[arg(help = "The key to remove.")]
+        key: String,
+    },
+    #[command(about = "List the metadata of the project.")]
+    List,
+    // #[command(about = "Import metadata from a JSON file.")]
+    // Import {
+    //     #[arg(help = "The path to the JSON file.")]
+    //     path: String,
+    // },
+    // #[command(about = "Export metadata to a JSON file.")]
+    // Export {
+    //     #[arg(help = "The path to the JSON file.")]
+    //     path: String,
+    // },
+}
+
 fn main() -> Result<()> {
     color_eyre::install()?;
 
@@ -429,6 +463,15 @@ fn main() -> Result<()> {
                     project_management::remove_profile(project, name)?
                 }
                 ProfilesCommands::List => project_management::list_profiles(project)?,
+            },
+            ProjectCommands::ManageMetadata { command } => match command {
+                ManageMetadataCommand::Set { key, value } => {
+                    metadata_management::set_metadata(project, key, value)?
+                }
+                ManageMetadataCommand::Remove { key } => {
+                    metadata_management::remove_metadata(project, key)?
+                }
+                ManageMetadataCommand::List => metadata_management::list_metadata(project)?,
             },
             ProjectCommands::ListTemplates => project_management::list_templates(project)?,
             ProjectCommands::Validate => project_management::validate(project)?,

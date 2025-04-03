@@ -4,9 +4,10 @@ use color_eyre::eyre::{Result, eyre};
 use toml::{Table, Value};
 
 use crate::{
+    TemplateType,
     consts::CURRENT_MANIFEST_VERSION,
     manifest_model::{
-        Manifest, PreProcessor, Processor, Processors, Profile, TemplateMapping, TemplateType,
+        Manifest, MetadataSettings, PreProcessor, Processor, Processors, Profile, TemplateMapping,
         upgrade_manifest,
     },
     template_management::{self, add_lix_filters, get_template_path, get_template_type_from_path},
@@ -81,6 +82,10 @@ This is a simple test document for you to edit or overwrite."#,
         },
         smart_clean: smart_clean_value,
         smart_clean_threshold,
+        metadata_fields: Table::new(),
+        metadata_settings: MetadataSettings {
+            metadata_prefix: None,
+        },
         profiles: None,
     };
 

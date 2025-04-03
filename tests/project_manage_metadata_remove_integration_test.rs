@@ -26,69 +26,52 @@ fn create_empty_project(temp_dir: &Path) -> PathBuf {
     project_path
 }
 
-fn add_template(project_path: &Path, template_name: &str) {
+#[rstest]
+fn test_remove_metadata() {
+    let temp_dir = tempdir().expect("Failed to create temporary directory");
+    let project_path = create_empty_project(&temp_dir.path());
+
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("templates")
-        .arg(template_name)
-        .arg("add")
-        .arg("--template-file")
-        .arg(format!("{}.tex", template_name))
+        .arg("manage-metadata")
+        .arg("set")
+        .arg("author")
+        .arg("John Doe")
         .assert()
         .success();
 
-    let template_dir = project_path.join("template");
-    assert!(template_dir.exists(), "Template directory should exist");
-    fs::write(template_dir.join(format!("{}.tex", template_name)), "")
-        .expect("Failed to write example template file");
-}
-
-#[rstest]
-fn test_list_templates() {
-    let temp_dir = tempdir().expect("Failed to create temporary directory");
-
-    let project_path = create_empty_project(&temp_dir.path());
-    add_template(&project_path, "test1");
-    add_template(&project_path, "test2");
-    add_template(&project_path, "test3");
-
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("list-templates")
+        .arg("manage-metadata")
+        .arg("remove")
+        .arg("author")
         .assert()
-        .success()
-        .stdout(
-            predicate::str::contains(
-                r#"test1:
-  Template type: Tex
-  Template file: test1.tex"#,
-            )
-            .and(predicate::str::contains(
-                r#"test2:
-  Template type: Tex
-  Template file: test2.tex"#,
-            ))
-            .and(predicate::str::contains(
-                r#"test3:
-  Template type: Tex
-  Template file: test3.tex"#,
-            )),
-        );
+        .success();
+
+    let manifest_path = project_path.join("manifest.toml");
+    assert!(manifest_path.exists(), "Manifest file should exist");
+    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
+
+    assert_contains!(manifest_content, r#"[metadata_fields]"#);
+    assert_not_contains!(manifest_content, r#"author"#);
 }
 
 #[rstest]
-fn test_list_templates_empty() {
+fn test_remove_non_existing_metadata() {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
-
     let project_path = create_empty_project(&temp_dir.path());
 
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("list-templates")
+        .arg("manage-metadata")
+        .arg("remove")
+        .arg("author")
         .assert()
-        .success()
-        .stdout(predicate::str::is_empty());
+        .failure()
+        .stderr(predicate::str::contains(
+            "Metadata field 'author' not found.",
+        ));
 }

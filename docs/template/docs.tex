@@ -6,9 +6,45 @@
 \usepackage{hyperref}
 \usepackage{listings}
 \usepackage{xcolor}
+\usepackage{graphicx}
+
+\graphicspath{ {./resources/} }
 
 \geometry{margin=1in}
 
+\input{./metadata.tex}
+
+\title{\meta{title}}
+\author{\meta{author}}
+\date{\today}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={\meta{title}},
+}
+
+
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+
+\lstset{style=mystyle}
 \defaultfontfeatures{Ligatures=TeX}
 
 \setmainfont[
@@ -29,12 +65,11 @@
 
 \newfontfamily\CormorantSCBold[
   Path=fonts/,
-  UprightFont = CormorantSC-Bold.ttf,
+  UprightFont = CormorantSC-Regular.ttf,
+  BoldFont = CormorantSC-Bold.ttf,
 ]{Cormorant SC Bold}
 
 \allsectionsfont{\CormorantSCBold}
-
-\input{./meta.tex}
 
 \begin{document}
 

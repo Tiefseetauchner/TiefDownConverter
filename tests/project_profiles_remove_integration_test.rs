@@ -1,4 +1,5 @@
 use assert_cmd::Command;
+use predicates::prelude::predicate;
 use rstest::rstest;
 use std::{
     fs,
@@ -67,6 +68,25 @@ name = "My funny profile"
 templates = ["Template 1", "Template 2"]
 "#
     );
+}
+
+#[rstest]
+fn test_remove_profile_does_not_exist() {
+    let temp_dir = tempdir().expect("Failed to create temporary directory");
+    let project_path = create_empty_project(&temp_dir.path());
+
+    let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
+
+    cmd.current_dir(&project_path)
+        .arg("project")
+        .arg("profiles")
+        .arg("remove")
+        .arg("Non-existent profile")
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains(
+            "Profile with name \'Non-existent profile\' does not exist.",
+        ));
 }
 
 fn add_profile(project_path: &Path, profile_name: &str, templates: Vec<&str>) {

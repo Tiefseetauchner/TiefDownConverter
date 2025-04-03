@@ -1,12 +1,12 @@
 ---
 title:
-- type: main
-  text: "TiefDownConverter Documentation"
-- type: subtitle
-  text: "A Markdown to PDF/EPUB/Typst conversion helper"
+  - type: main
+    text: "TiefDownConverter Documentation"
+  - type: subtitle
+    text: "A Markdown to PDF/EPUB/Typst conversion helper"
 creator:
-- role: author
-  text: Tiefseetauchner et al.
+  - role: author
+    text: Tiefseetauchner et al.
 rights: "Copyright (c) 2025 Tiefseetauchner, MIT Licensed (see below)"
 ---
 
@@ -26,8 +26,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 # The what?
 
-> *If you want to skip the funny written explanations, skip to the*
-> *[Usage](#usage) section.*
+> _If you want to skip the funny written explanations, skip to the_ > _[Usage](#usage) section._
 
 Well, that's a good question. Ask it later.
 
@@ -42,11 +41,11 @@ pretty much just a manifest file and an executable.
 
 ## Why?
 
-I wonder myself every day. 
+I wonder myself every day.
 But alas, I should know, I wrote this cluster\*\*\*\* so let
 me explain. The initial concept was born from pain (as many are).
-I was pretty tired of exporting my markdown files, then converting them, 
-overwriting my old files, then converting them again, overwriting all history 
+I was pretty tired of exporting my markdown files, then converting them,
+overwriting my old files, then converting them again, overwriting all history
 in the process. It was just... a mess.
 
 So I did what any sane person would do: I learned Python.
@@ -89,7 +88,7 @@ But there was a reason, or a few rather:
 
 1. I wanted cross-platform support.
 2. I wanted a single executable.
-3. I needed a language with good CLI support because, believe it or not, I'm *awful* at GUIs.
+3. I needed a language with good CLI support because, believe it or not, I'm _awful_ at GUIs.
 4. I'm crazy.
 
 These reasons led me to two options: Python, a language I was somewhat familiar
@@ -110,9 +109,9 @@ of how it works internally:
   - Create a new folder for the current compilation. That way, you have a
     history.
   - Combine all the markdown files into one megafile called `combined.md`.
-  - Run Pandoc conversion to TeX, EPUB, or Typst. This uses Lua filters and 
+  - Run Pandoc conversion to TeX, EPUB, or Typst. This uses Lua filters and
     preprocessors that are defined in the `manifest.toml` file.
-  - Run XeLaTeX on all TeX templates, Typst on all Typst templates, and so on. It even 
+  - Run XeLaTeX on all TeX templates, Typst on all Typst templates, and so on. It even
     supports EPUB conversion.
   - Copy the files around so you end up with your output files in the right places.
 
@@ -128,8 +127,8 @@ If I can make your life easier as well, then I'm the happiest woman alive.
 
 ## Use Cases
 
-So where does TiefDownConverter actually come in handy? Well, anywhere you need Markdown 
-to turn into something nice without manually fiddling with formats every time. Here are 
+So where does TiefDownConverter actually come in handy? Well, anywhere you need Markdown
+to turn into something nice without manually fiddling with formats every time. Here are
 a few scenarios where it saves the day:
 
 - **Writing Books** - Markdown is great for writing, but formatting a 300-page novel? Not so much. TiefDown handles that for you.
