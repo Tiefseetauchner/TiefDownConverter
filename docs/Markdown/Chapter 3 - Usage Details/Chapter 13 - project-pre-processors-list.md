@@ -1,6 +1,6 @@
 ## `tiefdownconverter project pre-processors list` {#projectpre-processorslist}
 
-**Version:** `tiefdownconverter 0.7.0-alpha`
+**Version:** `tiefdownconverter 0.7.0`
 
 ### Usage:
 ```

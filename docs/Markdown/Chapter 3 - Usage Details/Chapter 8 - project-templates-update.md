@@ -1,6 +1,6 @@
 ## `tiefdownconverter project templates update` {#projecttemplatesupdate}
 
-**Version:** `tiefdownconverter 0.7.0-alpha`
+**Version:** `tiefdownconverter 0.7.0`
 
 ### Usage:
 ```

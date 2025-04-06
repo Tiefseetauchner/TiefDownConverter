@@ -1,6 +1,6 @@
 ## `tiefdownconverter project` {#project}
 
-**Version:** `tiefdownconverter 0.7.0-alpha`
+**Version:** `tiefdownconverter 0.7.0`
 
 ### Usage:
 ```
@@ -14,6 +14,7 @@ Commands:
   pre-processors   Manage the preprocessors of the project.
   processors       Manage the preprocessors of the project.
   profiles         Manage the conversion profiles of the project.
+  manage-metadata  Manage the manifest metadata of the project.
   list-templates   List the templates in the project.
   validate         Validate the TiefDown project structure and metadata.
   clean            Clean temporary files from the TiefDown project.
@@ -33,6 +34,7 @@ Options:
 - [pre-processors](#projectpre-processors)
 - [processors](#projectprocessors)
 - [profiles](#projectprofiles)
+- [manage-metadata](#projectmanage-metadata)
 - [list-templates](#projectlist-templates)
 - [validate](#projectvalidate)
 - [clean](#projectclean)
