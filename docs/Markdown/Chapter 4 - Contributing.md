@@ -3,6 +3,13 @@
 This project is open source, and I'd love for you to contribute!
 There's a few things you should know before you start.
 
+## The architecture
+
+The project has a relatively straight forward conversion process, as
+shown in the diagram below.
+
+![Conversion Process](./resources/architecture.jpg){width=135mm height=90mm}
+
 ## Pull Requests
 
 Pull Requests should be made with either a link to an issue or an explanation of
@@ -50,7 +57,7 @@ add a upgrade logic to `manifest_model.rs`.
 
 Currently primarily integration tests. See the `tests` folder for examples. Any pull
 request to main will automatically run tests, and the expectation is that at least the
-existing tests work. If they break, fix your code or, if you changed behavior on purpose, 
+existing tests work. If they break, fix your code or, if you changed behavior on purpose,
 the tests.
 
 I appreciate it if you add test coverage for your changes. I especially would
@@ -62,18 +69,17 @@ time that I want to spend on this project.
 ## Documentation
 
 When changing the documentation, it is of utmost importance that the documentation outputs
-are correctly generated. *These are not automatically generated on release* but rather held 
+are correctly generated. _These are not automatically generated on release_ but rather held
 in git to more easily track changes during a pull request.
 
 To make sure this documentation is up to date, consider whether your changes significantly
 affect the workflow of using TiefDownConverter. If you add a command or flag, make sure to
-run `tools/generate_docs.py`. Either way, when changing the documentation, always run 
+run `tools/generate_docs.py`. Either way, when changing the documentation, always run
 `tiefdownconverter convert -p docs` before committing the changes.
 
 Praise be you don't need to have any fonts installed anymore - they are packaged in the fonts
 directory. But if you happen to change the fonts, you will need to replace them in fonts/ and
 add your own fonts to the templates.
-
 
 ## Code Style
 

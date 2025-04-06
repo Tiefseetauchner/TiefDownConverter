@@ -18,7 +18,7 @@ something like that.
 
 If you build from source, run `cargo build [--release]` or `cargo install --path .`.
 
-That said, the recommended way to install TiefDownConverter is 
+That said, the recommended way to install TiefDownConverter is
 `cargo install tiefdownconverter`. This will always install the latest version.
 
 Downloading from the release is as simple as downloading the appropriate version
@@ -38,7 +38,7 @@ There are a few dependencies that you need to install.
 
 Windows is easy enough: `winget install miktex pandoc typst`.
 
-Linux varies by distro of course, but for ubuntu it's `apt install texlive-xetex pandoc` 
+Linux varies by distro of course, but for ubuntu it's `apt install texlive-xetex pandoc`
 and `cargo install typst` or downloading the typst binary and adding it to the path.
 
 Mac is still to be tested, but MacTex should have XeTeX installed.
@@ -48,12 +48,11 @@ You can test it by initialising a test project using `tiefdownconverter init tes
 and running `tiefdownconverter convert` in the project directory or
 `tiefdownconverter convert -p testproject`. You could also, as a test, clone the
 [Github Repo](https://github.com/Tiefseetauchner/TiefDownConverter) and run
-`tiefdownconverter convert -p docs` (this may however throw warnings if you don't
-have the appropriate fonts installed).
+`tiefdownconverter convert -p docs`.
 
 ## Getting started
 
-TL;DR: Make a folder, go into it and run `tiefdownconverter init` and 
+TL;DR: Make a folder, go into it and run `tiefdownconverter init` and
 `tiefdownconverter convert`. That's it.
 
 Long anser: First off, you need to create a project using `tiefdownconverter init`. This will
@@ -74,7 +73,7 @@ your_project/
 
 The Markdown folder contains an example Markdown file. When placing your markdown files
 in this folder, make sure they're named like `Chapter X.md`, with anything following the
-number being ignored. *This is important*, as the converter will use this to sort the
+number being ignored. _This is important_, as the converter will use this to sort the
 files for conversion, as otherwise it'd have no idea in which order they should be
 converted.
 
@@ -83,7 +82,38 @@ ommitting the -p flag if you're already in the project directory) and it should
 generate a PDF file in the project directory. You can now adjust the template, add
 your own Markdown files, and so on.
 
-## Adjusting the markdown directory
+## The markdown directory
+
+Markdown files are the main input for the converter, and as such their structure is
+important. The converter will look for markdown files in the `Markdown` directory, and
+will sort them by a chapter number. Namely, your files should be named
+`Chapter X Whatever else.md`, where X is a number (you don't have to name them 01, 02
+etc., as we parse the number as an integer anyways). The converter will then sort them
+by the number and combine them in that order.
+
+You can also add subdirectories in the Markdown directory. These will be combined after
+the file with the same number. For example, consider the following directory structure:
+
+```
+Markdown/
+├── Chapter 1 - Introduction.md
+├── Chapter 2 - Usage.md
+├── Chapter 2 - Usage/
+│   ├── Chapter 1 - Usage detail 1.md
+│   └── Chapter 2 - Usage detail 2.md
+└── Chapter 3 - Customisation.md
+```
+
+The converter will combine the files in the following order:
+
+1. Chapter 1 - Introduction.md
+2. Chapter 2 - Usage.md
+3. Chapter 2 - Usage/Chapter 1 - Usage detail 1.md
+4. Chapter 2 - Usage/Chapter 2 - Usage detail 2.md
+5. Chapter 3 - Customisation.md
+
+That is, the converter orders a directory by the same logic as other files (and even
+does so recursively), and directories are combined after the file with the same number.
 
 You can change what directory the converter looks for markdown files in by changing the
 `markdown_dir` field in the manifest.toml file or saying `-m path/to/markdown/dir` when
@@ -97,9 +127,10 @@ The key idea behind tiefdownconverter is, that it can handle multiple templates 
 same time. This is done by creating a template file in the template directory and adding
 it to the project's manifest.toml file.
 
-You could do this manually, if you were so inclined, but using 
-`tiefdownconverter project template <TEMPLATE_NAME> add` is much easier. Check the 
-[Usage Details](#usage-details) for the usage of this command. But importantly, once you
+You could do this manually, if you were so inclined, but using
+`tiefdownconverter project template <TEMPLATE_NAME> add` is much easier. Check the
+[Usage Details](#usage-details) and specifically [the templates add command](#projecttemplatesadd)
+for the usage of this command. But importantly, once you
 created the template and added it to the manifest, you will be able to convert using it.
 `tiefdownconverter convert -p path/to/your_project --templates <TEMPLATE_NAME>` will convert
 only the selected template, aiding in debugging.
@@ -114,18 +145,18 @@ course edit the template files directly, but there are a few more options.
 
 Mainly and most interestingly, lua filters can adjust the behaviour of the markdown conversion.
 These are lua scripts that are run before the markdown is converted to tex or typst. You can
-add lua filters to a template by either editing the manifest or using 
-`tiefdownconverter project template <TEMPLATE_NAME> update --add-filters <FILTER_NAME>`. This
+add lua filters to a template by either editing the manifest or using
+`tiefdownconverter project templates <TEMPLATE_NAME> update --add-filters <FILTER_NAME>`. This
 can be either the path to a lua filter (relative to the project directory) or a directory
 containing lua filters.
 
 You can also change the name of the exported file by setting the `output` option. For example,
-`tiefdownconverter project template <TEMPLATE_NAME> update --output <NEW_NAME>`. This will
+`tiefdownconverter project templates <TEMPLATE_NAME> update --output <NEW_NAME>`. This will
 export the template to `<NEW_NAME>` instead of the default `<TEMPLATE_NAME>.pdf`.
 
 Similarly, you could change the template file and type, though I advice against it, as this
 may break the template. I advice to just add a new template and remove the old one using
-`tiefdownconverter project template <TEMPLATE_NAME> remove`.
+`tiefdownconverter project templates <TEMPLATE_NAME> remove`.
 
 ## Conversion Profiles
 
@@ -154,73 +185,100 @@ templates = ["PDF Documentation LaTeX", "PDF Documentation"]
 ## Writing templates
 
 Importantly, when you write your own template, you need to include the content somehow.
-That somehow is done via `\input{output.tex}` or `#include "./output.typ"`. This will include the 
+That somehow is done via `\input{output.tex}` or `#include "./output.typ"`. This will include the
 output of the Markdown conversion in your template file. If you're using custom preprocessors, you
 can change the output file of the conversion. See [Preprocessing](#preprocessing) for more
 information.
 
-EPUB support in TiefDownConverter isn’t as fancy as LaTeX or Typst, but you can still tweak it to 
-look nice. You don’t get full-blown templates, but you can mess with CSS, fonts, and Lua filters 
-to make it work how you want.
+## Epub Support
+
+EPUB support in TiefDownConverter isn’t as fancy as LaTeX or Typst, but you can still tweak it to
+look nice. You don’t get full-blown templates, but you can mess with CSS, fonts, and Lua filters
+to make it work how you want. _This template type is however somewhat depricated. It will not be
+removed but there likely won't be any new features added to it._
 
 ### Customizing CSS
-EPUBs use stylesheets to control how everything looks. The good news? Any `.css` file you drop into 
-`template/my_epub_template/` gets automatically loaded. No need to mess with the manifest - just 
-throw in your styles and you’re good.
 
-Example CSS:
+EPUBs use stylesheets to control how everything looks. Any `.css` file you drop into
+`template/my_epub_template/` gets automatically loaded.
+
+For exammple, you can change the font, line height, and margins like so:
+
 ```css
 body {
-    font-family: "Noto Serif", serif;
-    line-height: 1.6;
-    margin: 1em;
+  font-family: "Noto Serif", serif;
+  line-height: 1.6;
+  margin: 1em;
 }
 blockquote {
-    font-style: italic;
-    border-left: 3px solid #ccc;
-    padding-left: 10px;
+  font-style: italic;
+  border-left: 3px solid #ccc;
+  padding-left: 10px;
 }
 ```
 
 ### Adding Fonts
-Fonts go into `template/my_epub_template/fonts/`, and TiefDownConverter will automatically pick them up. To use them, you just need to reference them properly in your CSS:
+
+Fonts go into `template/my_epub_template/fonts/`, and TiefDownConverter will
+automatically pick them up. To use them, you just need to reference them
+properly in your CSS:
 
 ```css
 @font-face {
-  font-family: 'EB Garamond';
+  font-family: "EB Garamond";
   font-style: normal;
   font-weight: normal;
-  src: url('../fonts/EBGaramond-Regular.ttf');
+  src: url("../fonts/EBGaramond-Regular.ttf");
 }
 
 body {
-    font-family: "EB Garamond", serif;
+  font-family: "EB Garamond", serif;
 }
 ```
 
+This is a good time to mention, epub is just a zip file. As such, as it is generated by
+pandoc, it has a predefined structure, and you have to bend to that. Fonts are in a
+font directory, and stylesheets in a styles directory. Thus you have to _break out_ of
+the styles directory with .. to get to the fonts directory. Keep that in mind, it took
+me a while to figure out.
+
 ### Metadata and Structure
-EPUBs need some basic metadata, which you define in the YAML front matter of your Markdown files. Stuff like title, author, and language goes here:
+
+EPUBs need some basic metadata, which you define in the YAML front matter of your Markdown
+files. Stuff like title, author, and language goes here:
 
 ```yaml
 ---
 title:
 - type: main
-  text: "My Publication"
+text: "My Publication"
 - type: subtitle
-  text: "A tale of loss and partying hard"
+text: "A tale of loss and partying hard"
 creator:
 - role: author
-  text: Your Name
+text: Your Name
 rights: "Copyright © 2012 Your Name"
 ---
 ```
 
-This makes sure your EPUB doesn’t look like a nameless file when opened in an e-reader.
+You can also do this via the custom processor arguments, adding metadata as described
+in the pandoc documentation. For example, to use a seperate metadata file, you can do this:
+
+```bash
+tiefdownconverter project [PROJECT_NAME] processors add "Metadata for EPUB" -- --metadata-file metadata.yaml
+tiefdownconverter project [PROJECT_NAME] templates <TEMPLATE_NAME> update --processor "Metadata for EPUB"
+```
+
+This will include the metadata file in the conversion process, removing the
+need for the YAML front matter in your Markdown files and allowing you to use
+different metadata files for different templates.
 
 ### Using Lua Filters
+
 Want to tweak the structure? That’s what Lua filters are for. You can use them to rename chapters, remove junk, or modify how elements are processed.
 
 Example: Automatically renaming chapter headers:
+
 ```lua
 function Header(el)
   if el.level == 1 then
@@ -238,8 +296,8 @@ system. The main difference is the output format and the program it gets convert
 
 ### LaTeX
 
-LaTeX is the best supported by TiefDownConverter, with the most presets. But as TiefDownConverter 
-is a general-purpose Markdown to PDF converter, the format doesn't matter. LaTeX provides the 
+LaTeX is the best supported by TiefDownConverter, with the most presets. But as TiefDownConverter
+is a general-purpose Markdown to PDF converter, the format doesn't matter. LaTeX provides the
 highest degree of customization, making it ideal for structured documents, novels, and academic papers.
 
 The primary way to interact with LaTeX is through templates. Lua filters and such are secondary, but an
@@ -247,10 +305,10 @@ important part of the conversion process to adjust behavior for different docume
 
 ### Typst
 
-Typst is another supported engine, offering a more modern alternative to LaTeX with a simpler syntax and 
+Typst is another supported engine, offering a more modern alternative to LaTeX with a simpler syntax and
 automatic layout adjustments. TiefDownConverter allows you to specify Typst templates in the project manifest.
 
-Typst templates work similarly to LaTeX templates but are easier to modify if you need structured documents 
+Typst templates work similarly to LaTeX templates but are easier to modify if you need structured documents
 without deep LaTeX knowledge.
 
 As far as I could tell, typst templates are also far more adherent to the general typst syntax, so Lua filters
@@ -258,7 +316,7 @@ are not as important. But they can still be used to adjust the output, especiall
 
 ### EPUB
 
-TiefDownConverter also supports EPUB conversion, making it suitable for e-book generation. The conversion 
+TiefDownConverter also supports EPUB conversion, making it suitable for e-book generation. The conversion
 process uses Pandoc to transform the Markdown content into EPUB, applying any Lua filters defined in the manifest.
 
 This however does not really support much in the way of templating. Customization should be done primarily via
@@ -293,11 +351,11 @@ implementation hell.
 > **Note:** This section only really addresses LaTeX, but the concepts are the same for
 > Typst and epub.
 
-If you are in the business of writing filters (and don't just solve everything in TeX itself), 
-I advice checking out the documentation at 
+If you are in the business of writing filters (and don't just solve everything in TeX itself),
+I advice checking out the documentation at
 [https://pandoc.org/lua-filters.html](https://pandoc.org/lua-filters.html). But here's a
 quick rundown of what you can do. For example, if you wanted to change the font of all
-block quotes, there's a few things you'd need to do. First off, in your template, you will 
+block quotes, there's a few things you'd need to do. First off, in your template, you will
 need to define a font. It could look something like this:
 
 ```tex
@@ -306,6 +364,7 @@ need to define a font. It could look something like this:
 ```
 
 Then, add a filter to your template as described above. The filter could look something like this:
+
 ```lua
 function BlockQuote(el)
   local tt_start = pandoc.RawBlock('latex', '\\blockquotefont\\small')
@@ -349,15 +408,14 @@ a preprocessor.
 If you want to define a preprocessor, you can do so by running
 
 ```bash
-tiefdownconverter project template <TEMPLATE_NAME> update --preprocessor <PREPROCESSOR_NAME>
+tiefdownconverter project templates <TEMPLATE_NAME> update --preprocessor <PREPROCESSOR_NAME>
 ```
 
- to assign it to a template and 
+to assign it to a template and
 
 ```bash
-tiefdownconverter project preprocessor <PREPROCESSOR_NAME> add -- [PANDOC_ARGS]
+tiefdownconverter project preprocessors <PREPROCESSOR_NAME> add -- [PANDOC_ARGS]
 ```
- to assign it to a template and 
 
 to create a new preprocessor.
 
@@ -369,8 +427,6 @@ then would be:
 ```bash
 tiefdownconverter project preprocessor "Enable Listings" add -- -o output.tex --listings
 ```
-
-
 
 The manifest would look something like this:
 
@@ -404,21 +460,19 @@ You can do this by first defining a preprocessor, for example:
 tiefdownconverter project preprocessor "RTF Preprocessor" add -- -o documentation.rtf
 ```
 
-
 As you can see, we're outputting as an RTF file, and the file name is
-`documentation.rtf`. This means we need to add a template that deals with the 
+`documentation.rtf`. This means we need to add a template that deals with the
 same output:
 
 ```bash
 tiefdownconverter project template "RTF Template" add -o documentation.rtf -t custompandoc
 ```
 
-
-And that's it. TiefDownConverter will run the preprocessor, which 
-outputs to documentation.rtf, and then the templating system will 
+And that's it. TiefDownConverter will run the preprocessor, which
+outputs to documentation.rtf, and then the templating system will
 copy that output to your directory. Hopefully. Did I mention that
-this is experimental? Yeah, so if you have issues, please report 
-them. Even if you're thinking "this is not a bug, it's a feature". 
+this is experimental? Yeah, so if you have issues, please report
+them. Even if you're thinking "this is not a bug, it's a feature".
 It likely isn't.
 
 ## Custom Processor Arguments
@@ -464,10 +518,10 @@ enable it in your manifest, it will automatically remove stale or
 old conversion directories.
 
 Enable it with the `--smart-clean` and set the threshold with
-`--smart-clean-threshold`. The threshold is 5 by default. 
+`--smart-clean-threshold`. The threshold is 5 by default.
 
-You can also manually trigger a smart clean with 
-`tiefdownconverter project smart-clean`  or a normal clean with
-`tiefdownconverter project clean` . The latter will remove all
+You can also manually trigger a smart clean with
+`tiefdownconverter project smart-clean` or a normal clean with
+`tiefdownconverter project clean`. The latter will remove all
 conversion directories, while the former will only remove the ones
 that are older than the threshold.

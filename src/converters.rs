@@ -1,16 +1,18 @@
 use std::{
     fs,
+    io::Write,
     path::{Path, PathBuf},
     process::{Command, Stdio},
 };
 
 use color_eyre::eyre::{Ok, Result, eyre};
+use toml::Table;
 
 use crate::{
     TemplateType,
     manifest_model::{
-        DEFAULT_TEX_PREPROCESSOR, DEFAULT_TYPST_PREPROCESSOR, PreProcessor, Processors,
-        TemplateMapping,
+        DEFAULT_TEX_PREPROCESSOR, DEFAULT_TYPST_PREPROCESSOR, MetadataSettings, PreProcessor,
+        Processors, TemplateMapping,
     },
     template_management::{get_output_path, get_template_path},
 };
@@ -20,6 +22,8 @@ pub(crate) fn convert_latex(
     combined_markdown_path: &Path,
     compiled_directory_path: &Path,
     template: &TemplateMapping,
+    metadata_fields: &Table,
+    metadata_settings: &MetadataSettings,
     custom_processors: &Processors,
 ) -> Result<PathBuf> {
     let template_path = get_template_path(template.template_file.clone(), &template.name);
@@ -34,9 +38,13 @@ pub(crate) fn convert_latex(
         project_directory_path,
         compiled_directory_path,
         combined_markdown_path,
+        metadata_fields,
+        metadata_settings,
         &custom_processors.preprocessors,
         Some(&DEFAULT_TEX_PREPROCESSOR),
     )?;
+
+    generate_tex_metadata(compiled_directory_path, metadata_fields, metadata_settings)?;
 
     let mut processor_args = vec![];
 
@@ -70,6 +78,54 @@ pub(crate) fn convert_latex(
     Ok(output_path)
 }
 
+fn generate_tex_metadata(
+    compiled_directory_path: &Path,
+    metadata_fields: &Table,
+    metadata_settings: &MetadataSettings,
+) -> Result<()> {
+    let metadata_path = compiled_directory_path.join("metadata.tex");
+    if metadata_path.exists() {
+        return Ok(());
+    }
+
+    let mut metadata_file = fs::File::create(&metadata_path)?;
+    let mut metadata_file_content = String::new();
+
+    let prefix = metadata_settings
+        .metadata_prefix
+        .as_deref()
+        .unwrap_or("meta");
+
+    metadata_file_content.push_str(
+        format!(
+            r"\newcommand{{\{}}}[1]{{\csname {}@#1\endcsname}}",
+            prefix, prefix
+        )
+        .as_str(),
+    );
+
+    metadata_file_content.push_str("\n\n");
+
+    for (key, value) in metadata_fields {
+        if let Some(value) = value.as_str() {
+            metadata_file_content.push_str(&format!(
+                r"\expandafter\def\csname {}@{}\endcsname{{{}}}",
+                prefix, key, value
+            ));
+            metadata_file_content.push('\n');
+        } else {
+            return Err(eyre!(
+                "Metadata field {} is not a string, and is not supported by TiefDownConverter.",
+                key
+            ));
+        }
+    }
+
+    metadata_file.write_all(metadata_file_content.as_bytes())?;
+
+    Ok(())
+}
+
 fn compile_latex(
     compiled_directory_path: &Path,
     template_path: &Path,
@@ -92,6 +148,8 @@ pub(crate) fn convert_custom_pandoc(
     combined_markdown_path: &Path,
     compiled_directory_path: &Path,
     template: &TemplateMapping,
+    metadata_fields: &Table,
+    metadata_settings: &MetadataSettings,
     custom_processors: &Processors,
 ) -> Result<PathBuf> {
     if template.processor != None {
@@ -122,6 +180,8 @@ pub(crate) fn convert_custom_pandoc(
         project_directory_path,
         compiled_directory_path,
         combined_markdown_path,
+        metadata_fields,
+        metadata_settings,
         &custom_processors.preprocessors,
         None,
     )?;
@@ -136,6 +196,8 @@ pub(crate) fn convert_epub(
     combined_markdown_path: &Path,
     compiled_directory_path: &Path,
     template: &TemplateMapping,
+    metadata_fields: &Table,
+    _metadata_settings: &MetadataSettings,
     custom_processors: &Processors,
 ) -> Result<PathBuf> {
     if template.preprocessor.is_some() {
@@ -161,6 +223,8 @@ pub(crate) fn convert_epub(
         .arg("epub3")
         .arg("-o")
         .arg(&output_path);
+
+    add_meta_args(metadata_fields, &mut pandoc)?;
 
     add_css_files(project_directory_path, &template_path, &mut pandoc)?;
     add_fonts(project_directory_path, &template_path, &mut pandoc)?;
@@ -194,6 +258,21 @@ pub(crate) fn convert_epub(
     let output_path = compiled_directory_path.join(output_path);
 
     Ok(output_path)
+}
+
+fn add_meta_args(metadata_fields: &Table, pandoc: &mut Command) -> Result<()> {
+    for (key, value) in metadata_fields {
+        if let Some(value) = value.as_str() {
+            pandoc.arg("-M").arg(format!("{}:{}", key, value));
+        } else {
+            return Err(eyre!(
+                "Metadata field {} is not a string, and is not supported by TiefDownConverter.",
+                key
+            ));
+        }
+    }
+
+    Ok(())
 }
 
 fn add_css_files(
@@ -253,6 +332,8 @@ pub(crate) fn convert_typst(
     combined_markdown_path: &Path,
     compiled_directory_path: &Path,
     template: &TemplateMapping,
+    metadata_fields: &Table,
+    metadata_settings: &MetadataSettings,
     custom_processors: &Processors,
 ) -> Result<PathBuf> {
     let template_path = get_template_path(template.template_file.clone(), &template.name);
@@ -267,9 +348,13 @@ pub(crate) fn convert_typst(
         project_directory_path,
         compiled_directory_path,
         combined_markdown_path,
+        metadata_fields,
+        metadata_settings,
         &custom_processors.preprocessors,
         Some(&DEFAULT_TYPST_PREPROCESSOR),
     )?;
+
+    generate_typst_metadata(compiled_directory_path, metadata_fields, metadata_settings)?;
 
     let mut processor_args = vec![];
 
@@ -306,11 +391,53 @@ pub(crate) fn convert_typst(
     Ok(output_path)
 }
 
+fn generate_typst_metadata(
+    compiled_directory_path: &Path,
+    metadata_fields: &Table,
+    metadata_settings: &MetadataSettings,
+) -> Result<()> {
+    let metadata_path = compiled_directory_path.join("metadata.typ");
+    if metadata_path.exists() {
+        return Ok(());
+    }
+
+    let mut metadata_file = fs::File::create(&metadata_path)?;
+    let mut metadata_file_content = String::new();
+
+    let prefix = metadata_settings
+        .metadata_prefix
+        .as_deref()
+        .unwrap_or("meta");
+
+    metadata_file_content.push_str(format!(r"#let {} = (", prefix).as_str());
+    metadata_file_content.push_str("\n");
+
+    for (key, value) in metadata_fields.iter() {
+        if let Some(value) = value.as_str() {
+            metadata_file_content.push_str(format!(r#"  {}: "{}","#, key, value).as_str());
+            metadata_file_content.push_str("\n");
+        } else {
+            return Err(eyre!(
+                "Metadata field {} is not a string, and is not supported by TiefDownConverter.",
+                key
+            ));
+        }
+    }
+
+    metadata_file_content.push_str(")");
+
+    metadata_file.write_all(metadata_file_content.as_bytes())?;
+
+    Ok(())
+}
+
 fn run_preprocessor_on_markdown(
     template: &TemplateMapping,
     project_directory_path: &Path,
     compiled_directory_path: &Path,
     combined_markdown_path: &Path,
+    metadata_fields: &Table,
+    _metadata_settings: &MetadataSettings,
     preprocessors: &Vec<PreProcessor>,
     default_preprocessor: Option<&PreProcessor>,
 ) -> Result<()> {
@@ -318,7 +445,8 @@ fn run_preprocessor_on_markdown(
 
     if let Some(preprocessor) = template.preprocessor.as_ref() {
         if let Some(preprocessor) = preprocessors.iter().find(|p| &p.name == preprocessor) {
-            pandoc.args(&preprocessor.pandoc_args);
+            let pandoc_args = preprocess_pandoc_args(&preprocessor.pandoc_args, &metadata_fields);
+            pandoc.args(&pandoc_args);
         } else {
             return Err(eyre!(
                 "Preprocessor {} not found. Please define it in your manifest file.",
@@ -345,6 +473,21 @@ fn run_preprocessor_on_markdown(
     pandoc.stdout(Stdio::null()).status()?;
 
     Ok(())
+}
+
+fn preprocess_pandoc_args(pandoc_args: &[String], metadata_fields: &Table) -> Vec<String> {
+    let mut processed_args = Vec::new();
+
+    for arg in pandoc_args.iter() {
+        let mut processed_arg = arg.clone();
+        for (metadata_key, metadata_value) in metadata_fields.iter() {
+            let value = metadata_value.as_str().unwrap_or("");
+            processed_arg = processed_arg.replace(&format!("{{{{{}}}}}", metadata_key), value);
+        }
+        processed_args.push(processed_arg);
+    }
+
+    processed_args
 }
 
 fn add_lua_filters(

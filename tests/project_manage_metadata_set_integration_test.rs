@@ -1,5 +1,4 @@
 use assert_cmd::Command;
-use predicates::prelude::predicate;
 use rstest::rstest;
 use std::{
     fs,
@@ -21,26 +20,23 @@ fn create_empty_project(temp_dir: &Path) -> PathBuf {
         .assert()
         .success();
 
+    fs::create_dir_all(project_path.join("template")).expect("Failed to create template directory");
+
     project_path
 }
 
 #[rstest]
-fn test_remove_processor() {
+fn test_set_metadata() {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
     let project_path = create_empty_project(&temp_dir.path());
-
-    add_processor(
-        &project_path,
-        "My funny processor",
-        vec!["-t", "html", "-o", "mega.html"],
-    );
 
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("processors")
-        .arg("remove")
-        .arg("My funny processor")
+        .arg("manage-metadata")
+        .arg("set")
+        .arg("author")
+        .arg("John Doe")
         .assert()
         .success();
 
@@ -48,42 +44,42 @@ fn test_remove_processor() {
     assert!(manifest_path.exists(), "Manifest file should exist");
     let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
 
-    assert_not_contains!(
-        manifest_content,
-        r#"[[custom_processors.processors]]
-name = "My funny processor"
-processor_args = ["-t", "html", "-o", "mega.html"]
-"#
-    );
+    assert_contains!(manifest_content, r#"author = "John Doe""#);
 }
 
 #[rstest]
-fn test_remove_processor_does_not_exist() {
+fn test_set_overwrites_metadata() {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
     let project_path = create_empty_project(&temp_dir.path());
 
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("processors")
-        .arg("remove")
-        .arg("My funny processor")
+        .arg("manage-metadata")
+        .arg("set")
+        .arg("author")
+        .arg("John Doe")
         .assert()
-        .failure()
-        .stderr(predicate::str::contains(
-            "Processor with name \'My funny processor\' does not exist.",
-        ));
-}
+        .success();
 
-fn add_processor(project_path: &Path, processor_name: &str, processor_args: Vec<&str>) {
+    let manifest_path = project_path.join("manifest.toml");
+    assert!(manifest_path.exists(), "Manifest file should exist");
+    let manifest_content =
+        fs::read_to_string(&manifest_path).expect("Failed to read manifest file");
+
+    assert_contains!(manifest_content, r#"author = "John Doe""#);
+
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("processors")
-        .arg("add")
-        .arg(processor_name)
-        .arg("--")
-        .arg(processor_args.join(" "))
+        .arg("manage-metadata")
+        .arg("set")
+        .arg("author")
+        .arg("Tiefseetauchner")
         .assert()
         .success();
+
+    let manifest_content =
+        fs::read_to_string(&manifest_path).expect("Failed to read manifest file");
+    assert_contains!(manifest_content, r#"author = "Tiefseetauchner""#);
 }
