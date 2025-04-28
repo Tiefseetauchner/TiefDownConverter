@@ -126,12 +126,6 @@ enum ProjectCommands {
     #[command(about = "Update the project manifest.")]
     UpdateManifest {
         #[arg(
-            short,
-            long,
-            help = "The directory where the Markdown files are located."
-        )]
-        markdown_dir: Option<String>,
-        #[arg(
             long,
             help = r#"Enables smart clean for the project with a default threshold of 5."#,
             long_help = r#"Enables smart clean for the project with a default threshold of 5.
@@ -427,15 +421,9 @@ fn main() -> Result<()> {
                 }
             },
             ProjectCommands::UpdateManifest {
-                markdown_dir,
                 smart_clean,
                 smart_clean_threshold,
-            } => project_management::update_manifest(
-                project,
-                markdown_dir,
-                smart_clean,
-                smart_clean_threshold,
-            )?,
+            } => project_management::update_manifest(project, smart_clean, smart_clean_threshold)?,
             ProjectCommands::PreProcessors { command } => match command {
                 PreProcessorsCommands::Add { name, pandoc_args } => {
                     project_management::add_preprocessor(project, name, pandoc_args)?

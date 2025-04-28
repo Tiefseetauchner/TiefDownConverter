@@ -1,5 +1,5 @@
 use color_eyre::eyre::{Result, eyre};
-use toml::Value;
+use toml::{Table, Value};
 
 use crate::project_management::load_and_convert_manifest;
 
@@ -10,9 +10,20 @@ pub(crate) fn set_metadata(project: Option<String>, key: String, value: String) 
 
     let mut manifest = load_and_convert_manifest(&manifest_path)?;
 
-    manifest
-        .metadata_fields
-        .insert(key.to_string(), Value::String(value.to_string()));
+    if let Some(shared_metadata) = &mut manifest.shared_metadata {
+        if shared_metadata.contains_key(&key) {
+            return Err(eyre!("Metadata field '{}' already exists.", key));
+        }
+
+        shared_metadata.insert(key, Value::String(value));
+    } else {
+        manifest.shared_metadata = Some(Table::new());
+        manifest
+            .shared_metadata
+            .as_mut()
+            .unwrap()
+            .insert(key, Value::String(value));
+    }
 
     let manifest_content = toml::to_string(&manifest)?;
     std::fs::write(&manifest_path, manifest_content)?;
@@ -27,11 +38,15 @@ pub(crate) fn remove_metadata(project: Option<String>, key: String) -> Result<()
 
     let mut manifest = load_and_convert_manifest(&manifest_path)?;
 
-    if !manifest.metadata_fields.contains_key(&key) {
+    if let Some(shared_metadata) = &mut manifest.shared_metadata {
+        if !shared_metadata.contains_key(&key) {
+            return Err(eyre!("Metadata field '{}' not found.", key));
+        }
+
+        shared_metadata.remove(&key);
+    } else {
         return Err(eyre!("Metadata field '{}' not found.", key));
     }
-
-    manifest.metadata_fields.remove(&key);
 
     let manifest_content = toml::to_string(&manifest)?;
     std::fs::write(&manifest_path, manifest_content)?;
@@ -46,7 +61,7 @@ pub(crate) fn list_metadata(project: Option<String>) -> Result<()> {
 
     let manifest = load_and_convert_manifest(&manifest_path)?;
 
-    let metadata_fields = manifest.metadata_fields;
+    let metadata_fields = manifest.shared_metadata.unwrap_or_default();
 
     for (key, value) in metadata_fields {
         println!("{}: {}", key, value);

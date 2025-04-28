@@ -9,6 +9,7 @@ use toml::Table;
 
 use crate::conversion_decider;
 use crate::manifest_model::Manifest;
+use crate::manifest_model::MarkdownProject;
 use crate::manifest_model::MetadataSettings;
 use crate::manifest_model::Processors;
 use crate::manifest_model::TemplateMapping;
@@ -41,7 +42,21 @@ pub(crate) fn convert(
 
     let combined_markdown_name = PathBuf::from("combined.md");
     let combined_markdown_path = compiled_directory_path.join(&combined_markdown_name);
-    let markdown_dir = project_path.join(manifest.markdown_dir.as_deref().unwrap_or("Markdown"));
+    // TODO: Add logic to handle multiple markdown projects
+    let markdown_dir = project_path.join(
+        manifest
+            .markdown_projects
+            .clone()
+            .unwrap_or(vec![MarkdownProject {
+                name: "Default".to_string(),
+                path: PathBuf::from("Markdown"),
+                output: PathBuf::from("."),
+                metadata_fields: None,
+                resources: None,
+            }])[0]
+            .path
+            .clone(),
+    );
 
     let combined_content = combine_markdown(&combined_markdown_path, &markdown_dir)?;
     fs::write(&combined_markdown_path, combined_content)?;
@@ -49,14 +64,22 @@ pub(crate) fn convert(
     let templates = get_template_names(templates, profile, &manifest)?;
     let templates = get_template_mappings_from_names(&templates, &manifest)?;
 
+    // TODO: Move this check to the conversion itself
+    let metadata_settings = manifest.metadata_settings.unwrap_or(MetadataSettings {
+        metadata_prefix: None,
+    });
+
+    // TODO: Handle metadata merging for markdown projects
+    let merged_metadata = manifest.shared_metadata.clone().unwrap_or(Table::new());
+
     for template in &templates {
         convert_template(
             &combined_markdown_name,
             &compiled_directory_path,
             template,
             project_path,
-            &manifest.metadata_fields,
-            &manifest.metadata_settings,
+            &merged_metadata,
+            &metadata_settings,
             &manifest.custom_processors,
         )?;
     }

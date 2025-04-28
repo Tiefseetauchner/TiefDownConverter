@@ -7,7 +7,7 @@ use crate::{
     TemplateType,
     consts::CURRENT_MANIFEST_VERSION,
     manifest_model::{
-        Manifest, MetadataSettings, PreProcessor, Processor, Processors, Profile, TemplateMapping,
+        Manifest, MarkdownProject, PreProcessor, Processor, Processors, Profile, TemplateMapping,
         upgrade_manifest,
     },
     template_management::{self, add_lix_filters, get_template_path, get_template_type_from_path},
@@ -74,7 +74,13 @@ This is a simple test document for you to edit or overwrite."#,
 
     let manifest: Manifest = Manifest {
         version: CURRENT_MANIFEST_VERSION,
-        markdown_dir,
+        markdown_projects: Some(vec![MarkdownProject {
+            name: markdown_dir_path.to_string_lossy().to_string(),
+            path: markdown_dir_path,
+            output: PathBuf::from("."),
+            metadata_fields: None,
+            resources: None,
+        }]),
         templates: templates.clone(),
         custom_processors: Processors {
             preprocessors: Vec::new(),
@@ -82,10 +88,8 @@ This is a simple test document for you to edit or overwrite."#,
         },
         smart_clean: smart_clean_value,
         smart_clean_threshold,
-        metadata_fields: Table::new(),
-        metadata_settings: MetadataSettings {
-            metadata_prefix: None,
-        },
+        shared_metadata: None,
+        metadata_settings: None,
         profiles: None,
     };
 
@@ -272,9 +276,10 @@ pub(crate) fn update_template(
     Ok(())
 }
 
+// TODO: add/update/remove markdown project
+
 pub(crate) fn update_manifest(
     project: Option<String>,
-    markdown_dir: Option<String>,
     smart_clean: Option<bool>,
     smart_clean_threshold: Option<u32>,
 ) -> Result<()> {
@@ -283,10 +288,6 @@ pub(crate) fn update_manifest(
     let manifest_path = project_path.join("manifest.toml");
 
     let mut manifest = load_and_convert_manifest(&manifest_path)?;
-
-    if let Some(markdown_dir) = markdown_dir {
-        manifest.markdown_dir = Some(markdown_dir);
-    }
 
     if let Some(smart_clean_value) = smart_clean {
         let smart_clean_value = if smart_clean_value { Some(true) } else { None };
@@ -533,7 +534,6 @@ pub(crate) fn validate(project: Option<String>) -> Result<()> {
     let mut errors: Vec<Result<()>> = Vec::new();
 
     let templates = manifest.templates;
-    let markdown_dir = project_path.join(manifest.markdown_dir.unwrap_or("Markdown".to_string()));
 
     for template in templates {
         let template_path = project_path
@@ -573,11 +573,24 @@ pub(crate) fn validate(project: Option<String>) -> Result<()> {
         }
     }
 
-    if !markdown_dir.exists() || !markdown_dir.is_dir() {
-        errors.push(Err(eyre!(
-            "Markdown directory '{}' does not exist.",
-            markdown_dir.display()
-        )));
+    let markdown_projects = manifest.markdown_projects.unwrap_or(vec![MarkdownProject {
+        name: "Default".to_string(),
+        path: PathBuf::from("Markdown"),
+        output: PathBuf::from("."),
+        metadata_fields: None,
+        resources: None,
+    }]);
+
+    for markdown_project in markdown_projects {
+        let markdown_project_path = project_path.join(&markdown_project.path);
+
+        if !markdown_project_path.exists() || !markdown_project_path.is_dir() {
+            errors.push(Err(eyre!(
+                "Markdown project directory '{}' for project '{}' does not exist.",
+                markdown_project.path.display(),
+                markdown_project.name
+            )));
+        }
     }
 
     if errors.is_empty() {
