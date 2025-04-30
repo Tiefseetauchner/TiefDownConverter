@@ -7,7 +7,22 @@ data_file="line_graph_data.csv"
 
 BRANCH="main"
 
-while getopts "eob:" opt; do
+info() {
+    echo "Plot a line graph of the file line commit history of a git repository."
+
+    usage
+}
+
+usage() {
+    echo "Usage: $0
+
+    -e EXTENSION: The file extension to include in the search.
+    -o OUTPUT_FILE: The output file path.
+    -b BRANCH: The branch to use."
+}
+
+
+while getopts "e:o:b:h" opt; do
     case $opt in
         e)
             EXTENSION=$OPTARG
@@ -18,12 +33,26 @@ while getopts "eob:" opt; do
         b)
             BRANCH=$OPTARG
             ;;
+        h)
+            info
+            exit 0
+            ;;
         \?)
-            echo "Invalid option: -$OPTARG" >&2
+            echo "Use -h for help"
             exit 1
             ;;
     esac
 done
+
+if [ -z "$EXTENSION" ]; then
+    echo "Use -e to specify the file extension"
+    exit 1
+fi
+
+if [ -z "$OUTPUT_FILE" ]; then
+    echo "Use -o to specify the output file"
+    exit 1
+fi
 
 git stash
 git checkout $BRANCH
@@ -38,7 +67,7 @@ while IFS=',' read -r commit date; do
     printf "\rProcessing commit %s...%-20s" "$commit" ""
     git checkout $commit > /dev/null 2>&1
 
-    loc=$(find . -name '*.rs' -type f -not -path "./target/*" -exec cat {} + | wc -l)
+    loc=$(find . -name "*.$EXTENSION" -type f -not -path "./target/*" -exec cat {} + | wc -l)
 
     echo "$date,$loc" >> "$data_file"
 done < "$commit_file"
