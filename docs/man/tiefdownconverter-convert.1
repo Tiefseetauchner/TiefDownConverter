@@ -1,0 +1,22 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH convert 1  "convert " 
+.SH NAME
+convert \- Convert a TiefDown project. By default, it will convert the current directory.
+.SH SYNOPSIS
+\fBconvert\fR [\fB\-p\fR|\fB\-\-project\fR] [\fB\-t\fR|\fB\-\-templates\fR] [\fB\-P\fR|\fB\-\-profile\fR] [\fB\-h\fR|\fB\-\-help\fR] 
+.SH DESCRIPTION
+Convert a TiefDown project. By default, it will convert the current directory.
+.SH OPTIONS
+.TP
+\fB\-p\fR, \fB\-\-project\fR=\fIPROJECT\fR
+The project to convert. If not provided, the current directory will be used.
+.TP
+\fB\-t\fR, \fB\-\-templates\fR=\fITEMPLATES\fR
+The templates to use. If not provided, the default templates from the manifest file will be used. Cannot be used with \-\-profile.
+.TP
+\fB\-P\fR, \fB\-\-profile\fR=\fIPROFILE\fR
+The conversion profile to use. Cannot be used with \-\-templates.
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help

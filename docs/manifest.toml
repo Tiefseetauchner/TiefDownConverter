@@ -1,6 +1,6 @@
 smart_clean = true
 smart_clean_threshold = 3
-version = 3
+version = 4
 
 [[custom_processors.preprocessors]]
 name = "Enable Listings"
@@ -10,9 +10,10 @@ pandoc_args = ["-o", "output.tex", "-t", "latex", "--listings"]
 name = "Typst Font Directory"
 processor_args = ["--font-path", "fonts/"]
 
-[metadata_fields]
-author = "Tiefseetauchner et al."
-title = "TiefDownConverter Documentation"
+[[markdown_projects]]
+name = "main"
+output = "."
+path = "Markdown"
 
 [metadata_settings]
 
@@ -20,9 +21,9 @@ title = "TiefDownConverter Documentation"
 name = "PDF"
 templates = ["PDF Documentation LaTeX", "PDF Documentation"]
 
-[[profiles]]
-name = "PDF"
-templates = ["PDF Documentation LaTeX", "PDF Documentation"]
+[shared_metadata]
+author = "Tiefseetauchner et al."
+title = "TiefDownConverter Documentation"
 
 [[templates]]
 filters = ["luafilters/chapter_filter.lua"]

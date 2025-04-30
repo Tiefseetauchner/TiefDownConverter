@@ -1,0 +1,29 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH meta 1  "meta " 
+.SH NAME
+meta \- Manage the metadata of a markdown project.
+.SH SYNOPSIS
+\fBmeta\fR [\fB\-h\fR|\fB\-\-help\fR] <\fINAME\fR> <\fIsubcommands\fR>
+.SH DESCRIPTION
+Manage the metadata of a markdown project.
+.SH OPTIONS
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help
+.TP
+<\fINAME\fR>
+The name of the markdown project to update.
+.SH SUBCOMMANDS
+.TP
+meta\-set(1)
+Add or change the metadata.
+.TP
+meta\-remove(1)
+Remove metadata.
+.TP
+meta\-list(1)
+List the metadata.
+.TP
+meta\-help(1)
+Print this message or the help of the given subcommand(s)

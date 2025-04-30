@@ -1,0 +1,39 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH tiefdownconverter 1  "tiefdownconverter 0.8.0-ALPHA" 
+.SH NAME
+tiefdownconverter \- A CLI tool for managing TiefDown Projects
+.SH SYNOPSIS
+\fBtiefdownconverter\fR [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] <\fIsubcommands\fR>
+.SH DESCRIPTION
+TiefDownConverter manages TiefDown projects.
+TiefDown is a project structure meant to simplify the conversion process from Markdown to PDFs.
+TiefDownConverter consolidates multiple conversion processes and templating systems to generate a configurable set or subset of output documents.
+It is not in itself a converter, but a wrapper around pandoc, xelatex and typst. As such, it requires these dependencies to be installed.
+.SH OPTIONS
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help (see a summary with \*(Aq\-h\*(Aq)
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Print version
+.SH SUBCOMMANDS
+.TP
+tiefdownconverter\-convert(1)
+Convert a TiefDown project. By default, it will convert the current directory.
+.TP
+tiefdownconverter\-init(1)
+Initialize a new TiefDown project.
+.TP
+tiefdownconverter\-project(1)
+Update the TiefDown project.
+.TP
+tiefdownconverter\-check\-dependencies(1)
+Validate dependencies are installed.
+.TP
+tiefdownconverter\-help(1)
+Print this message or the help of the given subcommand(s)
+.SH VERSION
+v0.8.0\-ALPHA
+.SH AUTHORS
+Lena Tauchner <tiefseetauchner@lukechriswalker.at>
