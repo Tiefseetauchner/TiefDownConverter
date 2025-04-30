@@ -68,11 +68,36 @@ pub(crate) fn convert(
             &dir::CopyOptions::new().overwrite(true).content_only(true),
         )?;
 
+        let markdown_dir = project_path.join(markdown_project.path.clone());
+
+        for resource in markdown_project.resources.clone().unwrap_or(vec![]) {
+            let resource = markdown_dir.join(resource.clone());
+
+            if !resource.exists() {
+                return Err(eyre!(
+                    "Resource file {} does not exist.",
+                    resource.display()
+                ));
+            }
+
+            if resource.is_dir() {
+                dir::copy(
+                    resource,
+                    &markdown_project_compiled_directory_path,
+                    &dir::CopyOptions::new().overwrite(true).content_only(true),
+                )?;
+            } else {
+                file::copy(
+                    &resource,
+                    &markdown_project_compiled_directory_path.join(resource.file_name().unwrap()),
+                    &file::CopyOptions::new().overwrite(true),
+                )?;
+            }
+        }
+
         let combined_markdown_name = PathBuf::from("combined.md");
         let combined_markdown_path =
             markdown_project_compiled_directory_path.join(&combined_markdown_name);
-
-        let markdown_dir = project_path.join(markdown_project.path.clone());
 
         let combined_content = combine_markdown(&combined_markdown_path, &markdown_dir)?;
         fs::write(&combined_markdown_path, combined_content)?;

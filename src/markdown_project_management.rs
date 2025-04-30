@@ -217,6 +217,18 @@ pub(crate) fn list_markdown_projects(project: Option<String>) -> Result<()> {
         println!("Name: {}", project.name);
         println!("  Path: {}", project.path.display());
         println!("  Output: {}", project.output.display());
+        println!(
+            "  Default Profile: {}",
+            project.default_profile.unwrap_or_default()
+        );
+        println!("  Metadata Fields:");
+        for (key, value) in project.metadata_fields.unwrap_or_default() {
+            println!("    {}: {}", key, value);
+        }
+        println!("  Resources:");
+        for resource in project.resources.unwrap_or_default() {
+            println!("    {}", resource.display());
+        }
         println!();
     }
 
