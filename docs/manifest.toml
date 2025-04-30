@@ -34,7 +34,7 @@ path = "man_markdown"
 
 [[profiles]]
 name = "Documentation"
-templates = ["PDF Documentation LaTeX", "PDF Documentation", "Epub Documentation"]
+templates = ["PDF Documentation LaTeX", "PDF Documentation", "Epub Documentation", "GitHub Page Documentation"]
 
 [[profiles]]
 name = "Man"
