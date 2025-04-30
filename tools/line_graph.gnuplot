@@ -5,7 +5,7 @@ set format x "%Y-%m-%d"
 set terminal pngcairo size 1200,600 enhanced font "Cormorant,10"
 set output outputfile
 
-set title "Rust LOC Over Time"
+set title "$filetype LOC Over Time"
 set xlabel "Date"
 set ylabel "Lines of Code"
 set grid

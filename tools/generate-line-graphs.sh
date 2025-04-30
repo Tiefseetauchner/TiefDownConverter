@@ -81,7 +81,7 @@ echo "Generating line graph..."
 (head -n 1 "$data_file" && tail -n +2 "$data_file" | sort -k1,1) > "$data_file.sorted"
 mv "$data_file.sorted" "$data_file"
 
-gnuplot -e "datafile='$data_file'; outputfile='$OUTPUT_FILE'" "$script_dir/line_graph.gnuplot"
+gnuplot -e "datafile='$data_file'; outputfile='$OUTPUT_FILE'; filetype='$EXTENSION'" "$script_dir/line_graph.gnuplot"
 
 echo "Cleaning up..."
 rm "$commit_file"
