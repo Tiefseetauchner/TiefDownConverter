@@ -584,7 +584,7 @@ fn get_path_relative_to_compiled_directory(
         relative_path.push("..");
     }
 
-    relative_path.push(original_path);
+    relative_path.push(original_path.strip_prefix(project_directory_path).unwrap());
 
     Ok(relative_path)
 }
