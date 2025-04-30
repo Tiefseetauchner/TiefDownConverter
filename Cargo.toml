@@ -37,7 +37,3 @@ chrono = "0.4.40"
 name = "tiefdownconverter"
 path = "src/lib.rs"
 crate-type = ["lib"]
-
-[[bin]]
-name = "generate_man"
-path = "src/bin/generate_man.rs"

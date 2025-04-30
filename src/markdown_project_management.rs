@@ -222,3 +222,96 @@ pub(crate) fn list_markdown_projects(project: Option<String>) -> Result<()> {
 
     Ok(())
 }
+
+pub(crate) fn add_resources(
+    project: Option<String>,
+    name: String,
+    resources: Vec<PathBuf>,
+) -> Result<()> {
+    let project = project.as_deref().unwrap_or(".");
+    let project_path = std::path::Path::new(&project);
+    let manifest_path = project_path.join("manifest.toml");
+
+    let mut manifest = load_and_convert_manifest(&manifest_path)?;
+
+    let mut markdown_projects = manifest.markdown_projects.unwrap_or(vec![]);
+
+    if let Some(project) = markdown_projects.iter_mut().find(|p| p.name == name) {
+        if let Some(project_resources) = &mut project.resources {
+            project_resources.extend(resources);
+        } else {
+            project.resources = Some(resources);
+        }
+    } else {
+        return Err(eyre!(
+            "Markdown project with name '{}' does not exist.",
+            name
+        ));
+    }
+
+    manifest.markdown_projects = Some(markdown_projects);
+
+    let manifest_content = toml::to_string(&manifest)?;
+    std::fs::write(&manifest_path, manifest_content)?;
+
+    Ok(())
+}
+
+pub(crate) fn remove_resource(
+    project: Option<String>,
+    name: String,
+    resource: PathBuf,
+) -> Result<()> {
+    let project = project.as_deref().unwrap_or(".");
+    let project_path = std::path::Path::new(&project);
+    let manifest_path = project_path.join("manifest.toml");
+
+    let mut manifest = load_and_convert_manifest(&manifest_path)?;
+
+    let mut markdown_projects = manifest.markdown_projects.unwrap_or(vec![]);
+
+    if let Some(project) = markdown_projects.iter_mut().find(|p| p.name == name) {
+        if let Some(pos) = project
+            .resources
+            .clone()
+            .unwrap_or(vec![])
+            .iter()
+            .position(|r| r == &resource)
+        {
+            project.resources.as_mut().unwrap().remove(pos);
+        } else {
+            return Err(eyre!("Resource '{}' not found.", resource.display()));
+        }
+    } else {
+        return Err(eyre!(
+            "Markdown project with name '{}' does not exist.",
+            name
+        ));
+    }
+
+    manifest.markdown_projects = Some(markdown_projects);
+
+    let manifest_content = toml::to_string(&manifest)?;
+    std::fs::write(&manifest_path, manifest_content)?;
+
+    Ok(())
+}
+
+pub(crate) fn list_resources(project: Option<String>, name: String) -> Result<()> {
+    let project = project.as_deref().unwrap_or(".");
+    let project_path = std::path::Path::new(&project);
+    let manifest_path = project_path.join("manifest.toml");
+
+    let manifest = load_and_convert_manifest(&manifest_path)?;
+
+    let markdown_projects = manifest.markdown_projects.unwrap_or(vec![]);
+    if let Some(project) = markdown_projects.iter().find(|p| p.name == name) {
+        if let Some(resources) = &project.resources {
+            for resource in resources {
+                println!("{}", resource.display());
+            }
+        }
+    }
+
+    Ok(())
+}

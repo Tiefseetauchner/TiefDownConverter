@@ -337,6 +337,13 @@ pub enum ManageMarkdownProjectsCommand {
         #[command(subcommand)]
         command: ManageMetadataCommand,
     },
+    #[command(about = "Manage the resources of a markdown project.")]
+    Resources {
+        #[arg(help = "The name of the markdown project to update.")]
+        name: String,
+        #[command(subcommand)]
+        command: ManageResourcesCommand,
+    },
     #[command(about = "Remove a markdown project from the project.")]
     Remove {
         #[arg(help = "The name of the markdown project to remove.")]
@@ -372,4 +379,20 @@ pub enum ManageMetadataCommand {
     //     #[arg(help = "The path to the JSON file.")]
     //     path: String,
     // },
+}
+
+#[derive(Subcommand)]
+pub enum ManageResourcesCommand {
+    #[command(about = "Add a new resource to the project.")]
+    Add {
+        #[arg(help = "The path to the resource.", num_args = 1.., value_delimiter = ' ', last = true, allow_hyphen_values = true)]
+        paths: Vec<PathBuf>,
+    },
+    #[command(about = "Remove a resource from the project.")]
+    Remove {
+        #[arg(help = "The path to the resource.")]
+        path: PathBuf,
+    },
+    #[command(about = "List the resources in the project.")]
+    List,
 }

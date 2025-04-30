@@ -178,6 +178,17 @@ fn main() -> Result<()> {
                         markdown_project_management::list_metadata(project, name)?
                     }
                 },
+                ManageMarkdownProjectsCommand::Resources { name, command } => match command {
+                    ManageResourcesCommand::Add { paths } => {
+                        markdown_project_management::add_resources(project, name, paths)?
+                    }
+                    ManageResourcesCommand::Remove { path } => {
+                        markdown_project_management::remove_resource(project, name, path)?
+                    }
+                    ManageResourcesCommand::List => {
+                        markdown_project_management::list_resources(project, name)?
+                    }
+                },
                 ManageMarkdownProjectsCommand::List => {
                     markdown_project_management::list_markdown_projects(project)?
                 }
