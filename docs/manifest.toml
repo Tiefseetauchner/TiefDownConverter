@@ -4,7 +4,7 @@ version = 4
 
 [[custom_processors.preprocessors]]
 name = "HTML Conversion"
-pandoc_args = ["--to", "html5", "-s", "-o", "index.html", "--metadata", "title={{title}}", "--metadata", "author={{author}}", "--css", "template/index.html_template/style.css", "--toc", ]
+pandoc_args = ["--to", "html5", "-s", "-o", "index.html", "--metadata", "title={{title}}", "--metadata", "author={{author}}", "--css", "template/index.html_template/style.css", "--toc", "-B", "index.html_template/header.html"]
 
 [[custom_processors.preprocessors]]
 name = "Enable Listings"
