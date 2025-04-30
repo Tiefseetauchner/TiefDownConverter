@@ -1,6 +1,6 @@
 set datafile separator ","
 set xdata time
-set timefmt "%Y-%m-%d"
+set timefmt "%Y-%m-%d %H:%M"
 set format x "%Y-%m-%d"
 set terminal pngcairo size 1200,600 enhanced font "Cormorant,10"
 set output outputfile

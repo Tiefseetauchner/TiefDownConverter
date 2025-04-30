@@ -59,23 +59,27 @@ git checkout $BRANCH
 git pull
 
 echo "Collecting commit history..."
-git log --pretty=format:"%h,%ad" --date=short > "$commit_file"
+git log --pretty=format:"%h,%ad" --date=iso > "$commit_file"
 
-echo "date,loc" > "$data_file"
+echo "datetime,loc" > "$data_file"
 
 while IFS=',' read -r commit date; do
     printf "\rProcessing commit %s...%-20s" "$commit" ""
     git checkout $commit > /dev/null 2>&1
 
-    loc=$(find . -name "*.$EXTENSION" -type f -not -path "./target/*" -exec cat {} + | wc -l)
+    loc=$(find . -name "*$EXTENSION" -type f -not -path "./target/*" -exec cat {} + | wc -l)
 
-    echo "$date,$loc" >> "$data_file"
+    datetime=$(echo "$date" | cut -d' ' -f1-2)
+    echo "$datetime,$loc" >> "$data_file"
 done < "$commit_file"
 
 git checkout $BRANCH
 git stash pop
 
 echo "Generating line graph..."
+
+(head -n 1 "$data_file" && tail -n +2 "$data_file" | sort -k1,1) > "$data_file.sorted"
+mv "$data_file.sorted" "$data_file"
 
 gnuplot -e "datafile='$data_file'; outputfile='$OUTPUT_FILE'" "$script_dir/line_graph.gnuplot"
 
