@@ -72,6 +72,8 @@ while IFS=',' read -r commit date; do
     echo "$date,$loc" >> "$data_file"
 done < "$commit_file"
 
+git checkout $BRANCH
+git stash pop
 
 echo "Generating line graph..."
 
@@ -83,5 +85,3 @@ rm "$data_file"
 
 echo "Done!"
 
-git checkout $BRANCH
-git stash pop
