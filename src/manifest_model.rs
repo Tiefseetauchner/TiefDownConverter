@@ -1,18 +1,12 @@
-use clap::{
-    ValueEnum,
-    builder::{EnumValueParser, ValueParserFactory},
-};
-use color_eyre::eyre::{self, Result, eyre};
+use color_eyre::eyre::{Result, eyre};
 use serde::{Deserialize, Serialize};
-use std::{
-    fmt::{Display, Formatter},
-    path::PathBuf,
-    str::FromStr,
-    sync::LazyLock,
-};
+use std::{path::PathBuf, sync::LazyLock};
 use toml::Table;
 
-use crate::{consts::CURRENT_MANIFEST_VERSION, template_management::get_template_type_from_path};
+use crate::{
+    consts::CURRENT_MANIFEST_VERSION, template_management::get_template_type_from_path,
+    template_type::TemplateType,
+};
 
 #[derive(Deserialize, Serialize)]
 pub(crate) struct Manifest {
@@ -77,6 +71,14 @@ pub(crate) struct MetadataSettings {
     pub metadata_prefix: Option<String>,
 }
 
+impl MetadataSettings {
+    pub(crate) fn default() -> Self {
+        Self {
+            metadata_prefix: None,
+        }
+    }
+}
+
 #[derive(Deserialize, Serialize, Clone)]
 pub(crate) struct Profile {
     pub name: String,
@@ -92,72 +94,6 @@ pub(crate) struct TemplateMapping {
     pub filters: Option<Vec<String>>,
     pub preprocessor: Option<String>,
     pub processor: Option<String>,
-}
-
-#[derive(Deserialize, Serialize, Clone, Debug, PartialEq, Eq, ValueEnum)]
-pub(crate) enum TemplateType {
-    Tex = 0,
-    Typst = 1,
-    Epub = 2,
-    CustomPandoc = 3,
-}
-
-impl From<&str> for TemplateType {
-    fn from(s: &str) -> Self {
-        match s.to_lowercase().as_str() {
-            "tex" => TemplateType::Tex,
-            "typst" => TemplateType::Typst,
-            "epub" => TemplateType::Epub,
-            "custompandoc" => TemplateType::CustomPandoc,
-            _ => panic!("Invalid template type: {}", s),
-        }
-    }
-}
-
-impl FromStr for TemplateType {
-    type Err = eyre::Report;
-
-    fn from_str(s: &str) -> Result<Self> {
-        match s.to_lowercase().as_str() {
-            "tex" => Ok(TemplateType::Tex),
-            "typst" => Ok(TemplateType::Typst),
-            "epub" => Ok(TemplateType::Epub),
-            "custompandoc" => Ok(TemplateType::CustomPandoc),
-            _ => Err(eyre!("Invalid template type: {}", s)),
-        }
-    }
-}
-
-impl From<usize> for TemplateType {
-    fn from(value: usize) -> Self {
-        match value {
-            0 => TemplateType::Tex,
-            1 => TemplateType::Typst,
-            2 => TemplateType::Epub,
-            3 => TemplateType::CustomPandoc,
-            _ => panic!("Invalid template type index: {}", value),
-        }
-    }
-}
-
-impl Display for TemplateType {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let text = match self {
-            TemplateType::Tex => "Tex",
-            TemplateType::Typst => "Typst",
-            TemplateType::Epub => "Epub",
-            TemplateType::CustomPandoc => "CustomPandoc",
-        };
-        write!(f, "{}", text)
-    }
-}
-
-impl ValueParserFactory for TemplateType {
-    type Parser = EnumValueParser<Self>;
-
-    fn value_parser() -> Self::Parser {
-        EnumValueParser::new()
-    }
 }
 
 pub(crate) fn upgrade_manifest(manifest: &mut Table, current_version: u32) -> Result<()> {
@@ -267,22 +203,24 @@ fn upgrade_manifest_v3_to_v4(manifest: &mut Table) -> Result<()> {
     }
     manifest.remove("metadata_fields");
 
-    if let Some(markdown_dir) = manifest["markdown_dir"].clone().as_str() {
-        let mut markdown_project = Table::new();
-        markdown_project.insert(
-            "name".to_string(),
-            toml::Value::String(markdown_dir.to_string()),
-        );
-        markdown_project.insert(
-            "path".to_string(),
-            toml::Value::String(markdown_dir.to_string()),
-        );
-        markdown_project.insert("output".to_string(), toml::Value::String(".".to_string()));
+    if let Some(markdown_dir) = manifest.get("markdown_dir") {
+        if let Some(markdown_dir) = markdown_dir.as_str() {
+            let mut markdown_project = Table::new();
+            markdown_project.insert(
+                "name".to_string(),
+                toml::Value::String(markdown_dir.to_string()),
+            );
+            markdown_project.insert(
+                "path".to_string(),
+                toml::Value::String(markdown_dir.to_string()),
+            );
+            markdown_project.insert("output".to_string(), toml::Value::String(".".to_string()));
 
-        manifest.insert(
-            "markdown_projects".to_string(),
-            toml::Value::Array(vec![toml::Value::Table(markdown_project)]),
-        );
+            manifest.insert(
+                "markdown_projects".to_string(),
+                toml::Value::Array(vec![toml::Value::Table(markdown_project)]),
+            );
+        }
 
         manifest.remove("markdown_dir");
     }

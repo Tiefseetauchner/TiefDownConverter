@@ -33,7 +33,7 @@ fn test_set_metadata() {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("manage-metadata")
+        .arg("shared-meta")
         .arg("set")
         .arg("author")
         .arg("John Doe")
@@ -55,7 +55,7 @@ fn test_set_overwrites_metadata() {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("manage-metadata")
+        .arg("shared-meta")
         .arg("set")
         .arg("author")
         .arg("John Doe")
@@ -72,7 +72,7 @@ fn test_set_overwrites_metadata() {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("manage-metadata")
+        .arg("shared-meta")
         .arg("set")
         .arg("author")
         .arg("Tiefseetauchner")

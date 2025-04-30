@@ -7,7 +7,12 @@ use tempfile::tempdir;
 #[macro_use]
 mod assertions;
 
-const DEFAULT_MANIFEST_CONTENT: &str = r#"version = 3
+const DEFAULT_MANIFEST_CONTENT: &str = r#"version = 4
+
+[[markdown_projects]]
+name = "Markdown"
+path = "Markdown"
+output = "."
 
 [[templates]]
 name = "template.tex"
@@ -16,10 +21,6 @@ template_type = "Tex"
 [custom_processors]
 preprocessors = []
 processors = []
-
-[metadata_fields]
-
-[metadata_settings]
 "#;
 
 fn assert_default_project(project_path: &Path) {

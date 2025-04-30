@@ -4,13 +4,13 @@ use color_eyre::eyre::{Result, eyre};
 use toml::{Table, Value};
 
 use crate::{
-    TemplateType,
     consts::CURRENT_MANIFEST_VERSION,
     manifest_model::{
         Manifest, MarkdownProject, PreProcessor, Processor, Processors, Profile, TemplateMapping,
         upgrade_manifest,
     },
     template_management::{self, add_lix_filters, get_template_path, get_template_type_from_path},
+    template_type::TemplateType,
 };
 
 pub fn init(
@@ -57,8 +57,9 @@ pub fn init(
         );
     }
 
-    let markdown_dir_path =
-        project_path.join(markdown_dir.clone().unwrap_or("Markdown".to_string()));
+    let markdown_dir = markdown_dir.clone().unwrap_or("Markdown".to_string());
+
+    let markdown_dir_path = project_path.join(&markdown_dir);
     if !markdown_dir_path.exists() {
         std::fs::create_dir(&markdown_dir_path)?;
         std::fs::write(
@@ -75,8 +76,8 @@ This is a simple test document for you to edit or overwrite."#,
     let manifest: Manifest = Manifest {
         version: CURRENT_MANIFEST_VERSION,
         markdown_projects: Some(vec![MarkdownProject {
-            name: markdown_dir_path.to_string_lossy().to_string(),
-            path: markdown_dir_path,
+            name: markdown_dir.clone(),
+            path: PathBuf::from(markdown_dir.clone()),
             output: PathBuf::from("."),
             metadata_fields: None,
             resources: None,
@@ -275,8 +276,6 @@ pub(crate) fn update_template(
 
     Ok(())
 }
-
-// TODO: add/update/remove markdown project
 
 pub(crate) fn update_manifest(
     project: Option<String>,

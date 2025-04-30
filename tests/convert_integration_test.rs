@@ -614,3 +614,63 @@ fn add_profile(project_path: &Path, profile_name: &str, templates: Vec<&str>) {
         .assert()
         .success();
 }
+
+#[rstest]
+fn test_convert_multiple_markdown_projects() {
+    let temp_dir = tempdir().expect("Failed to create temporary directory");
+    let project_path = create_empty_project(&temp_dir.path(), vec![]);
+
+    add_tex_template(&project_path, "Template 1", "templ1.tex", None);
+    add_tex_template(&project_path, "Template 2", "templ2.tex", None);
+
+    add_markdown_project(&project_path, "Project 1", "markdown_dir1", "out1");
+    add_markdown_project(&project_path, "Project 2", "markdown_dir2", "out2");
+
+    create_markdown_file(
+        &project_path.join("markdown_dir1"),
+        "test.md",
+        VALID_MARKDOWN_CONTENT,
+    );
+    create_markdown_file(
+        &project_path.join("markdown_dir2"),
+        "test.md",
+        VALID_MARKDOWN_CONTENT,
+    );
+
+    let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
+
+    cmd.current_dir(&project_path)
+        .arg("convert")
+        .assert()
+        .success();
+
+    let output_pdf_1 = project_path.join("out1").join("templ1.pdf");
+    assert!(output_pdf_1.exists(), "Output PDF should exist");
+
+    let output_pdf_2 = project_path.join("out1").join("templ2.pdf");
+    assert!(output_pdf_2.exists(), "Output PDF should exist");
+
+    let output_pdf_3 = project_path.join("out2").join("templ1.pdf");
+    assert!(output_pdf_3.exists(), "Output PDF should exist");
+
+    let output_pdf_4 = project_path.join("out2").join("templ2.pdf");
+    assert!(output_pdf_4.exists(), "Output PDF should exist");
+}
+
+fn add_markdown_project(
+    project_path: &Path,
+    project_name: &str,
+    markdown_dir: &str,
+    output_dir: &str,
+) {
+    let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
+    cmd.current_dir(&project_path)
+        .arg("project")
+        .arg("markdown")
+        .arg("add")
+        .arg(project_name)
+        .arg(markdown_dir)
+        .arg(output_dir)
+        .assert()
+        .success();
+}

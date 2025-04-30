@@ -11,10 +11,6 @@ pub(crate) fn set_metadata(project: Option<String>, key: String, value: String) 
     let mut manifest = load_and_convert_manifest(&manifest_path)?;
 
     if let Some(shared_metadata) = &mut manifest.shared_metadata {
-        if shared_metadata.contains_key(&key) {
-            return Err(eyre!("Metadata field '{}' already exists.", key));
-        }
-
         shared_metadata.insert(key, Value::String(value));
     } else {
         manifest.shared_metadata = Some(Table::new());
@@ -63,6 +59,10 @@ pub(crate) fn list_metadata(project: Option<String>) -> Result<()> {
 
     let metadata_fields = manifest.shared_metadata.unwrap_or_default();
 
+    if metadata_fields.is_empty() {
+        println!("No shared metadata fields found.");
+        return Ok(());
+    }
     for (key, value) in metadata_fields {
         println!("{}: {}", key, value);
     }

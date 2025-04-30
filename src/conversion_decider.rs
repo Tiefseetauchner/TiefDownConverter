@@ -5,7 +5,8 @@ use toml::Table;
 
 use crate::{
     converters,
-    manifest_model::{MetadataSettings, Processors, TemplateMapping, TemplateType},
+    manifest_model::{MetadataSettings, Processors, TemplateMapping},
+    template_type::TemplateType,
 };
 
 type Converter = fn(

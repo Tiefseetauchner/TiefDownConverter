@@ -1,5 +1,5 @@
 use assert_cmd::Command;
-use predicates::prelude::*;
+use predicates::prelude::predicate;
 use rstest::rstest;
 use std::{
     fs,
@@ -27,26 +27,18 @@ fn create_empty_project(temp_dir: &Path) -> PathBuf {
 }
 
 #[rstest]
-fn test_remove_metadata() {
+fn test_markdown_remove() {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
     let project_path = create_empty_project(&temp_dir.path());
 
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("manage-metadata")
-        .arg("set")
-        .arg("author")
-        .arg("John Doe")
-        .assert()
-        .success();
-
-    let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
-    cmd.current_dir(&project_path)
-        .arg("project")
-        .arg("manage-metadata")
-        .arg("remove")
-        .arg("author")
+        .arg("markdown")
+        .arg("add")
+        .arg("main")
+        .arg("Markdown")
+        .arg(".")
         .assert()
         .success();
 
@@ -54,24 +46,44 @@ fn test_remove_metadata() {
     assert!(manifest_path.exists(), "Manifest file should exist");
     let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
 
-    assert_contains!(manifest_content, r#"[metadata_fields]"#);
-    assert_not_contains!(manifest_content, r#"author"#);
+    assert_contains!(
+        manifest_content,
+        r#"[[markdown_projects]]
+name = "main"
+path = "Markdown"
+output = ".""#
+    );
+
+    let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
+    cmd.current_dir(&project_path)
+        .arg("project")
+        .arg("markdown")
+        .arg("remove")
+        .arg("main")
+        .assert()
+        .success();
+
+    let manifest_path = project_path.join("manifest.toml");
+    assert!(manifest_path.exists(), "Manifest file should exist");
+    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
+
+    assert_not_contains!(manifest_content, r#"name = "main""#);
 }
 
 #[rstest]
-fn test_remove_non_existing_metadata() {
+fn test_markdown_remove_does_not_exist() {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
     let project_path = create_empty_project(&temp_dir.path());
 
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("manage-metadata")
+        .arg("markdown")
         .arg("remove")
-        .arg("author")
+        .arg("first")
         .assert()
         .failure()
         .stderr(predicate::str::contains(
-            "Metadata field 'author' not found.",
+            "Markdown project with name 'first' does not exist.",
         ));
 }

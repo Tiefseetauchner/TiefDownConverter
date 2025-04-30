@@ -9,12 +9,12 @@ use color_eyre::eyre::{Ok, Result, eyre};
 use toml::Table;
 
 use crate::{
-    TemplateType,
     manifest_model::{
         DEFAULT_TEX_PREPROCESSOR, DEFAULT_TYPST_PREPROCESSOR, MetadataSettings, PreProcessor,
         Processors, TemplateMapping,
     },
     template_management::{get_output_path, get_template_path},
+    template_type::TemplateType,
 };
 
 pub(crate) fn convert_latex(
