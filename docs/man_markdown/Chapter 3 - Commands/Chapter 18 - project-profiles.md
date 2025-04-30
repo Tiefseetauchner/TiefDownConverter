@@ -1,5 +1,6 @@
 ## tiefdownconverter project profiles
 
+```
 Manage the conversion profiles of the project.
 
 Usage: tiefdownconverter project profiles <COMMAND>
@@ -12,6 +13,7 @@ Commands:
 
 Options:
   -h, --help  Print help
+```
 
 ### Subcommands:
 - add

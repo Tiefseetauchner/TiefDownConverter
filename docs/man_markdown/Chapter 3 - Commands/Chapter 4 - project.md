@@ -1,5 +1,6 @@
 ## tiefdownconverter project
 
+```
 Update the TiefDown project.
 
 Usage: tiefdownconverter project [PROJECT] <COMMAND>
@@ -23,6 +24,7 @@ Arguments:
 
 Options:
   -h, --help  Print help
+```
 
 ### Subcommands:
 - templates

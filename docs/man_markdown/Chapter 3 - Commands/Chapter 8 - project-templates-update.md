@@ -1,5 +1,6 @@
 ## tiefdownconverter project templates update
 
+```
 Update a template in the project.
 
 Usage: tiefdownconverter project templates <TEMPLATE> update [OPTIONS]
@@ -24,4 +25,5 @@ Options:
           The processor to use for this template.
   -h, --help
           Print help
+```
 

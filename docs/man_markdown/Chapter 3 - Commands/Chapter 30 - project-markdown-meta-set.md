@@ -1,5 +1,6 @@
 ## tiefdownconverter project markdown meta set
 
+```
 Add or change the metadata.
 
 Usage: tiefdownconverter project markdown meta <NAME> set <KEY> <VALUE>
@@ -10,4 +11,5 @@ Arguments:
 
 Options:
   -h, --help  Print help
+```
 

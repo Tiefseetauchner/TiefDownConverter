@@ -1,5 +1,6 @@
 ## tiefdownconverter project processors remove
 
+```
 Remove a processor from the project.
 
 Usage: tiefdownconverter project processors remove <NAME>
@@ -9,4 +10,5 @@ Arguments:
 
 Options:
   -h, --help  Print help
+```
 

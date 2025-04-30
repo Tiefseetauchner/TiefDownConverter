@@ -1,5 +1,6 @@
 ## tiefdownconverter project markdown update
 
+```
 Update a markdown project in the project.
 
 Usage: tiefdownconverter project markdown update [OPTIONS] <NAME>
@@ -12,4 +13,5 @@ Options:
       --output <OUTPUT>                    The output folder.
       --default-profile <DEFAULT_PROFILE>  The default profile to use for converting this project.
   -h, --help                               Print help
+```
 

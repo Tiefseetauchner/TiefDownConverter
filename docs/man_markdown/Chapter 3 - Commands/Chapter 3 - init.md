@@ -1,5 +1,6 @@
 ## tiefdownconverter init
 
+```
 Initialize a new TiefDown project.
 
 Usage: tiefdownconverter init [OPTIONS] [PROJECT]
@@ -36,4 +37,5 @@ Options:
 
   -h, --help
           Print help (see a summary with '-h')
+```
 

@@ -1,5 +1,6 @@
 ## tiefdownconverter convert
 
+```
 Convert a TiefDown project. By default, it will convert the current directory.
 
 Usage: tiefdownconverter convert [OPTIONS]
@@ -9,4 +10,5 @@ Options:
   -t, --templates <TEMPLATES>...  The templates to use. If not provided, the default templates from the manifest file will be used. Cannot be used with --profile.
   -P, --profile <PROFILE>         The conversion profile to use. Cannot be used with --templates.
   -h, --help                      Print help
+```
 

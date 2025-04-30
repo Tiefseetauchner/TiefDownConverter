@@ -1,5 +1,6 @@
 ## tiefdownconverter project pre-processors
 
+```
 Manage the preprocessors of the project.
 
 Usage: tiefdownconverter project pre-processors <COMMAND>
@@ -12,6 +13,7 @@ Commands:
 
 Options:
   -h, --help  Print help
+```
 
 ### Subcommands:
 - add

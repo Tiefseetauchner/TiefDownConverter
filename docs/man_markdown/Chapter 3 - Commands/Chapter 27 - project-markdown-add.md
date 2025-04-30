@@ -1,5 +1,6 @@
 ## tiefdownconverter project markdown add
 
+```
 Add a new markdown project to the project.
 
 Usage: tiefdownconverter project markdown add [OPTIONS] <NAME> <PATH> <OUTPUT>
@@ -12,4 +13,5 @@ Arguments:
 Options:
       --default-profile <DEFAULT_PROFILE>  The default profile to use for converting this project.
   -h, --help                               Print help
+```
 

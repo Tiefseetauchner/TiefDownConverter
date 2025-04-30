@@ -1,5 +1,6 @@
 ## tiefdownconverter project markdown
 
+```
 Manage the markdown projects of the project.
 
 Usage: tiefdownconverter project markdown <COMMAND>
@@ -14,6 +15,7 @@ Commands:
 
 Options:
   -h, --help  Print help
+```
 
 ### Subcommands:
 - add

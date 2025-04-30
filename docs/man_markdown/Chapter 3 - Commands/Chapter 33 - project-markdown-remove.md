@@ -1,5 +1,6 @@
 ## tiefdownconverter project markdown remove
 
+```
 Remove a markdown project from the project.
 
 Usage: tiefdownconverter project markdown remove <NAME>
@@ -9,4 +10,5 @@ Arguments:
 
 Options:
   -h, --help  Print help
+```
 

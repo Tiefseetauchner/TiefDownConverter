@@ -1,5 +1,6 @@
 ## tiefdownconverter project processors
 
+```
 Manage the processors of the project.
 
 Usage: tiefdownconverter project processors <COMMAND>
@@ -12,6 +13,7 @@ Commands:
 
 Options:
   -h, --help  Print help
+```
 
 ### Subcommands:
 - add

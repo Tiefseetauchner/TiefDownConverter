@@ -1,5 +1,6 @@
 ## tiefdownconverter project update-manifest
 
+```
 Update the project manifest.
 
 Usage: tiefdownconverter project update-manifest [OPTIONS]
@@ -17,4 +18,5 @@ Options:
 
   -h, --help
           Print help (see a summary with '-h')
+```
 

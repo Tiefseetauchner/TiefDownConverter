@@ -1,5 +1,6 @@
 ## tiefdownconverter project templates
 
+```
 Add or modify templates in the project.
 
 Usage: tiefdownconverter project templates <TEMPLATE> <COMMAND>
@@ -15,6 +16,7 @@ Arguments:
 
 Options:
   -h, --help  Print help
+```
 
 ### Subcommands:
 - add

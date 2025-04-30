@@ -1,5 +1,6 @@
 ## tiefdownconverter project templates add
 
+```
 Add a new template to the project.
 
 Usage: tiefdownconverter project templates <TEMPLATE> add [OPTIONS]
@@ -12,4 +13,5 @@ Options:
       --preprocessor <PREPROCESSOR>    The preprocessor to use for this template.
       --processor <PROCESSOR>          The processor to use for this template.
   -h, --help                           Print help
+```
 

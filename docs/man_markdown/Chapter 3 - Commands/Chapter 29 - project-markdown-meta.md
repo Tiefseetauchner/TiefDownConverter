@@ -1,5 +1,6 @@
 ## tiefdownconverter project markdown meta
 
+```
 Manage the metadata of a markdown project.
 
 Usage: tiefdownconverter project markdown meta <NAME> <COMMAND>
@@ -15,6 +16,7 @@ Arguments:
 
 Options:
   -h, --help  Print help
+```
 
 ### Subcommands:
 - set

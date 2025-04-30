@@ -83,9 +83,10 @@ def generate_markdown(command, subcommand_chain=""):
     with open(filename_manpage, "w", encoding="utf-8") as f:
         f.write(f"## {CLI_EXEC} {subcommand_chain}\n\n")
 
+        f.write("```\n")
         for line in help_text.splitlines():
             f.write(line + "\n")
-        f.write("\n")
+        f.write("```\n\n")
 
         if subcommands:
             f.write("### Subcommands:\n")

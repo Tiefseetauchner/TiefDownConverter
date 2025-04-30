@@ -1,5 +1,6 @@
 ## tiefdownconverter project shared-meta
 
+```
 Manage the shared metadata of the project.
 
 Usage: tiefdownconverter project shared-meta <COMMAND>
@@ -12,6 +13,7 @@ Commands:
 
 Options:
   -h, --help  Print help
+```
 
 ### Subcommands:
 - set

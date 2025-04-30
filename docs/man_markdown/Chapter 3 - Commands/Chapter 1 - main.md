@@ -1,5 +1,6 @@
 ## tiefdownconverter 
 
+```
 TiefDownConverter manages TiefDown projects.
 TiefDown is a project structure meant to simplify the conversion process from Markdown to PDFs.
 TiefDownConverter consolidates multiple conversion processes and templating systems to generate a configurable set or subset of output documents.
@@ -20,6 +21,7 @@ Options:
 
   -V, --version
           Print version
+```
 
 ### Subcommands:
 - convert

@@ -1,5 +1,6 @@
 ## tiefdownconverter project profiles remove
 
+```
 Remove a conversion profile from the project.
 
 Usage: tiefdownconverter project profiles remove <NAME>
@@ -9,4 +10,5 @@ Arguments:
 
 Options:
   -h, --help  Print help
+```
 
