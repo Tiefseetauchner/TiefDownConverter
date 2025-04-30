@@ -1,0 +1,1546 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Tiefseetauchner et al." />
+  <title>TiefDownConverter Documentation</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="template/index.html_template/style.css" />
+</head>
+<body>
+<header>
+    <em>Available at <a
+            href="https://github.com/Tiefseetauchner/TiefDownConverter">https://github.com/Tiefseetauchner/TiefDownConverter</a></em>
+</header>
+<header id="title-block-header">
+<h1 class="title">TiefDownConverter Documentation</h1>
+<p class="author">Tiefseetauchner et al.</p>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#license" id="toc-license">LICENSE</a></li>
+<li><a href="#the-what" id="toc-the-what">The what?</a>
+<ul>
+<li><a href="#why" id="toc-why">Why?</a></li>
+<li><a href="#how-oh-wise-programmer-did-you-solve-this-problem"
+id="toc-how-oh-wise-programmer-did-you-solve-this-problem">How, oh wise
+programmer, did you solve this problem?</a></li>
+<li><a href="#so-whats-the-point" id="toc-so-whats-the-point">So, what’s
+the point?</a></li>
+<li><a href="#use-cases" id="toc-use-cases">Use Cases</a></li>
+<li><a href="#support" id="toc-support">Support</a></li>
+</ul></li>
+<li><a href="#usage" id="toc-usage">Usage</a>
+<ul>
+<li><a href="#installation" id="toc-installation">Installation</a></li>
+<li><a href="#getting-started" id="toc-getting-started">Getting
+started</a></li>
+<li><a href="#the-markdown-directory"
+id="toc-the-markdown-directory">The markdown directory</a></li>
+<li><a href="#customising-the-template"
+id="toc-customising-the-template">Customising the template</a></li>
+<li><a href="#adjusting-template-behaviour"
+id="toc-adjusting-template-behaviour">Adjusting template
+behaviour</a></li>
+<li><a href="#conversion-profiles"
+id="toc-conversion-profiles">Conversion Profiles</a></li>
+<li><a href="#writing-templates" id="toc-writing-templates">Writing
+templates</a></li>
+<li><a href="#epub-support" id="toc-epub-support">Epub Support</a>
+<ul>
+<li><a href="#customizing-css" id="toc-customizing-css">Customizing
+CSS</a></li>
+<li><a href="#adding-fonts" id="toc-adding-fonts">Adding Fonts</a></li>
+<li><a href="#metadata-and-structure"
+id="toc-metadata-and-structure">Metadata and Structure</a></li>
+<li><a href="#using-lua-filters" id="toc-using-lua-filters">Using Lua
+Filters</a></li>
+</ul></li>
+<li><a href="#conversion-engines" id="toc-conversion-engines">Conversion
+Engines</a>
+<ul>
+<li><a href="#latex" id="toc-latex">LaTeX</a></li>
+<li><a href="#typst" id="toc-typst">Typst</a></li>
+<li><a href="#epub" id="toc-epub">EPUB</a></li>
+<li><a href="#custom-pandoc-converter"
+id="toc-custom-pandoc-converter">Custom Pandoc Converter</a></li>
+</ul></li>
+<li><a href="#writing-filters" id="toc-writing-filters">Writing
+filters</a></li>
+<li><a href="#preprocessing"
+id="toc-preprocessing">Preprocessing</a></li>
+<li><a href="#custom-pandoc-conversion"
+id="toc-custom-pandoc-conversion">Custom Pandoc Conversion</a></li>
+<li><a href="#custom-processor-arguments"
+id="toc-custom-processor-arguments">Custom Processor Arguments</a></li>
+<li><a href="#smart-cleaning" id="toc-smart-cleaning">Smart
+Cleaning</a></li>
+</ul></li>
+<li><a href="#usage-details" id="toc-usage-details">Usage Details</a>
+<ul>
+<li><a href="#main" id="toc-main"><code>tiefdownconverter</code></a>
+<ul>
+<li><a href="#usage-1" id="toc-usage-1">Usage:</a></li>
+<li><a href="#subcommands" id="toc-subcommands">Subcommands:</a></li>
+</ul></li>
+<li><a href="#convert"
+id="toc-convert"><code>tiefdownconverter convert</code></a>
+<ul>
+<li><a href="#usage-2" id="toc-usage-2">Usage:</a></li>
+</ul></li>
+<li><a href="#init"
+id="toc-init"><code>tiefdownconverter init</code></a>
+<ul>
+<li><a href="#usage-3" id="toc-usage-3">Usage:</a></li>
+</ul></li>
+<li><a href="#project"
+id="toc-project"><code>tiefdownconverter project</code></a>
+<ul>
+<li><a href="#usage-4" id="toc-usage-4">Usage:</a></li>
+<li><a href="#subcommands-1"
+id="toc-subcommands-1">Subcommands:</a></li>
+</ul></li>
+<li><a href="#projecttemplates"
+id="toc-projecttemplates"><code>tiefdownconverter project templates</code></a>
+<ul>
+<li><a href="#usage-5" id="toc-usage-5">Usage:</a></li>
+<li><a href="#subcommands-2"
+id="toc-subcommands-2">Subcommands:</a></li>
+</ul></li>
+<li><a href="#projecttemplatesadd"
+id="toc-projecttemplatesadd"><code>tiefdownconverter project templates add</code></a>
+<ul>
+<li><a href="#usage-6" id="toc-usage-6">Usage:</a></li>
+</ul></li>
+<li><a href="#projecttemplatesremove"
+id="toc-projecttemplatesremove"><code>tiefdownconverter project templates remove</code></a>
+<ul>
+<li><a href="#usage-7" id="toc-usage-7">Usage:</a></li>
+</ul></li>
+<li><a href="#projecttemplatesupdate"
+id="toc-projecttemplatesupdate"><code>tiefdownconverter project templates update</code></a>
+<ul>
+<li><a href="#usage-8" id="toc-usage-8">Usage:</a></li>
+</ul></li>
+<li><a href="#projectupdate-manifest"
+id="toc-projectupdate-manifest"><code>tiefdownconverter project update-manifest</code></a>
+<ul>
+<li><a href="#usage-9" id="toc-usage-9">Usage:</a></li>
+</ul></li>
+<li><a href="#projectpre-processors"
+id="toc-projectpre-processors"><code>tiefdownconverter project pre-processors</code></a>
+<ul>
+<li><a href="#usage-10" id="toc-usage-10">Usage:</a></li>
+<li><a href="#subcommands-3"
+id="toc-subcommands-3">Subcommands:</a></li>
+</ul></li>
+<li><a href="#projectpre-processorsadd"
+id="toc-projectpre-processorsadd"><code>tiefdownconverter project pre-processors add</code></a>
+<ul>
+<li><a href="#usage-11" id="toc-usage-11">Usage:</a></li>
+</ul></li>
+<li><a href="#projectpre-processorsremove"
+id="toc-projectpre-processorsremove"><code>tiefdownconverter project pre-processors remove</code></a>
+<ul>
+<li><a href="#usage-12" id="toc-usage-12">Usage:</a></li>
+</ul></li>
+<li><a href="#projectpre-processorslist"
+id="toc-projectpre-processorslist"><code>tiefdownconverter project pre-processors list</code></a>
+<ul>
+<li><a href="#usage-13" id="toc-usage-13">Usage:</a></li>
+</ul></li>
+<li><a href="#projectprocessors"
+id="toc-projectprocessors"><code>tiefdownconverter project processors</code></a>
+<ul>
+<li><a href="#usage-14" id="toc-usage-14">Usage:</a></li>
+<li><a href="#subcommands-4"
+id="toc-subcommands-4">Subcommands:</a></li>
+</ul></li>
+<li><a href="#projectprocessorsadd"
+id="toc-projectprocessorsadd"><code>tiefdownconverter project processors add</code></a>
+<ul>
+<li><a href="#usage-15" id="toc-usage-15">Usage:</a></li>
+</ul></li>
+<li><a href="#projectprocessorsremove"
+id="toc-projectprocessorsremove"><code>tiefdownconverter project processors remove</code></a>
+<ul>
+<li><a href="#usage-16" id="toc-usage-16">Usage:</a></li>
+</ul></li>
+<li><a href="#projectprocessorslist"
+id="toc-projectprocessorslist"><code>tiefdownconverter project processors list</code></a>
+<ul>
+<li><a href="#usage-17" id="toc-usage-17">Usage:</a></li>
+</ul></li>
+<li><a href="#projectprofiles"
+id="toc-projectprofiles"><code>tiefdownconverter project profiles</code></a>
+<ul>
+<li><a href="#usage-18" id="toc-usage-18">Usage:</a></li>
+<li><a href="#subcommands-5"
+id="toc-subcommands-5">Subcommands:</a></li>
+</ul></li>
+<li><a href="#projectprofilesadd"
+id="toc-projectprofilesadd"><code>tiefdownconverter project profiles add</code></a>
+<ul>
+<li><a href="#usage-19" id="toc-usage-19">Usage:</a></li>
+</ul></li>
+<li><a href="#projectprofilesremove"
+id="toc-projectprofilesremove"><code>tiefdownconverter project profiles remove</code></a>
+<ul>
+<li><a href="#usage-20" id="toc-usage-20">Usage:</a></li>
+</ul></li>
+<li><a href="#projectprofileslist"
+id="toc-projectprofileslist"><code>tiefdownconverter project profiles list</code></a>
+<ul>
+<li><a href="#usage-21" id="toc-usage-21">Usage:</a></li>
+</ul></li>
+<li><a href="#projectmanage-metadata"
+id="toc-projectmanage-metadata"><code>tiefdownconverter project manage-metadata</code></a>
+<ul>
+<li><a href="#usage-22" id="toc-usage-22">Usage:</a></li>
+<li><a href="#subcommands-6"
+id="toc-subcommands-6">Subcommands:</a></li>
+</ul></li>
+<li><a href="#projectmanage-metadataset"
+id="toc-projectmanage-metadataset"><code>tiefdownconverter project manage-metadata set</code></a>
+<ul>
+<li><a href="#usage-23" id="toc-usage-23">Usage:</a></li>
+</ul></li>
+<li><a href="#projectmanage-metadataremove"
+id="toc-projectmanage-metadataremove"><code>tiefdownconverter project manage-metadata remove</code></a>
+<ul>
+<li><a href="#usage-24" id="toc-usage-24">Usage:</a></li>
+</ul></li>
+<li><a href="#projectmanage-metadatalist"
+id="toc-projectmanage-metadatalist"><code>tiefdownconverter project manage-metadata list</code></a>
+<ul>
+<li><a href="#usage-25" id="toc-usage-25">Usage:</a></li>
+</ul></li>
+<li><a href="#projectlist-templates"
+id="toc-projectlist-templates"><code>tiefdownconverter project list-templates</code></a>
+<ul>
+<li><a href="#usage-26" id="toc-usage-26">Usage:</a></li>
+</ul></li>
+<li><a href="#projectvalidate"
+id="toc-projectvalidate"><code>tiefdownconverter project validate</code></a>
+<ul>
+<li><a href="#usage-27" id="toc-usage-27">Usage:</a></li>
+</ul></li>
+<li><a href="#projectclean"
+id="toc-projectclean"><code>tiefdownconverter project clean</code></a>
+<ul>
+<li><a href="#usage-28" id="toc-usage-28">Usage:</a></li>
+</ul></li>
+<li><a href="#projectsmart-clean"
+id="toc-projectsmart-clean"><code>tiefdownconverter project smart-clean</code></a>
+<ul>
+<li><a href="#usage-29" id="toc-usage-29">Usage:</a></li>
+</ul></li>
+<li><a href="#check-dependencies"
+id="toc-check-dependencies"><code>tiefdownconverter check-dependencies</code></a>
+<ul>
+<li><a href="#usage-30" id="toc-usage-30">Usage:</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#contributing" id="toc-contributing">Contributing</a>
+<ul>
+<li><a href="#the-architecture" id="toc-the-architecture">The
+architecture</a></li>
+<li><a href="#pull-requests" id="toc-pull-requests">Pull
+Requests</a></li>
+<li><a href="#conversion" id="toc-conversion">Conversion</a></li>
+<li><a href="#presets" id="toc-presets">Presets</a></li>
+<li><a href="#manifest" id="toc-manifest">Manifest</a></li>
+<li><a href="#tests" id="toc-tests">Tests</a></li>
+<li><a href="#documentation"
+id="toc-documentation">Documentation</a></li>
+<li><a href="#code-style" id="toc-code-style">Code Style</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="license">LICENSE</h1>
+<pre><code>MIT License
+
+Copyright (c) 2025 Lena Tauchner
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &quot;Software&quot;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</code></pre>
+<h1 id="the-what">The what?</h1>
+<blockquote>
+<p><em>If you want to skip the funny written explanations, skip to
+the</em> &gt; <em><a href="#usage">Usage</a> section.</em></p>
+</blockquote>
+<p>Well, that’s a good question. Ask it later.</p>
+<p>Jk, of course you may ask it now. TiefDown is a project format I made
+up to make it easier to convert my markdown files into something pretty.
+As a matter of fact, this documentation is managed by a TiefDown
+project!</p>
+<p>The important thing is that this isn’t a markdown parser, replacement
+or anything like that. It’s a project format, and it’s not even a
+format, it’s pretty much just a manifest file and an executable.</p>
+<h2 id="why">Why?</h2>
+<p>I wonder myself every day. But alas, I should know, I wrote this
+cluster**** so let me explain. The initial concept was born from pain
+(as many are). I was pretty tired of exporting my markdown files, then
+converting them, overwriting my old files, then converting them again,
+overwriting all history in the process. It was just… a mess.</p>
+<p>So I did what any sane person would do: I learned Python.</p>
+<p>Well, I’m being facetious. I didn’t “learn Python,” I just expanded
+my capabilities to calling programs from the command line.</p>
+<p>So my script, at first, just called Pandoc, then pdflatex, and then
+pdflatex again for good measure. It created a PDF, overwriting my old
+one. It was basically just converting a single markdown file into a PDF
+with a basic TeX template (in my case, LiX Novel).</p>
+<p>Then I realized that writing a 40-chapter story in a single markdown
+file was even dumber than whatever I made in Python. So I added a little
+combination logic. In the process, I had to write Lua filters as well,
+and then I added versioning, and then I added conversion to multiple
+different PDFs, and then I added EPUB support and—you know what? That
+was a dumb idea. The Python script soon reached 200 lines of code, which
+was untenable.</p>
+<p>So yeah, I decided to make a new book. And of course -
+<em><strong>everything</strong></em> broke. Instantly. I had to copy and
+paste things, adjust my Python script, rewrote it a bit, and boom -
+suddenly I had two different projects with different processes,
+different outputs, different versions, different everything.</p>
+<p>And then… I started a third book. Aaaand the Python script didn’t
+really fulfill my needs, so I rewrote it in Bash. But worse.</p>
+<p>I thought I had it all figured out. With Python. Then Bash. Then I
+started a short story and lost my ******* mind.</p>
+<h2 id="how-oh-wise-programmer-did-you-solve-this-problem">How, oh wise
+programmer, did you solve this problem?</h2>
+<p>I’m glad you asked! I’m glad. I… I hope you asked? Well, regardless
+of whether or not you did, I’ll tell you.</p>
+<p>I learned Rust.</p>
+<p>For real this time, I learned a completely new programming language
+just for this. But there was a reason, or a few rather:</p>
+<ol type="1">
+<li>I wanted cross-platform support.</li>
+<li>I wanted a single executable.</li>
+<li>I needed a language with good CLI support because, believe it or
+not, I’m <em>awful</em> at GUIs.</li>
+<li>I’m crazy.</li>
+</ol>
+<p>These reasons led me to two options: Python, a language I was
+somewhat familiar with but didn’t particularly enjoy writing in, and
+Rust, a language I had never written in before but was very interested
+in.</p>
+<p>Evidently, I chose Rust.</p>
+<p>So I started: a CLI interface, command-line calls, and so on. Here’s
+the rundown of how it works internally:</p>
+<ul>
+<li>You initialize a project with <code>tiefdownconverter init</code>.
+This creates a few bits and bobs, but importantly the
+<code>manifest.toml</code> file. This contains all the information
+needed to actually manage and convert the project.</li>
+<li>You can then manipulate the project, and so on.</li>
+<li>When you add your markdown files to the Markdown directory, running
+<code>tiefdownconverter convert</code> will do a few things:
+<ul>
+<li>Create a new folder for the current compilation. That way, you have
+a history.</li>
+<li>Combine all the markdown files into one megafile called
+<code>combined.md</code>.</li>
+<li>Run Pandoc conversion to TeX, EPUB, or Typst. This uses Lua filters
+and preprocessors that are defined in the <code>manifest.toml</code>
+file.</li>
+<li>Run XeLaTeX on all TeX templates, Typst on all Typst templates, and
+so on. It even supports EPUB conversion.</li>
+<li>Copy the files around so you end up with your output files in the
+right places.</li>
+</ul></li>
+</ul>
+<p>Isn’t that simple?</p>
+<p>It isn’t. But oh well. We’ve got a lot of work to do on this, and if
+you’re interested, don’t shy away from the <a
+href="#contributing">Contributing</a> section!</p>
+<h2 id="so-whats-the-point">So, what’s the point?</h2>
+<p>Really? Making my life easier. I wanted to export my novel as a PDF
+in A4, 8x5in, so on. If I can make your life easier as well, then I’m
+the happiest woman alive.</p>
+<h2 id="use-cases">Use Cases</h2>
+<p>So where does TiefDownConverter actually come in handy? Well,
+anywhere you need Markdown to turn into something nice without manually
+fiddling with formats every time. Here are a few scenarios where it
+saves the day:</p>
+<ul>
+<li><strong>Writing Books</strong> - Markdown is great for writing, but
+formatting a 300-page novel? Not so much. TiefDown handles that for you.
+Well, at least the part where you need to convert stuff, you still need
+to write out your templates.</li>
+<li><strong>Technical Documentation</strong> - Software projects need
+structured documentation, and TiefDown makes sure it’s consistent. Case
+in point, this documentation is managed as a TiefDown project.</li>
+<li><strong>Multi-format Exports</strong> - Need a A4 PDF, a Book PDF, a
+letter PDF, EPUB, so on? TiefDown can generate them all from the same
+source.</li>
+</ul>
+<p>Basically, if your workflow involves Markdown and you’re sick of
+manually converting everything, TiefDown is your new best friend.</p>
+<h2 id="support">Support</h2>
+<p>Now, you want support? Check out the Discord or write an issue on
+GitHub!</p>
+<ul>
+<li><a href="https://discord.gg/EG3zU9cTFx">Discord Server</a>
+(https://discord.gg/EG3zU9cTFx)</li>
+<li><a
+href="https://github.com/Tiefseetauchner/TiefDownConverter/issues">GitHub
+Issues</a>
+(https://github.com/Tiefseetauchner/TiefDownConverter/issues)</li>
+</ul>
+<h1 id="usage">Usage</h1>
+<p>The basic usage of <code>tiefdownconverter</code> is relatively
+simple. The difficult part is understanding the templating system and
+how to customise it for your usecases. Presets can only do so much.</p>
+<blockquote>
+<p>Note: I wrote this paragraph before the big refactor. The basic usage
+is no longer simple.</p>
+</blockquote>
+<h2 id="installation">Installation</h2>
+<p>Currently the only way to install <code>tiefdownconverter</code> is
+to either build it yourself, install it from cargo, or download a
+precompiled binary from the <a
+href="https://github.com/tiefseetauchner/tiefdownconverter/releases">releases
+page</a>. Then just add it to the path and you’re good to go. You can of
+course also just call it relatively by placing the binary in your
+project folder or something like that.</p>
+<p>If you build from source, run <code>cargo build [--release]</code> or
+<code>cargo install --path .</code>.</p>
+<p>That said, the recommended way to install TiefDownConverter is
+<code>cargo install tiefdownconverter</code>. This will always install
+the latest version.</p>
+<p>Downloading from the release is as simple as downloading the
+appropriate version (Windows, Mac, Linux) and adding it to a folder in
+the path. You could also add tiefdownconverter to a folder and run it
+from there.</p>
+<p>There are a few dependencies that you need to install.</p>
+<ul>
+<li><a href="https://pandoc.org/">Pandoc</a>: Conversion from Markdown
+to TeX, Typst and Epub.</li>
+<li>A TeX distribution: For converting TeX files to PDF. It has to
+include xelatex.
+<ul>
+<li>If using <a href="https://www.tug.org/texlive/">TeX Live</a> you may
+need to additionally install <code>texlive-xetex</code> depending on
+your system.</li>
+<li>If using <a href="https://miktex.org/">MikTeX</a>, no need to do
+anything.</li>
+</ul></li>
+<li><a href="https://typst.app/">Typst</a>: For converting Typst files
+to PDF.</li>
+</ul>
+<p>Windows is easy enough:
+<code>winget install miktex pandoc typst</code>.</p>
+<p>Linux varies by distro of course, but for ubuntu it’s
+<code>apt install texlive-xetex pandoc</code> and
+<code>cargo install typst</code> or downloading the typst binary and
+adding it to the path.</p>
+<p>Mac is still to be tested, but MacTex should have XeTeX
+installed.</p>
+<p>Now you should be able to run <code>tiefdownconverter</code> from the
+command line. You can test it by initialising a test project using
+<code>tiefdownconverter init testproject</code> and running
+<code>tiefdownconverter convert</code> in the project directory or
+<code>tiefdownconverter convert -p testproject</code>. You could also,
+as a test, clone the <a
+href="https://github.com/Tiefseetauchner/TiefDownConverter">Github
+Repo</a> and run <code>tiefdownconverter convert -p docs</code>.</p>
+<h2 id="getting-started">Getting started</h2>
+<p>TL;DR: Make a folder, go into it and run
+<code>tiefdownconverter init</code> and
+<code>tiefdownconverter convert</code>. That’s it.</p>
+<p>Long anser: First off, you need to create a project using
+<code>tiefdownconverter init</code>. This will create a new project
+<strong>in the current directory</strong>. You can (and maybe should)
+specify a project.</p>
+<p>This command creates the basic template structure like so:</p>
+<pre><code>your_project/
+├── Markdown/
+│   └── Chapter 1 - Introduction.md
+├── template/
+│   ├── meta.tex
+│   └── template.tex
+└── manifest.toml</code></pre>
+<p>The Markdown folder contains an example Markdown file. When placing
+your markdown files in this folder, make sure they’re named like
+<code>Chapter X.md</code>, with anything following the number being
+ignored. <em>This is important</em>, as the converter will use this to
+sort the files for conversion, as otherwise it’d have no idea in which
+order they should be converted.</p>
+<p>Now you should be able to run
+<code>tiefdownconverter convert -p path/to/your_project</code> (or
+ommitting the -p flag if you’re already in the project directory) and it
+should generate a PDF file in the project directory. You can now adjust
+the template, add your own Markdown files, and so on.</p>
+<h2 id="the-markdown-directory">The markdown directory</h2>
+<p>Markdown files are the main input for the converter, and as such
+their structure is important. The converter will look for markdown files
+in the <code>Markdown</code> directory, and will sort them by a chapter
+number. Namely, your files should be named
+<code>Chapter X Whatever else.md</code>, where X is a number (you don’t
+have to name them 01, 02 etc., as we parse the number as an integer
+anyways). The converter will then sort them by the number and combine
+them in that order.</p>
+<p>You can also add subdirectories in the Markdown directory. These will
+be combined after the file with the same number. For example, consider
+the following directory structure:</p>
+<pre><code>Markdown/
+├── Chapter 1 - Introduction.md
+├── Chapter 2 - Usage.md
+├── Chapter 2 - Usage/
+│   ├── Chapter 1 - Usage detail 1.md
+│   └── Chapter 2 - Usage detail 2.md
+└── Chapter 3 - Customisation.md</code></pre>
+<p>The converter will combine the files in the following order:</p>
+<ol type="1">
+<li>Chapter 1 - Introduction.md</li>
+<li>Chapter 2 - Usage.md</li>
+<li>Chapter 2 - Usage/Chapter 1 - Usage detail 1.md</li>
+<li>Chapter 2 - Usage/Chapter 2 - Usage detail 2.md</li>
+<li>Chapter 3 - Customisation.md</li>
+</ol>
+<p>That is, the converter orders a directory by the same logic as other
+files (and even does so recursively), and directories are combined after
+the file with the same number.</p>
+<p>You can change what directory the converter looks for markdown files
+in by changing the <code>markdown_dir</code> field in the manifest.toml
+file or saying <code>-m path/to/markdown/dir</code> when initialising
+the project. You can also change it post-initialisation using
+<code>tiefdownconverter project [path/to/project] update-manifest -m path/to/markdown/dir</code>.
+If you don’t do so, the converter will look for markdown files in the
+<code>project_dir/Markdown</code> directory.</p>
+<h2 id="customising-the-template">Customising the template</h2>
+<p>The key idea behind tiefdownconverter is, that it can handle multiple
+templates at the same time. This is done by creating a template file in
+the template directory and adding it to the project’s manifest.toml
+file.</p>
+<p>You could do this manually, if you were so inclined, but using
+<code>tiefdownconverter project template &lt;TEMPLATE_NAME&gt; add</code>
+is much easier. Check the <a href="#usage-details">Usage Details</a> and
+specifically <a href="#projecttemplatesadd">the templates add
+command</a> for the usage of this command. But importantly, once you
+created the template and added it to the manifest, you will be able to
+convert using it.
+<code>tiefdownconverter convert -p path/to/your_project --templates &lt;TEMPLATE_NAME&gt;</code>
+will convert only the selected template, aiding in debugging.</p>
+<p>And now, you’re pretty much free to do whatever you want with the
+template. Write tex or typst templates, use custom filters, so on.</p>
+<h2 id="adjusting-template-behaviour">Adjusting template behaviour</h2>
+<p>You have a few options for editing template behaviour using
+<code>tiefdownconverter</code>. You can of course edit the template
+files directly, but there are a few more options.</p>
+<p>Mainly and most interestingly, lua filters can adjust the behaviour
+of the markdown conversion. These are lua scripts that are run before
+the markdown is converted to tex or typst. You can add lua filters to a
+template by either editing the manifest or using
+<code>tiefdownconverter project templates &lt;TEMPLATE_NAME&gt; update --add-filters &lt;FILTER_NAME&gt;</code>.
+This can be either the path to a lua filter (relative to the project
+directory) or a directory containing lua filters.</p>
+<p>You can also change the name of the exported file by setting the
+<code>output</code> option. For example,
+<code>tiefdownconverter project templates &lt;TEMPLATE_NAME&gt; update --output &lt;NEW_NAME&gt;</code>.
+This will export the template to <code>&lt;NEW_NAME&gt;</code> instead
+of the default <code>&lt;TEMPLATE_NAME&gt;.pdf</code>.</p>
+<p>Similarly, you could change the template file and type, though I
+advice against it, as this may break the template. I advice to just add
+a new template and remove the old one using
+<code>tiefdownconverter project templates &lt;TEMPLATE_NAME&gt; remove</code>.</p>
+<h2 id="conversion-profiles">Conversion Profiles</h2>
+<p>A conversion profile is a shortcut to defining templates for the
+conversion. If you’re dealing with a lot of templates, you may be
+considering only converting some at any time - for example, web ready
+PDFs vs. print ready PDFs, or only converting a certain size of PDF.</p>
+<p>For that, there are conversion profiles which simply are a list of
+templates. It’s essentially like saving your –templates arguments.</p>
+<p>You can create these profiles with the
+<code>project profile add</code> command, setting a name and a comma
+seperated list of templates. Removing a profile is also possible with
+the <code>project profile remove</code> command.</p>
+<p>Running a conversion with a profile is as simple as adding the
+<code>--profile</code> flag.</p>
+<p>The manifest file can optionally contain a section for this, if you
+desire to configure them manually:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[profiles]]</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;PDF&quot;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="dt">templates</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;PDF Documentation LaTeX&quot;</span><span class="op">,</span> <span class="st">&quot;PDF Documentation&quot;</span><span class="op">]</span></span></code></pre></div>
+<h2 id="writing-templates">Writing templates</h2>
+<p>Importantly, when you write your own template, you need to include
+the content somehow. That somehow is done via
+<code>\input{output.tex}</code> or <code>#include "./output.typ"</code>.
+This will include the output of the Markdown conversion in your template
+file. If you’re using custom preprocessors, you can change the output
+file of the conversion. See <a href="#preprocessing">Preprocessing</a>
+for more information.</p>
+<h2 id="epub-support">Epub Support</h2>
+<p>EPUB support in TiefDownConverter isn’t as fancy as LaTeX or Typst,
+but you can still tweak it to look nice. You don’t get full-blown
+templates, but you can mess with CSS, fonts, and Lua filters to make it
+work how you want. <em>This template type is however somewhat
+depricated. It will not be removed but there likely won’t be any new
+features added to it.</em></p>
+<h3 id="customizing-css">Customizing CSS</h3>
+<p>EPUBs use stylesheets to control how everything looks. Any
+<code>.css</code> file you drop into
+<code>template/my_epub_template/</code> gets automatically loaded.</p>
+<p>For exammple, you can change the font, line height, and margins like
+so:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode css"><code class="sourceCode css"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>body {</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">font-family</span><span class="ch">:</span> <span class="st">&quot;Noto Serif&quot;</span><span class="op">,</span> <span class="dv">serif</span><span class="op">;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">line-height</span><span class="ch">:</span> <span class="dv">1.6</span><span class="op">;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">margin</span><span class="ch">:</span> <span class="dv">1</span><span class="dt">em</span><span class="op">;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>blockquote {</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">font-style</span><span class="ch">:</span> <span class="dv">italic</span><span class="op">;</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">border-left</span><span class="ch">:</span> <span class="dv">3</span><span class="dt">px</span> <span class="dv">solid</span> <span class="cn">#ccc</span><span class="op">;</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="kw">padding-left</span><span class="ch">:</span> <span class="dv">10</span><span class="dt">px</span><span class="op">;</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<h3 id="adding-fonts">Adding Fonts</h3>
+<p>Fonts go into <code>template/my_epub_template/fonts/</code>, and
+TiefDownConverter will automatically pick them up. To use them, you just
+need to reference them properly in your CSS:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode css"><code class="sourceCode css"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">@font-face</span> {</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">font-family</span><span class="ch">:</span> <span class="st">&quot;EB Garamond&quot;</span><span class="op">;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">font-style</span><span class="ch">:</span> <span class="dv">normal</span><span class="op">;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">font-weight</span><span class="ch">:</span> <span class="dv">normal</span><span class="op">;</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">src</span><span class="ch">:</span> <span class="fu">url(</span><span class="st">&quot;../fonts/EBGaramond-Regular.ttf&quot;</span><span class="fu">)</span><span class="op">;</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>body {</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="kw">font-family</span><span class="ch">:</span> <span class="st">&quot;EB Garamond&quot;</span><span class="op">,</span> <span class="dv">serif</span><span class="op">;</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>This is a good time to mention, epub is just a zip file. As such, as
+it is generated by pandoc, it has a predefined structure, and you have
+to bend to that. Fonts are in a font directory, and stylesheets in a
+styles directory. Thus you have to <em>break out</em> of the styles
+directory with .. to get to the fonts directory. Keep that in mind, it
+took me a while to figure out.</p>
+<h3 id="metadata-and-structure">Metadata and Structure</h3>
+<p>EPUBs need some basic metadata, which you define in the YAML front
+matter of your Markdown files. Stuff like title, author, and language
+goes here:</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">type</span><span class="kw">:</span><span class="at"> main</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;My Publication&quot;</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">type</span><span class="kw">:</span><span class="at"> subtitle</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;A tale of loss and partying hard&quot;</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu">creator</span><span class="kw">:</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">role</span><span class="kw">:</span><span class="at"> author</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span><span class="kw">:</span><span class="at"> Your Name</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="fu">rights</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Copyright © 2012 Your Name&quot;</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span></code></pre></div>
+<p>You can also do this via the custom processor arguments, adding
+metadata as described in the pandoc documentation. For example, to use a
+seperate metadata file, you can do this:</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project <span class="pp">[</span><span class="ss">PROJECT_NAME</span><span class="pp">]</span> processors add <span class="st">&quot;Metadata for EPUB&quot;</span> <span class="at">--</span> <span class="at">--metadata-file</span> metadata.yaml</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project <span class="pp">[</span><span class="ss">PROJECT_NAME</span><span class="pp">]</span> templates <span class="op">&lt;</span>TEMPLATE_NAME<span class="op">&gt;</span> update <span class="at">--processor</span> <span class="st">&quot;Metadata for EPUB&quot;</span></span></code></pre></div>
+<p>This will include the metadata file in the conversion process,
+removing the need for the YAML front matter in your Markdown files and
+allowing you to use different metadata files for different
+templates.</p>
+<h3 id="using-lua-filters">Using Lua Filters</h3>
+<p>Want to tweak the structure? That’s what Lua filters are for. You can
+use them to rename chapters, remove junk, or modify how elements are
+processed.</p>
+<p>Example: Automatically renaming chapter headers:</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode lua"><code class="sourceCode lua"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> Header<span class="op">(</span><span class="va">el</span><span class="op">)</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="va">el</span><span class="op">.</span><span class="va">level</span> <span class="op">==</span> <span class="dv">1</span> <span class="cf">then</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">pandoc</span><span class="op">.</span>Header<span class="op">(</span><span class="va">el</span><span class="op">.</span><span class="va">level</span><span class="op">,</span> <span class="st">&quot;Chapter: &quot;</span> <span class="op">..</span> <span class="va">pandoc</span><span class="op">.</span><span class="va">utils</span><span class="op">.</span>stringify<span class="op">(</span><span class="va">el</span><span class="op">.</span><span class="va">content</span><span class="op">))</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
+<p>And that’s it. You get a customized EPUB without having to fight with
+the defaults. Enjoy!</p>
+<h2 id="conversion-engines">Conversion Engines</h2>
+<p>There are currently four ways to convert your Markdown files. All of
+them are based on the same system. The main difference is the output
+format and the program it gets converted with.</p>
+<h3 id="latex">LaTeX</h3>
+<p>LaTeX is the best supported by TiefDownConverter, with the most
+presets. But as TiefDownConverter is a general-purpose Markdown to PDF
+converter, the format doesn’t matter. LaTeX provides the highest degree
+of customization, making it ideal for structured documents, novels, and
+academic papers.</p>
+<p>The primary way to interact with LaTeX is through templates. Lua
+filters and such are secondary, but an important part of the conversion
+process to adjust behavior for different document classes.</p>
+<h3 id="typst">Typst</h3>
+<p>Typst is another supported engine, offering a more modern alternative
+to LaTeX with a simpler syntax and automatic layout adjustments.
+TiefDownConverter allows you to specify Typst templates in the project
+manifest.</p>
+<p>Typst templates work similarly to LaTeX templates but are easier to
+modify if you need structured documents without deep LaTeX
+knowledge.</p>
+<p>As far as I could tell, typst templates are also far more adherent to
+the general typst syntax, so Lua filters are not as important. But they
+can still be used to adjust the output, especially for more advanced use
+cases.</p>
+<h3 id="epub">EPUB</h3>
+<p>TiefDownConverter also supports EPUB conversion, making it suitable
+for e-book generation. The conversion process uses Pandoc to transform
+the Markdown content into EPUB, applying any Lua filters defined in the
+manifest.</p>
+<p>This however does not really support much in the way of templating.
+Customization should be done primarily via Lua filters. Custom
+preprocessors are currently not supported at all.</p>
+<p>However, you can still get some customization by including CSS and
+font files in your template folder. That’s the reason epub has to have a
+folder in the first place, so you can place CSS and font files in there.
+Of course you can add multiple epub templates, but I don’t know why you
+would want to.</p>
+<p>EPUB output is particularly useful for digital publishing, ensuring
+compatibility with e-readers and mobile devices.</p>
+<h3 id="custom-pandoc-converter">Custom Pandoc Converter</h3>
+<p>Okay. Stick with me here. The idea is, you are already converting my
+Markdown files with Pandoc, why not let me convert them to whatever
+format? Well, this is where Custom Pandoc Conversion comes in. This long
+fabled feature is the most complicated one, and you need a deep
+understanding of how TiefDownConverter works and at least the ability to
+read Pandoc’s documentation to even use it. But if you’re willing to put
+in the effort, you can do some pretty cool things.</p>
+<p>The basic idea is, just, let the user decide what pandoc does. The
+result is chaos.</p>
+<p>I’m being facetious, but this is actually the most powerful way to
+customize the output. You add a preprocessor as described in <a
+href="#preprocessing">Preprocessing</a> and set the output path of the
+preprocessor and template to the same path. Then you can do whatever
+pandoc allows. Want to convert to RTF? No issue. But beware: you need to
+actually understand what’s going on, otherwise you’ll end up in
+implementation hell.</p>
+<h2 id="writing-filters">Writing filters</h2>
+<blockquote>
+<p><strong>Note:</strong> This section only really addresses LaTeX, but
+the concepts are the same for Typst and epub.</p>
+</blockquote>
+<p>If you are in the business of writing filters (and don’t just solve
+everything in TeX itself), I advice checking out the documentation at <a
+href="https://pandoc.org/lua-filters.html">https://pandoc.org/lua-filters.html</a>.
+But here’s a quick rundown of what you can do. For example, if you
+wanted to change the font of all block quotes, there’s a few things
+you’d need to do. First off, in your template, you will need to define a
+font. It could look something like this:</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode tex"><code class="sourceCode latex"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="bu">\usepackage</span>{<span class="ex">fontspec</span>}</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">\newfontfamily\blockquotefont</span>{Noto Sans}</span></code></pre></div>
+<p>Then, add a filter to your template as described above. The filter
+could look something like this:</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode lua"><code class="sourceCode lua"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> BlockQuote<span class="op">(</span><span class="va">el</span><span class="op">)</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">local</span> <span class="va">tt_start</span> <span class="op">=</span> <span class="va">pandoc</span><span class="op">.</span>RawBlock<span class="op">(</span><span class="st">&#39;latex&#39;</span><span class="op">,</span> <span class="st">&#39;</span><span class="sc">\\</span><span class="st">blockquotefont</span><span class="sc">\\</span><span class="st">small&#39;</span><span class="op">)</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">table.insert</span><span class="op">(</span><span class="va">el</span><span class="op">.</span><span class="va">content</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="va">tt_start</span><span class="op">)</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="va">el</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
+<p>Of course, you could just redefine the font in TeX but I think this
+is a bit more flexible. One usecase that is quite important is to change
+the way chapters are handled for LiX. In case of LiX, they expect
+<code>\h{chapter_name}</code> instead of <code>\section</code>, which is
+the standard behaviour of pandoc. So when you create a LiX backed
+template, you have to add a filter to change that behaviour. Something
+like this:</p>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode lua"><code class="sourceCode lua"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> Header<span class="op">(</span><span class="va">elem</span><span class="op">)</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="va">elem</span><span class="op">.</span><span class="va">level</span> <span class="op">==</span> <span class="dv">1</span> <span class="cf">then</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">pandoc</span><span class="op">.</span>RawBlock<span class="op">(</span><span class="st">&quot;latex&quot;</span><span class="op">,</span> <span class="st">&quot;</span><span class="sc">\\</span><span class="st">h{&quot;</span> <span class="op">..</span> <span class="va">pandoc</span><span class="op">.</span><span class="va">utils</span><span class="op">.</span>stringify<span class="op">(</span><span class="va">elem</span><span class="op">.</span><span class="va">content</span><span class="op">)</span> <span class="op">..</span> <span class="st">&quot;}&quot;</span><span class="op">)</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="va">elem</span><span class="op">.</span><span class="va">level</span> <span class="op">==</span> <span class="dv">2</span> <span class="cf">then</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">pandoc</span><span class="op">.</span>RawBlock<span class="op">(</span><span class="st">&quot;latex&quot;</span><span class="op">,</span> <span class="st">&quot;</span><span class="sc">\\</span><span class="st">hh{&quot;</span> <span class="op">..</span> <span class="va">pandoc</span><span class="op">.</span><span class="va">utils</span><span class="op">.</span>stringify<span class="op">(</span><span class="va">elem</span><span class="op">.</span><span class="va">content</span><span class="op">)</span> <span class="op">..</span> <span class="st">&quot;}&quot;</span><span class="op">)</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- add more levels here if needed</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
+<h2 id="preprocessing">Preprocessing</h2>
+<p>A “Preprocessor” is a stupid word for defining your own pandoc
+conversion parameters. You can (and should) use this to adjust the
+behaviour of the converter. For example, you could define a preprocessor
+to add <code>--listings</code> to the pandoc command. This is useful if
+you want to have reasonable code output in your pdf.</p>
+<p>If no preprocessor is defined, the converter will use default pandoc
+parameters, converting to the intermediate output file (in case of
+LaTeX, this is <code>output.tex</code>). But if you for example are
+using lua filters, you may want to export to a different path. This can
+be done by defining a preprocessor.</p>
+<p>If you want to define a preprocessor, you can do so by running</p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project templates <span class="op">&lt;</span>TEMPLATE_NAME<span class="op">&gt;</span> update <span class="at">--preprocessor</span> <span class="op">&lt;</span>PREPROCESSOR_NAME<span class="op">&gt;</span></span></code></pre></div>
+<p>to assign it to a template and</p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project preprocessors <span class="op">&lt;</span>PREPROCESSOR_NAME<span class="op">&gt;</span> add <span class="at">--</span> <span class="pp">[</span><span class="ss">PANDOC_ARGS</span><span class="pp">]</span></span></code></pre></div>
+<p>to create a new preprocessor.</p>
+<p>For example, if you want to add <code>--listings</code> to the pandoc
+command, you could do so by adding <code>--listings</code> to the
+preprocessor. But importantly, <strong>this overwrites the default
+preprocessor</strong>. So you will have to add the
+<code>-o output.tex</code> argument to the preprocessor as well. The
+full command then would be:</p>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project preprocessor <span class="st">&quot;Enable Listings&quot;</span> add <span class="at">--</span> <span class="at">-o</span> output.tex <span class="at">--listings</span></span></code></pre></div>
+<p>The manifest would look something like this:</p>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="dt">...</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.preprocessors]]</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Enable Listings&quot;</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="dt">pandoc_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;-o&quot;</span><span class="op">,</span> <span class="st">&quot;output.tex&quot;</span><span class="op">,</span> <span class="st">&quot;--listings&quot;</span><span class="op">]</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="kw">[[templates]]</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="dt">filters</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;luafilters/chapter_filter.lua&quot;</span><span class="op">]</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;PDF Documentation LaTeX&quot;</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">=</span> <span class="st">&quot;docs_tex.pdf&quot;</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="dt">preprocessor</span> <span class="op">=</span> <span class="st">&quot;Enable Listings&quot;</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="dt">template_file</span> <span class="op">=</span> <span class="st">&quot;docs.tex&quot;</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a><span class="dt">template_type</span> <span class="op">=</span> <span class="st">&quot;Tex&quot;</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a><span class="dt">...</span></span></code></pre></div>
+<h2 id="custom-pandoc-conversion">Custom Pandoc Conversion</h2>
+<p>I already hinted at it in <a href="#custom-pandoc-converter">Custom
+Pandoc Converter</a>, but I’ll go into more detail here. The idea is to
+run a preprocessor and just skip any further processing. Straight from
+pandoc to the output.</p>
+<p>You can do this by first defining a preprocessor, for example:</p>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project preprocessor <span class="st">&quot;RTF Preprocessor&quot;</span> add <span class="at">--</span> <span class="at">-o</span> documentation.rtf</span></code></pre></div>
+<p>As you can see, we’re outputting as an RTF file, and the file name is
+<code>documentation.rtf</code>. This means we need to add a template
+that deals with the same output:</p>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project template <span class="st">&quot;RTF Template&quot;</span> add <span class="at">-o</span> documentation.rtf <span class="at">-t</span> custompandoc</span></code></pre></div>
+<p>And that’s it. TiefDownConverter will run the preprocessor, which
+outputs to documentation.rtf, and then the templating system will copy
+that output to your directory. Hopefully. Did I mention that this is
+experimental? Yeah, so if you have issues, please report them. Even if
+you’re thinking “this is not a bug, it’s a feature”. It likely
+isn’t.</p>
+<h2 id="custom-processor-arguments">Custom Processor Arguments</h2>
+<p>You can define custom arguments for your processors. These are passed
+to the processor, so xelatex, typst, so on, on compilation. For example,
+if you needed to add a font directory to your typst conversion, you
+could do so by adding the following to your manifest:</p>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="dt">...</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.processors]]</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Typst Font Directory&quot;</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="dt">processor_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;--font-path&quot;</span><span class="op">,</span> <span class="st">&quot;fonts/&quot;</span><span class="op">]</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="kw">[[templates]]</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;PDF Documentation&quot;</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">=</span> <span class="st">&quot;docs.pdf&quot;</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="dt">processor</span> <span class="op">=</span> <span class="st">&quot;Typst Font Directory&quot;</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="dt">template_file</span> <span class="op">=</span> <span class="st">&quot;docs.typ&quot;</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="dt">template_type</span> <span class="op">=</span> <span class="st">&quot;Typst&quot;</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a><span class="dt">...</span></span></code></pre></div>
+<p>Or… Just use the command to create it.</p>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project processor <span class="st">&quot;Typst Font Directory&quot;</span> add <span class="at">--</span> <span class="at">--font-path</span> fonts/</span></code></pre></div>
+<p>Then append it to a template.</p>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project template <span class="st">&quot;PDF Documentation&quot;</span> update <span class="at">--processor</span> <span class="st">&quot;Typst Font Directory&quot;</span></span></code></pre></div>
+<h2 id="smart-cleaning">Smart Cleaning</h2>
+<p>Smart cleaning is a feature that is relatively simple. If you enable
+it in your manifest, it will automatically remove stale or old
+conversion directories.</p>
+<p>Enable it with the <code>--smart-clean</code> and set the threshold
+with <code>--smart-clean-threshold</code>. The threshold is 5 by
+default.</p>
+<p>You can also manually trigger a smart clean with
+<code>tiefdownconverter project smart-clean</code> or a normal clean
+with <code>tiefdownconverter project clean</code>. The latter will
+remove all conversion directories, while the former will only remove the
+ones that are older than the threshold.</p>
+<h1 id="usage-details">Usage Details</h1>
+<p>Below are the usage details for the various commands.
+<strong>Note:</strong> These are autogenerated! For clearer
+documentation, please see the <a href="#usage">Usage</a> section.</p>
+<h2 id="main"><code>tiefdownconverter</code></h2>
+<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<h3 id="usage-1">Usage:</h3>
+<pre><code>TiefDownConverter manages TiefDown projects.
+TiefDown is a project structure meant to simplify the conversion process from Markdown to PDFs.
+TiefDownConverter consolidates multiple conversion processes and templating systems to generate a configurable set or subset of output documents.
+It is not in itself a converter, but a wrapper around pandoc, xelatex and typst. As such, it requires these dependencies to be installed.
+
+Usage: tiefdownconverter &lt;COMMAND&gt;
+
+Commands:
+  convert             Convert a TiefDown project. By default, it will convert the current directory.
+  init                Initialize a new TiefDown project.
+  project             Update the TiefDown project.
+  check-dependencies  Validate dependencies are installed.
+  help                Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help
+          Print help (see a summary with &#39;-h&#39;)
+
+  -V, --version
+          Print version</code></pre>
+<h3 id="subcommands">Subcommands:</h3>
+<ul>
+<li><a href="#convert">convert</a></li>
+<li><a href="#init">init</a></li>
+<li><a href="#project">project</a></li>
+<li><a href="#check-dependencies">check-dependencies</a></li>
+</ul>
+<h2 id="convert"><code>tiefdownconverter convert</code></h2>
+<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<h3 id="usage-2">Usage:</h3>
+<pre><code>Convert a TiefDown project. By default, it will convert the current directory.
+
+Usage: tiefdownconverter convert [OPTIONS]
+
+Options:
+  -p, --project &lt;PROJECT&gt;         The project to convert. If not provided, the current directory will be used.
+  -t, --templates &lt;TEMPLATES&gt;...  The templates to use. If not provided, the default templates from the manifest file will be used. Cannot be used with --profile.
+  -P, --profile &lt;PROFILE&gt;         The conversion profile to use. Cannot be used with --templates.
+  -h, --help                      Print help</code></pre>
+<h2 id="init"><code>tiefdownconverter init</code></h2>
+<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<h3 id="usage-3">Usage:</h3>
+<pre><code>Initialize a new TiefDown project.
+
+Usage: tiefdownconverter init [OPTIONS] [PROJECT]
+
+Arguments:
+  [PROJECT]
+          The project to initialize. If not provided, the current directory will be used.
+
+Options:
+  -t, --templates &lt;TEMPLATES&gt;...
+          The preset templates to use. If not provided, the default template.tex will be used.
+          For custom templates, use the update command after initializing the project.
+          If using a LiX template, make sure to install the corresponding .sty and .cls files from https://github.com/NicklasVraa/LiX. Adjust the metadata in template/meta.tex accordingly.
+          
+          
+          [possible values: template.tex, booklet.tex, lix_novel_a4.tex, lix_novel_book.tex, template_typ.typ, default_epub]
+
+  -n, --no-templates
+          Do not include the default templates. You will need to add templates manually with Update
+
+  -f, --force
+          Delete the project if it already exists.
+
+  -m, --markdown-dir &lt;MARKDOWN_DIR&gt;
+          The directory where the Markdown files are located. If not provided, Markdown/ will be used.
+
+      --smart-clean
+          Enables smart clean for the project with a default threshold of 5.
+          If the number of conversion folders in the project is above this threshold, old folders will be cleaned, leaving only the threshold amount of folders.
+
+      --smart-clean-threshold &lt;SMART_CLEAN_THRESHOLD&gt;
+          The threshold for smart clean. If not provided, the default threshold of 5 will be used.
+          If the number of conversion folders in the project is above this threshold, old folders will be cleaned, leaving only the threshold amount of folders.
+
+  -h, --help
+          Print help (see a summary with &#39;-h&#39;)</code></pre>
+<h2 id="project"><code>tiefdownconverter project</code></h2>
+<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<h3 id="usage-4">Usage:</h3>
+<pre><code>Update the TiefDown project.
+
+Usage: tiefdownconverter project [PROJECT] &lt;COMMAND&gt;
+
+Commands:
+  templates        Add or modify templates in the project.
+  update-manifest  Update the project manifest.
+  pre-processors   Manage the preprocessors of the project.
+  processors       Manage the preprocessors of the project.
+  profiles         Manage the conversion profiles of the project.
+  manage-metadata  Manage the manifest metadata of the project.
+  list-templates   List the templates in the project.
+  validate         Validate the TiefDown project structure and metadata.
+  clean            Clean temporary files from the TiefDown project.
+  smart-clean      Clean temporary files from the TiefDown project, leaving only the threshold amount of folders.
+  help             Print this message or the help of the given subcommand(s)
+
+Arguments:
+  [PROJECT]  The project to edit. If not provided, the current directory will be used.
+
+Options:
+  -h, --help  Print help</code></pre>
+<h3 id="subcommands-1">Subcommands:</h3>
+<ul>
+<li><a href="#projecttemplates">templates</a></li>
+<li><a href="#projectupdate-manifest">update-manifest</a></li>
+<li><a href="#projectpre-processors">pre-processors</a></li>
+<li><a href="#projectprocessors">processors</a></li>
+<li><a href="#projectprofiles">profiles</a></li>
+<li><a href="#projectmanage-metadata">manage-metadata</a></li>
+<li><a href="#projectlist-templates">list-templates</a></li>
+<li><a href="#projectvalidate">validate</a></li>
+<li><a href="#projectclean">clean</a></li>
+<li><a href="#projectsmart-clean">smart-clean</a></li>
+</ul>
+<h2
+id="projecttemplates"><code>tiefdownconverter project templates</code></h2>
+<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<h3 id="usage-5">Usage:</h3>
+<pre><code>Add or modify templates in the project.
+
+Usage: tiefdownconverter project templates &lt;TEMPLATE&gt; &lt;COMMAND&gt;
+
+Commands:
+  add     Add a new template to the project.
+  remove  Remove a template from the project.
+  update  Update a template in the project.
+  help    Print this message or the help of the given subcommand(s)
+
+Arguments:
+  &lt;TEMPLATE&gt;  The template name to edit or add.
+
+Options:
+  -h, --help  Print help</code></pre>
+<h3 id="subcommands-2">Subcommands:</h3>
+<ul>
+<li><a href="#projecttemplatesadd">add</a></li>
+<li><a href="#projecttemplatesremove">remove</a></li>
+<li><a href="#projecttemplatesupdate">update</a></li>
+</ul>
+<h2
+id="projecttemplatesadd"><code>tiefdownconverter project templates add</code></h2>
+<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<h3 id="usage-6">Usage:</h3>
+<pre><code>Add a new template to the project.
+
+Usage: tiefdownconverter project templates &lt;TEMPLATE&gt; add [OPTIONS]
+
+Options:
+  -f, --template-file &lt;TEMPLATE_FILE&gt;  The file to use as the template. If not provided, the template name will be used.
+  -t, --template-type &lt;TEMPLATE_TYPE&gt;  The type of the template. If not provided, the type will be inferred from the template file. [possible values: tex, typst, epub, custom-pandoc]
+  -o, --output &lt;OUTPUT&gt;                The output file. If not provided, the template name will be used.
+      --filters &lt;FILTERS&gt;...           The luafilters to use for pandoc conversion of this templates markdown.
+      --preprocessor &lt;PREPROCESSOR&gt;    The preprocessor to use for this template.
+      --processor &lt;PROCESSOR&gt;          The processor to use for this template.
+  -h, --help                           Print help</code></pre>
+<h2
+id="projecttemplatesremove"><code>tiefdownconverter project templates remove</code></h2>
+<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<h3 id="usage-7">Usage:</h3>
+<pre><code>Remove a template from the project.
+
+Usage: tiefdownconverter project templates &lt;TEMPLATE&gt; remove
+
+Options:
+  -h, --help  Print help</code></pre>
+<h2
+id="projecttemplatesupdate"><code>tiefdownconverter project templates update</code></h2>
+<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<h3 id="usage-8">Usage:</h3>
+<pre><code>Update a template in the project.
+
+Usage: tiefdownconverter project templates &lt;TEMPLATE&gt; update [OPTIONS]
+
+Options:
+      --template-file &lt;TEMPLATE_FILE&gt;
+          The file to use as the template. If not provided, the template name will be used.
+      --template-type &lt;TEMPLATE_TYPE&gt;
+          The type of the template. If not provided, the type will be inferred from the template file.
+          Changing this is not recommended, as it is highly unlikely the type and only the type has changed. It is recommended to create a new template instead. [possible values: tex, typst, epub, custom-pandoc]
+      --output &lt;OUTPUT&gt;
+          The output file. If not provided, the template name will be used.
+      --filters &lt;FILTERS&gt;...
+          The luafilters to use for pandoc conversion of this templates markdown.
+      --add-filters &lt;ADD_FILTERS&gt;...
+          The luafilters add to the template.
+      --remove-filters &lt;REMOVE_FILTERS&gt;...
+          The luafilters to remove from the template.
+      --preprocessor &lt;PREPROCESSOR&gt;
+          The preprocessor to use for this template.
+      --processor &lt;PROCESSOR&gt;
+          The processor to use for this template.
+  -h, --help
+          Print help</code></pre>
+<h2
+id="projectupdate-manifest"><code>tiefdownconverter project update-manifest</code></h2>
+<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<h3 id="usage-9">Usage:</h3>
+<pre><code>Update the project manifest.
+
+Usage: tiefdownconverter project update-manifest [OPTIONS]
+
+Options:
+  -m, --markdown-dir &lt;MARKDOWN_DIR&gt;
+          The directory where the Markdown files are located.
+
+      --smart-clean &lt;SMART_CLEAN&gt;
+          Enables smart clean for the project with a default threshold of 5.
+          If the number of conversion folders in the project is above this threshold, old folders will be cleaned, leaving only the threshold amount of folders.
+          
+          [possible values: true, false]
+
+      --smart-clean-threshold &lt;SMART_CLEAN_THRESHOLD&gt;
+          The threshold for smart clean. If not provided, the default threshold of 5 will be used.
+          If the number of conversion folders in the project is above this threshold, old folders will be cleaned, leaving only the threshold amount of folders.
+
+  -h, --help
+          Print help (see a summary with &#39;-h&#39;)</code></pre>
+<h2
+id="projectpre-processors"><code>tiefdownconverter project pre-processors</code></h2>
+<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<h3 id="usage-10">Usage:</h3>
+<pre><code>Manage the preprocessors of the project.
+
+Usage: tiefdownconverter project pre-processors &lt;COMMAND&gt;
+
+Commands:
+  add     Add a new preprocessor to the project.
+  remove  Remove a preprocessor from the project.
+  list    List the preprocessors in the project.
+  help    Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help</code></pre>
+<h3 id="subcommands-3">Subcommands:</h3>
+<ul>
+<li><a href="#projectpre-processorsadd">add</a></li>
+<li><a href="#projectpre-processorsremove">remove</a></li>
+<li><a href="#projectpre-processorslist">list</a></li>
+</ul>
+<h2
+id="projectpre-processorsadd"><code>tiefdownconverter project pre-processors add</code></h2>
+<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<h3 id="usage-11">Usage:</h3>
+<pre><code>Add a new preprocessor to the project.
+
+Usage: tiefdownconverter project pre-processors add &lt;NAME&gt; [-- &lt;PANDOC_ARGS&gt;...]
+
+Arguments:
+  &lt;NAME&gt;            The name of the preprocessor to create.
+  [PANDOC_ARGS]...  The arguments to pass to the preprocessor.
+
+Options:
+  -h, --help  Print help</code></pre>
+<h2
+id="projectpre-processorsremove"><code>tiefdownconverter project pre-processors remove</code></h2>
+<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<h3 id="usage-12">Usage:</h3>
+<pre><code>Remove a preprocessor from the project.
+
+Usage: tiefdownconverter project pre-processors remove &lt;NAME&gt;
+
+Arguments:
+  &lt;NAME&gt;  The name of the preprocessor to remove.
+
+Options:
+  -h, --help  Print help</code></pre>
+<h2
+id="projectpre-processorslist"><code>tiefdownconverter project pre-processors list</code></h2>
+<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<h3 id="usage-13">Usage:</h3>
+<pre><code>List the preprocessors in the project.
+
+Usage: tiefdownconverter project pre-processors list
+
+Options:
+  -h, --help  Print help</code></pre>
+<h2
+id="projectprocessors"><code>tiefdownconverter project processors</code></h2>
+<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<h3 id="usage-14">Usage:</h3>
+<pre><code>Manage the preprocessors of the project.
+
+Usage: tiefdownconverter project processors &lt;COMMAND&gt;
+
+Commands:
+  add     Add a new processor to the project.
+  remove  Remove a processor from the project.
+  list    List the processors in the project.
+  help    Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help</code></pre>
+<h3 id="subcommands-4">Subcommands:</h3>
+<ul>
+<li><a href="#projectprocessorsadd">add</a></li>
+<li><a href="#projectprocessorsremove">remove</a></li>
+<li><a href="#projectprocessorslist">list</a></li>
+</ul>
+<h2
+id="projectprocessorsadd"><code>tiefdownconverter project processors add</code></h2>
+<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<h3 id="usage-15">Usage:</h3>
+<pre><code>Add a new processor to the project.
+
+Usage: tiefdownconverter project processors add &lt;NAME&gt; [-- &lt;PROCESSOR_ARGS&gt;...]
+
+Arguments:
+  &lt;NAME&gt;               The name of the processor to create.
+  [PROCESSOR_ARGS]...  The arguments to pass to the processor.
+
+Options:
+  -h, --help  Print help</code></pre>
+<h2
+id="projectprocessorsremove"><code>tiefdownconverter project processors remove</code></h2>
+<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<h3 id="usage-16">Usage:</h3>
+<pre><code>Remove a processor from the project.
+
+Usage: tiefdownconverter project processors remove &lt;NAME&gt;
+
+Arguments:
+  &lt;NAME&gt;  The name of the processor to remove.
+
+Options:
+  -h, --help  Print help</code></pre>
+<h2
+id="projectprocessorslist"><code>tiefdownconverter project processors list</code></h2>
+<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<h3 id="usage-17">Usage:</h3>
+<pre><code>List the processors in the project.
+
+Usage: tiefdownconverter project processors list
+
+Options:
+  -h, --help  Print help</code></pre>
+<h2
+id="projectprofiles"><code>tiefdownconverter project profiles</code></h2>
+<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<h3 id="usage-18">Usage:</h3>
+<pre><code>Manage the conversion profiles of the project.
+
+Usage: tiefdownconverter project profiles &lt;COMMAND&gt;
+
+Commands:
+  add     Add a new conversion profile to the project.
+  remove  Remove a conversion profile from the project.
+  list    List the conversion profiles in the project.
+  help    Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help</code></pre>
+<h3 id="subcommands-5">Subcommands:</h3>
+<ul>
+<li><a href="#projectprofilesadd">add</a></li>
+<li><a href="#projectprofilesremove">remove</a></li>
+<li><a href="#projectprofileslist">list</a></li>
+</ul>
+<h2
+id="projectprofilesadd"><code>tiefdownconverter project profiles add</code></h2>
+<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<h3 id="usage-19">Usage:</h3>
+<pre><code>Add a new conversion profile to the project. These profiles contain a list of templates to preset conversion workflows.
+
+Usage: tiefdownconverter project profiles add &lt;NAME&gt; [TEMPLATES]...
+
+Arguments:
+  &lt;NAME&gt;
+          The name of the profile to create.
+
+  [TEMPLATES]...
+          The templates to add to the profile.
+
+Options:
+  -h, --help
+          Print help (see a summary with &#39;-h&#39;)</code></pre>
+<h2
+id="projectprofilesremove"><code>tiefdownconverter project profiles remove</code></h2>
+<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<h3 id="usage-20">Usage:</h3>
+<pre><code>Remove a conversion profile from the project.
+
+Usage: tiefdownconverter project profiles remove &lt;NAME&gt;
+
+Arguments:
+  &lt;NAME&gt;  The name of the profile to remove.
+
+Options:
+  -h, --help  Print help</code></pre>
+<h2
+id="projectprofileslist"><code>tiefdownconverter project profiles list</code></h2>
+<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<h3 id="usage-21">Usage:</h3>
+<pre><code>List the conversion profiles in the project.
+
+Usage: tiefdownconverter project profiles list
+
+Options:
+  -h, --help  Print help</code></pre>
+<h2
+id="projectmanage-metadata"><code>tiefdownconverter project manage-metadata</code></h2>
+<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<h3 id="usage-22">Usage:</h3>
+<pre><code>Manage the manifest metadata of the project.
+
+Usage: tiefdownconverter project manage-metadata &lt;COMMAND&gt;
+
+Commands:
+  set     Add or change the metadata of the project.
+  remove  Remove metadata from the project.
+  list    List the metadata of the project.
+  help    Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help</code></pre>
+<h3 id="subcommands-6">Subcommands:</h3>
+<ul>
+<li><a href="#projectmanage-metadataset">set</a></li>
+<li><a href="#projectmanage-metadataremove">remove</a></li>
+<li><a href="#projectmanage-metadatalist">list</a></li>
+</ul>
+<h2
+id="projectmanage-metadataset"><code>tiefdownconverter project manage-metadata set</code></h2>
+<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<h3 id="usage-23">Usage:</h3>
+<pre><code>Add or change the metadata of the project.
+
+Usage: tiefdownconverter project manage-metadata set &lt;KEY&gt; &lt;VALUE&gt;
+
+Arguments:
+  &lt;KEY&gt;    The key to set.
+  &lt;VALUE&gt;  The value to set.
+
+Options:
+  -h, --help  Print help</code></pre>
+<h2
+id="projectmanage-metadataremove"><code>tiefdownconverter project manage-metadata remove</code></h2>
+<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<h3 id="usage-24">Usage:</h3>
+<pre><code>Remove metadata from the project.
+
+Usage: tiefdownconverter project manage-metadata remove &lt;KEY&gt;
+
+Arguments:
+  &lt;KEY&gt;  The key to remove.
+
+Options:
+  -h, --help  Print help</code></pre>
+<h2
+id="projectmanage-metadatalist"><code>tiefdownconverter project manage-metadata list</code></h2>
+<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<h3 id="usage-25">Usage:</h3>
+<pre><code>List the metadata of the project.
+
+Usage: tiefdownconverter project manage-metadata list
+
+Options:
+  -h, --help  Print help</code></pre>
+<h2
+id="projectlist-templates"><code>tiefdownconverter project list-templates</code></h2>
+<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<h3 id="usage-26">Usage:</h3>
+<pre><code>List the templates in the project.
+
+Usage: tiefdownconverter project list-templates
+
+Options:
+  -h, --help  Print help</code></pre>
+<h2
+id="projectvalidate"><code>tiefdownconverter project validate</code></h2>
+<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<h3 id="usage-27">Usage:</h3>
+<pre><code>Validate the TiefDown project structure and metadata.
+
+Usage: tiefdownconverter project validate
+
+Options:
+  -h, --help  Print help</code></pre>
+<h2 id="projectclean"><code>tiefdownconverter project clean</code></h2>
+<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<h3 id="usage-28">Usage:</h3>
+<pre><code>Clean temporary files from the TiefDown project.
+
+Usage: tiefdownconverter project clean
+
+Options:
+  -h, --help  Print help</code></pre>
+<h2
+id="projectsmart-clean"><code>tiefdownconverter project smart-clean</code></h2>
+<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<h3 id="usage-29">Usage:</h3>
+<pre><code>Clean temporary files from the TiefDown project.
+If the number of conversion folders in the project is above this threshold, old folders will be cleaned, leaving only the threshold amount of folders.
+The threshold is set to 5 by default, and is overwritten by the threshold in the manifest.
+
+Usage: tiefdownconverter project smart-clean
+
+Options:
+  -h, --help
+          Print help (see a summary with &#39;-h&#39;)</code></pre>
+<h2
+id="check-dependencies"><code>tiefdownconverter check-dependencies</code></h2>
+<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<h3 id="usage-30">Usage:</h3>
+<pre><code>Validate dependencies are installed.
+
+Usage: tiefdownconverter check-dependencies
+
+Options:
+  -h, --help  Print help</code></pre>
+<h1 id="contributing">Contributing</h1>
+<p>This project is open source, and I’d love for you to contribute!
+There’s a few things you should know before you start.</p>
+<h2 id="the-architecture">The architecture</h2>
+<p>The project has a relatively straight forward conversion process, as
+shown in the diagram below.</p>
+<figure>
+<img src="./resources/architecture.jpg" style="width:135mm;height:90mm"
+alt="Conversion Process" />
+<figcaption aria-hidden="true">Conversion Process</figcaption>
+</figure>
+<h2 id="pull-requests">Pull Requests</h2>
+<p>Pull Requests should be made with either a link to an issue or an
+explanation of</p>
+<ol type="1">
+<li>What was the problem</li>
+<li>How is it solved now</li>
+<li>How did it affect the documentation</li>
+</ol>
+<p>It takes a lot of work to understand the intention of code you didn’t
+write and then judging whether this was indeed the intended outcome.
+That’s why it’s helpful for everyone if there’s an explanation on what
+was changed and why.</p>
+<h2 id="conversion">Conversion</h2>
+<p>Conversion is split in a few different steps:</p>
+<ol type="1">
+<li>Combine all the markdown files into one megafile called
+<code>combined.md</code>.</li>
+<li>Run Pandoc conversion to TeX, EPUB, or Typst. This uses Lua filters
+that are defined in the <code>manifest.toml</code> file.</li>
+<li>Run XeLaTeX on all TeX templates, Typst on all Typst templates, and
+so on.</li>
+</ol>
+<p>Say you were to add a new conversion type. In
+<code>converters.rs</code>, you’d need to add a new function that
+handles the full conversion. Including handling lua filters, markdown
+conversion, so on. This converter function has to then be included in
+our conversion decision logic in <code>conversion_decider.rs</code>. And
+for that you need to add a new TemplateType, which includes editing the
+implementations. Then you need to add the new template type decision
+logic to <code>get_template_type_from_path</code>.</p>
+<h2 id="presets">Presets</h2>
+<blockquote>
+<p><strong>NOTE:</strong> This is a bit of a niche usecase, so
+documentation is lacking. You can always ask for help on this in a
+GitHub issue.</p>
+</blockquote>
+<p>You can also add new presets, but that’s a bit more involved. You
+should check the implementation for the existing presets, I don’t think
+it’s useful to document this nieche usecase for now.</p>
+<h2 id="manifest">Manifest</h2>
+<p>Hope you don’t have to change the manifest.toml file. If you do,
+change the manifest model, increase the version number in
+<code>consts.rs</code> and add a upgrade logic to
+<code>manifest_model.rs</code>.</p>
+<h2 id="tests">Tests</h2>
+<p>Currently primarily integration tests. See the <code>tests</code>
+folder for examples. Any pull request to main will automatically run
+tests, and the expectation is that at least the existing tests work. If
+they break, fix your code or, if you changed behavior on purpose, the
+tests.</p>
+<p>I appreciate it if you add test coverage for your changes. I
+especially would appreciate more unit tests, but the tests I have are
+sufficient for now. Integration tests take priority over unit tests for
+me, as the overall behavior is more important to me than the individual
+functions, and I only have so much time that I want to spend on this
+project.</p>
+<h2 id="documentation">Documentation</h2>
+<p>When changing the documentation, it is of utmost importance that the
+documentation outputs are correctly generated. <em>These are not
+automatically generated on release</em> but rather held in git to more
+easily track changes during a pull request.</p>
+<p>To make sure this documentation is up to date, consider whether your
+changes significantly affect the workflow of using TiefDownConverter. If
+you add a command or flag, make sure to run
+<code>tools/generate_docs.py</code>. Either way, when changing the
+documentation, always run <code>tiefdownconverter convert -p docs</code>
+before committing the changes.</p>
+<p>Praise be you don’t need to have any fonts installed anymore - they
+are packaged in the fonts directory. But if you happen to change the
+fonts, you will need to replace them in fonts/ and add your own fonts to
+the templates.</p>
+<h2 id="code-style">Code Style</h2>
+<p>I don’t have one. I’m sorry.</p>
+</body>
+</html>

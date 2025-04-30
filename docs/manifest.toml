@@ -3,6 +3,10 @@ smart_clean_threshold = 3
 version = 4
 
 [[custom_processors.preprocessors]]
+name = "HTML Conversion"
+pandoc_args = ["--to", "html5", "-s", "-o", "index.html", "--metadata", "title={{title}}", "--metadata", "author={{author}}", "--css", "template/index.html_template/style.css", "--toc", "-B", "index.html_template/header.html"]
+
+[[custom_processors.preprocessors]]
 name = "Enable Listings"
 pandoc_args = ["-o", "output.tex", "-t", "latex", "--listings"]
 
@@ -64,4 +68,10 @@ template_type = "Epub"
 name = "Man Page"
 output = "tiefdownconverter.1"
 preprocessor = "Man Page"
+template_type = "CustomPandoc"
+
+[[templates]]
+name = "GitHub Page Documentation"
+output = "index.html"
+preprocessor = "HTML Conversion"
 template_type = "CustomPandoc"
