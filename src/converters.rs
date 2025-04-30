@@ -226,10 +226,25 @@ pub(crate) fn convert_epub(
 
     add_meta_args(metadata_fields, &mut pandoc)?;
 
-    add_css_files(project_directory_path, &template_path, &mut pandoc)?;
-    add_fonts(project_directory_path, &template_path, &mut pandoc)?;
+    add_css_files(
+        project_directory_path,
+        compiled_directory_path,
+        &template_path,
+        &mut pandoc,
+    )?;
+    add_fonts(
+        project_directory_path,
+        compiled_directory_path,
+        &template_path,
+        &mut pandoc,
+    )?;
 
-    add_lua_filters(template, project_directory_path, &mut pandoc)?;
+    add_lua_filters(
+        template,
+        project_directory_path,
+        compiled_directory_path,
+        &mut pandoc,
+    )?;
 
     if let Some(processor) = &template.processor {
         if let Some(processor_pos) = custom_processors
@@ -277,6 +292,7 @@ fn add_meta_args(metadata_fields: &Table, pandoc: &mut Command) -> Result<()> {
 
 fn add_css_files(
     project_directory_path: &Path,
+    compiled_directory_path: &Path,
     template_path: &Path,
     pandoc: &mut Command,
 ) -> Result<()> {
@@ -289,6 +305,7 @@ fn add_css_files(
                 .arg(get_path_relative_to_compiled_directory(
                     &css_file,
                     project_directory_path,
+                    compiled_directory_path,
                 )?);
         }
     }
@@ -298,6 +315,7 @@ fn add_css_files(
 
 fn add_fonts(
     project_directory_path: &Path,
+    compiled_directory_path: &Path,
     template_path: &Path,
     pandoc: &mut Command,
 ) -> Result<()> {
@@ -320,6 +338,7 @@ fn add_fonts(
                 .arg(get_path_relative_to_compiled_directory(
                     &font_file,
                     project_directory_path,
+                    compiled_directory_path,
                 )?);
         }
     }
@@ -468,7 +487,12 @@ fn run_preprocessor_on_markdown(
         .arg("markdown")
         .arg(combined_markdown_path);
 
-    add_lua_filters(template, project_directory_path, &mut pandoc)?;
+    add_lua_filters(
+        template,
+        project_directory_path,
+        compiled_directory_path,
+        &mut pandoc,
+    )?;
 
     pandoc.stdout(Stdio::null()).status()?;
 
@@ -493,6 +517,7 @@ fn preprocess_pandoc_args(pandoc_args: &[String], metadata_fields: &Table) -> Ve
 fn add_lua_filters(
     template: &TemplateMapping,
     project_directory_path: &Path,
+    compiled_directory_path: &Path,
     pandoc: &mut Command,
 ) -> Result<()> {
     for filter in template.filters.clone().unwrap_or_default() {
@@ -502,7 +527,12 @@ fn add_lua_filters(
             return Err(eyre!("Filter file does not exist: {}", filter.display()));
         }
 
-        add_lua_filter_or_directory(project_directory_path, filter, pandoc)?;
+        add_lua_filter_or_directory(
+            project_directory_path,
+            compiled_directory_path,
+            filter,
+            pandoc,
+        )?;
     }
 
     Ok(())
@@ -510,6 +540,7 @@ fn add_lua_filters(
 
 fn add_lua_filter_or_directory(
     project_directory_path: &Path,
+    compiled_directory_path: &Path,
     filter: PathBuf,
     pandoc: &mut Command,
 ) -> Result<()> {
@@ -517,7 +548,12 @@ fn add_lua_filter_or_directory(
         for entry in fs::read_dir(filter)? {
             let entry = entry?.path();
 
-            add_lua_filter_or_directory(project_directory_path, entry, pandoc)?;
+            add_lua_filter_or_directory(
+                project_directory_path,
+                compiled_directory_path,
+                entry,
+                pandoc,
+            )?;
         }
     } else if filter.is_file() && filter.extension().unwrap_or_default() == "lua" {
         pandoc
@@ -525,6 +561,7 @@ fn add_lua_filter_or_directory(
             .arg(get_path_relative_to_compiled_directory(
                 &filter,
                 project_directory_path,
+                compiled_directory_path,
             )?);
     }
 
@@ -534,10 +571,20 @@ fn add_lua_filter_or_directory(
 fn get_path_relative_to_compiled_directory(
     original_path: &Path,
     project_directory_path: &Path,
+    compiled_directory_path: &Path,
 ) -> Result<PathBuf> {
-    if project_directory_path.to_string_lossy() == "." {
-        return Ok(PathBuf::from("../").join(original_path));
+    let relative_path = compiled_directory_path
+        .strip_prefix(project_directory_path)
+        .unwrap()
+        .to_path_buf();
+
+    let components = relative_path.components().count();
+    let mut relative_path = PathBuf::new();
+    for _ in 0..components {
+        relative_path.push("..");
     }
 
-    Ok(PathBuf::from("../").join(original_path.strip_prefix(project_directory_path)?))
+    relative_path.push(original_path);
+
+    Ok(relative_path)
 }
