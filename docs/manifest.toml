@@ -1,6 +1,10 @@
 smart_clean = true
 smart_clean_threshold = 3
-version = 3
+version = 4
+
+[[custom_processors.preprocessors]]
+name = "HTML Conversion"
+pandoc_args = ["--to", "html5", "-s", "-o", "index.html", "--metadata", "title={{title}}", "--metadata", "author={{author}}", "--css", "template/index.html_template/style.css", "--toc", ]
 
 [[custom_processors.preprocessors]]
 name = "Enable Listings"
@@ -10,19 +14,15 @@ pandoc_args = ["-o", "output.tex", "-t", "latex", "--listings"]
 name = "Typst Font Directory"
 processor_args = ["--font-path", "fonts/"]
 
-[metadata_fields]
-author = "Tiefseetauchner et al."
-title = "TiefDownConverter Documentation"
-
 [metadata_settings]
 
 [[profiles]]
 name = "PDF"
 templates = ["PDF Documentation LaTeX", "PDF Documentation"]
 
-[[profiles]]
-name = "PDF"
-templates = ["PDF Documentation LaTeX", "PDF Documentation"]
+[shared_metadata]
+author = "Tiefseetauchner et al."
+title = "TiefDownConverter Documentation"
 
 [[templates]]
 filters = ["luafilters/chapter_filter.lua"]
@@ -43,3 +43,9 @@ template_type = "Typst"
 name = "Epub Documentation"
 template_file = "prim_epub"
 template_type = "Epub"
+
+[[templates]]
+name = "GitHub Page Documentation"
+output = "index.html"
+preprocessor = "HTML Conversion"
+template_type = "CustomPandoc"
