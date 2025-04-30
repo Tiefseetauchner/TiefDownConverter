@@ -138,7 +138,7 @@ If the number of conversion folders in the project is above this threshold, old 
         #[command(subcommand)]
         command: PreProcessorsCommands,
     },
-    #[command(about = "Manage the preprocessors of the project.")]
+    #[command(about = "Manage the processors of the project.")]
     Processors {
         #[command(subcommand)]
         command: ProcessorsCommands,
@@ -316,6 +316,8 @@ pub enum ManageMarkdownProjectsCommand {
         path: PathBuf,
         #[arg(help = "The output folder.")]
         output: PathBuf,
+        #[arg(long, help = "The default profile to use for converting this project.")]
+        default_profile: Option<String>,
     },
     #[command(about = "Update a markdown project in the project.")]
     Update {
@@ -325,6 +327,8 @@ pub enum ManageMarkdownProjectsCommand {
         path: Option<PathBuf>,
         #[arg(long, help = "The output folder.")]
         output: Option<PathBuf>,
+        #[arg(long, help = "The default profile to use for converting this project.")]
+        default_profile: Option<String>,
     },
     #[command(about = "Manage the metadata of a markdown project.")]
     Meta {

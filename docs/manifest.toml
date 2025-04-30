@@ -6,20 +6,35 @@ version = 4
 name = "Enable Listings"
 pandoc_args = ["-o", "output.tex", "-t", "latex", "--listings"]
 
+[[custom_processors.preprocessors]]
+name = "Man Page"
+pandoc_args = ["-s", "-t", "man", "-o", "tiefdownconverter.1", "--metadata-file", "man_metadata.yaml"]
+
 [[custom_processors.processors]]
 name = "Typst Font Directory"
 processor_args = ["--font-path", "fonts/"]
 
 [[markdown_projects]]
+default_profile = "Documentation"
 name = "main"
 output = "."
 path = "Markdown"
 
+[[markdown_projects]]
+default_profile = "Man"
+name = "man"
+output = "man"
+path = "man_markdown"
+
 [metadata_settings]
 
 [[profiles]]
-name = "PDF"
-templates = ["PDF Documentation LaTeX", "PDF Documentation"]
+name = "Documentation"
+templates = ["PDF Documentation LaTeX", "PDF Documentation", "Epub Documentation"]
+
+[[profiles]]
+name = "Man"
+templates = ["Man Page"]
 
 [shared_metadata]
 author = "Tiefseetauchner et al."
@@ -44,3 +59,9 @@ template_type = "Typst"
 name = "Epub Documentation"
 template_file = "prim_epub"
 template_type = "Epub"
+
+[[templates]]
+name = "Man Page"
+output = "tiefdownconverter.1"
+preprocessor = "Man Page"
+template_type = "CustomPandoc"

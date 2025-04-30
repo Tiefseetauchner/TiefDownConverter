@@ -1,9 +1,5 @@
-## `tiefdownconverter project processors` {#projectprocessors}
+## tiefdownconverter project processors
 
-**Version:** `tiefdownconverter 0.8.0-ALPHA`
-
-### Usage:
-```
 Manage the processors of the project.
 
 Usage: tiefdownconverter project processors <COMMAND>
@@ -16,10 +12,9 @@ Commands:
 
 Options:
   -h, --help  Print help
-```
 
 ### Subcommands:
-- [add](#projectprocessorsadd)
-- [remove](#projectprocessorsremove)
-- [list](#projectprocessorslist)
+- add
+- remove
+- list
 

@@ -140,17 +140,33 @@ fn main() -> Result<()> {
                 ManageMetadataCommand::List => metadata_management::list_metadata(project)?,
             },
             ProjectCommands::Markdown { command } => match command {
-                ManageMarkdownProjectsCommand::Add { name, path, output } => {
-                    markdown_project_management::add_markdown_project(project, name, path, output)?
-                }
+                ManageMarkdownProjectsCommand::Add {
+                    name,
+                    path,
+                    output,
+                    default_profile,
+                } => markdown_project_management::add_markdown_project(
+                    project,
+                    name,
+                    path,
+                    output,
+                    default_profile,
+                )?,
                 ManageMarkdownProjectsCommand::Remove { name } => {
                     markdown_project_management::remove_markdown_project(project, name)?
                 }
-                ManageMarkdownProjectsCommand::Update { name, path, output } => {
-                    markdown_project_management::update_markdown_project(
-                        project, name, path, output,
-                    )?
-                }
+                ManageMarkdownProjectsCommand::Update {
+                    name,
+                    path,
+                    output,
+                    default_profile,
+                } => markdown_project_management::update_markdown_project(
+                    project,
+                    name,
+                    path,
+                    output,
+                    default_profile,
+                )?,
                 ManageMarkdownProjectsCommand::Meta { name, command } => match command {
                     ManageMetadataCommand::Set { key, value } => {
                         markdown_project_management::set_metadata(project, name, key, value)?

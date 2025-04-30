@@ -9,6 +9,7 @@ pub(crate) fn add_markdown_project(
     name: String,
     path: PathBuf,
     output: PathBuf,
+    default_profile: Option<String>,
 ) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
@@ -30,6 +31,7 @@ pub(crate) fn add_markdown_project(
         path,
         output,
         metadata_fields: None,
+        default_profile,
         resources: None,
     });
 
@@ -72,6 +74,7 @@ pub(crate) fn update_markdown_project(
     name: String,
     path: Option<PathBuf>,
     output: Option<PathBuf>,
+    default_profile: Option<String>,
 ) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
@@ -88,6 +91,9 @@ pub(crate) fn update_markdown_project(
             }
             if let Some(output) = output {
                 project.output = output;
+            }
+            if let Some(default_profile) = default_profile {
+                project.default_profile = Some(default_profile);
             }
             break;
         }

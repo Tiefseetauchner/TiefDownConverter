@@ -27,6 +27,7 @@ pub(crate) struct MarkdownProject {
     pub path: PathBuf,
     pub output: PathBuf,
     pub metadata_fields: Option<Table>,
+    pub default_profile: Option<String>,
     pub resources: Option<Vec<PathBuf>>,
 }
 

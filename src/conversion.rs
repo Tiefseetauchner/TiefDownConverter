@@ -42,9 +42,6 @@ pub(crate) fn convert(
 
     let compiled_directory_path = create_build_directory(project_path)?;
 
-    let templates = get_template_names(templates, profile, &manifest)?;
-    let templates = get_template_mappings_from_names(&templates, &manifest)?;
-
     for markdown_project in manifest
         .markdown_projects
         .clone()
@@ -53,9 +50,14 @@ pub(crate) fn convert(
             path: PathBuf::from("Markdown"),
             output: PathBuf::from("."),
             metadata_fields: None,
+            default_profile: None,
             resources: None,
         }])
     {
+        let profile = profile.clone().or(markdown_project.default_profile);
+
+        let templates = get_template_names(&templates, profile, &manifest)?;
+        let templates = get_template_mappings_from_names(&templates, &manifest)?;
         let markdown_project_compiled_directory_path =
             compiled_directory_path.join(markdown_project.output.clone());
 
@@ -106,7 +108,7 @@ fn merge_metadata(shared_metadata: &Table, project_metadata: &Table) -> Table {
 }
 
 fn get_template_names(
-    templates: Option<Vec<String>>,
+    templates: &Option<Vec<String>>,
     profile: Option<String>,
     manifest: &Manifest,
 ) -> Result<Vec<String>> {
@@ -127,7 +129,7 @@ fn get_template_names(
     }
 
     if let Some(templates) = templates {
-        return Ok(templates);
+        return Ok(templates.clone());
     }
 
     Ok(manifest.templates.iter().map(|t| t.name.clone()).collect())

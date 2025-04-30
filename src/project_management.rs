@@ -80,6 +80,7 @@ This is a simple test document for you to edit or overwrite."#,
             path: PathBuf::from(markdown_dir.clone()),
             output: PathBuf::from("."),
             metadata_fields: None,
+            default_profile: None,
             resources: None,
         }]),
         templates: templates.clone(),
@@ -577,6 +578,7 @@ pub(crate) fn validate(project: Option<String>) -> Result<()> {
         path: PathBuf::from("Markdown"),
         output: PathBuf::from("."),
         metadata_fields: None,
+        default_profile: None,
         resources: None,
     }]);
 

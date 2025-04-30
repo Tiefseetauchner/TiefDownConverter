@@ -1,9 +1,5 @@
-## `tiefdownconverter project` {#project}
+## tiefdownconverter project
 
-**Version:** `tiefdownconverter 0.8.0-ALPHA`
-
-### Usage:
-```
 Update the TiefDown project.
 
 Usage: tiefdownconverter project [PROJECT] <COMMAND>
@@ -27,18 +23,17 @@ Arguments:
 
 Options:
   -h, --help  Print help
-```
 
 ### Subcommands:
-- [templates](#projecttemplates)
-- [update-manifest](#projectupdate-manifest)
-- [pre-processors](#projectpre-processors)
-- [processors](#projectprocessors)
-- [profiles](#projectprofiles)
-- [shared-meta](#projectshared-meta)
-- [markdown](#projectmarkdown)
-- [list-templates](#projectlist-templates)
-- [validate](#projectvalidate)
-- [clean](#projectclean)
-- [smart-clean](#projectsmart-clean)
+- templates
+- update-manifest
+- pre-processors
+- processors
+- profiles
+- shared-meta
+- markdown
+- list-templates
+- validate
+- clean
+- smart-clean
 

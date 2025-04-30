@@ -1,9 +1,5 @@
-## `tiefdownconverter project markdown add` {#projectmarkdownadd}
+## tiefdownconverter project markdown add
 
-**Version:** `tiefdownconverter 0.8.0-ALPHA`
-
-### Usage:
-```
 Add a new markdown project to the project.
 
 Usage: tiefdownconverter project markdown add [OPTIONS] <NAME> <PATH> <OUTPUT>
@@ -16,5 +12,4 @@ Arguments:
 Options:
       --default-profile <DEFAULT_PROFILE>  The default profile to use for converting this project.
   -h, --help                               Print help
-```
 
