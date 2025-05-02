@@ -137,6 +137,10 @@ fn get_template_names(
     profile: Option<String>,
     manifest: &Manifest,
 ) -> Result<Vec<String>> {
+    if let Some(templates) = templates {
+        return Ok(templates.clone());
+    }
+
     if let Some(profile) = profile {
         if let Some(available_profiles) = &manifest.profiles {
             if let Some(profile_pos) = available_profiles.iter().position(|p| p.name == profile) {
@@ -151,10 +155,6 @@ fn get_template_names(
         } else {
             return Err(eyre!("No profiles are defined in the manifest.toml file."));
         }
-    }
-
-    if let Some(templates) = templates {
-        return Ok(templates.clone());
     }
 
     Ok(manifest.templates.iter().map(|t| t.name.clone()).collect())
