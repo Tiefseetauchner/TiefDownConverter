@@ -4,7 +4,7 @@
 
 ### Usage:
 ```
-Add or change the metadata.
+Add or change the metadata. Overrides previous keys.
 
 Usage: tiefdownconverter project markdown meta <NAME> set <KEY> <VALUE>
 

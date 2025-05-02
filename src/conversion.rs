@@ -4,6 +4,8 @@ use color_eyre::eyre::Result;
 use color_eyre::eyre::eyre;
 use fs_extra::dir;
 use fs_extra::file;
+use log::debug;
+use log::info;
 use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
@@ -38,9 +40,14 @@ pub(crate) fn convert(
         run_smart_clean(project_path, threshold.saturating_sub(1))?;
     }
 
-    println!("Converting project: {}", project);
+    info!("Converting project: {}", project);
 
     let compiled_directory_path = create_build_directory(project_path)?;
+
+    debug!(
+        "Converting in directory: {}",
+        compiled_directory_path.display()
+    );
 
     for markdown_project in manifest
         .markdown_projects
@@ -54,7 +61,13 @@ pub(crate) fn convert(
             resources: None,
         }])
     {
-        let profile = profile.clone().or(markdown_project.default_profile);
+        info!("Converting markdown project: {}", markdown_project.name);
+
+        let profile = profile.clone().or(markdown_project.default_profile.clone());
+
+        if let Some(ref profile) = profile {
+            debug!("Using profile: {}", profile);
+        }
 
         let templates = get_template_names(&templates, profile, &manifest)?;
         let templates = get_template_mappings_from_names(&templates, &manifest)?;
@@ -68,32 +81,15 @@ pub(crate) fn convert(
             &dir::CopyOptions::new().overwrite(true).content_only(true),
         )?;
 
+        debug!("Copied template directory.");
+
         let markdown_dir = project_path.join(markdown_project.path.clone());
 
-        for resource in markdown_project.resources.clone().unwrap_or(vec![]) {
-            let resource = markdown_dir.join(resource.clone());
-
-            if !resource.exists() {
-                return Err(eyre!(
-                    "Resource file {} does not exist.",
-                    resource.display()
-                ));
-            }
-
-            if resource.is_dir() {
-                dir::copy(
-                    resource,
-                    &markdown_project_compiled_directory_path,
-                    &dir::CopyOptions::new().overwrite(true).content_only(true),
-                )?;
-            } else {
-                file::copy(
-                    &resource,
-                    &markdown_project_compiled_directory_path.join(resource.file_name().unwrap()),
-                    &file::CopyOptions::new().overwrite(true),
-                )?;
-            }
-        }
+        copy_resources(
+            &markdown_project,
+            &markdown_project_compiled_directory_path,
+            &markdown_dir,
+        )?;
 
         let combined_markdown_name = PathBuf::from("combined.md");
         let combined_markdown_path =
@@ -102,9 +98,21 @@ pub(crate) fn convert(
         let combined_content = combine_markdown(&combined_markdown_path, &markdown_dir)?;
         fs::write(&combined_markdown_path, combined_content)?;
 
-        let merged_metadata = merge_metadata(
-            &manifest.shared_metadata.clone().unwrap_or(Table::new()),
-            &markdown_project.metadata_fields.unwrap_or(Table::new()),
+        debug!(
+            "Created combined markdown file {}.",
+            combined_markdown_path.display()
+        );
+
+        let shared_metadata = manifest.shared_metadata.clone().unwrap_or(Table::new());
+        let project_metadata = markdown_project.metadata_fields.unwrap_or(Table::new());
+
+        let merged_metadata = merge_metadata(&shared_metadata, &project_metadata);
+
+        debug!(
+            "Merged {} metadata fields ({} shared, {} project specific).",
+            merged_metadata.len(),
+            shared_metadata.len(),
+            project_metadata.len()
         );
 
         for template in &templates {
@@ -117,6 +125,43 @@ pub(crate) fn convert(
                 &merged_metadata,
                 &manifest.metadata_settings,
                 &manifest.custom_processors,
+            )?;
+        }
+    }
+
+    Ok(())
+}
+
+fn copy_resources(
+    markdown_project: &MarkdownProject,
+    markdown_project_compiled_directory_path: &PathBuf,
+    markdown_dir: &PathBuf,
+) -> Result<()> {
+    for resource in markdown_project.resources.clone().unwrap_or(vec![]) {
+        let resource = markdown_dir.join(resource.clone());
+
+        if !resource.exists() {
+            return Err(eyre!(
+                "Resource file {} does not exist.",
+                resource.display()
+            ));
+        }
+
+        if resource.is_dir() {
+            debug!("Copying directory: {}", resource.display());
+
+            dir::copy(
+                resource,
+                markdown_project_compiled_directory_path,
+                &dir::CopyOptions::new().overwrite(true).content_only(true),
+            )?;
+        } else {
+            debug!("Copying file: {}", resource.display());
+
+            file::copy(
+                &resource,
+                &markdown_project_compiled_directory_path.join(resource.file_name().unwrap()),
+                &file::CopyOptions::new().overwrite(true),
             )?;
         }
     }
@@ -248,11 +293,16 @@ fn convert_template(
     metadata_settings: &Option<MetadataSettings>,
     custom_processors: &Processors,
 ) -> Result<()> {
+    debug!("Starting template conversion for '{}'.", template.name);
+    debug!("  Template type: '{}'.", template.template_type);
+
     let converter = conversion_decider::get_converter(&template.template_type)?;
 
     let metadata_settings = metadata_settings
         .clone()
         .unwrap_or(MetadataSettings::default());
+
+    debug!("Running converter...");
 
     let result_file_path = converter(
         project_path,
@@ -264,6 +314,11 @@ fn convert_template(
         custom_processors,
     )?;
 
+    debug!("Converter finished.");
+    debug!("  Result file path: {}", result_file_path.display());
+
+    debug!("Copying result file to output directory...");
+
     dir::create_all(project_path.join(output_dir), false)?;
     file::copy(
         &result_file_path,
@@ -273,6 +328,8 @@ fn convert_template(
         &file::CopyOptions::new().overwrite(true),
     )?;
 
-    println!("Converted template: {}", template.name);
+    debug!("Copying finished.");
+
+    info!("Converted template: {}", template.name);
     Ok(())
 }

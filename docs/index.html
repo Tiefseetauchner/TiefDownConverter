@@ -349,40 +349,62 @@ id="toc-projectmarkdownmetalist"><code>tiefdownconverter project markdown meta l
 <ul>
 <li><a href="#usage-32" id="toc-usage-32">Usage:</a></li>
 </ul></li>
+<li><a href="#projectmarkdownresources"
+id="toc-projectmarkdownresources"><code>tiefdownconverter project markdown resources</code></a>
+<ul>
+<li><a href="#usage-33" id="toc-usage-33">Usage:</a></li>
+<li><a href="#subcommands-9"
+id="toc-subcommands-9">Subcommands:</a></li>
+</ul></li>
+<li><a href="#projectmarkdownresourcesadd"
+id="toc-projectmarkdownresourcesadd"><code>tiefdownconverter project markdown resources add</code></a>
+<ul>
+<li><a href="#usage-34" id="toc-usage-34">Usage:</a></li>
+</ul></li>
+<li><a href="#projectmarkdownresourcesremove"
+id="toc-projectmarkdownresourcesremove"><code>tiefdownconverter project markdown resources remove</code></a>
+<ul>
+<li><a href="#usage-35" id="toc-usage-35">Usage:</a></li>
+</ul></li>
+<li><a href="#projectmarkdownresourceslist"
+id="toc-projectmarkdownresourceslist"><code>tiefdownconverter project markdown resources list</code></a>
+<ul>
+<li><a href="#usage-36" id="toc-usage-36">Usage:</a></li>
+</ul></li>
 <li><a href="#projectmarkdownremove"
 id="toc-projectmarkdownremove"><code>tiefdownconverter project markdown remove</code></a>
 <ul>
-<li><a href="#usage-33" id="toc-usage-33">Usage:</a></li>
+<li><a href="#usage-37" id="toc-usage-37">Usage:</a></li>
 </ul></li>
 <li><a href="#projectmarkdownlist"
 id="toc-projectmarkdownlist"><code>tiefdownconverter project markdown list</code></a>
 <ul>
-<li><a href="#usage-34" id="toc-usage-34">Usage:</a></li>
+<li><a href="#usage-38" id="toc-usage-38">Usage:</a></li>
 </ul></li>
 <li><a href="#projectlist-templates"
 id="toc-projectlist-templates"><code>tiefdownconverter project list-templates</code></a>
 <ul>
-<li><a href="#usage-35" id="toc-usage-35">Usage:</a></li>
+<li><a href="#usage-39" id="toc-usage-39">Usage:</a></li>
 </ul></li>
 <li><a href="#projectvalidate"
 id="toc-projectvalidate"><code>tiefdownconverter project validate</code></a>
 <ul>
-<li><a href="#usage-36" id="toc-usage-36">Usage:</a></li>
+<li><a href="#usage-40" id="toc-usage-40">Usage:</a></li>
 </ul></li>
 <li><a href="#projectclean"
 id="toc-projectclean"><code>tiefdownconverter project clean</code></a>
 <ul>
-<li><a href="#usage-37" id="toc-usage-37">Usage:</a></li>
+<li><a href="#usage-41" id="toc-usage-41">Usage:</a></li>
 </ul></li>
 <li><a href="#projectsmart-clean"
 id="toc-projectsmart-clean"><code>tiefdownconverter project smart-clean</code></a>
 <ul>
-<li><a href="#usage-38" id="toc-usage-38">Usage:</a></li>
+<li><a href="#usage-42" id="toc-usage-42">Usage:</a></li>
 </ul></li>
 <li><a href="#check-dependencies"
 id="toc-check-dependencies"><code>tiefdownconverter check-dependencies</code></a>
 <ul>
-<li><a href="#usage-39" id="toc-usage-39">Usage:</a></li>
+<li><a href="#usage-43" id="toc-usage-43">Usage:</a></li>
 </ul></li>
 </ul></li>
 <li><a href="#contributing" id="toc-contributing">Contributing</a>
@@ -699,6 +721,14 @@ run</p>
 <div class="sourceCode" id="cb5"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project markdown meta <span class="op">&lt;</span>PROJECT_NAME<span class="op">&gt;</span> set <span class="op">&lt;</span>KEY<span class="op">&gt;</span> <span class="op">&lt;</span>VALUE<span class="op">&gt;</span></span></code></pre></div>
 <p>to set a metadata value for a markdown project.</p>
+<p>You can also assign resources, which are files that are copied to the
+compile directory from the markdown project directory. This is done by
+using the resource command. For example, if you had multiple books as
+seperate markdown projects, you could have a <code>cover.png</code> file
+for each book seperately and then use the resource management to copy it
+to be able to be used in a template, for example an epub or as the cover
+of a PDF. Check out the <a href="#projectmarkdownresources">resources
+command</a> for more information.</p>
 <p>You can also assign a <a href="#conversion-profiles">profile</a> to a
 markdown project which, if I may say so myself as the person who needed
 it, is awesome.</p>
@@ -1106,7 +1136,7 @@ TiefDown is a project structure meant to simplify the conversion process from Ma
 TiefDownConverter consolidates multiple conversion processes and templating systems to generate a configurable set or subset of output documents.
 It is not in itself a converter, but a wrapper around pandoc, xelatex and typst. As such, it requires these dependencies to be installed.
 
-Usage: tiefdownconverter &lt;COMMAND&gt;
+Usage: tiefdownconverter [OPTIONS] &lt;COMMAND&gt;
 
 Commands:
   convert             Convert a TiefDown project. By default, it will convert the current directory.
@@ -1116,6 +1146,9 @@ Commands:
   help                Print this message or the help of the given subcommand(s)
 
 Options:
+  -v, --verbose
+          Enable verbose output.
+
   -h, --help
           Print help (see a summary with &#39;-h&#39;)
 
@@ -1254,17 +1287,47 @@ id="projecttemplatesadd"><code>tiefdownconverter project templates add</code></h
 <code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-6">Usage:</h3>
 <pre><code>Add a new template to the project.
+If using a preset template name, the preset will be copied to the template folder.
+If using a custom template, make sure to add the respective files to the template folder.
+Available preset templates are: template.tex, booklet.tex, lix_novel_a4.tex, lix_novel_book.tex, template_typ.typ, default_epub
 
 Usage: tiefdownconverter project templates &lt;TEMPLATE&gt; add [OPTIONS]
 
 Options:
-  -f, --template-file &lt;TEMPLATE_FILE&gt;  The file to use as the template. If not provided, the template name will be used.
-  -t, --template-type &lt;TEMPLATE_TYPE&gt;  The type of the template. If not provided, the type will be inferred from the template file. [possible values: tex, typst, epub, custom-pandoc]
-  -o, --output &lt;OUTPUT&gt;                The output file. If not provided, the template name will be used.
-      --filters &lt;FILTERS&gt;...           The luafilters to use for pandoc conversion of this templates markdown.
-      --preprocessor &lt;PREPROCESSOR&gt;    The preprocessor to use for this template.
-      --processor &lt;PROCESSOR&gt;          The processor to use for this template.
-  -h, --help                           Print help</code></pre>
+  -f, --template-file &lt;TEMPLATE_FILE&gt;
+          The file to use as the template. If not provided, the template name will be used.
+
+  -t, --template-type &lt;TEMPLATE_TYPE&gt;
+          The type of the template. If not provided, the type will be inferred from the template file.
+          
+          [possible values: tex, typst, epub, custom-pandoc]
+
+  -o, --output &lt;OUTPUT&gt;
+          The output file. If not provided, the template name will be used.
+
+      --filters &lt;FILTERS&gt;...
+          The luafilters to use for pandoc conversion of this templates markdown.
+          Luafilters are lua scripts applied during the pandoc conversion.
+          You can add a folder or a filename. If adding a folder, it will be traversed recursively, and any .lua file will be added.
+          See the pandoc documentation and &#39;Writing filters&#39; of the TiefDownConverter documentation for more details.
+
+      --preprocessor &lt;PREPROCESSOR&gt;
+          The preprocessor to use for this template.
+          A preprocessor defines the arguments passed to the pandoc conversion from markdown.
+          If using a CustomPandoc template, a preprocessor is required.
+          Preprocessors replace all arguments. Thus, with preprocessors, you need to define the output file and format.
+          For templates, that is the file imported by the template.
+          Preprocessors are incompatible with epub conversion. Use processors instead.
+
+      --processor &lt;PROCESSOR&gt;
+          The processor to use for this template.
+          A processor defines additional arguments passed to the conversion command.
+          For LaTeX and typst templates, this allows extending the respective conversion parameters.
+          For epub templates, this allows adding custom pandoc parameters.
+          Processors are incompatible with CustomPandoc conversions. Use preprocessors instead.
+
+  -h, --help
+          Print help (see a summary with &#39;-h&#39;)</code></pre>
 <h2
 id="projecttemplatesremove"><code>tiefdownconverter project templates remove</code></h2>
 <p><strong>Version:</strong>
@@ -1288,23 +1351,45 @@ Usage: tiefdownconverter project templates &lt;TEMPLATE&gt; update [OPTIONS]
 Options:
       --template-file &lt;TEMPLATE_FILE&gt;
           The file to use as the template. If not provided, the template name will be used.
+
       --template-type &lt;TEMPLATE_TYPE&gt;
           The type of the template. If not provided, the type will be inferred from the template file.
-          Changing this is not recommended, as it is highly unlikely the type and only the type has changed. It is recommended to create a new template instead. [possible values: tex, typst, epub, custom-pandoc]
+          Changing this is not recommended, as it is highly unlikely the type and only the type has changed. It is recommended to create a new template instead.
+          
+          [possible values: tex, typst, epub, custom-pandoc]
+
       --output &lt;OUTPUT&gt;
           The output file. If not provided, the template name will be used.
+
       --filters &lt;FILTERS&gt;...
           The luafilters to use for pandoc conversion of this templates markdown.
+          This replaces all existing filters.
+
       --add-filters &lt;ADD_FILTERS&gt;...
-          The luafilters add to the template.
+          The luafilters to use for pandoc conversion of this templates markdown.
+          This adds to the existing filters.
+
       --remove-filters &lt;REMOVE_FILTERS&gt;...
-          The luafilters to remove from the template.
+          The luafilters to use for pandoc conversion of this templates markdown.
+          This removes the filter from the existing filters.
+
       --preprocessor &lt;PREPROCESSOR&gt;
           The preprocessor to use for this template.
+          A preprocessor defines the arguments passed to the pandoc conversion from markdown.
+          If using a CustomPandoc template, a preprocessor is required.
+          Preprocessors replace all arguments. Thus, with preprocessors, you need to define the output file and format.
+          For templates, that is the file imported by the template.
+          Preprocessors are incompatible with epub conversion. Use processors instead.
+
       --processor &lt;PROCESSOR&gt;
           The processor to use for this template.
+          A processor defines additional arguments passed to the conversion command.
+          For LaTeX and typst templates, this allows extending the respective conversion parameters.
+          For epub templates, this allows adding custom pandoc parameters.
+          Processors are incompatible with CustomPandoc conversions. Use preprocessors instead.
+
   -h, --help
-          Print help</code></pre>
+          Print help (see a summary with &#39;-h&#39;)</code></pre>
 <h2
 id="projectupdate-manifest"><code>tiefdownconverter project update-manifest</code></h2>
 <p><strong>Version:</strong>
@@ -1317,7 +1402,7 @@ Usage: tiefdownconverter project update-manifest [OPTIONS]
 Options:
       --smart-clean &lt;SMART_CLEAN&gt;
           Enables smart clean for the project with a default threshold of 5.
-          If the number of conversion folders in the project is above this threshold, old folders will be cleaned, leaving only the threshold amount of folders.
+          If the number of conversion folders in the project is above the smart_clean_threshold, old folders will be cleaned, leaving only the threshold amount of folders.
           
           [possible values: true, false]
 
@@ -1333,6 +1418,11 @@ id="projectpre-processors"><code>tiefdownconverter project pre-processors</code>
 <code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-10">Usage:</h3>
 <pre><code>Manage the preprocessors of the project.
+A preprocessor defines the arguments passed to the pandoc conversion from markdown.
+If using a CustomPandoc template, a preprocessor is required.
+Preprocessors replace all arguments. Thus, with preprocessors, you need to define the output file and format.
+For templates, that is the file imported by the template.
+Preprocessors are incompatible with epub conversion. Use processors instead.
 
 Usage: tiefdownconverter project pre-processors &lt;COMMAND&gt;
 
@@ -1343,7 +1433,8 @@ Commands:
   help    Print this message or the help of the given subcommand(s)
 
 Options:
-  -h, --help  Print help</code></pre>
+  -h, --help
+          Print help (see a summary with &#39;-h&#39;)</code></pre>
 <h3 id="subcommands-3">Subcommands:</h3>
 <ul>
 <li><a href="#projectpre-processorsadd">add</a></li>
@@ -1396,6 +1487,10 @@ id="projectprocessors"><code>tiefdownconverter project processors</code></h2>
 <code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-14">Usage:</h3>
 <pre><code>Manage the processors of the project.
+A processor defines additional arguments passed to the conversion command.
+For LaTeX and typst templates, this allows extending the respective conversion parameters.
+For epub templates, this allows adding custom pandoc parameters.
+Processors are incompatible with CustomPandoc conversions. Use preprocessors instead.
 
 Usage: tiefdownconverter project processors &lt;COMMAND&gt;
 
@@ -1406,7 +1501,8 @@ Commands:
   help    Print this message or the help of the given subcommand(s)
 
 Options:
-  -h, --help  Print help</code></pre>
+  -h, --help
+          Print help (see a summary with &#39;-h&#39;)</code></pre>
 <h3 id="subcommands-4">Subcommands:</h3>
 <ul>
 <li><a href="#projectprocessorsadd">add</a></li>
@@ -1459,6 +1555,9 @@ id="projectprofiles"><code>tiefdownconverter project profiles</code></h2>
 <code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-18">Usage:</h3>
 <pre><code>Manage the conversion profiles of the project.
+A conversion profile defines a collection of templates to be converted at the same time.
+This can be used to prepare presets (for example, web export, PDF export, ...).
+It can also be used for defining default templates for markdown projects.
 
 Usage: tiefdownconverter project profiles &lt;COMMAND&gt;
 
@@ -1469,7 +1568,8 @@ Commands:
   help    Print this message or the help of the given subcommand(s)
 
 Options:
-  -h, --help  Print help</code></pre>
+  -h, --help
+          Print help (see a summary with &#39;-h&#39;)</code></pre>
 <h3 id="subcommands-5">Subcommands:</h3>
 <ul>
 <li><a href="#projectprofilesadd">add</a></li>
@@ -1481,20 +1581,16 @@ id="projectprofilesadd"><code>tiefdownconverter project profiles add</code></h2>
 <p><strong>Version:</strong>
 <code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-19">Usage:</h3>
-<pre><code>Add a new conversion profile to the project. These profiles contain a list of templates to preset conversion workflows.
+<pre><code>Add a new conversion profile to the project.
 
 Usage: tiefdownconverter project profiles add &lt;NAME&gt; [TEMPLATES]...
 
 Arguments:
-  &lt;NAME&gt;
-          The name of the profile to create.
-
-  [TEMPLATES]...
-          The templates to add to the profile.
+  &lt;NAME&gt;          The name of the profile to create.
+  [TEMPLATES]...  The templates to add to the profile.
 
 Options:
-  -h, --help
-          Print help (see a summary with &#39;-h&#39;)</code></pre>
+  -h, --help  Print help</code></pre>
 <h2
 id="projectprofilesremove"><code>tiefdownconverter project profiles remove</code></h2>
 <p><strong>Version:</strong>
@@ -1526,17 +1622,21 @@ id="projectshared-meta"><code>tiefdownconverter project shared-meta</code></h2>
 <code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-22">Usage:</h3>
 <pre><code>Manage the shared metadata of the project.
+This Metadata is shared between all markdown projects.
+When converting, it is merged with the markdown project specific metadata.
+When using the same key for shared and project metadata, the project metadata overrides the shared metadata.
 
 Usage: tiefdownconverter project shared-meta &lt;COMMAND&gt;
 
 Commands:
-  set     Add or change the metadata.
+  set     Add or change the metadata. Overrides previous keys.
   remove  Remove metadata.
   list    List the metadata.
   help    Print this message or the help of the given subcommand(s)
 
 Options:
-  -h, --help  Print help</code></pre>
+  -h, --help
+          Print help (see a summary with &#39;-h&#39;)</code></pre>
 <h3 id="subcommands-6">Subcommands:</h3>
 <ul>
 <li><a href="#projectshared-metaset">set</a></li>
@@ -1548,7 +1648,7 @@ id="projectshared-metaset"><code>tiefdownconverter project shared-meta set</code
 <p><strong>Version:</strong>
 <code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-23">Usage:</h3>
-<pre><code>Add or change the metadata.
+<pre><code>Add or change the metadata. Overrides previous keys.
 
 Usage: tiefdownconverter project shared-meta set &lt;KEY&gt; &lt;VALUE&gt;
 
@@ -1589,24 +1689,32 @@ id="projectmarkdown"><code>tiefdownconverter project markdown</code></h2>
 <code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-26">Usage:</h3>
 <pre><code>Manage the markdown projects of the project.
+A markdown project defines the markdown conversion process for a project.
+There can be multiple markdown projects with different markdown files.
+Each markdown project also has a seperate output folder (&#39;.&#39; per default).
+A markdown project can have seperate metadata.
+A markdown project can have resources that are copied to the respective conversion folder.
 
 Usage: tiefdownconverter project markdown &lt;COMMAND&gt;
 
 Commands:
-  add     Add a new markdown project to the project.
-  update  Update a markdown project in the project.
-  meta    Manage the metadata of a markdown project.
-  remove  Remove a markdown project from the project.
-  list    List the markdown projects in the project.
-  help    Print this message or the help of the given subcommand(s)
+  add        Add a new markdown project to the project.
+  update     Update a markdown project in the project.
+  meta       Manage the metadata of a markdown project.
+  resources  Manage the resources of a markdown project.
+  remove     Remove a markdown project from the project.
+  list       List the markdown projects in the project.
+  help       Print this message or the help of the given subcommand(s)
 
 Options:
-  -h, --help  Print help</code></pre>
+  -h, --help
+          Print help (see a summary with &#39;-h&#39;)</code></pre>
 <h3 id="subcommands-7">Subcommands:</h3>
 <ul>
 <li><a href="#projectmarkdownadd">add</a></li>
 <li><a href="#projectmarkdownupdate">update</a></li>
 <li><a href="#projectmarkdownmeta">meta</a></li>
+<li><a href="#projectmarkdownresources">resources</a></li>
 <li><a href="#projectmarkdownremove">remove</a></li>
 <li><a href="#projectmarkdownlist">list</a></li>
 </ul>
@@ -1650,20 +1758,24 @@ id="projectmarkdownmeta"><code>tiefdownconverter project markdown meta</code></h
 <code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-29">Usage:</h3>
 <pre><code>Manage the metadata of a markdown project.
+This metadata is markdown project specific and is not shared between projects.
+This metadata takes precedence over the shared metadata.
 
 Usage: tiefdownconverter project markdown meta &lt;NAME&gt; &lt;COMMAND&gt;
 
 Commands:
-  set     Add or change the metadata.
+  set     Add or change the metadata. Overrides previous keys.
   remove  Remove metadata.
   list    List the metadata.
   help    Print this message or the help of the given subcommand(s)
 
 Arguments:
-  &lt;NAME&gt;  The name of the markdown project to update.
+  &lt;NAME&gt;
+          The name of the markdown project to update.
 
 Options:
-  -h, --help  Print help</code></pre>
+  -h, --help
+          Print help (see a summary with &#39;-h&#39;)</code></pre>
 <h3 id="subcommands-8">Subcommands:</h3>
 <ul>
 <li><a href="#projectmarkdownmetaset">set</a></li>
@@ -1675,7 +1787,7 @@ id="projectmarkdownmetaset"><code>tiefdownconverter project markdown meta set</c
 <p><strong>Version:</strong>
 <code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-30">Usage:</h3>
-<pre><code>Add or change the metadata.
+<pre><code>Add or change the metadata. Overrides previous keys.
 
 Usage: tiefdownconverter project markdown meta &lt;NAME&gt; set &lt;KEY&gt; &lt;VALUE&gt;
 
@@ -1711,10 +1823,80 @@ Usage: tiefdownconverter project markdown meta &lt;NAME&gt; list
 Options:
   -h, --help  Print help</code></pre>
 <h2
-id="projectmarkdownremove"><code>tiefdownconverter project markdown remove</code></h2>
+id="projectmarkdownresources"><code>tiefdownconverter project markdown resources</code></h2>
 <p><strong>Version:</strong>
 <code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-33">Usage:</h3>
+<pre><code>Manage the resources of a markdown project.
+Resources are a way to include meta information and resources on a per project basis.
+This is helpful for example for including a custom css file for a project, as that is not possible purely with metadata.
+Resources are stored in the markdown folder and copied to the conversion directory for that profile before conversion.
+
+Usage: tiefdownconverter project markdown resources &lt;NAME&gt; &lt;COMMAND&gt;
+
+Commands:
+  add     Add a new resource to the project.
+  remove  Remove a resource from the project.
+  list    List the resources in the project.
+  help    Print this message or the help of the given subcommand(s)
+
+Arguments:
+  &lt;NAME&gt;
+          The name of the markdown project to update.
+
+Options:
+  -h, --help
+          Print help (see a summary with &#39;-h&#39;)</code></pre>
+<h3 id="subcommands-9">Subcommands:</h3>
+<ul>
+<li><a href="#projectmarkdownresourcesadd">add</a></li>
+<li><a href="#projectmarkdownresourcesremove">remove</a></li>
+<li><a href="#projectmarkdownresourceslist">list</a></li>
+</ul>
+<h2
+id="projectmarkdownresourcesadd"><code>tiefdownconverter project markdown resources add</code></h2>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
+<h3 id="usage-34">Usage:</h3>
+<pre><code>Add a new resource to the project.
+
+Usage: tiefdownconverter project markdown resources &lt;NAME&gt; add [-- &lt;PATHS&gt;...]
+
+Arguments:
+  [PATHS]...  The paths to the resources. Seperated by spaces.
+
+Options:
+  -h, --help  Print help</code></pre>
+<h2
+id="projectmarkdownresourcesremove"><code>tiefdownconverter project markdown resources remove</code></h2>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
+<h3 id="usage-35">Usage:</h3>
+<pre><code>Remove a resource from the project.
+
+Usage: tiefdownconverter project markdown resources &lt;NAME&gt; remove &lt;PATH&gt;
+
+Arguments:
+  &lt;PATH&gt;  The path to the resource.
+
+Options:
+  -h, --help  Print help</code></pre>
+<h2
+id="projectmarkdownresourceslist"><code>tiefdownconverter project markdown resources list</code></h2>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
+<h3 id="usage-36">Usage:</h3>
+<pre><code>List the resources in the project.
+
+Usage: tiefdownconverter project markdown resources &lt;NAME&gt; list
+
+Options:
+  -h, --help  Print help</code></pre>
+<h2
+id="projectmarkdownremove"><code>tiefdownconverter project markdown remove</code></h2>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
+<h3 id="usage-37">Usage:</h3>
 <pre><code>Remove a markdown project from the project.
 
 Usage: tiefdownconverter project markdown remove &lt;NAME&gt;
@@ -1728,7 +1910,7 @@ Options:
 id="projectmarkdownlist"><code>tiefdownconverter project markdown list</code></h2>
 <p><strong>Version:</strong>
 <code>tiefdownconverter 0.8.0-ALPHA</code></p>
-<h3 id="usage-34">Usage:</h3>
+<h3 id="usage-38">Usage:</h3>
 <pre><code>List the markdown projects in the project.
 
 Usage: tiefdownconverter project markdown list
@@ -1739,7 +1921,7 @@ Options:
 id="projectlist-templates"><code>tiefdownconverter project list-templates</code></h2>
 <p><strong>Version:</strong>
 <code>tiefdownconverter 0.8.0-ALPHA</code></p>
-<h3 id="usage-35">Usage:</h3>
+<h3 id="usage-39">Usage:</h3>
 <pre><code>List the templates in the project.
 
 Usage: tiefdownconverter project list-templates
@@ -1750,7 +1932,7 @@ Options:
 id="projectvalidate"><code>tiefdownconverter project validate</code></h2>
 <p><strong>Version:</strong>
 <code>tiefdownconverter 0.8.0-ALPHA</code></p>
-<h3 id="usage-36">Usage:</h3>
+<h3 id="usage-40">Usage:</h3>
 <pre><code>Validate the TiefDown project structure and metadata.
 
 Usage: tiefdownconverter project validate
@@ -1760,7 +1942,7 @@ Options:
 <h2 id="projectclean"><code>tiefdownconverter project clean</code></h2>
 <p><strong>Version:</strong>
 <code>tiefdownconverter 0.8.0-ALPHA</code></p>
-<h3 id="usage-37">Usage:</h3>
+<h3 id="usage-41">Usage:</h3>
 <pre><code>Clean temporary files from the TiefDown project.
 
 Usage: tiefdownconverter project clean
@@ -1771,7 +1953,7 @@ Options:
 id="projectsmart-clean"><code>tiefdownconverter project smart-clean</code></h2>
 <p><strong>Version:</strong>
 <code>tiefdownconverter 0.8.0-ALPHA</code></p>
-<h3 id="usage-38">Usage:</h3>
+<h3 id="usage-42">Usage:</h3>
 <pre><code>Clean temporary files from the TiefDown project.
 If the number of conversion folders in the project is above this threshold, old folders will be cleaned, leaving only the threshold amount of folders.
 The threshold is set to 5 by default, and is overwritten by the threshold in the manifest.
@@ -1785,7 +1967,7 @@ Options:
 id="check-dependencies"><code>tiefdownconverter check-dependencies</code></h2>
 <p><strong>Version:</strong>
 <code>tiefdownconverter 0.8.0-ALPHA</code></p>
-<h3 id="usage-39">Usage:</h3>
+<h3 id="usage-43">Usage:</h3>
 <pre><code>Validate dependencies are installed.
 
 Usage: tiefdownconverter check-dependencies

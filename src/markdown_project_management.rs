@@ -1,4 +1,5 @@
 use color_eyre::eyre::{Result, eyre};
+use log::info;
 use std::path::PathBuf;
 use toml::{Table, Value};
 
@@ -190,10 +191,10 @@ pub(crate) fn list_metadata(project: Option<String>, name: String) -> Result<()>
     if let Some(project) = markdown_projects.iter().find(|p| p.name == name) {
         if let Some(metadata_fields) = &project.metadata_fields {
             for (key, value) in metadata_fields {
-                println!("{}: {}", key, value);
+                info!("{}: {}", key, value);
             }
         } else {
-            println!("No metadata fields found.");
+            info!("No metadata fields found.");
         }
     } else {
         return Err(eyre!(
@@ -214,22 +215,21 @@ pub(crate) fn list_markdown_projects(project: Option<String>) -> Result<()> {
     let markdown_projects = manifest.markdown_projects.unwrap_or(vec![]);
 
     for project in markdown_projects {
-        println!("Name: {}", project.name);
-        println!("  Path: {}", project.path.display());
-        println!("  Output: {}", project.output.display());
-        println!(
+        info!("Name: {}", project.name);
+        info!("  Path: {}", project.path.display());
+        info!("  Output: {}", project.output.display());
+        info!(
             "  Default Profile: {}",
             project.default_profile.unwrap_or_default()
         );
-        println!("  Metadata Fields:");
+        info!("  Metadata Fields:");
         for (key, value) in project.metadata_fields.unwrap_or_default() {
-            println!("    {}: {}", key, value);
+            info!("    {}: {}", key, value);
         }
-        println!("  Resources:");
+        info!("  Resources:");
         for resource in project.resources.unwrap_or_default() {
-            println!("    {}", resource.display());
+            info!("    {}", resource.display());
         }
-        println!();
     }
 
     Ok(())
@@ -320,7 +320,7 @@ pub(crate) fn list_resources(project: Option<String>, name: String) -> Result<()
     if let Some(project) = markdown_projects.iter().find(|p| p.name == name) {
         if let Some(resources) = &project.resources {
             for resource in resources {
-                println!("{}", resource.display());
+                info!("{}", resource.display());
             }
         }
     }

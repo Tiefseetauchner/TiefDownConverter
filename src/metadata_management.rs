@@ -1,4 +1,5 @@
 use color_eyre::eyre::{Result, eyre};
+use log::info;
 use toml::{Table, Value};
 
 use crate::project_management::load_and_convert_manifest;
@@ -60,11 +61,11 @@ pub(crate) fn list_metadata(project: Option<String>) -> Result<()> {
     let metadata_fields = manifest.shared_metadata.unwrap_or_default();
 
     if metadata_fields.is_empty() {
-        println!("No shared metadata fields found.");
+        info!("No shared metadata fields found.");
         return Ok(());
     }
     for (key, value) in metadata_fields {
-        println!("{}: {}", key, value);
+        info!("{}: {}", key, value);
     }
 
     Ok(())

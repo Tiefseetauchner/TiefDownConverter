@@ -15,6 +15,8 @@ TiefDownConverter consolidates multiple conversion processes and templating syst
 It is not in itself a converter, but a wrapper around pandoc, xelatex and typst. As such, it requires these dependencies to be installed."#
 )]
 pub struct Cli {
+    #[arg(short, long, help = "Enable verbose output.")]
+    pub verbose: bool,
     #[command(subcommand)]
     pub command: Commands,
 }
@@ -122,7 +124,7 @@ pub enum ProjectCommands {
             long,
             help = r#"Enables smart clean for the project with a default threshold of 5."#,
             long_help = r#"Enables smart clean for the project with a default threshold of 5.
-If the number of conversion folders in the project is above this threshold, old folders will be cleaned, leaving only the threshold amount of folders."#
+If the number of conversion folders in the project is above the smart_clean_threshold, old folders will be cleaned, leaving only the threshold amount of folders."#
         )]
         smart_clean: Option<bool>,
         #[arg(
@@ -133,27 +135,62 @@ If the number of conversion folders in the project is above this threshold, old 
         )]
         smart_clean_threshold: Option<u32>,
     },
-    #[command(about = "Manage the preprocessors of the project.")]
+    #[command(
+        about = "Manage the preprocessors of the project.",
+        long_about = r#"Manage the preprocessors of the project.
+A preprocessor defines the arguments passed to the pandoc conversion from markdown.
+If using a CustomPandoc template, a preprocessor is required.
+Preprocessors replace all arguments. Thus, with preprocessors, you need to define the output file and format.
+For templates, that is the file imported by the template.
+Preprocessors are incompatible with epub conversion. Use processors instead."#
+    )]
     PreProcessors {
         #[command(subcommand)]
         command: PreProcessorsCommands,
     },
-    #[command(about = "Manage the processors of the project.")]
+    #[command(
+        about = "Manage the processors of the project.",
+        long_about = r#"Manage the processors of the project.
+A processor defines additional arguments passed to the conversion command.
+For LaTeX and typst templates, this allows extending the respective conversion parameters.
+For epub templates, this allows adding custom pandoc parameters.
+Processors are incompatible with CustomPandoc conversions. Use preprocessors instead."#
+    )]
     Processors {
         #[command(subcommand)]
         command: ProcessorsCommands,
     },
-    #[command(about = "Manage the conversion profiles of the project.")]
+    #[command(
+        about = "Manage the conversion profiles of the project.",
+        long_about = r#"Manage the conversion profiles of the project.
+A conversion profile defines a collection of templates to be converted at the same time.
+This can be used to prepare presets (for example, web export, PDF export, ...).
+It can also be used for defining default templates for markdown projects."#
+    )]
     Profiles {
         #[command(subcommand)]
         command: ProfilesCommands,
     },
-    #[command(about = "Manage the shared metadata of the project.")]
+    #[command(
+        about = "Manage the shared metadata of the project.",
+        long_about = r#"Manage the shared metadata of the project.
+This Metadata is shared between all markdown projects.
+When converting, it is merged with the markdown project specific metadata.
+When using the same key for shared and project metadata, the project metadata overrides the shared metadata."#
+    )]
     SharedMeta {
         #[command(subcommand)]
         command: ManageMetadataCommand,
     },
-    #[command(about = "Manage the markdown projects of the project.")]
+    #[command(
+        about = "Manage the markdown projects of the project.",
+        long_about = r#"Manage the markdown projects of the project.
+A markdown project defines the markdown conversion process for a project.
+There can be multiple markdown projects with different markdown files.
+Each markdown project also has a seperate output folder ('.' per default).
+A markdown project can have seperate metadata.
+A markdown project can have resources that are copied to the respective conversion folder."#
+    )]
     Markdown {
         #[command(subcommand)]
         command: ManageMarkdownProjectsCommand,
@@ -175,7 +212,13 @@ The threshold is set to 5 by default, and is overwritten by the threshold in the
 
 #[derive(Subcommand)]
 pub enum TemplatesCommands {
-    #[command(about = "Add a new template to the project.")]
+    #[command(
+        about = "Add a new template to the project.",
+        long_about = format!(r#"Add a new template to the project.
+If using a preset template name, the preset will be copied to the template folder.
+If using a custom template, make sure to add the respective files to the template folder.
+Available preset templates are: {}"#, POSSIBLE_TEMPLATES.join(", "))
+    )]
     Add {
         #[arg(
             short = 'f',
@@ -195,11 +238,37 @@ pub enum TemplatesCommands {
             help = "The output file. If not provided, the template name will be used."
         )]
         output: Option<PathBuf>,
-        #[arg(long, help = "The luafilters to use for pandoc conversion of this templates markdown.", num_args = 1.., value_delimiter = ',')]
+        #[arg(
+            long, 
+            help = "The luafilters to use for pandoc conversion of this templates markdown.", 
+            long_help = r#"The luafilters to use for pandoc conversion of this templates markdown.
+Luafilters are lua scripts applied during the pandoc conversion.
+You can add a folder or a filename. If adding a folder, it will be traversed recursively, and any .lua file will be added.
+See the pandoc documentation and 'Writing filters' of the TiefDownConverter documentation for more details."#,
+            num_args = 1.., 
+            value_delimiter = ','
+        )]
         filters: Option<Vec<String>>,
-        #[arg(long, help = "The preprocessor to use for this template.")]
+        #[arg(
+            long, 
+            help = "The preprocessor to use for this template.",
+            long_help = r#"The preprocessor to use for this template.
+A preprocessor defines the arguments passed to the pandoc conversion from markdown.
+If using a CustomPandoc template, a preprocessor is required.
+Preprocessors replace all arguments. Thus, with preprocessors, you need to define the output file and format.
+For templates, that is the file imported by the template.
+Preprocessors are incompatible with epub conversion. Use processors instead."#
+        )]
         preprocessor: Option<String>,
-        #[arg(long, help = "The processor to use for this template.")]
+        #[arg(
+            long, 
+            help = "The processor to use for this template.",
+            long_help = r#"The processor to use for this template.
+A processor defines additional arguments passed to the conversion command.
+For LaTeX and typst templates, this allows extending the respective conversion parameters.
+For epub templates, this allows adding custom pandoc parameters.
+Processors are incompatible with CustomPandoc conversions. Use preprocessors instead."#
+        )]
         processor: Option<String>,
     },
     #[command(about = "Remove a template from the project.")]
@@ -222,11 +291,20 @@ Changing this is not recommended, as it is highly unlikely the type and only the
             help = "The output file. If not provided, the template name will be used."
         )]
         output: Option<PathBuf>,
-        #[arg(long,help = "The luafilters to use for pandoc conversion of this templates markdown.", num_args = 1.., value_delimiter = ',')]
+        #[arg(
+            long,
+            help = "The luafilters to use for pandoc conversion of this templates markdown.", 
+            long_help = r#"The luafilters to use for pandoc conversion of this templates markdown.
+This replaces all existing filters."#,
+            num_args = 1.., 
+            value_delimiter = ','
+        )]
         filters: Option<Vec<String>>,
         #[arg(
             long,
-            help = "The luafilters add to the template.",
+            help = "The luafilters to add to the template.",
+            long_help = r#"The luafilters to use for pandoc conversion of this templates markdown.
+This adds to the existing filters."#,
             num_args = 1..,
             value_delimiter = ',',
         )]
@@ -234,13 +312,32 @@ Changing this is not recommended, as it is highly unlikely the type and only the
         #[arg(
             long,
             help = "The luafilters to remove from the template.",
+            long_help = r#"The luafilters to use for pandoc conversion of this templates markdown.
+This removes the filter from the existing filters."#,
             num_args = 1..,
             value_delimiter = ',',
         )]
         remove_filters: Option<Vec<String>>,
-        #[arg(long, help = "The preprocessor to use for this template.")]
+        #[arg(
+            long, 
+            help = "The preprocessor to use for this template.",
+            long_help = r#"The preprocessor to use for this template.
+A preprocessor defines the arguments passed to the pandoc conversion from markdown.
+If using a CustomPandoc template, a preprocessor is required.
+Preprocessors replace all arguments. Thus, with preprocessors, you need to define the output file and format.
+For templates, that is the file imported by the template.
+Preprocessors are incompatible with epub conversion. Use processors instead."#
+        )]
         preprocessor: Option<String>,
-        #[arg(long, help = "The processor to use for this template.")]
+        #[arg(
+            long, 
+            help = "The processor to use for this template.",
+            long_help = r#"The processor to use for this template.
+A processor defines additional arguments passed to the conversion command.
+For LaTeX and typst templates, this allows extending the respective conversion parameters.
+For epub templates, this allows adding custom pandoc parameters.
+Processors are incompatible with CustomPandoc conversions. Use preprocessors instead."#
+        )]
         processor: Option<String>,
     },
 }
@@ -285,7 +382,6 @@ pub enum ProcessorsCommands {
 pub enum ProfilesCommands {
     #[command(
         about = "Add a new conversion profile to the project.",
-        long_about = "Add a new conversion profile to the project. These profiles contain a list of templates to preset conversion workflows."
     )]
     Add {
         #[arg(help = "The name of the profile to create.")]
@@ -330,14 +426,25 @@ pub enum ManageMarkdownProjectsCommand {
         #[arg(long, help = "The default profile to use for converting this project.")]
         default_profile: Option<String>,
     },
-    #[command(about = "Manage the metadata of a markdown project.")]
+    #[command(
+        about = "Manage the metadata of a markdown project.",
+        long_about = r#"Manage the metadata of a markdown project.
+This metadata is markdown project specific and is not shared between projects.
+This metadata takes precedence over the shared metadata."#
+    )]
     Meta {
         #[arg(help = "The name of the markdown project to update.")]
         name: String,
         #[command(subcommand)]
         command: ManageMetadataCommand,
     },
-    #[command(about = "Manage the resources of a markdown project.")]
+    #[command(
+        about = "Manage the resources of a markdown project.",
+        long_about = r#"Manage the resources of a markdown project.
+Resources are a way to include meta information and resources on a per project basis.
+This is helpful for example for including a custom css file for a project, as that is not possible purely with metadata.
+Resources are stored in the markdown folder and copied to the conversion directory for that profile before conversion."#
+    )]
     Resources {
         #[arg(help = "The name of the markdown project to update.")]
         name: String,
@@ -355,7 +462,7 @@ pub enum ManageMarkdownProjectsCommand {
 
 #[derive(Subcommand)]
 pub enum ManageMetadataCommand {
-    #[command(about = "Add or change the metadata.")]
+    #[command(about = "Add or change the metadata. Overrides previous keys.")]
     Set {
         #[arg(help = "The key to set.")]
         key: String,
@@ -385,7 +492,7 @@ pub enum ManageMetadataCommand {
 pub enum ManageResourcesCommand {
     #[command(about = "Add a new resource to the project.")]
     Add {
-        #[arg(help = "The path to the resource.", num_args = 1.., value_delimiter = ' ', last = true, allow_hyphen_values = true)]
+        #[arg(help = "The paths to the resources. Seperated by spaces.", num_args = 1.., value_delimiter = ' ', last = true, allow_hyphen_values = true)]
         paths: Vec<PathBuf>,
     },
     #[command(about = "Remove a resource from the project.")]

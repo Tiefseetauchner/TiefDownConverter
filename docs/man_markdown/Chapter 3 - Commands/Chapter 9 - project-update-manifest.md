@@ -8,7 +8,7 @@ Usage: tiefdownconverter project update-manifest [OPTIONS]
 Options:
       --smart-clean <SMART_CLEAN>
           Enables smart clean for the project with a default threshold of 5.
-          If the number of conversion folders in the project is above this threshold, old folders will be cleaned, leaving only the threshold amount of folders.
+          If the number of conversion folders in the project is above the smart_clean_threshold, old folders will be cleaned, leaving only the threshold amount of folders.
           
           [possible values: true, false]
 
