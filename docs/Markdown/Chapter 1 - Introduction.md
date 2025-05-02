@@ -10,6 +10,8 @@ creator:
 rights: "Copyright (c) 2025 Tiefseetauchner, MIT Licensed (see below)"
 ---
 
+![TiefDownConverter Mascot](./resources/mascot.png)
+
 # LICENSE
 
 ```

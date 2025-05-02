@@ -222,6 +222,7 @@ You can also join my [Discord Server](https://discord.gg/EG3zU9cTFx)
 This project is licensed under MIT. See `LICENSE` for details.
 
 ## Coffee
+
 If you appreciate this project, consider supporting it by contributing or donating.
 
 [![](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/tiefseetauchner)
@@ -229,3 +230,13 @@ If you appreciate this project, consider supporting it by contributing or donati
 ## Attributions
 
 Mascot (Fibschiiiiiiiiiiiii) by my lovely boyfriend Finn <3
+
+## Graphs
+
+### Rust Lines
+
+![RS Lines](https://github.com/Tiefseetauchner/TiefDownConverter/blob/main/graphs/rs.png)
+
+### Markdown Lines
+
+![Markdown Lines](https://github.com/Tiefseetauchner/TiefDownConverter/blob/main/graphs/md.png)

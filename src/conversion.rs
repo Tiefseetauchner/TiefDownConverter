@@ -2,6 +2,8 @@ use chrono::prelude::DateTime;
 use chrono::prelude::Utc;
 use color_eyre::eyre::Result;
 use color_eyre::eyre::eyre;
+use fs_extra::dir;
+use fs_extra::file;
 use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
@@ -9,6 +11,7 @@ use toml::Table;
 
 use crate::conversion_decider;
 use crate::manifest_model::Manifest;
+use crate::manifest_model::MarkdownProject;
 use crate::manifest_model::MetadataSettings;
 use crate::manifest_model::Processors;
 use crate::manifest_model::TemplateMapping;
@@ -39,36 +42,105 @@ pub(crate) fn convert(
 
     let compiled_directory_path = create_build_directory(project_path)?;
 
-    let combined_markdown_name = PathBuf::from("combined.md");
-    let combined_markdown_path = compiled_directory_path.join(&combined_markdown_name);
-    let markdown_dir = project_path.join(manifest.markdown_dir.as_deref().unwrap_or("Markdown"));
+    for markdown_project in manifest
+        .markdown_projects
+        .clone()
+        .unwrap_or(vec![MarkdownProject {
+            name: "Default".to_string(),
+            path: PathBuf::from("Markdown"),
+            output: PathBuf::from("."),
+            metadata_fields: None,
+            default_profile: None,
+            resources: None,
+        }])
+    {
+        let profile = profile.clone().or(markdown_project.default_profile);
 
-    let combined_content = combine_markdown(&combined_markdown_path, &markdown_dir)?;
-    fs::write(&combined_markdown_path, combined_content)?;
+        let templates = get_template_names(&templates, profile, &manifest)?;
+        let templates = get_template_mappings_from_names(&templates, &manifest)?;
+        let markdown_project_compiled_directory_path =
+            compiled_directory_path.join(markdown_project.output.clone());
 
-    let templates = get_template_names(templates, profile, &manifest)?;
-    let templates = get_template_mappings_from_names(&templates, &manifest)?;
-
-    for template in &templates {
-        convert_template(
-            &combined_markdown_name,
-            &compiled_directory_path,
-            template,
-            project_path,
-            &manifest.metadata_fields,
-            &manifest.metadata_settings,
-            &manifest.custom_processors,
+        dir::create_all(&markdown_project_compiled_directory_path, false)?;
+        dir::copy(
+            project_path.join("template/"),
+            &markdown_project_compiled_directory_path,
+            &dir::CopyOptions::new().overwrite(true).content_only(true),
         )?;
+
+        let markdown_dir = project_path.join(markdown_project.path.clone());
+
+        for resource in markdown_project.resources.clone().unwrap_or(vec![]) {
+            let resource = markdown_dir.join(resource.clone());
+
+            if !resource.exists() {
+                return Err(eyre!(
+                    "Resource file {} does not exist.",
+                    resource.display()
+                ));
+            }
+
+            if resource.is_dir() {
+                dir::copy(
+                    resource,
+                    &markdown_project_compiled_directory_path,
+                    &dir::CopyOptions::new().overwrite(true).content_only(true),
+                )?;
+            } else {
+                file::copy(
+                    &resource,
+                    &markdown_project_compiled_directory_path.join(resource.file_name().unwrap()),
+                    &file::CopyOptions::new().overwrite(true),
+                )?;
+            }
+        }
+
+        let combined_markdown_name = PathBuf::from("combined.md");
+        let combined_markdown_path =
+            markdown_project_compiled_directory_path.join(&combined_markdown_name);
+
+        let combined_content = combine_markdown(&combined_markdown_path, &markdown_dir)?;
+        fs::write(&combined_markdown_path, combined_content)?;
+
+        let merged_metadata = merge_metadata(
+            &manifest.shared_metadata.clone().unwrap_or(Table::new()),
+            &markdown_project.metadata_fields.unwrap_or(Table::new()),
+        );
+
+        for template in &templates {
+            convert_template(
+                &combined_markdown_name,
+                &markdown_project_compiled_directory_path,
+                template,
+                project_path,
+                &markdown_project.output,
+                &merged_metadata,
+                &manifest.metadata_settings,
+                &manifest.custom_processors,
+            )?;
+        }
     }
 
     Ok(())
 }
 
+fn merge_metadata(shared_metadata: &Table, project_metadata: &Table) -> Table {
+    let mut merged_metadata = shared_metadata.clone();
+    for (key, value) in project_metadata {
+        merged_metadata.insert(key.clone(), value.clone());
+    }
+    merged_metadata
+}
+
 fn get_template_names(
-    templates: Option<Vec<String>>,
+    templates: &Option<Vec<String>>,
     profile: Option<String>,
     manifest: &Manifest,
 ) -> Result<Vec<String>> {
+    if let Some(templates) = templates {
+        return Ok(templates.clone());
+    }
+
     if let Some(profile) = profile {
         if let Some(available_profiles) = &manifest.profiles {
             if let Some(profile_pos) = available_profiles.iter().position(|p| p.name == profile) {
@@ -83,10 +155,6 @@ fn get_template_names(
         } else {
             return Err(eyre!("No profiles are defined in the manifest.toml file."));
         }
-    }
-
-    if let Some(templates) = templates {
-        return Ok(templates);
     }
 
     Ok(manifest.templates.iter().map(|t| t.name.clone()).collect())
@@ -109,9 +177,11 @@ fn create_build_directory(project_path: &Path) -> Result<std::path::PathBuf> {
     let current_time = std::time::SystemTime::now();
     let current_time: DateTime<Utc> = current_time.into();
     let current_time = current_time.format("%Y-%m-%d_%H-%M-%S").to_string();
-    let compiled_directory_path = project_path.join(current_time);
-    copy_dir::copy_dir(project_path.join("template/"), &compiled_directory_path)?;
-    Ok(compiled_directory_path)
+    let build_directory_path = project_path.join(current_time);
+
+    dir::create_all(&build_directory_path, false)?;
+
+    Ok(build_directory_path)
 }
 
 fn combine_markdown(_combined_markdown_path: &PathBuf, markdown_dir: &PathBuf) -> Result<String> {
@@ -173,11 +243,16 @@ fn convert_template(
     compiled_directory_path: &Path,
     template: &TemplateMapping,
     project_path: &Path,
+    output_dir: &Path,
     metadata_fields: &Table,
-    metadata_settings: &MetadataSettings,
+    metadata_settings: &Option<MetadataSettings>,
     custom_processors: &Processors,
 ) -> Result<()> {
     let converter = conversion_decider::get_converter(&template.template_type)?;
+
+    let metadata_settings = metadata_settings
+        .clone()
+        .unwrap_or(MetadataSettings::default());
 
     let result_file_path = converter(
         project_path,
@@ -185,13 +260,17 @@ fn convert_template(
         compiled_directory_path,
         template,
         metadata_fields,
-        metadata_settings,
+        &metadata_settings,
         custom_processors,
     )?;
 
-    fs::copy(
+    dir::create_all(project_path.join(output_dir), false)?;
+    file::copy(
         &result_file_path,
-        project_path.join(result_file_path.file_name().unwrap_or_default()),
+        project_path
+            .join(output_dir)
+            .join(result_file_path.file_name().unwrap_or_default()),
+        &file::CopyOptions::new().overwrite(true),
     )?;
 
     println!("Converted template: {}", template.name);

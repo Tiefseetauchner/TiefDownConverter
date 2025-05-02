@@ -54,6 +54,8 @@ fn convert(project_path: &Path) {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("convert")
+        .arg("-t")
+        .arg("")
         .assert()
         .success();
 

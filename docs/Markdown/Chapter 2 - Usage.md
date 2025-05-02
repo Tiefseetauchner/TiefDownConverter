@@ -82,7 +82,7 @@ ommitting the -p flag if you're already in the project directory) and it should
 generate a PDF file in the project directory. You can now adjust the template, add
 your own Markdown files, and so on.
 
-## The markdown directory
+## The markdown "directory"
 
 Markdown files are the main input for the converter, and as such their structure is
 important. The converter will look for markdown files in the `Markdown` directory, and
@@ -117,9 +117,67 @@ does so recursively), and directories are combined after the file with the same 
 
 You can change what directory the converter looks for markdown files in by changing the
 `markdown_dir` field in the manifest.toml file or saying `-m path/to/markdown/dir` when
-initialising the project. You can also change it post-initialisation using
-`tiefdownconverter project [path/to/project] update-manifest -m path/to/markdown/dir`. If you don't do so,
-the converter will look for markdown files in the `project_dir/Markdown` directory.
+initialising the project.
+
+## Markdown projects
+
+Now, above is a simplified explanation. If you want the full picture, read on.
+
+With version 0.8.0 and above, the converter can handle multiple markdown folders at the
+same time. This is called a "markdown project" and it is the most convoluted way to think
+about markdown directories. Basically, a TiefDown project can have multiple markdown
+projects, that are loaded as described above. But they have additional information stored
+in them, importantly **markdown project specific metadata**.
+
+Now, why does this exist? Well, the basic idea is that you can have multiple projects per
+project. Markdown projects per TiefDown project, that is. It's useful for books for example,
+where you may have shared templates and metadata (like an author) but seperate content and
+metadata (like a title) for the different books. This, in theory, simplifies the workflow
+substantially - but makes it more complicated to understand.
+
+First off, the setup. You can run
+
+```bash
+tiefdownconverter project markdown add <PROJECT_NAME> <PATH_TO_MARKDOWN_DIR> <PATH_TO_OUTPUT_DIR>
+```
+
+to add a markdown project to a TiefDown project. Per default, this is either not set at all,
+using the default markdown directory and output directory, or it is set to the default
+markdown directory and output directory of the TiefDown project, which are `Markdown` and
+`.` respectively. Importantly, the output directory is relevant for the conversion - it is
+used to seperate the templating for the different projects, as well as the markdown files.
+So don't use the same output directory for multiple projects.
+
+The output directory is also important as the templates are all saved to the same file name per
+default (as in, the template output file name), and if you didn't use a different output
+directory, you'd overwrite the template for the other project.
+
+Metadata is interesting as well, as in the end, it is merged with the shared metadata.
+So when you run the conversion, first the shared metadata is loaded and then the markdown
+project specific metadata, overwriting the shared metadata.
+
+Setting metadata is done by using the meta command, similarly to the [shared-meta](#shared-metadata)
+command, except that you have to specify the markdown project name as well. As an example, you may
+run
+
+```bash
+tiefdownconverter project markdown meta <PROJECT_NAME> set <KEY> <VALUE>
+```
+
+to set a metadata value for a markdown project.
+
+You can also assign a [profile](#conversion-profiles) to a markdown project which, if I may
+say so myself as the person who needed it, is awesome.
+
+Imagine... Well, don't imagine. Look at this documentation on github. You can see, there's
+a markdown project called `Markdown` and a markdown project called `man_markdown`. They both
+contain different markdown files, but they act quite different. One generates the manpage,
+and one the documentation you are reading right now.
+
+A default profile is assigned using the `--default-profile` flag. This is the profile that
+will be used to convert the markdown project _by default_. That doesn't mean you can't use
+all templates as you wish, you can always use the `--profile` flag to specify a different
+profile or the `--templates` flag to specify a different set of templates.
 
 ## Customising the template
 
@@ -190,6 +248,37 @@ output of the Markdown conversion in your template file. If you're using custom 
 can change the output file of the conversion. See [Preprocessing](#preprocessing) for more
 information.
 
+## Shared Metadata {#shared-metadata}
+
+Metadata is a key part of any project. That's why TiefDown allows adding project wide metadata
+as well as per markdown project metadata (see [Markdown Projects](#markdown-projects)). This
+makes sharing metadata not only between templates easier, but even between projects.
+
+Imagine you want to manage four books. Each of them has a different author, but the same
+publisher. You could add the publisher to the metadata of each project, but that would be a lot of
+work, especially if the publisher changes branding. Instead, you can add the publisher to the
+shared metadata, and then add the author to the metadata of each project.
+
+To add metadata to a project, use the `tiefdownconverter project shared-meta set` command. This
+writes the metadata to the project's manifest.toml file and when converting the project, the
+metadata will be written to respective metadata files for the template type (e.g. metadata.tex
+for LaTeX and metadata.typ for Typst). You can then import these files in your template and
+access the metadata.
+
+### Accessing metadata in LaTeX
+
+Metadata, per default, is accessed in LaTeX via the `\meta` command. This command takes a key
+and returns the value of that key. However, accessing undefined values is undefined behaviour.
+Be careful to only access metadata that is defined, and double check, I never know what happens
+when you access undefined metadata. It may just throw an error, it may also write random
+characters to your document.
+
+### Accessing metadata in Typst
+
+Much nicer than LaTeX, Typst has a type system! Just import `meta` and access the keys on it.
+Though the linter will error out if you do this, so you can write your own `metadata.typ` in
+the template directory with placeholder values.
+
 ## Epub Support
 
 EPUB support in TiefDownConverter isn’t as fancy as LaTeX or Typst, but you can still tweak it to
@@ -202,7 +291,7 @@ removed but there likely won't be any new features added to it._
 EPUBs use stylesheets to control how everything looks. Any `.css` file you drop into
 `template/my_epub_template/` gets automatically loaded.
 
-For exammple, you can change the font, line height, and margins like so:
+For example, you can change the font, line height, and margins like so:
 
 ```css
 body {

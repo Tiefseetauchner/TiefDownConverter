@@ -26,28 +26,6 @@ fn create_empty_project(temp_dir: &Path) -> PathBuf {
 }
 
 #[rstest]
-fn test_update_manifest_change_markdown_dir() {
-    let temp_dir = tempdir().expect("Failed to create temporary directory");
-
-    let project_path = create_empty_project(&temp_dir.path());
-
-    let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
-    cmd.current_dir(&project_path)
-        .arg("project")
-        .arg("update-manifest")
-        .arg("-m")
-        .arg("new_markdown_dir")
-        .assert()
-        .success();
-
-    let manifest_path = project_path.join("manifest.toml");
-    assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(manifest_content, r#"markdown_dir = "new_markdown_dir""#);
-}
-
-#[rstest]
 fn test_update_manifest_enable_smart_clean_with_arg() {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
 

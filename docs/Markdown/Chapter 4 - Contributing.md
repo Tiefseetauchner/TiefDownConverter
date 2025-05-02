@@ -3,6 +3,9 @@
 This project is open source, and I'd love for you to contribute!
 There's a few things you should know before you start.
 
+> **NOTE:** When raising the version, don't forget to change the version in
+> the documentation as well!!!
+
 ## The architecture
 
 The project has a relatively straight forward conversion process, as

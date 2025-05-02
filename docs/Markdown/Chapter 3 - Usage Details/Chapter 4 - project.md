@@ -1,6 +1,6 @@
 ## `tiefdownconverter project` {#project}
 
-**Version:** `tiefdownconverter 0.7.0`
+**Version:** `tiefdownconverter 0.8.0-ALPHA`
 
 ### Usage:
 ```
@@ -12,9 +12,10 @@ Commands:
   templates        Add or modify templates in the project.
   update-manifest  Update the project manifest.
   pre-processors   Manage the preprocessors of the project.
-  processors       Manage the preprocessors of the project.
+  processors       Manage the processors of the project.
   profiles         Manage the conversion profiles of the project.
-  manage-metadata  Manage the manifest metadata of the project.
+  shared-meta      Manage the shared metadata of the project.
+  markdown         Manage the markdown projects of the project.
   list-templates   List the templates in the project.
   validate         Validate the TiefDown project structure and metadata.
   clean            Clean temporary files from the TiefDown project.
@@ -34,7 +35,8 @@ Options:
 - [pre-processors](#projectpre-processors)
 - [processors](#projectprocessors)
 - [profiles](#projectprofiles)
-- [manage-metadata](#projectmanage-metadata)
+- [shared-meta](#projectshared-meta)
+- [markdown](#projectmarkdown)
 - [list-templates](#projectlist-templates)
 - [validate](#projectvalidate)
 - [clean](#projectclean)

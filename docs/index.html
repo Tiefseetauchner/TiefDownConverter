@@ -119,7 +119,9 @@ the point?</a></li>
 <li><a href="#getting-started" id="toc-getting-started">Getting
 started</a></li>
 <li><a href="#the-markdown-directory"
-id="toc-the-markdown-directory">The markdown directory</a></li>
+id="toc-the-markdown-directory">The markdown “directory”</a></li>
+<li><a href="#markdown-projects" id="toc-markdown-projects">Markdown
+projects</a></li>
 <li><a href="#customising-the-template"
 id="toc-customising-the-template">Customising the template</a></li>
 <li><a href="#adjusting-template-behaviour"
@@ -129,6 +131,16 @@ behaviour</a></li>
 id="toc-conversion-profiles">Conversion Profiles</a></li>
 <li><a href="#writing-templates" id="toc-writing-templates">Writing
 templates</a></li>
+<li><a href="#shared-metadata" id="toc-shared-metadata">Shared
+Metadata</a>
+<ul>
+<li><a href="#accessing-metadata-in-latex"
+id="toc-accessing-metadata-in-latex">Accessing metadata in
+LaTeX</a></li>
+<li><a href="#accessing-metadata-in-typst"
+id="toc-accessing-metadata-in-typst">Accessing metadata in
+Typst</a></li>
+</ul></li>
 <li><a href="#epub-support" id="toc-epub-support">Epub Support</a>
 <ul>
 <li><a href="#customizing-css" id="toc-customizing-css">Customizing
@@ -276,52 +288,101 @@ id="toc-projectprofileslist"><code>tiefdownconverter project profiles list</code
 <ul>
 <li><a href="#usage-21" id="toc-usage-21">Usage:</a></li>
 </ul></li>
-<li><a href="#projectmanage-metadata"
-id="toc-projectmanage-metadata"><code>tiefdownconverter project manage-metadata</code></a>
+<li><a href="#projectshared-meta"
+id="toc-projectshared-meta"><code>tiefdownconverter project shared-meta</code></a>
 <ul>
 <li><a href="#usage-22" id="toc-usage-22">Usage:</a></li>
 <li><a href="#subcommands-6"
 id="toc-subcommands-6">Subcommands:</a></li>
 </ul></li>
-<li><a href="#projectmanage-metadataset"
-id="toc-projectmanage-metadataset"><code>tiefdownconverter project manage-metadata set</code></a>
+<li><a href="#projectshared-metaset"
+id="toc-projectshared-metaset"><code>tiefdownconverter project shared-meta set</code></a>
 <ul>
 <li><a href="#usage-23" id="toc-usage-23">Usage:</a></li>
 </ul></li>
-<li><a href="#projectmanage-metadataremove"
-id="toc-projectmanage-metadataremove"><code>tiefdownconverter project manage-metadata remove</code></a>
+<li><a href="#projectshared-metaremove"
+id="toc-projectshared-metaremove"><code>tiefdownconverter project shared-meta remove</code></a>
 <ul>
 <li><a href="#usage-24" id="toc-usage-24">Usage:</a></li>
 </ul></li>
-<li><a href="#projectmanage-metadatalist"
-id="toc-projectmanage-metadatalist"><code>tiefdownconverter project manage-metadata list</code></a>
+<li><a href="#projectshared-metalist"
+id="toc-projectshared-metalist"><code>tiefdownconverter project shared-meta list</code></a>
 <ul>
 <li><a href="#usage-25" id="toc-usage-25">Usage:</a></li>
+</ul></li>
+<li><a href="#projectmarkdown"
+id="toc-projectmarkdown"><code>tiefdownconverter project markdown</code></a>
+<ul>
+<li><a href="#usage-26" id="toc-usage-26">Usage:</a></li>
+<li><a href="#subcommands-7"
+id="toc-subcommands-7">Subcommands:</a></li>
+</ul></li>
+<li><a href="#projectmarkdownadd"
+id="toc-projectmarkdownadd"><code>tiefdownconverter project markdown add</code></a>
+<ul>
+<li><a href="#usage-27" id="toc-usage-27">Usage:</a></li>
+</ul></li>
+<li><a href="#projectmarkdownupdate"
+id="toc-projectmarkdownupdate"><code>tiefdownconverter project markdown update</code></a>
+<ul>
+<li><a href="#usage-28" id="toc-usage-28">Usage:</a></li>
+</ul></li>
+<li><a href="#projectmarkdownmeta"
+id="toc-projectmarkdownmeta"><code>tiefdownconverter project markdown meta</code></a>
+<ul>
+<li><a href="#usage-29" id="toc-usage-29">Usage:</a></li>
+<li><a href="#subcommands-8"
+id="toc-subcommands-8">Subcommands:</a></li>
+</ul></li>
+<li><a href="#projectmarkdownmetaset"
+id="toc-projectmarkdownmetaset"><code>tiefdownconverter project markdown meta set</code></a>
+<ul>
+<li><a href="#usage-30" id="toc-usage-30">Usage:</a></li>
+</ul></li>
+<li><a href="#projectmarkdownmetaremove"
+id="toc-projectmarkdownmetaremove"><code>tiefdownconverter project markdown meta remove</code></a>
+<ul>
+<li><a href="#usage-31" id="toc-usage-31">Usage:</a></li>
+</ul></li>
+<li><a href="#projectmarkdownmetalist"
+id="toc-projectmarkdownmetalist"><code>tiefdownconverter project markdown meta list</code></a>
+<ul>
+<li><a href="#usage-32" id="toc-usage-32">Usage:</a></li>
+</ul></li>
+<li><a href="#projectmarkdownremove"
+id="toc-projectmarkdownremove"><code>tiefdownconverter project markdown remove</code></a>
+<ul>
+<li><a href="#usage-33" id="toc-usage-33">Usage:</a></li>
+</ul></li>
+<li><a href="#projectmarkdownlist"
+id="toc-projectmarkdownlist"><code>tiefdownconverter project markdown list</code></a>
+<ul>
+<li><a href="#usage-34" id="toc-usage-34">Usage:</a></li>
 </ul></li>
 <li><a href="#projectlist-templates"
 id="toc-projectlist-templates"><code>tiefdownconverter project list-templates</code></a>
 <ul>
-<li><a href="#usage-26" id="toc-usage-26">Usage:</a></li>
+<li><a href="#usage-35" id="toc-usage-35">Usage:</a></li>
 </ul></li>
 <li><a href="#projectvalidate"
 id="toc-projectvalidate"><code>tiefdownconverter project validate</code></a>
 <ul>
-<li><a href="#usage-27" id="toc-usage-27">Usage:</a></li>
+<li><a href="#usage-36" id="toc-usage-36">Usage:</a></li>
 </ul></li>
 <li><a href="#projectclean"
 id="toc-projectclean"><code>tiefdownconverter project clean</code></a>
 <ul>
-<li><a href="#usage-28" id="toc-usage-28">Usage:</a></li>
+<li><a href="#usage-37" id="toc-usage-37">Usage:</a></li>
 </ul></li>
 <li><a href="#projectsmart-clean"
 id="toc-projectsmart-clean"><code>tiefdownconverter project smart-clean</code></a>
 <ul>
-<li><a href="#usage-29" id="toc-usage-29">Usage:</a></li>
+<li><a href="#usage-38" id="toc-usage-38">Usage:</a></li>
 </ul></li>
 <li><a href="#check-dependencies"
 id="toc-check-dependencies"><code>tiefdownconverter check-dependencies</code></a>
 <ul>
-<li><a href="#usage-30" id="toc-usage-30">Usage:</a></li>
+<li><a href="#usage-39" id="toc-usage-39">Usage:</a></li>
 </ul></li>
 </ul></li>
 <li><a href="#contributing" id="toc-contributing">Contributing</a>
@@ -340,6 +401,10 @@ id="toc-documentation">Documentation</a></li>
 </ul></li>
 </ul>
 </nav>
+<figure>
+<img src="./resources/mascot.png" alt="TiefDownConverter Mascot" />
+<figcaption aria-hidden="true">TiefDownConverter Mascot</figcaption>
+</figure>
 <h1 id="license">LICENSE</h1>
 <pre><code>MIT License
 
@@ -557,7 +622,7 @@ order they should be converted.</p>
 ommitting the -p flag if you’re already in the project directory) and it
 should generate a PDF file in the project directory. You can now adjust
 the template, add your own Markdown files, and so on.</p>
-<h2 id="the-markdown-directory">The markdown directory</h2>
+<h2 id="the-markdown-directory">The markdown “directory”</h2>
 <p>Markdown files are the main input for the converter, and as such
 their structure is important. The converter will look for markdown files
 in the <code>Markdown</code> directory, and will sort them by a chapter
@@ -590,10 +655,65 @@ the file with the same number.</p>
 <p>You can change what directory the converter looks for markdown files
 in by changing the <code>markdown_dir</code> field in the manifest.toml
 file or saying <code>-m path/to/markdown/dir</code> when initialising
-the project. You can also change it post-initialisation using
-<code>tiefdownconverter project [path/to/project] update-manifest -m path/to/markdown/dir</code>.
-If you don’t do so, the converter will look for markdown files in the
-<code>project_dir/Markdown</code> directory.</p>
+the project.</p>
+<h2 id="markdown-projects">Markdown projects</h2>
+<p>Now, above is a simplified explanation. If you want the full picture,
+read on.</p>
+<p>With version 0.8.0 and above, the converter can handle multiple
+markdown folders at the same time. This is called a “markdown project”
+and it is the most convoluted way to think about markdown directories.
+Basically, a TiefDown project can have multiple markdown projects, that
+are loaded as described above. But they have additional information
+stored in them, importantly <strong>markdown project specific
+metadata</strong>.</p>
+<p>Now, why does this exist? Well, the basic idea is that you can have
+multiple projects per project. Markdown projects per TiefDown project,
+that is. It’s useful for books for example, where you may have shared
+templates and metadata (like an author) but seperate content and
+metadata (like a title) for the different books. This, in theory,
+simplifies the workflow substantially - but makes it more complicated to
+understand.</p>
+<p>First off, the setup. You can run</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project markdown add <span class="op">&lt;</span>PROJECT_NAME<span class="op">&gt;</span> <span class="op">&lt;</span>PATH_TO_MARKDOWN_DIR<span class="op">&gt;</span> <span class="op">&lt;</span>PATH_TO_OUTPUT_DIR<span class="op">&gt;</span></span></code></pre></div>
+<p>to add a markdown project to a TiefDown project. Per default, this is
+either not set at all, using the default markdown directory and output
+directory, or it is set to the default markdown directory and output
+directory of the TiefDown project, which are <code>Markdown</code> and
+<code>.</code> respectively. Importantly, the output directory is
+relevant for the conversion - it is used to seperate the templating for
+the different projects, as well as the markdown files. So don’t use the
+same output directory for multiple projects.</p>
+<p>The output directory is also important as the templates are all saved
+to the same file name per default (as in, the template output file
+name), and if you didn’t use a different output directory, you’d
+overwrite the template for the other project.</p>
+<p>Metadata is interesting as well, as in the end, it is merged with the
+shared metadata. So when you run the conversion, first the shared
+metadata is loaded and then the markdown project specific metadata,
+overwriting the shared metadata.</p>
+<p>Setting metadata is done by using the meta command, similarly to the
+<a href="#shared-metadata">shared-meta</a> command, except that you have
+to specify the markdown project name as well. As an example, you may
+run</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project markdown meta <span class="op">&lt;</span>PROJECT_NAME<span class="op">&gt;</span> set <span class="op">&lt;</span>KEY<span class="op">&gt;</span> <span class="op">&lt;</span>VALUE<span class="op">&gt;</span></span></code></pre></div>
+<p>to set a metadata value for a markdown project.</p>
+<p>You can also assign a <a href="#conversion-profiles">profile</a> to a
+markdown project which, if I may say so myself as the person who needed
+it, is awesome.</p>
+<p>Imagine… Well, don’t imagine. Look at this documentation on github.
+You can see, there’s a markdown project called <code>Markdown</code> and
+a markdown project called <code>man_markdown</code>. They both contain
+different markdown files, but they act quite different. One generates
+the manpage, and one the documentation you are reading right now.</p>
+<p>A default profile is assigned using the
+<code>--default-profile</code> flag. This is the profile that will be
+used to convert the markdown project <em>by default</em>. That doesn’t
+mean you can’t use all templates as you wish, you can always use the
+<code>--profile</code> flag to specify a different profile or the
+<code>--templates</code> flag to specify a different set of
+templates.</p>
 <h2 id="customising-the-template">Customising the template</h2>
 <p>The key idea behind tiefdownconverter is, that it can handle multiple
 templates at the same time. This is done by creating a template file in
@@ -645,10 +765,10 @@ the <code>project profile remove</code> command.</p>
 <code>--profile</code> flag.</p>
 <p>The manifest file can optionally contain a section for this, if you
 desire to configure them manually:</p>
-<div class="sourceCode" id="cb4"><pre
-class="sourceCode toml"><code class="sourceCode toml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[profiles]]</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;PDF&quot;</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="dt">templates</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;PDF Documentation LaTeX&quot;</span><span class="op">,</span> <span class="st">&quot;PDF Documentation&quot;</span><span class="op">]</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[profiles]]</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;PDF&quot;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="dt">templates</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;PDF Documentation LaTeX&quot;</span><span class="op">,</span> <span class="st">&quot;PDF Documentation&quot;</span><span class="op">]</span></span></code></pre></div>
 <h2 id="writing-templates">Writing templates</h2>
 <p>Importantly, when you write your own template, you need to include
 the content somehow. That somehow is done via
@@ -657,6 +777,39 @@ This will include the output of the Markdown conversion in your template
 file. If you’re using custom preprocessors, you can change the output
 file of the conversion. See <a href="#preprocessing">Preprocessing</a>
 for more information.</p>
+<h2 id="shared-metadata">Shared Metadata</h2>
+<p>Metadata is a key part of any project. That’s why TiefDown allows
+adding project wide metadata as well as per markdown project metadata
+(see <a href="#markdown-projects">Markdown Projects</a>). This makes
+sharing metadata not only between templates easier, but even between
+projects.</p>
+<p>Imagine you want to manage four books. Each of them has a different
+author, but the same publisher. You could add the publisher to the
+metadata of each project, but that would be a lot of work, especially if
+the publisher changes branding. Instead, you can add the publisher to
+the shared metadata, and then add the author to the metadata of each
+project.</p>
+<p>To add metadata to a project, use the
+<code>tiefdownconverter project shared-meta set</code> command. This
+writes the metadata to the project’s manifest.toml file and when
+converting the project, the metadata will be written to respective
+metadata files for the template type (e.g. metadata.tex for LaTeX and
+metadata.typ for Typst). You can then import these files in your
+template and access the metadata.</p>
+<h3 id="accessing-metadata-in-latex">Accessing metadata in LaTeX</h3>
+<p>Metadata, per default, is accessed in LaTeX via the
+<code>\meta</code> command. This command takes a key and returns the
+value of that key. However, accessing undefined values is undefined
+behaviour. Be careful to only access metadata that is defined, and
+double check, I never know what happens when you access undefined
+metadata. It may just throw an error, it may also write random
+characters to your document.</p>
+<h3 id="accessing-metadata-in-typst">Accessing metadata in Typst</h3>
+<p>Much nicer than LaTeX, Typst has a type system! Just import
+<code>meta</code> and access the keys on it. Though the linter will
+error out if you do this, so you can write your own
+<code>metadata.typ</code> in the template directory with placeholder
+values.</p>
 <h2 id="epub-support">Epub Support</h2>
 <p>EPUB support in TiefDownConverter isn’t as fancy as LaTeX or Typst,
 but you can still tweak it to look nice. You don’t get full-blown
@@ -668,34 +821,34 @@ features added to it.</em></p>
 <p>EPUBs use stylesheets to control how everything looks. Any
 <code>.css</code> file you drop into
 <code>template/my_epub_template/</code> gets automatically loaded.</p>
-<p>For exammple, you can change the font, line height, and margins like
+<p>For example, you can change the font, line height, and margins like
 so:</p>
-<div class="sourceCode" id="cb5"><pre
-class="sourceCode css"><code class="sourceCode css"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>body {</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">font-family</span><span class="ch">:</span> <span class="st">&quot;Noto Serif&quot;</span><span class="op">,</span> <span class="dv">serif</span><span class="op">;</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">line-height</span><span class="ch">:</span> <span class="dv">1.6</span><span class="op">;</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">margin</span><span class="ch">:</span> <span class="dv">1</span><span class="dt">em</span><span class="op">;</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>blockquote {</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">font-style</span><span class="ch">:</span> <span class="dv">italic</span><span class="op">;</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">border-left</span><span class="ch">:</span> <span class="dv">3</span><span class="dt">px</span> <span class="dv">solid</span> <span class="cn">#ccc</span><span class="op">;</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="kw">padding-left</span><span class="ch">:</span> <span class="dv">10</span><span class="dt">px</span><span class="op">;</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode css"><code class="sourceCode css"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>body {</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">font-family</span><span class="ch">:</span> <span class="st">&quot;Noto Serif&quot;</span><span class="op">,</span> <span class="dv">serif</span><span class="op">;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">line-height</span><span class="ch">:</span> <span class="dv">1.6</span><span class="op">;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">margin</span><span class="ch">:</span> <span class="dv">1</span><span class="dt">em</span><span class="op">;</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>blockquote {</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">font-style</span><span class="ch">:</span> <span class="dv">italic</span><span class="op">;</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">border-left</span><span class="ch">:</span> <span class="dv">3</span><span class="dt">px</span> <span class="dv">solid</span> <span class="cn">#ccc</span><span class="op">;</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="kw">padding-left</span><span class="ch">:</span> <span class="dv">10</span><span class="dt">px</span><span class="op">;</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <h3 id="adding-fonts">Adding Fonts</h3>
 <p>Fonts go into <code>template/my_epub_template/fonts/</code>, and
 TiefDownConverter will automatically pick them up. To use them, you just
 need to reference them properly in your CSS:</p>
-<div class="sourceCode" id="cb6"><pre
-class="sourceCode css"><code class="sourceCode css"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">@font-face</span> {</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">font-family</span><span class="ch">:</span> <span class="st">&quot;EB Garamond&quot;</span><span class="op">;</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">font-style</span><span class="ch">:</span> <span class="dv">normal</span><span class="op">;</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">font-weight</span><span class="ch">:</span> <span class="dv">normal</span><span class="op">;</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">src</span><span class="ch">:</span> <span class="fu">url(</span><span class="st">&quot;../fonts/EBGaramond-Regular.ttf&quot;</span><span class="fu">)</span><span class="op">;</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>body {</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="kw">font-family</span><span class="ch">:</span> <span class="st">&quot;EB Garamond&quot;</span><span class="op">,</span> <span class="dv">serif</span><span class="op">;</span></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode css"><code class="sourceCode css"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">@font-face</span> {</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">font-family</span><span class="ch">:</span> <span class="st">&quot;EB Garamond&quot;</span><span class="op">;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">font-style</span><span class="ch">:</span> <span class="dv">normal</span><span class="op">;</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">font-weight</span><span class="ch">:</span> <span class="dv">normal</span><span class="op">;</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">src</span><span class="ch">:</span> <span class="fu">url(</span><span class="st">&quot;../fonts/EBGaramond-Regular.ttf&quot;</span><span class="fu">)</span><span class="op">;</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>body {</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="kw">font-family</span><span class="ch">:</span> <span class="st">&quot;EB Garamond&quot;</span><span class="op">,</span> <span class="dv">serif</span><span class="op">;</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>This is a good time to mention, epub is just a zip file. As such, as
 it is generated by pandoc, it has a predefined structure, and you have
 to bend to that. Fonts are in a font directory, and stylesheets in a
@@ -706,24 +859,24 @@ took me a while to figure out.</p>
 <p>EPUBs need some basic metadata, which you define in the YAML front
 matter of your Markdown files. Stuff like title, author, and language
 goes here:</p>
-<div class="sourceCode" id="cb7"><pre
-class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">type</span><span class="kw">:</span><span class="at"> main</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;My Publication&quot;</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">type</span><span class="kw">:</span><span class="at"> subtitle</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;A tale of loss and partying hard&quot;</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu">creator</span><span class="kw">:</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">role</span><span class="kw">:</span><span class="at"> author</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span><span class="kw">:</span><span class="at"> Your Name</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="fu">rights</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Copyright © 2012 Your Name&quot;</span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">type</span><span class="kw">:</span><span class="at"> main</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;My Publication&quot;</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">type</span><span class="kw">:</span><span class="at"> subtitle</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;A tale of loss and partying hard&quot;</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="fu">creator</span><span class="kw">:</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">role</span><span class="kw">:</span><span class="at"> author</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span><span class="kw">:</span><span class="at"> Your Name</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="fu">rights</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Copyright © 2012 Your Name&quot;</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span></code></pre></div>
 <p>You can also do this via the custom processor arguments, adding
 metadata as described in the pandoc documentation. For example, to use a
 seperate metadata file, you can do this:</p>
-<div class="sourceCode" id="cb8"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project <span class="pp">[</span><span class="ss">PROJECT_NAME</span><span class="pp">]</span> processors add <span class="st">&quot;Metadata for EPUB&quot;</span> <span class="at">--</span> <span class="at">--metadata-file</span> metadata.yaml</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project <span class="pp">[</span><span class="ss">PROJECT_NAME</span><span class="pp">]</span> templates <span class="op">&lt;</span>TEMPLATE_NAME<span class="op">&gt;</span> update <span class="at">--processor</span> <span class="st">&quot;Metadata for EPUB&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project <span class="pp">[</span><span class="ss">PROJECT_NAME</span><span class="pp">]</span> processors add <span class="st">&quot;Metadata for EPUB&quot;</span> <span class="at">--</span> <span class="at">--metadata-file</span> metadata.yaml</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project <span class="pp">[</span><span class="ss">PROJECT_NAME</span><span class="pp">]</span> templates <span class="op">&lt;</span>TEMPLATE_NAME<span class="op">&gt;</span> update <span class="at">--processor</span> <span class="st">&quot;Metadata for EPUB&quot;</span></span></code></pre></div>
 <p>This will include the metadata file in the conversion process,
 removing the need for the YAML front matter in your Markdown files and
 allowing you to use different metadata files for different
@@ -733,12 +886,12 @@ templates.</p>
 use them to rename chapters, remove junk, or modify how elements are
 processed.</p>
 <p>Example: Automatically renaming chapter headers:</p>
-<div class="sourceCode" id="cb9"><pre
-class="sourceCode lua"><code class="sourceCode lua"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> Header<span class="op">(</span><span class="va">el</span><span class="op">)</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="va">el</span><span class="op">.</span><span class="va">level</span> <span class="op">==</span> <span class="dv">1</span> <span class="cf">then</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">pandoc</span><span class="op">.</span>Header<span class="op">(</span><span class="va">el</span><span class="op">.</span><span class="va">level</span><span class="op">,</span> <span class="st">&quot;Chapter: &quot;</span> <span class="op">..</span> <span class="va">pandoc</span><span class="op">.</span><span class="va">utils</span><span class="op">.</span>stringify<span class="op">(</span><span class="va">el</span><span class="op">.</span><span class="va">content</span><span class="op">))</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode lua"><code class="sourceCode lua"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> Header<span class="op">(</span><span class="va">el</span><span class="op">)</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="va">el</span><span class="op">.</span><span class="va">level</span> <span class="op">==</span> <span class="dv">1</span> <span class="cf">then</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">pandoc</span><span class="op">.</span>Header<span class="op">(</span><span class="va">el</span><span class="op">.</span><span class="va">level</span><span class="op">,</span> <span class="st">&quot;Chapter: &quot;</span> <span class="op">..</span> <span class="va">pandoc</span><span class="op">.</span><span class="va">utils</span><span class="op">.</span>stringify<span class="op">(</span><span class="va">el</span><span class="op">.</span><span class="va">content</span><span class="op">))</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
 <p>And that’s it. You get a customized EPUB without having to fight with
 the defaults. Enjoy!</p>
 <h2 id="conversion-engines">Conversion Engines</h2>
@@ -810,19 +963,19 @@ But here’s a quick rundown of what you can do. For example, if you
 wanted to change the font of all block quotes, there’s a few things
 you’d need to do. First off, in your template, you will need to define a
 font. It could look something like this:</p>
-<div class="sourceCode" id="cb10"><pre
-class="sourceCode tex"><code class="sourceCode latex"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="bu">\usepackage</span>{<span class="ex">fontspec</span>}</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">\newfontfamily\blockquotefont</span>{Noto Sans}</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode tex"><code class="sourceCode latex"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="bu">\usepackage</span>{<span class="ex">fontspec</span>}</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">\newfontfamily\blockquotefont</span>{Noto Sans}</span></code></pre></div>
 <p>Then, add a filter to your template as described above. The filter
 could look something like this:</p>
-<div class="sourceCode" id="cb11"><pre
-class="sourceCode lua"><code class="sourceCode lua"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> BlockQuote<span class="op">(</span><span class="va">el</span><span class="op">)</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">local</span> <span class="va">tt_start</span> <span class="op">=</span> <span class="va">pandoc</span><span class="op">.</span>RawBlock<span class="op">(</span><span class="st">&#39;latex&#39;</span><span class="op">,</span> <span class="st">&#39;</span><span class="sc">\\</span><span class="st">blockquotefont</span><span class="sc">\\</span><span class="st">small&#39;</span><span class="op">)</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">table.insert</span><span class="op">(</span><span class="va">el</span><span class="op">.</span><span class="va">content</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="va">tt_start</span><span class="op">)</span></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="va">el</span></span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode lua"><code class="sourceCode lua"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> BlockQuote<span class="op">(</span><span class="va">el</span><span class="op">)</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">local</span> <span class="va">tt_start</span> <span class="op">=</span> <span class="va">pandoc</span><span class="op">.</span>RawBlock<span class="op">(</span><span class="st">&#39;latex&#39;</span><span class="op">,</span> <span class="st">&#39;</span><span class="sc">\\</span><span class="st">blockquotefont</span><span class="sc">\\</span><span class="st">small&#39;</span><span class="op">)</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">table.insert</span><span class="op">(</span><span class="va">el</span><span class="op">.</span><span class="va">content</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="va">tt_start</span><span class="op">)</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="va">el</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
 <p>Of course, you could just redefine the font in TeX but I think this
 is a bit more flexible. One usecase that is quite important is to change
 the way chapters are handled for LiX. In case of LiX, they expect
@@ -830,16 +983,16 @@ the way chapters are handled for LiX. In case of LiX, they expect
 the standard behaviour of pandoc. So when you create a LiX backed
 template, you have to add a filter to change that behaviour. Something
 like this:</p>
-<div class="sourceCode" id="cb12"><pre
-class="sourceCode lua"><code class="sourceCode lua"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> Header<span class="op">(</span><span class="va">elem</span><span class="op">)</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="va">elem</span><span class="op">.</span><span class="va">level</span> <span class="op">==</span> <span class="dv">1</span> <span class="cf">then</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">pandoc</span><span class="op">.</span>RawBlock<span class="op">(</span><span class="st">&quot;latex&quot;</span><span class="op">,</span> <span class="st">&quot;</span><span class="sc">\\</span><span class="st">h{&quot;</span> <span class="op">..</span> <span class="va">pandoc</span><span class="op">.</span><span class="va">utils</span><span class="op">.</span>stringify<span class="op">(</span><span class="va">elem</span><span class="op">.</span><span class="va">content</span><span class="op">)</span> <span class="op">..</span> <span class="st">&quot;}&quot;</span><span class="op">)</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="va">elem</span><span class="op">.</span><span class="va">level</span> <span class="op">==</span> <span class="dv">2</span> <span class="cf">then</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">pandoc</span><span class="op">.</span>RawBlock<span class="op">(</span><span class="st">&quot;latex&quot;</span><span class="op">,</span> <span class="st">&quot;</span><span class="sc">\\</span><span class="st">hh{&quot;</span> <span class="op">..</span> <span class="va">pandoc</span><span class="op">.</span><span class="va">utils</span><span class="op">.</span>stringify<span class="op">(</span><span class="va">elem</span><span class="op">.</span><span class="va">content</span><span class="op">)</span> <span class="op">..</span> <span class="st">&quot;}&quot;</span><span class="op">)</span></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- add more levels here if needed</span></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode lua"><code class="sourceCode lua"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> Header<span class="op">(</span><span class="va">elem</span><span class="op">)</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="va">elem</span><span class="op">.</span><span class="va">level</span> <span class="op">==</span> <span class="dv">1</span> <span class="cf">then</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">pandoc</span><span class="op">.</span>RawBlock<span class="op">(</span><span class="st">&quot;latex&quot;</span><span class="op">,</span> <span class="st">&quot;</span><span class="sc">\\</span><span class="st">h{&quot;</span> <span class="op">..</span> <span class="va">pandoc</span><span class="op">.</span><span class="va">utils</span><span class="op">.</span>stringify<span class="op">(</span><span class="va">elem</span><span class="op">.</span><span class="va">content</span><span class="op">)</span> <span class="op">..</span> <span class="st">&quot;}&quot;</span><span class="op">)</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="va">elem</span><span class="op">.</span><span class="va">level</span> <span class="op">==</span> <span class="dv">2</span> <span class="cf">then</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">pandoc</span><span class="op">.</span>RawBlock<span class="op">(</span><span class="st">&quot;latex&quot;</span><span class="op">,</span> <span class="st">&quot;</span><span class="sc">\\</span><span class="st">hh{&quot;</span> <span class="op">..</span> <span class="va">pandoc</span><span class="op">.</span><span class="va">utils</span><span class="op">.</span>stringify<span class="op">(</span><span class="va">elem</span><span class="op">.</span><span class="va">content</span><span class="op">)</span> <span class="op">..</span> <span class="st">&quot;}&quot;</span><span class="op">)</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- add more levels here if needed</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
 <h2 id="preprocessing">Preprocessing</h2>
 <p>A “Preprocessor” is a stupid word for defining your own pandoc
 conversion parameters. You can (and should) use this to adjust the
@@ -852,11 +1005,11 @@ LaTeX, this is <code>output.tex</code>). But if you for example are
 using lua filters, you may want to export to a different path. This can
 be done by defining a preprocessor.</p>
 <p>If you want to define a preprocessor, you can do so by running</p>
-<div class="sourceCode" id="cb13"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project templates <span class="op">&lt;</span>TEMPLATE_NAME<span class="op">&gt;</span> update <span class="at">--preprocessor</span> <span class="op">&lt;</span>PREPROCESSOR_NAME<span class="op">&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project templates <span class="op">&lt;</span>TEMPLATE_NAME<span class="op">&gt;</span> update <span class="at">--preprocessor</span> <span class="op">&lt;</span>PREPROCESSOR_NAME<span class="op">&gt;</span></span></code></pre></div>
 <p>to assign it to a template and</p>
-<div class="sourceCode" id="cb14"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project preprocessors <span class="op">&lt;</span>PREPROCESSOR_NAME<span class="op">&gt;</span> add <span class="at">--</span> <span class="pp">[</span><span class="ss">PANDOC_ARGS</span><span class="pp">]</span></span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project preprocessors <span class="op">&lt;</span>PREPROCESSOR_NAME<span class="op">&gt;</span> add <span class="at">--</span> <span class="pp">[</span><span class="ss">PANDOC_ARGS</span><span class="pp">]</span></span></code></pre></div>
 <p>to create a new preprocessor.</p>
 <p>For example, if you want to add <code>--listings</code> to the pandoc
 command, you could do so by adding <code>--listings</code> to the
@@ -864,38 +1017,38 @@ preprocessor. But importantly, <strong>this overwrites the default
 preprocessor</strong>. So you will have to add the
 <code>-o output.tex</code> argument to the preprocessor as well. The
 full command then would be:</p>
-<div class="sourceCode" id="cb15"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project preprocessor <span class="st">&quot;Enable Listings&quot;</span> add <span class="at">--</span> <span class="at">-o</span> output.tex <span class="at">--listings</span></span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project preprocessor <span class="st">&quot;Enable Listings&quot;</span> add <span class="at">--</span> <span class="at">-o</span> output.tex <span class="at">--listings</span></span></code></pre></div>
 <p>The manifest would look something like this:</p>
-<div class="sourceCode" id="cb16"><pre
-class="sourceCode toml"><code class="sourceCode toml"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="dt">...</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.preprocessors]]</span></span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Enable Listings&quot;</span></span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="dt">pandoc_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;-o&quot;</span><span class="op">,</span> <span class="st">&quot;output.tex&quot;</span><span class="op">,</span> <span class="st">&quot;--listings&quot;</span><span class="op">]</span></span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="kw">[[templates]]</span></span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="dt">filters</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;luafilters/chapter_filter.lua&quot;</span><span class="op">]</span></span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;PDF Documentation LaTeX&quot;</span></span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">=</span> <span class="st">&quot;docs_tex.pdf&quot;</span></span>
-<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="dt">preprocessor</span> <span class="op">=</span> <span class="st">&quot;Enable Listings&quot;</span></span>
-<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="dt">template_file</span> <span class="op">=</span> <span class="st">&quot;docs.tex&quot;</span></span>
-<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a><span class="dt">template_type</span> <span class="op">=</span> <span class="st">&quot;Tex&quot;</span></span>
-<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a><span class="dt">...</span></span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="dt">...</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.preprocessors]]</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Enable Listings&quot;</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="dt">pandoc_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;-o&quot;</span><span class="op">,</span> <span class="st">&quot;output.tex&quot;</span><span class="op">,</span> <span class="st">&quot;--listings&quot;</span><span class="op">]</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="kw">[[templates]]</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="dt">filters</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;luafilters/chapter_filter.lua&quot;</span><span class="op">]</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;PDF Documentation LaTeX&quot;</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">=</span> <span class="st">&quot;docs_tex.pdf&quot;</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a><span class="dt">preprocessor</span> <span class="op">=</span> <span class="st">&quot;Enable Listings&quot;</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a><span class="dt">template_file</span> <span class="op">=</span> <span class="st">&quot;docs.tex&quot;</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a><span class="dt">template_type</span> <span class="op">=</span> <span class="st">&quot;Tex&quot;</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a><span class="dt">...</span></span></code></pre></div>
 <h2 id="custom-pandoc-conversion">Custom Pandoc Conversion</h2>
 <p>I already hinted at it in <a href="#custom-pandoc-converter">Custom
 Pandoc Converter</a>, but I’ll go into more detail here. The idea is to
 run a preprocessor and just skip any further processing. Straight from
 pandoc to the output.</p>
 <p>You can do this by first defining a preprocessor, for example:</p>
-<div class="sourceCode" id="cb17"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project preprocessor <span class="st">&quot;RTF Preprocessor&quot;</span> add <span class="at">--</span> <span class="at">-o</span> documentation.rtf</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project preprocessor <span class="st">&quot;RTF Preprocessor&quot;</span> add <span class="at">--</span> <span class="at">-o</span> documentation.rtf</span></code></pre></div>
 <p>As you can see, we’re outputting as an RTF file, and the file name is
 <code>documentation.rtf</code>. This means we need to add a template
 that deals with the same output:</p>
-<div class="sourceCode" id="cb18"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project template <span class="st">&quot;RTF Template&quot;</span> add <span class="at">-o</span> documentation.rtf <span class="at">-t</span> custompandoc</span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project template <span class="st">&quot;RTF Template&quot;</span> add <span class="at">-o</span> documentation.rtf <span class="at">-t</span> custompandoc</span></code></pre></div>
 <p>And that’s it. TiefDownConverter will run the preprocessor, which
 outputs to documentation.rtf, and then the templating system will copy
 that output to your directory. Hopefully. Did I mention that this is
@@ -907,27 +1060,27 @@ isn’t.</p>
 to the processor, so xelatex, typst, so on, on compilation. For example,
 if you needed to add a font directory to your typst conversion, you
 could do so by adding the following to your manifest:</p>
-<div class="sourceCode" id="cb19"><pre
-class="sourceCode toml"><code class="sourceCode toml"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="dt">...</span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.processors]]</span></span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Typst Font Directory&quot;</span></span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="dt">processor_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;--font-path&quot;</span><span class="op">,</span> <span class="st">&quot;fonts/&quot;</span><span class="op">]</span></span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="kw">[[templates]]</span></span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;PDF Documentation&quot;</span></span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">=</span> <span class="st">&quot;docs.pdf&quot;</span></span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="dt">processor</span> <span class="op">=</span> <span class="st">&quot;Typst Font Directory&quot;</span></span>
-<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="dt">template_file</span> <span class="op">=</span> <span class="st">&quot;docs.typ&quot;</span></span>
-<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="dt">template_type</span> <span class="op">=</span> <span class="st">&quot;Typst&quot;</span></span>
-<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a><span class="dt">...</span></span></code></pre></div>
-<p>Or… Just use the command to create it.</p>
-<div class="sourceCode" id="cb20"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project processor <span class="st">&quot;Typst Font Directory&quot;</span> add <span class="at">--</span> <span class="at">--font-path</span> fonts/</span></code></pre></div>
-<p>Then append it to a template.</p>
 <div class="sourceCode" id="cb21"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project template <span class="st">&quot;PDF Documentation&quot;</span> update <span class="at">--processor</span> <span class="st">&quot;Typst Font Directory&quot;</span></span></code></pre></div>
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="dt">...</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.processors]]</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Typst Font Directory&quot;</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="dt">processor_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;--font-path&quot;</span><span class="op">,</span> <span class="st">&quot;fonts/&quot;</span><span class="op">]</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="kw">[[templates]]</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;PDF Documentation&quot;</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">=</span> <span class="st">&quot;docs.pdf&quot;</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="dt">processor</span> <span class="op">=</span> <span class="st">&quot;Typst Font Directory&quot;</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="dt">template_file</span> <span class="op">=</span> <span class="st">&quot;docs.typ&quot;</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a><span class="dt">template_type</span> <span class="op">=</span> <span class="st">&quot;Typst&quot;</span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a><span class="dt">...</span></span></code></pre></div>
+<p>Or… Just use the command to create it.</p>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project processor <span class="st">&quot;Typst Font Directory&quot;</span> add <span class="at">--</span> <span class="at">--font-path</span> fonts/</span></code></pre></div>
+<p>Then append it to a template.</p>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project template <span class="st">&quot;PDF Documentation&quot;</span> update <span class="at">--processor</span> <span class="st">&quot;Typst Font Directory&quot;</span></span></code></pre></div>
 <h2 id="smart-cleaning">Smart Cleaning</h2>
 <p>Smart cleaning is a feature that is relatively simple. If you enable
 it in your manifest, it will automatically remove stale or old
@@ -945,7 +1098,8 @@ ones that are older than the threshold.</p>
 <strong>Note:</strong> These are autogenerated! For clearer
 documentation, please see the <a href="#usage">Usage</a> section.</p>
 <h2 id="main"><code>tiefdownconverter</code></h2>
-<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-1">Usage:</h3>
 <pre><code>TiefDownConverter manages TiefDown projects.
 TiefDown is a project structure meant to simplify the conversion process from Markdown to PDFs.
@@ -975,7 +1129,8 @@ Options:
 <li><a href="#check-dependencies">check-dependencies</a></li>
 </ul>
 <h2 id="convert"><code>tiefdownconverter convert</code></h2>
-<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-2">Usage:</h3>
 <pre><code>Convert a TiefDown project. By default, it will convert the current directory.
 
@@ -987,7 +1142,8 @@ Options:
   -P, --profile &lt;PROFILE&gt;         The conversion profile to use. Cannot be used with --templates.
   -h, --help                      Print help</code></pre>
 <h2 id="init"><code>tiefdownconverter init</code></h2>
-<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-3">Usage:</h3>
 <pre><code>Initialize a new TiefDown project.
 
@@ -1026,7 +1182,8 @@ Options:
   -h, --help
           Print help (see a summary with &#39;-h&#39;)</code></pre>
 <h2 id="project"><code>tiefdownconverter project</code></h2>
-<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-4">Usage:</h3>
 <pre><code>Update the TiefDown project.
 
@@ -1036,9 +1193,10 @@ Commands:
   templates        Add or modify templates in the project.
   update-manifest  Update the project manifest.
   pre-processors   Manage the preprocessors of the project.
-  processors       Manage the preprocessors of the project.
+  processors       Manage the processors of the project.
   profiles         Manage the conversion profiles of the project.
-  manage-metadata  Manage the manifest metadata of the project.
+  shared-meta      Manage the shared metadata of the project.
+  markdown         Manage the markdown projects of the project.
   list-templates   List the templates in the project.
   validate         Validate the TiefDown project structure and metadata.
   clean            Clean temporary files from the TiefDown project.
@@ -1057,7 +1215,8 @@ Options:
 <li><a href="#projectpre-processors">pre-processors</a></li>
 <li><a href="#projectprocessors">processors</a></li>
 <li><a href="#projectprofiles">profiles</a></li>
-<li><a href="#projectmanage-metadata">manage-metadata</a></li>
+<li><a href="#projectshared-meta">shared-meta</a></li>
+<li><a href="#projectmarkdown">markdown</a></li>
 <li><a href="#projectlist-templates">list-templates</a></li>
 <li><a href="#projectvalidate">validate</a></li>
 <li><a href="#projectclean">clean</a></li>
@@ -1065,7 +1224,8 @@ Options:
 </ul>
 <h2
 id="projecttemplates"><code>tiefdownconverter project templates</code></h2>
-<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-5">Usage:</h3>
 <pre><code>Add or modify templates in the project.
 
@@ -1090,7 +1250,8 @@ Options:
 </ul>
 <h2
 id="projecttemplatesadd"><code>tiefdownconverter project templates add</code></h2>
-<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-6">Usage:</h3>
 <pre><code>Add a new template to the project.
 
@@ -1106,7 +1267,8 @@ Options:
   -h, --help                           Print help</code></pre>
 <h2
 id="projecttemplatesremove"><code>tiefdownconverter project templates remove</code></h2>
-<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-7">Usage:</h3>
 <pre><code>Remove a template from the project.
 
@@ -1116,7 +1278,8 @@ Options:
   -h, --help  Print help</code></pre>
 <h2
 id="projecttemplatesupdate"><code>tiefdownconverter project templates update</code></h2>
-<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-8">Usage:</h3>
 <pre><code>Update a template in the project.
 
@@ -1144,16 +1307,14 @@ Options:
           Print help</code></pre>
 <h2
 id="projectupdate-manifest"><code>tiefdownconverter project update-manifest</code></h2>
-<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-9">Usage:</h3>
 <pre><code>Update the project manifest.
 
 Usage: tiefdownconverter project update-manifest [OPTIONS]
 
 Options:
-  -m, --markdown-dir &lt;MARKDOWN_DIR&gt;
-          The directory where the Markdown files are located.
-
       --smart-clean &lt;SMART_CLEAN&gt;
           Enables smart clean for the project with a default threshold of 5.
           If the number of conversion folders in the project is above this threshold, old folders will be cleaned, leaving only the threshold amount of folders.
@@ -1168,7 +1329,8 @@ Options:
           Print help (see a summary with &#39;-h&#39;)</code></pre>
 <h2
 id="projectpre-processors"><code>tiefdownconverter project pre-processors</code></h2>
-<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-10">Usage:</h3>
 <pre><code>Manage the preprocessors of the project.
 
@@ -1190,7 +1352,8 @@ Options:
 </ul>
 <h2
 id="projectpre-processorsadd"><code>tiefdownconverter project pre-processors add</code></h2>
-<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-11">Usage:</h3>
 <pre><code>Add a new preprocessor to the project.
 
@@ -1204,7 +1367,8 @@ Options:
   -h, --help  Print help</code></pre>
 <h2
 id="projectpre-processorsremove"><code>tiefdownconverter project pre-processors remove</code></h2>
-<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-12">Usage:</h3>
 <pre><code>Remove a preprocessor from the project.
 
@@ -1217,7 +1381,8 @@ Options:
   -h, --help  Print help</code></pre>
 <h2
 id="projectpre-processorslist"><code>tiefdownconverter project pre-processors list</code></h2>
-<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-13">Usage:</h3>
 <pre><code>List the preprocessors in the project.
 
@@ -1227,9 +1392,10 @@ Options:
   -h, --help  Print help</code></pre>
 <h2
 id="projectprocessors"><code>tiefdownconverter project processors</code></h2>
-<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-14">Usage:</h3>
-<pre><code>Manage the preprocessors of the project.
+<pre><code>Manage the processors of the project.
 
 Usage: tiefdownconverter project processors &lt;COMMAND&gt;
 
@@ -1249,7 +1415,8 @@ Options:
 </ul>
 <h2
 id="projectprocessorsadd"><code>tiefdownconverter project processors add</code></h2>
-<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-15">Usage:</h3>
 <pre><code>Add a new processor to the project.
 
@@ -1263,7 +1430,8 @@ Options:
   -h, --help  Print help</code></pre>
 <h2
 id="projectprocessorsremove"><code>tiefdownconverter project processors remove</code></h2>
-<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-16">Usage:</h3>
 <pre><code>Remove a processor from the project.
 
@@ -1276,7 +1444,8 @@ Options:
   -h, --help  Print help</code></pre>
 <h2
 id="projectprocessorslist"><code>tiefdownconverter project processors list</code></h2>
-<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-17">Usage:</h3>
 <pre><code>List the processors in the project.
 
@@ -1286,7 +1455,8 @@ Options:
   -h, --help  Print help</code></pre>
 <h2
 id="projectprofiles"><code>tiefdownconverter project profiles</code></h2>
-<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-18">Usage:</h3>
 <pre><code>Manage the conversion profiles of the project.
 
@@ -1308,7 +1478,8 @@ Options:
 </ul>
 <h2
 id="projectprofilesadd"><code>tiefdownconverter project profiles add</code></h2>
-<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-19">Usage:</h3>
 <pre><code>Add a new conversion profile to the project. These profiles contain a list of templates to preset conversion workflows.
 
@@ -1326,7 +1497,8 @@ Options:
           Print help (see a summary with &#39;-h&#39;)</code></pre>
 <h2
 id="projectprofilesremove"><code>tiefdownconverter project profiles remove</code></h2>
-<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-20">Usage:</h3>
 <pre><code>Remove a conversion profile from the project.
 
@@ -1339,7 +1511,8 @@ Options:
   -h, --help  Print help</code></pre>
 <h2
 id="projectprofileslist"><code>tiefdownconverter project profiles list</code></h2>
-<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-21">Usage:</h3>
 <pre><code>List the conversion profiles in the project.
 
@@ -1348,34 +1521,36 @@ Usage: tiefdownconverter project profiles list
 Options:
   -h, --help  Print help</code></pre>
 <h2
-id="projectmanage-metadata"><code>tiefdownconverter project manage-metadata</code></h2>
-<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+id="projectshared-meta"><code>tiefdownconverter project shared-meta</code></h2>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-22">Usage:</h3>
-<pre><code>Manage the manifest metadata of the project.
+<pre><code>Manage the shared metadata of the project.
 
-Usage: tiefdownconverter project manage-metadata &lt;COMMAND&gt;
+Usage: tiefdownconverter project shared-meta &lt;COMMAND&gt;
 
 Commands:
-  set     Add or change the metadata of the project.
-  remove  Remove metadata from the project.
-  list    List the metadata of the project.
+  set     Add or change the metadata.
+  remove  Remove metadata.
+  list    List the metadata.
   help    Print this message or the help of the given subcommand(s)
 
 Options:
   -h, --help  Print help</code></pre>
 <h3 id="subcommands-6">Subcommands:</h3>
 <ul>
-<li><a href="#projectmanage-metadataset">set</a></li>
-<li><a href="#projectmanage-metadataremove">remove</a></li>
-<li><a href="#projectmanage-metadatalist">list</a></li>
+<li><a href="#projectshared-metaset">set</a></li>
+<li><a href="#projectshared-metaremove">remove</a></li>
+<li><a href="#projectshared-metalist">list</a></li>
 </ul>
 <h2
-id="projectmanage-metadataset"><code>tiefdownconverter project manage-metadata set</code></h2>
-<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+id="projectshared-metaset"><code>tiefdownconverter project shared-meta set</code></h2>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-23">Usage:</h3>
-<pre><code>Add or change the metadata of the project.
+<pre><code>Add or change the metadata.
 
-Usage: tiefdownconverter project manage-metadata set &lt;KEY&gt; &lt;VALUE&gt;
+Usage: tiefdownconverter project shared-meta set &lt;KEY&gt; &lt;VALUE&gt;
 
 Arguments:
   &lt;KEY&gt;    The key to set.
@@ -1384,12 +1559,13 @@ Arguments:
 Options:
   -h, --help  Print help</code></pre>
 <h2
-id="projectmanage-metadataremove"><code>tiefdownconverter project manage-metadata remove</code></h2>
-<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+id="projectshared-metaremove"><code>tiefdownconverter project shared-meta remove</code></h2>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-24">Usage:</h3>
-<pre><code>Remove metadata from the project.
+<pre><code>Remove metadata.
 
-Usage: tiefdownconverter project manage-metadata remove &lt;KEY&gt;
+Usage: tiefdownconverter project shared-meta remove &lt;KEY&gt;
 
 Arguments:
   &lt;KEY&gt;  The key to remove.
@@ -1397,19 +1573,173 @@ Arguments:
 Options:
   -h, --help  Print help</code></pre>
 <h2
-id="projectmanage-metadatalist"><code>tiefdownconverter project manage-metadata list</code></h2>
-<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
+id="projectshared-metalist"><code>tiefdownconverter project shared-meta list</code></h2>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
 <h3 id="usage-25">Usage:</h3>
-<pre><code>List the metadata of the project.
+<pre><code>List the metadata.
 
-Usage: tiefdownconverter project manage-metadata list
+Usage: tiefdownconverter project shared-meta list
+
+Options:
+  -h, --help  Print help</code></pre>
+<h2
+id="projectmarkdown"><code>tiefdownconverter project markdown</code></h2>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
+<h3 id="usage-26">Usage:</h3>
+<pre><code>Manage the markdown projects of the project.
+
+Usage: tiefdownconverter project markdown &lt;COMMAND&gt;
+
+Commands:
+  add     Add a new markdown project to the project.
+  update  Update a markdown project in the project.
+  meta    Manage the metadata of a markdown project.
+  remove  Remove a markdown project from the project.
+  list    List the markdown projects in the project.
+  help    Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help</code></pre>
+<h3 id="subcommands-7">Subcommands:</h3>
+<ul>
+<li><a href="#projectmarkdownadd">add</a></li>
+<li><a href="#projectmarkdownupdate">update</a></li>
+<li><a href="#projectmarkdownmeta">meta</a></li>
+<li><a href="#projectmarkdownremove">remove</a></li>
+<li><a href="#projectmarkdownlist">list</a></li>
+</ul>
+<h2
+id="projectmarkdownadd"><code>tiefdownconverter project markdown add</code></h2>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
+<h3 id="usage-27">Usage:</h3>
+<pre><code>Add a new markdown project to the project.
+
+Usage: tiefdownconverter project markdown add [OPTIONS] &lt;NAME&gt; &lt;PATH&gt; &lt;OUTPUT&gt;
+
+Arguments:
+  &lt;NAME&gt;    The name of the markdown project to create.
+  &lt;PATH&gt;    The path to the markdown project.
+  &lt;OUTPUT&gt;  The output folder.
+
+Options:
+      --default-profile &lt;DEFAULT_PROFILE&gt;  The default profile to use for converting this project.
+  -h, --help                               Print help</code></pre>
+<h2
+id="projectmarkdownupdate"><code>tiefdownconverter project markdown update</code></h2>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
+<h3 id="usage-28">Usage:</h3>
+<pre><code>Update a markdown project in the project.
+
+Usage: tiefdownconverter project markdown update [OPTIONS] &lt;NAME&gt;
+
+Arguments:
+  &lt;NAME&gt;  The name of the markdown project to update.
+
+Options:
+      --path &lt;PATH&gt;                        The path to the markdown project.
+      --output &lt;OUTPUT&gt;                    The output folder.
+      --default-profile &lt;DEFAULT_PROFILE&gt;  The default profile to use for converting this project.
+  -h, --help                               Print help</code></pre>
+<h2
+id="projectmarkdownmeta"><code>tiefdownconverter project markdown meta</code></h2>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
+<h3 id="usage-29">Usage:</h3>
+<pre><code>Manage the metadata of a markdown project.
+
+Usage: tiefdownconverter project markdown meta &lt;NAME&gt; &lt;COMMAND&gt;
+
+Commands:
+  set     Add or change the metadata.
+  remove  Remove metadata.
+  list    List the metadata.
+  help    Print this message or the help of the given subcommand(s)
+
+Arguments:
+  &lt;NAME&gt;  The name of the markdown project to update.
+
+Options:
+  -h, --help  Print help</code></pre>
+<h3 id="subcommands-8">Subcommands:</h3>
+<ul>
+<li><a href="#projectmarkdownmetaset">set</a></li>
+<li><a href="#projectmarkdownmetaremove">remove</a></li>
+<li><a href="#projectmarkdownmetalist">list</a></li>
+</ul>
+<h2
+id="projectmarkdownmetaset"><code>tiefdownconverter project markdown meta set</code></h2>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
+<h3 id="usage-30">Usage:</h3>
+<pre><code>Add or change the metadata.
+
+Usage: tiefdownconverter project markdown meta &lt;NAME&gt; set &lt;KEY&gt; &lt;VALUE&gt;
+
+Arguments:
+  &lt;KEY&gt;    The key to set.
+  &lt;VALUE&gt;  The value to set.
+
+Options:
+  -h, --help  Print help</code></pre>
+<h2
+id="projectmarkdownmetaremove"><code>tiefdownconverter project markdown meta remove</code></h2>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
+<h3 id="usage-31">Usage:</h3>
+<pre><code>Remove metadata.
+
+Usage: tiefdownconverter project markdown meta &lt;NAME&gt; remove &lt;KEY&gt;
+
+Arguments:
+  &lt;KEY&gt;  The key to remove.
+
+Options:
+  -h, --help  Print help</code></pre>
+<h2
+id="projectmarkdownmetalist"><code>tiefdownconverter project markdown meta list</code></h2>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
+<h3 id="usage-32">Usage:</h3>
+<pre><code>List the metadata.
+
+Usage: tiefdownconverter project markdown meta &lt;NAME&gt; list
+
+Options:
+  -h, --help  Print help</code></pre>
+<h2
+id="projectmarkdownremove"><code>tiefdownconverter project markdown remove</code></h2>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
+<h3 id="usage-33">Usage:</h3>
+<pre><code>Remove a markdown project from the project.
+
+Usage: tiefdownconverter project markdown remove &lt;NAME&gt;
+
+Arguments:
+  &lt;NAME&gt;  The name of the markdown project to remove.
+
+Options:
+  -h, --help  Print help</code></pre>
+<h2
+id="projectmarkdownlist"><code>tiefdownconverter project markdown list</code></h2>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
+<h3 id="usage-34">Usage:</h3>
+<pre><code>List the markdown projects in the project.
+
+Usage: tiefdownconverter project markdown list
 
 Options:
   -h, --help  Print help</code></pre>
 <h2
 id="projectlist-templates"><code>tiefdownconverter project list-templates</code></h2>
-<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
-<h3 id="usage-26">Usage:</h3>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
+<h3 id="usage-35">Usage:</h3>
 <pre><code>List the templates in the project.
 
 Usage: tiefdownconverter project list-templates
@@ -1418,8 +1748,9 @@ Options:
   -h, --help  Print help</code></pre>
 <h2
 id="projectvalidate"><code>tiefdownconverter project validate</code></h2>
-<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
-<h3 id="usage-27">Usage:</h3>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
+<h3 id="usage-36">Usage:</h3>
 <pre><code>Validate the TiefDown project structure and metadata.
 
 Usage: tiefdownconverter project validate
@@ -1427,8 +1758,9 @@ Usage: tiefdownconverter project validate
 Options:
   -h, --help  Print help</code></pre>
 <h2 id="projectclean"><code>tiefdownconverter project clean</code></h2>
-<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
-<h3 id="usage-28">Usage:</h3>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
+<h3 id="usage-37">Usage:</h3>
 <pre><code>Clean temporary files from the TiefDown project.
 
 Usage: tiefdownconverter project clean
@@ -1437,8 +1769,9 @@ Options:
   -h, --help  Print help</code></pre>
 <h2
 id="projectsmart-clean"><code>tiefdownconverter project smart-clean</code></h2>
-<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
-<h3 id="usage-29">Usage:</h3>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
+<h3 id="usage-38">Usage:</h3>
 <pre><code>Clean temporary files from the TiefDown project.
 If the number of conversion folders in the project is above this threshold, old folders will be cleaned, leaving only the threshold amount of folders.
 The threshold is set to 5 by default, and is overwritten by the threshold in the manifest.
@@ -1450,8 +1783,9 @@ Options:
           Print help (see a summary with &#39;-h&#39;)</code></pre>
 <h2
 id="check-dependencies"><code>tiefdownconverter check-dependencies</code></h2>
-<p><strong>Version:</strong> <code>tiefdownconverter 0.7.0</code></p>
-<h3 id="usage-30">Usage:</h3>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.8.0-ALPHA</code></p>
+<h3 id="usage-39">Usage:</h3>
 <pre><code>Validate dependencies are installed.
 
 Usage: tiefdownconverter check-dependencies
@@ -1461,6 +1795,10 @@ Options:
 <h1 id="contributing">Contributing</h1>
 <p>This project is open source, and I’d love for you to contribute!
 There’s a few things you should know before you start.</p>
+<blockquote>
+<p><strong>NOTE:</strong> When raising the version, don’t forget to
+change the version in the documentation as well!!!</p>
+</blockquote>
 <h2 id="the-architecture">The architecture</h2>
 <p>The project has a relatively straight forward conversion process, as
 shown in the diagram below.</p>

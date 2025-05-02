@@ -8,8 +8,7 @@ use color_eyre::eyre::{Result, eyre};
 use reqwest::blocking::get;
 
 use crate::{
-    consts::POSSIBLE_TEMPLATES,
-    manifest_model::{TemplateMapping, TemplateType},
+    consts::POSSIBLE_TEMPLATES, manifest_model::TemplateMapping, template_type::TemplateType,
 };
 
 pub(crate) fn get_template_creator(
