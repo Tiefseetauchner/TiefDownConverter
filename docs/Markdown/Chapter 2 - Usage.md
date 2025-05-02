@@ -166,6 +166,13 @@ tiefdownconverter project markdown meta <PROJECT_NAME> set <KEY> <VALUE>
 
 to set a metadata value for a markdown project.
 
+You can also assign resources, which are files that are copied to the compile directory from
+the markdown project directory. This is done by using the resource command. For example,
+if you had multiple books as seperate markdown projects, you could have a `cover.png` file
+for each book seperately and then use the resource management to copy it to be able to be
+used in a template, for example an epub or as the cover of a PDF. Check out the
+[resources command](#projectmarkdownresources) for more information.
+
 You can also assign a [profile](#conversion-profiles) to a markdown project which, if I may
 say so myself as the person who needed it, is awesome.
 
