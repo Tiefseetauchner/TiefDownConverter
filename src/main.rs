@@ -19,6 +19,14 @@ fn main() -> Result<()> {
 
     let args = Cli::parse();
 
+    let log_level_filter = if args.verbose {
+        log::LevelFilter::Debug
+    } else {
+        log::LevelFilter::Info
+    };
+
+    colog::basic_builder().filter_level(log_level_filter).init();
+
     match args.command {
         Commands::Convert {
             project,

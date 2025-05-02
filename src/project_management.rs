@@ -1,6 +1,8 @@
 use std::{fs, path::PathBuf, process::Command};
 
 use color_eyre::eyre::{Result, eyre};
+use fs_extra::dir;
+use log::{debug, error, info};
 use toml::{Table, Value};
 
 use crate::{
@@ -405,7 +407,7 @@ pub(crate) fn list_processors(project: Option<String>) -> Result<()> {
     let processors = manifest.custom_processors.processors;
 
     for processor in processors {
-        println!("{}: {}", processor.name, processor.processor_args.join(" "));
+        info!("{}: {}", processor.name, processor.processor_args.join(" "));
     }
 
     Ok(())
@@ -469,16 +471,16 @@ pub(crate) fn list_templates(project: Option<String>) -> Result<()> {
     let templates = manifest.templates;
 
     for template in templates {
-        println!("{}:", template.name);
-        println!("  Template type: {}", &template.template_type);
+        info!("{}:", template.name);
+        info!("  Template type: {}", &template.template_type);
         if let Some(file) = &template.template_file {
-            println!("  Template file: {}", file.display());
+            info!("  Template file: {}", file.display());
         }
         if let Some(output) = &template.output {
-            println!("  Output file: {}", output.display());
+            info!("  Output file: {}", output.display());
         }
         if let Some(filters) = &template.filters {
-            println!("  Filters: {}", filters.join(", "));
+            info!("  Filters: {}", filters.join(", "));
         }
     }
 
@@ -495,9 +497,9 @@ pub(crate) fn list_profiles(project: Option<String>) -> Result<()> {
     let profiles = manifest.profiles;
 
     for profile in profiles.unwrap_or_default() {
-        println!("{}:", profile.name);
+        info!("{}:", profile.name);
         for template in profile.templates {
-            println!("  {}", template);
+            info!("  {}", template);
         }
     }
 
@@ -514,7 +516,7 @@ pub(crate) fn list_preprocessors(project: Option<String>) -> Result<()> {
     let preprocessors = manifest.custom_processors.preprocessors;
 
     for preprocessor in preprocessors {
-        println!(
+        info!(
             "{}: {}",
             preprocessor.name,
             preprocessor.pandoc_args.join(" ")
@@ -594,11 +596,13 @@ pub(crate) fn validate(project: Option<String>) -> Result<()> {
         }
     }
 
+    debug!("We have {} errors.", errors.len());
+
     if errors.is_empty() {
-        println!("Manifest is valid.");
+        info!("Manifest is valid.");
     } else {
         for error in errors {
-            println!("{}", error.unwrap_err());
+            error!("{}", error.unwrap_err());
         }
 
         return Err(eyre!("Manifest is invalid."));
@@ -633,10 +637,16 @@ pub(crate) fn smart_clean(project: Option<String>) -> Result<()> {
 pub(crate) fn run_smart_clean(
     project_path: &std::path::Path,
     smart_clean_threshold: u32,
-) -> Result<(), color_eyre::eyre::Error> {
+) -> Result<()> {
+    debug!(
+        "Running smart clean on project {} with threshold of {}.",
+        project_path.display(),
+        smart_clean_threshold
+    );
+
     let regex = regex::Regex::new(r"^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}$")?;
 
-    let mut files_to_delete: Vec<_> = fs::read_dir(project_path)?
+    let mut dirs_to_delete: Vec<_> = fs::read_dir(project_path)?
         .filter_map(Result::ok)
         .map(|entry| entry.path())
         .filter(|path| {
@@ -648,15 +658,17 @@ pub(crate) fn run_smart_clean(
         })
         .collect();
 
-    files_to_delete.sort_by(|a, b| a.cmp(b));
-    files_to_delete.truncate(
-        files_to_delete
+    dirs_to_delete.sort_by(|a, b| a.cmp(b));
+    dirs_to_delete.truncate(
+        dirs_to_delete
             .len()
             .saturating_sub(smart_clean_threshold as usize),
     );
 
-    for file in files_to_delete {
-        fs::remove_dir_all(file)?;
+    for dir in dirs_to_delete {
+        debug!("Deleting directory: {}", dir.display());
+
+        dir::remove(dir)?;
     }
 
     Ok(())
@@ -679,12 +691,12 @@ pub(crate) fn check_dependencies(dependencies: Vec<&str>) -> Result<()> {
 
     if !errors.is_empty() {
         for error in errors {
-            println!("{}", error);
+            error!("{}", error);
         }
         return Err(eyre!("Some dependencies are missing."));
     }
 
-    println!("All dependencies are installed.");
+    info!("All dependencies are installed.");
     Ok(())
 }
 
@@ -708,7 +720,7 @@ pub(crate) fn load_and_convert_manifest(manifest_path: &std::path::PathBuf) -> R
 
     if current_manifest_version < CURRENT_MANIFEST_VERSION {
         upgrade_manifest(&mut manifest, current_manifest_version)?;
-        println!("Manifest upgraded to version {}.", CURRENT_MANIFEST_VERSION,);
+        debug!("Manifest upgraded to version {}.", CURRENT_MANIFEST_VERSION,);
     } else if current_manifest_version > CURRENT_MANIFEST_VERSION {
         return Err(eyre!(
             "Manifest file is from a newer version of the program. Please update the program."

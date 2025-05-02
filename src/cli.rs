@@ -15,6 +15,8 @@ TiefDownConverter consolidates multiple conversion processes and templating syst
 It is not in itself a converter, but a wrapper around pandoc, xelatex and typst. As such, it requires these dependencies to be installed."#
 )]
 pub struct Cli {
+    #[arg(short, long, help = "Enable verbose output.")]
+    pub verbose: bool,
     #[command(subcommand)]
     pub command: Commands,
 }

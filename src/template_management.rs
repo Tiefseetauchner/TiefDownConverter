@@ -5,6 +5,7 @@ use std::{
 };
 
 use color_eyre::eyre::{Result, eyre};
+use log::{debug, info, warn};
 use reqwest::blocking::get;
 
 use crate::{
@@ -26,19 +27,19 @@ pub(crate) fn get_template_creator(
         }
     } else {
         Ok(|_, template| {
-            println!(
+            info!(
                 "Creating a custom template. Don't forget to add your template file. The template was created with the following parameters:"
             );
-            println!("  Template name: {}", template.name);
-            println!("  Template type: {}", &template.template_type);
+            debug!("  Template name: {}", template.name);
+            debug!("  Template type: {}", &template.template_type);
             if let Some(file) = &template.template_file {
-                println!("  Template file: {}", file.display());
+                debug!("  Template file: {}", file.display());
             }
             if let Some(output) = &template.output {
-                println!("  Output file: {}", output.display());
+                debug!("  Output file: {}", output.display());
             }
             if let Some(filters) = &template.filters {
-                println!("  Filters: {}", filters.join(", "));
+                debug!("  Filters: {}", filters.join(", "));
             }
 
             Ok(())
@@ -99,14 +100,14 @@ fn create_tex_presets(project_path: &Path, template: &TemplateMapping) -> Result
     Ok(())
 }
 
-fn create_latex_meta(template_dir: &Path) -> Result<(), color_eyre::eyre::Error> {
+fn create_latex_meta(template_dir: &Path) -> Result<()> {
     let meta_path = template_dir.join("meta.tex");
     if !meta_path.exists() {
         fs::write(
             &meta_path,
             include_bytes!("resources/templates/default/meta.tex"),
         )?;
-        println!(
+        info!(
             "meta.tex was written to the template directory. Make sure to adjust the metadata in the file."
         );
     };
@@ -120,7 +121,7 @@ fn create_lix_meta(template_dir: &Path) -> Result<()> {
             &meta_path,
             include_bytes!("resources/templates/lix/meta.tex"),
         )?;
-        println!(
+        info!(
             "meta_lix.tex was written to the template directory. Make sure to adjust the metadata in the file."
         );
     };
@@ -154,8 +155,8 @@ pub fn download_lix_files(template_dir: &Path) -> Result<()> {
         return Ok(());
     }
 
-    println!("Some required LaTeX files (licensed under GPLv3) are not included in this tool.");
-    print!("Do you want to download them now? [Y/n] ");
+    info!("Some required LaTeX files (licensed under GPLv3) are not included in this tool.");
+    info!("Do you want to download them now? [Y/n] ");
     io::stdout().flush()?; // ensure the prompt is shown before read
 
     let mut input = String::new();
@@ -163,7 +164,7 @@ pub fn download_lix_files(template_dir: &Path) -> Result<()> {
     let input = input.trim().to_lowercase();
 
     if !["", "y", "yes"].contains(&input.as_str()) {
-        println!(
+        warn!(
             "Download cancelled. You must manually install the required files. -h for more information."
         );
         return Ok(());
@@ -174,15 +175,15 @@ pub fn download_lix_files(template_dir: &Path) -> Result<()> {
         let file_path = template_dir.join(filename);
 
         if file_path.exists() {
-            println!("{} already exists, skipping...", filename);
+            debug!("{} already exists, skipping...", filename);
             continue;
         }
 
-        println!("Downloading {}...", filename);
+        info!("Downloading {}...", filename);
         let response = get(*file_url)?;
         let content = response.bytes()?;
         fs::write(&file_path, &content)?;
-        println!("Saved to {}", file_path.display());
+        info!("Saved to {}", file_path.display());
     }
 
     Ok(())
@@ -221,7 +222,7 @@ fn create_typst_presets(project_path: &Path, template: &TemplateMapping) -> Resu
             &meta_path,
             include_bytes!("resources/templates/default/meta.typ"),
         )?;
-        println!(
+        info!(
             "meta.typ was written to the template directory. Make sure to adjust the metadata in the file."
         );
     }

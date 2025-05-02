@@ -1,11 +1,13 @@
 use std::{
     fs,
-    io::Write,
+    io::{BufRead, BufReader, Write},
     path::{Path, PathBuf},
     process::{Command, Stdio},
+    thread,
 };
 
 use color_eyre::eyre::{Ok, Result, eyre};
+use log::{debug, error};
 use toml::Table;
 
 use crate::{
@@ -131,14 +133,16 @@ fn compile_latex(
     template_path: &Path,
     processor_args: &Vec<String>,
 ) -> Result<()> {
-    Command::new("xelatex")
+    let mut latex_command = Command::new("xelatex");
+
+    latex_command
         .current_dir(compiled_directory_path)
         .arg("-interaction=nonstopmode")
         .arg("-synctex=1")
         .arg(template_path)
-        .args(processor_args)
-        .stdout(Stdio::null())
-        .status()?;
+        .args(processor_args);
+
+    run_with_logging(latex_command, "xelatex")?;
 
     Ok(())
 }
@@ -265,10 +269,9 @@ pub(crate) fn convert_epub(
         }
     }
 
-    pandoc
-        .arg(combined_markdown_path)
-        .stdout(Stdio::null())
-        .status()?;
+    pandoc.arg(combined_markdown_path);
+
+    run_with_logging(pandoc, "pandoc")?;
 
     let output_path = compiled_directory_path.join(output_path);
 
@@ -396,14 +399,16 @@ pub(crate) fn convert_typst(
         }
     }
 
-    Command::new("typst")
+    let mut typst_command = Command::new("typst");
+
+    typst_command
         .current_dir(compiled_directory_path)
         .arg("compile")
         .arg(template_path)
         .arg(&output_path)
-        .args(processor_args)
-        .stdout(Stdio::null())
-        .status()?;
+        .args(processor_args);
+
+    run_with_logging(typst_command, "typst")?;
 
     let output_path = compiled_directory_path.join(output_path);
 
@@ -494,7 +499,7 @@ fn run_preprocessor_on_markdown(
         &mut pandoc,
     )?;
 
-    pandoc.stdout(Stdio::null()).status()?;
+    run_with_logging(pandoc, "Pandoc")?;
 
     Ok(())
 }
@@ -587,4 +592,61 @@ fn get_path_relative_to_compiled_directory(
     relative_path.push(original_path.strip_prefix(project_directory_path).unwrap());
 
     Ok(relative_path)
+}
+
+fn run_with_logging(mut command: Command, command_name: &str) -> Result<()> {
+    let mut out = command
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()?;
+
+    let stdout = out.stdout.take().unwrap();
+    let stderr = out.stderr.take().unwrap();
+
+    let mut stdout_reader = BufReader::new(stdout);
+    let mut stderr_reader = BufReader::new(stderr);
+
+    let stdout_thread = thread::spawn(move || {
+        let mut buffer = String::new();
+        while let std::io::Result::Ok(bytes_read) = stdout_reader.read_line(&mut buffer) {
+            if bytes_read == 0 {
+                break;
+            }
+
+            debug!("{}", buffer);
+
+            buffer.clear();
+        }
+    });
+
+    let stderr_thread = thread::spawn(move || {
+        let mut buffer = String::new();
+        while let std::io::Result::Ok(bytes_read) = stderr_reader.read_line(&mut buffer) {
+            if bytes_read == 0 {
+                break;
+            }
+
+            error!("{}", buffer);
+
+            buffer.clear();
+        }
+    });
+
+    let status = out.wait()?;
+
+    stdout_thread.join().unwrap();
+    stderr_thread.join().unwrap();
+
+    if !status.success() {
+        debug!(
+            "{} failed with status code {}.",
+            command_name,
+            status.code().unwrap()
+        );
+        debug!(
+            "Note: For xelatex, this is expected if there are warnings. These are ignored, but genuine errors may be present."
+        );
+    }
+
+    Ok(())
 }
