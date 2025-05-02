@@ -538,32 +538,38 @@ pub(crate) fn validate(project: Option<String>) -> Result<()> {
     let templates = manifest.templates;
 
     for template in templates {
-        let template_path = project_path
-            .join("template")
-            .join(get_template_path(template.template_file, &template.name));
-        if template_path.exists() {
-            let template_should_be_dir = match template.template_type {
-                TemplateType::Tex => false,
-                TemplateType::Typst => false,
-                TemplateType::Epub => true,
-                TemplateType::CustomPandoc => false,
-            };
-            if template_should_be_dir && !template_path.is_dir() {
-                errors.push(Err(eyre!(
-                    "Template '{}' is of type 'Epub' but not a directory.",
-                    template.name
-                )));
-            }
+        if template.template_type != TemplateType::CustomPandoc {
+            let template_path = project_path
+                .join("template")
+                .join(get_template_path(template.template_file, &template.name));
+            if template_path.exists() {
+                let template_should_be_dir = match template.template_type {
+                    TemplateType::Tex => false,
+                    TemplateType::Typst => false,
+                    TemplateType::Epub => true,
+                    TemplateType::CustomPandoc => false,
+                };
+                if template_should_be_dir && !template_path.is_dir() {
+                    errors.push(Err(eyre!(
+                        "Template '{}' is of type 'Epub' but not a directory.",
+                        template.name
+                    )));
+                }
 
-            let template_should_be_file = !template_should_be_dir;
-            if template_should_be_file && !template_path.is_file() {
+                let template_should_be_file = !template_should_be_dir;
+                if template_should_be_file && !template_path.is_file() {
+                    errors.push(Err(eyre!(
+                        "Template '{}' is of type '{}' but is a directory.",
+                        template.name,
+                        template.template_type
+                    )));
+                }
+            } else {
                 errors.push(Err(eyre!(
-                    "Template '{}' is of type 'Tex' but is a directory.",
+                    "Template file '{}' does not exist.",
                     template.name
                 )));
             }
-        } else {
-            errors.push(Err(eyre!("Template '{}' does not exist.", template.name)));
         }
 
         if let Some(filters) = &template.filters {
