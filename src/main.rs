@@ -1,6 +1,13 @@
 use clap::Parser;
 use cli::*;
-use color_eyre::eyre::{Result, eyre};
+use colog::format::CologStyle;
+use color_eyre::{
+    eyre::{Result, eyre},
+    owo_colors::OwoColorize,
+};
+use env_logger::fmt::Formatter;
+use log::Level;
+use std::io::Write;
 
 mod cli;
 mod consts;
@@ -14,6 +21,38 @@ mod project_management;
 mod template_management;
 mod template_type;
 
+pub struct NoPrefixToken;
+
+impl CologStyle for NoPrefixToken {
+    fn prefix_token(&self, _level: &Level) -> String {
+        "".to_string()
+    }
+
+    fn format(
+        &self,
+        buf: &mut Formatter,
+        record: &log::Record<'_>,
+    ) -> std::result::Result<(), std::io::Error> {
+        writeln!(buf, "{}", record.args(),)
+    }
+}
+
+pub struct ErrorStyle;
+
+impl CologStyle for ErrorStyle {
+    fn prefix_token(&self, _level: &Level) -> String {
+        "ERR ".red().to_string()
+    }
+
+    fn format(
+        &self,
+        buf: &mut Formatter,
+        record: &log::Record<'_>,
+    ) -> std::result::Result<(), std::io::Error> {
+        writeln!(buf, "{}", record.args(),)
+    }
+}
+
 fn main() -> Result<()> {
     color_eyre::install()?;
 
@@ -25,7 +64,11 @@ fn main() -> Result<()> {
         log::LevelFilter::Info
     };
 
-    colog::basic_builder().filter_level(log_level_filter).init();
+    colog::default_builder()
+        .filter_level(log_level_filter)
+        .format(colog::formatter(NoPrefixToken))
+        .target(env_logger::Target::Stdout)
+        .init();
 
     match args.command {
         Commands::Convert {

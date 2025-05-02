@@ -1492,6 +1492,7 @@ dependencies = [
  "clap_mangen",
  "colog",
  "color-eyre",
+ "env_logger",
  "fs_extra",
  "log",
  "predicates",
