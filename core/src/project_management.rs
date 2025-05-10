@@ -413,11 +413,7 @@ pub fn list_processors(project: Option<String>) -> Result<()> {
     Ok(())
 }
 
-pub fn add_profile(
-    project: Option<String>,
-    name: String,
-    templates: Vec<String>,
-) -> Result<()> {
+pub fn add_profile(project: Option<String>, name: String, templates: Vec<String>) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
@@ -640,10 +636,7 @@ pub fn smart_clean(project: Option<String>) -> Result<()> {
     Ok(())
 }
 
-pub fn run_smart_clean(
-    project_path: &std::path::Path,
-    smart_clean_threshold: u32,
-) -> Result<()> {
+pub fn run_smart_clean(project_path: &std::path::Path, smart_clean_threshold: u32) -> Result<()> {
     debug!(
         "Running smart clean on project {} with threshold of {}.",
         project_path.display(),
@@ -706,7 +699,7 @@ pub fn check_dependencies(dependencies: Vec<&str>) -> Result<()> {
     Ok(())
 }
 
-pub fn load_and_convert_manifest(manifest_path: &std::path::PathBuf) -> Result<Manifest> {
+pub(crate) fn load_and_convert_manifest(manifest_path: &std::path::PathBuf) -> Result<Manifest> {
     if !manifest_path.exists() {
         return Err(eyre!(
             "Manifest file does not exist. Please initialize a project before editing it."

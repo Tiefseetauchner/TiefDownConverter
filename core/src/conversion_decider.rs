@@ -19,7 +19,7 @@ type Converter = fn(
     custom_processors: &Processors,
 ) -> Result<PathBuf>;
 
-pub fn get_converter(template_type: &TemplateType) -> Result<Converter> {
+pub(crate) fn get_converter(template_type: &TemplateType) -> Result<Converter> {
     Ok(match template_type {
         TemplateType::Tex => converters::convert_latex,
         TemplateType::Typst => converters::convert_typst,

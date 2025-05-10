@@ -12,7 +12,7 @@ use crate::{
     consts::POSSIBLE_TEMPLATES, manifest_model::TemplateMapping, template_type::TemplateType,
 };
 
-pub fn get_template_creator(
+pub(crate) fn get_template_creator(
     template: &str,
 ) -> Result<fn(project_path: &Path, template: &TemplateMapping) -> Result<()>> {
     if is_preset_template(template) {
@@ -47,7 +47,7 @@ pub fn get_template_creator(
     }
 }
 
-pub fn add_lix_filters(template: &mut TemplateMapping) {
+pub(crate) fn add_lix_filters(template: &mut TemplateMapping) {
     if is_preset_template(&template.name)
         && ["lix_novel_a4.tex", "lix_novel_book.tex"].contains(&template.name.as_str())
     {

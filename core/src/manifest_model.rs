@@ -9,7 +9,7 @@ use crate::{
 };
 
 #[derive(Deserialize, Serialize)]
-pub struct Manifest {
+pub(crate) struct Manifest {
     pub version: u32,
     pub markdown_projects: Option<Vec<MarkdownProject>>,
     pub templates: Vec<TemplateMapping>,
@@ -22,7 +22,7 @@ pub struct Manifest {
 }
 
 #[derive(Deserialize, Serialize, Clone)]
-pub struct MarkdownProject {
+pub(crate) struct MarkdownProject {
     pub name: String,
     pub path: PathBuf,
     pub output: PathBuf,
@@ -32,24 +32,24 @@ pub struct MarkdownProject {
 }
 
 #[derive(Deserialize, Serialize, Clone)]
-pub struct Processors {
+pub(crate) struct Processors {
     pub preprocessors: Vec<PreProcessor>,
     pub processors: Vec<Processor>,
 }
 
 #[derive(Deserialize, Serialize, Clone)]
-pub struct PreProcessor {
+pub(crate) struct PreProcessor {
     pub name: String,
     pub pandoc_args: Vec<String>,
 }
 
 #[derive(Deserialize, Serialize, Clone)]
-pub struct Processor {
+pub(crate) struct Processor {
     pub name: String,
     pub processor_args: Vec<String>,
 }
 
-pub static DEFAULT_TEX_PREPROCESSOR: LazyLock<PreProcessor> =
+pub(crate) static DEFAULT_TEX_PREPROCESSOR: LazyLock<PreProcessor> =
     LazyLock::new(|| PreProcessor {
         name: "default_tex_preprocessor".to_string(),
         pandoc_args: vec!["-o", "output.tex", "-t", "latex"]
@@ -58,7 +58,7 @@ pub static DEFAULT_TEX_PREPROCESSOR: LazyLock<PreProcessor> =
             .collect(),
     });
 
-pub static DEFAULT_TYPST_PREPROCESSOR: LazyLock<PreProcessor> =
+pub(crate) static DEFAULT_TYPST_PREPROCESSOR: LazyLock<PreProcessor> =
     LazyLock::new(|| PreProcessor {
         name: "default_typst_preprocessor".to_string(),
         pandoc_args: vec!["-o", "output.typ", "-t", "typst"]
@@ -68,7 +68,7 @@ pub static DEFAULT_TYPST_PREPROCESSOR: LazyLock<PreProcessor> =
     });
 
 #[derive(Deserialize, Serialize, Clone)]
-pub struct MetadataSettings {
+pub(crate) struct MetadataSettings {
     pub metadata_prefix: Option<String>,
 }
 
@@ -81,13 +81,13 @@ impl MetadataSettings {
 }
 
 #[derive(Deserialize, Serialize, Clone)]
-pub struct Profile {
+pub(crate) struct Profile {
     pub name: String,
     pub templates: Vec<String>,
 }
 
 #[derive(Deserialize, Serialize, Clone)]
-pub struct TemplateMapping {
+pub(crate) struct TemplateMapping {
     pub name: String,
     pub template_type: TemplateType,
     pub template_file: Option<PathBuf>,
@@ -97,7 +97,7 @@ pub struct TemplateMapping {
     pub processor: Option<String>,
 }
 
-pub fn upgrade_manifest(manifest: &mut Table, current_version: u32) -> Result<()> {
+pub(crate) fn upgrade_manifest(manifest: &mut Table, current_version: u32) -> Result<()> {
     if current_version != CURRENT_MANIFEST_VERSION {
         let mut updated_version = current_version;
 

@@ -1,14 +1,15 @@
 [package]
 name = "tiefdownconverter"
-version = "0.8.0-ALPHA"
-edition = "2024"
-authors = ["Lena Tauchner <tiefseetauchner@lukechriswalker.at>"]
-license = "MIT"
-repository = "https://github.com/Tiefseetauchner/tiefdownconverter"
-homepage = "https://github.com/Tiefseetauchner/tiefdownconverter"
 description = "A library to manage and convert TiefDown projects."
-readme = "README.md"
-keywords = ["markdown", "pandoc", "cli", "document-conversion"]
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+readme.workspace = true
+license.workspace = true
+keywords = ["markdown", "pandoc", "document-conversion"]
 categories = ["text-processing"]
 
 [dependencies]
