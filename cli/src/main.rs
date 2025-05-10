@@ -5,18 +5,12 @@ use color_eyre::eyre::{Result, eyre};
 use env_logger::fmt::Formatter;
 use log::Level;
 use std::io::Write;
+use tiefdownconverter::{
+    consts, conversion, markdown_project_management, metadata_management, project_management,
+};
 
 mod cli;
-mod consts;
-mod conversion;
-mod conversion_decider;
-mod converters;
-mod manifest_model;
-mod markdown_project_management;
-mod metadata_management;
-mod project_management;
-mod template_management;
-mod template_type;
+mod cli_template_type;
 
 pub struct CustomLoggingStyle;
 
@@ -102,7 +96,7 @@ fn main() -> Result<()> {
                 } => project_management::add_template(
                     project,
                     template,
-                    template_type,
+                    template_type.map(|t| t.into()),
                     template_file,
                     output,
                     filters,
@@ -129,7 +123,7 @@ fn main() -> Result<()> {
                     project_management::update_template(
                         project,
                         template,
-                        template_type,
+                        template_type.map(|t| t.into()),
                         template_file,
                         output,
                         filters,

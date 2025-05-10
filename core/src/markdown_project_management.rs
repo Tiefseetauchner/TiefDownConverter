@@ -5,7 +5,7 @@ use toml::{Table, Value};
 
 use crate::{manifest_model::MarkdownProject, project_management::load_and_convert_manifest};
 
-pub(crate) fn add_markdown_project(
+pub fn add_markdown_project(
     project: Option<String>,
     name: String,
     path: PathBuf,
@@ -44,7 +44,7 @@ pub(crate) fn add_markdown_project(
     Ok(())
 }
 
-pub(crate) fn remove_markdown_project(project: Option<String>, name: String) -> Result<()> {
+pub fn remove_markdown_project(project: Option<String>, name: String) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
@@ -70,7 +70,7 @@ pub(crate) fn remove_markdown_project(project: Option<String>, name: String) -> 
     Ok(())
 }
 
-pub(crate) fn update_markdown_project(
+pub fn update_markdown_project(
     project: Option<String>,
     name: String,
     path: Option<PathBuf>,
@@ -108,7 +108,7 @@ pub(crate) fn update_markdown_project(
     Ok(())
 }
 
-pub(crate) fn set_metadata(
+pub fn set_metadata(
     project: Option<String>,
     name: String,
     key: String,
@@ -148,7 +148,7 @@ pub(crate) fn set_metadata(
     Ok(())
 }
 
-pub(crate) fn remove_metadata(project: Option<String>, name: String, key: String) -> Result<()> {
+pub fn remove_metadata(project: Option<String>, name: String, key: String) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
@@ -180,7 +180,7 @@ pub(crate) fn remove_metadata(project: Option<String>, name: String, key: String
     Ok(())
 }
 
-pub(crate) fn list_metadata(project: Option<String>, name: String) -> Result<()> {
+pub fn list_metadata(project: Option<String>, name: String) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
@@ -205,7 +205,7 @@ pub(crate) fn list_metadata(project: Option<String>, name: String) -> Result<()>
     Ok(())
 }
 
-pub(crate) fn list_markdown_projects(project: Option<String>) -> Result<()> {
+pub fn list_markdown_projects(project: Option<String>) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
@@ -235,11 +235,7 @@ pub(crate) fn list_markdown_projects(project: Option<String>) -> Result<()> {
     Ok(())
 }
 
-pub(crate) fn add_resources(
-    project: Option<String>,
-    name: String,
-    resources: Vec<PathBuf>,
-) -> Result<()> {
+pub fn add_resources(project: Option<String>, name: String, resources: Vec<PathBuf>) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
@@ -269,11 +265,7 @@ pub(crate) fn add_resources(
     Ok(())
 }
 
-pub(crate) fn remove_resource(
-    project: Option<String>,
-    name: String,
-    resource: PathBuf,
-) -> Result<()> {
+pub fn remove_resource(project: Option<String>, name: String, resource: PathBuf) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
@@ -309,7 +301,7 @@ pub(crate) fn remove_resource(
     Ok(())
 }
 
-pub(crate) fn list_resources(project: Option<String>, name: String) -> Result<()> {
+pub fn list_resources(project: Option<String>, name: String) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");

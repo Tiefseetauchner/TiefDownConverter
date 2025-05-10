@@ -20,7 +20,7 @@ use crate::manifest_model::TemplateMapping;
 use crate::project_management::load_and_convert_manifest;
 use crate::project_management::run_smart_clean;
 
-pub(crate) fn convert(
+pub fn convert(
     project: Option<String>,
     templates: Option<Vec<String>>,
     profile: Option<String>,

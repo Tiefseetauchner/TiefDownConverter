@@ -12,7 +12,7 @@ use crate::{
     consts::POSSIBLE_TEMPLATES, manifest_model::TemplateMapping, template_type::TemplateType,
 };
 
-pub(crate) fn get_template_creator(
+pub fn get_template_creator(
     template: &str,
 ) -> Result<fn(project_path: &Path, template: &TemplateMapping) -> Result<()>> {
     if is_preset_template(template) {
@@ -47,7 +47,7 @@ pub(crate) fn get_template_creator(
     }
 }
 
-pub(crate) fn add_lix_filters(template: &mut TemplateMapping) {
+pub fn add_lix_filters(template: &mut TemplateMapping) {
     if is_preset_template(&template.name)
         && ["lix_novel_a4.tex", "lix_novel_book.tex"].contains(&template.name.as_str())
     {
@@ -230,11 +230,11 @@ fn create_typst_presets(project_path: &Path, template: &TemplateMapping) -> Resu
     Ok(())
 }
 
-pub(crate) fn get_template_path(template_file: Option<PathBuf>, template_name: &str) -> PathBuf {
+pub fn get_template_path(template_file: Option<PathBuf>, template_name: &str) -> PathBuf {
     template_file.unwrap_or(PathBuf::from(template_name))
 }
 
-pub(crate) fn get_output_path(
+pub fn get_output_path(
     output_path: Option<PathBuf>,
     template_path: &Path,
     template_type: TemplateType,
@@ -243,7 +243,7 @@ pub(crate) fn get_output_path(
         .unwrap_or(template_path.with_extension(get_template_output_extension(template_type)?)))
 }
 
-pub(crate) fn get_template_output_extension(template_type: TemplateType) -> Result<&'static str> {
+pub fn get_template_output_extension(template_type: TemplateType) -> Result<&'static str> {
     match template_type {
         TemplateType::Tex => Ok("pdf"),
         TemplateType::Typst => Ok("pdf"),
@@ -254,7 +254,7 @@ pub(crate) fn get_template_output_extension(template_type: TemplateType) -> Resu
     }
 }
 
-pub(crate) fn get_template_type_from_path<P: AsRef<Path>>(path: P) -> Result<TemplateType> {
+pub fn get_template_type_from_path<P: AsRef<Path>>(path: P) -> Result<TemplateType> {
     let path = path.as_ref();
 
     if path.to_string_lossy().ends_with("_epub") {

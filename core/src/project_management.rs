@@ -119,7 +119,7 @@ fn get_template_mapping_for_preset(template: &String) -> Result<TemplateMapping>
     Ok(template)
 }
 
-pub(crate) fn add_template(
+pub fn add_template(
     project: Option<String>,
     template_name: String,
     template_type: Option<TemplateType>,
@@ -170,7 +170,7 @@ pub(crate) fn add_template(
     Ok(())
 }
 
-pub(crate) fn remove_template(project: Option<String>, template_name: String) -> Result<()> {
+pub fn remove_template(project: Option<String>, template_name: String) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
@@ -210,7 +210,7 @@ pub(crate) fn remove_template(project: Option<String>, template_name: String) ->
     Ok(())
 }
 
-pub(crate) fn update_template(
+pub fn update_template(
     project: Option<String>,
     template_name: String,
     template_type: Option<TemplateType>,
@@ -280,7 +280,7 @@ pub(crate) fn update_template(
     Ok(())
 }
 
-pub(crate) fn update_manifest(
+pub fn update_manifest(
     project: Option<String>,
     smart_clean: Option<bool>,
     smart_clean_threshold: Option<u32>,
@@ -306,7 +306,7 @@ pub(crate) fn update_manifest(
     Ok(())
 }
 
-pub(crate) fn add_preprocessor(
+pub fn add_preprocessor(
     project: Option<String>,
     name: String,
     pandoc_args: Vec<String>,
@@ -326,7 +326,7 @@ pub(crate) fn add_preprocessor(
     Ok(())
 }
 
-pub(crate) fn remove_preprocessor(project: Option<String>, name: String) -> Result<()> {
+pub fn remove_preprocessor(project: Option<String>, name: String) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
@@ -350,7 +350,7 @@ pub(crate) fn remove_preprocessor(project: Option<String>, name: String) -> Resu
     Ok(())
 }
 
-pub(crate) fn add_processor(
+pub fn add_processor(
     project: Option<String>,
     name: String,
     processor_args: Vec<String>,
@@ -373,7 +373,7 @@ pub(crate) fn add_processor(
     Ok(())
 }
 
-pub(crate) fn remove_processor(project: Option<String>, name: String) -> Result<()> {
+pub fn remove_processor(project: Option<String>, name: String) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
@@ -397,7 +397,7 @@ pub(crate) fn remove_processor(project: Option<String>, name: String) -> Result<
     Ok(())
 }
 
-pub(crate) fn list_processors(project: Option<String>) -> Result<()> {
+pub fn list_processors(project: Option<String>) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
@@ -413,7 +413,7 @@ pub(crate) fn list_processors(project: Option<String>) -> Result<()> {
     Ok(())
 }
 
-pub(crate) fn add_profile(
+pub fn add_profile(
     project: Option<String>,
     name: String,
     templates: Vec<String>,
@@ -438,7 +438,7 @@ pub(crate) fn add_profile(
     Ok(())
 }
 
-pub(crate) fn remove_profile(project: Option<String>, name: String) -> Result<()> {
+pub fn remove_profile(project: Option<String>, name: String) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
@@ -461,7 +461,7 @@ pub(crate) fn remove_profile(project: Option<String>, name: String) -> Result<()
     Ok(())
 }
 
-pub(crate) fn list_templates(project: Option<String>) -> Result<()> {
+pub fn list_templates(project: Option<String>) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
@@ -487,7 +487,7 @@ pub(crate) fn list_templates(project: Option<String>) -> Result<()> {
     Ok(())
 }
 
-pub(crate) fn list_profiles(project: Option<String>) -> Result<()> {
+pub fn list_profiles(project: Option<String>) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
@@ -506,7 +506,7 @@ pub(crate) fn list_profiles(project: Option<String>) -> Result<()> {
     Ok(())
 }
 
-pub(crate) fn list_preprocessors(project: Option<String>) -> Result<()> {
+pub fn list_preprocessors(project: Option<String>) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
@@ -526,7 +526,7 @@ pub(crate) fn list_preprocessors(project: Option<String>) -> Result<()> {
     Ok(())
 }
 
-pub(crate) fn validate(project: Option<String>) -> Result<()> {
+pub fn validate(project: Option<String>) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
@@ -617,7 +617,7 @@ pub(crate) fn validate(project: Option<String>) -> Result<()> {
     Ok(())
 }
 
-pub(crate) fn clean(project: Option<String>) -> Result<()> {
+pub fn clean(project: Option<String>) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
@@ -628,7 +628,7 @@ pub(crate) fn clean(project: Option<String>) -> Result<()> {
     Ok(())
 }
 
-pub(crate) fn smart_clean(project: Option<String>) -> Result<()> {
+pub fn smart_clean(project: Option<String>) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
@@ -640,7 +640,7 @@ pub(crate) fn smart_clean(project: Option<String>) -> Result<()> {
     Ok(())
 }
 
-pub(crate) fn run_smart_clean(
+pub fn run_smart_clean(
     project_path: &std::path::Path,
     smart_clean_threshold: u32,
 ) -> Result<()> {
@@ -680,7 +680,7 @@ pub(crate) fn run_smart_clean(
     Ok(())
 }
 
-pub(crate) fn check_dependencies(dependencies: Vec<&str>) -> Result<()> {
+pub fn check_dependencies(dependencies: Vec<&str>) -> Result<()> {
     let mut errors = Vec::new();
 
     for dependency in dependencies {
@@ -706,7 +706,7 @@ pub(crate) fn check_dependencies(dependencies: Vec<&str>) -> Result<()> {
     Ok(())
 }
 
-pub(crate) fn load_and_convert_manifest(manifest_path: &std::path::PathBuf) -> Result<Manifest> {
+pub fn load_and_convert_manifest(manifest_path: &std::path::PathBuf) -> Result<Manifest> {
     if !manifest_path.exists() {
         return Err(eyre!(
             "Manifest file does not exist. Please initialize a project before editing it."

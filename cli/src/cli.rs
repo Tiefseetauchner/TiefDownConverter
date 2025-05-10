@@ -1,7 +1,7 @@
 use clap::{Parser, Subcommand, builder::PossibleValuesParser, command};
 use std::path::PathBuf;
 
-use crate::{consts::POSSIBLE_TEMPLATES, template_type::TemplateType};
+use crate::{consts::POSSIBLE_TEMPLATES, cli_template_type::CliTemplateType};
 
 #[derive(Parser)]
 #[command(
@@ -231,7 +231,7 @@ Available preset templates are: {}"#, POSSIBLE_TEMPLATES.join(", "))
             long,
             help = "The type of the template. If not provided, the type will be inferred from the template file."
         )]
-        template_type: Option<TemplateType>,
+        template_type: Option<CliTemplateType>,
         #[arg(
             short,
             long,
@@ -285,7 +285,7 @@ Processors are incompatible with CustomPandoc conversions. Use preprocessors ins
             help = r#"The type of the template. If not provided, the type will be inferred from the template file.
 Changing this is not recommended, as it is highly unlikely the type and only the type has changed. It is recommended to create a new template instead."#
         )]
-        template_type: Option<TemplateType>,
+        template_type: Option<CliTemplateType>,
         #[arg(
             long,
             help = "The output file. If not provided, the template name will be used."

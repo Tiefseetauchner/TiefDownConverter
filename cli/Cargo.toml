@@ -1,0 +1,31 @@
+[package]
+name = "tiefdownconverter-cli"
+version = "0.8.0-ALPHA"
+edition = "2024"
+authors = ["Lena Tauchner <tiefseetauchner@lukechriswalker.at>"]
+license = "MIT"
+repository = "https://github.com/Tiefseetauchner/tiefdownconverter"
+homepage = "https://github.com/Tiefseetauchner/tiefdownconverter"
+documentation = "https://github.com/Tiefseetauchner/TiefDownConverter/blob/main/docs/docs.pdf"
+description = "A CLI tool to manage and convert Markdown-based projects."
+readme = "README.md"
+keywords = ["markdown", "pandoc", "cli", "document-conversion"]
+categories = ["command-line-utilities", "text-processing"]
+
+[dependencies]
+clap = { version = "4.4", features = ["derive"] }
+color-eyre = { version = "0.6", default-features = false }
+log = "0.4.27"
+colog = "1.3.0"
+env_logger = "0.11.8"
+tiefdownconverter = { path = "../core" }
+
+[dev-dependencies]
+assert_cmd = "2.0.16"
+rstest = "0.25.0"
+tempfile = "3.19.0"
+predicates = "3.1.3"
+regex = "1.11.1"
+
+[build-dependencies]
+chrono = "0.4.40"

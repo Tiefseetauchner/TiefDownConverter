@@ -19,7 +19,7 @@ use crate::{
     template_type::TemplateType,
 };
 
-pub(crate) fn convert_latex(
+pub fn convert_latex(
     project_directory_path: &Path,
     combined_markdown_path: &Path,
     compiled_directory_path: &Path,
@@ -147,7 +147,7 @@ fn compile_latex(
     Ok(())
 }
 
-pub(crate) fn convert_custom_pandoc(
+pub fn convert_custom_pandoc(
     project_directory_path: &Path,
     combined_markdown_path: &Path,
     compiled_directory_path: &Path,
@@ -195,7 +195,7 @@ pub(crate) fn convert_custom_pandoc(
     Ok(output_path)
 }
 
-pub(crate) fn convert_epub(
+pub fn convert_epub(
     project_directory_path: &Path,
     combined_markdown_path: &Path,
     compiled_directory_path: &Path,
@@ -349,7 +349,7 @@ fn add_fonts(
     Ok(())
 }
 
-pub(crate) fn convert_typst(
+pub fn convert_typst(
     project_directory_path: &Path,
     combined_markdown_path: &Path,
     compiled_directory_path: &Path,

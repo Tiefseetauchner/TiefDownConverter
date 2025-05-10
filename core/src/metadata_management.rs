@@ -4,7 +4,7 @@ use toml::{Table, Value};
 
 use crate::project_management::load_and_convert_manifest;
 
-pub(crate) fn set_metadata(project: Option<String>, key: String, value: String) -> Result<()> {
+pub fn set_metadata(project: Option<String>, key: String, value: String) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
@@ -28,7 +28,7 @@ pub(crate) fn set_metadata(project: Option<String>, key: String, value: String) 
     Ok(())
 }
 
-pub(crate) fn remove_metadata(project: Option<String>, key: String) -> Result<()> {
+pub fn remove_metadata(project: Option<String>, key: String) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
@@ -51,7 +51,7 @@ pub(crate) fn remove_metadata(project: Option<String>, key: String) -> Result<()
     Ok(())
 }
 
-pub(crate) fn list_metadata(project: Option<String>) -> Result<()> {
+pub fn list_metadata(project: Option<String>) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
