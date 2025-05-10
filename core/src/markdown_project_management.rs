@@ -1,6 +1,8 @@
-use crate::{manifest_model::MarkdownProject, project_management::load_and_convert_manifest};
+use crate::{
+    manifest_model::{MarkdownProject, MetadataField},
+    project_management::load_and_convert_manifest,
+};
 use color_eyre::eyre::{Result, eyre};
-use log::info;
 use std::path::PathBuf;
 use toml::{Table, Value};
 
@@ -84,19 +86,21 @@ pub fn update_markdown_project(
 
     let mut markdown_projects = manifest.markdown_projects.unwrap_or(vec![]);
 
-    for project in &mut markdown_projects {
-        if project.name == name {
-            if let Some(path) = path {
-                project.path = path;
-            }
-            if let Some(output) = output {
-                project.output = output;
-            }
-            if let Some(default_profile) = default_profile {
-                project.default_profile = Some(default_profile);
-            }
-            break;
-        }
+    let project = markdown_projects
+        .iter_mut()
+        .find(|p| p.name == name)
+        .ok_or_else(|| eyre!("Markdown project with name '{}' does not exist.", name))?;
+
+    if let Some(path) = path {
+        project.path = path;
+    }
+
+    if let Some(output) = output {
+        project.output = output;
+    }
+
+    if let Some(default_profile) = default_profile {
+        project.default_profile = Some(default_profile);
     }
 
     manifest.markdown_projects = Some(markdown_projects);
@@ -121,23 +125,16 @@ pub fn set_metadata(
 
     let mut markdown_projects = manifest.markdown_projects.unwrap_or(vec![]);
 
-    if let Some(project) = markdown_projects.iter_mut().find(|p| p.name == name) {
-        if let Some(metadata_fields) = &mut project.metadata_fields {
-            metadata_fields.insert(key, Value::String(value));
-        } else {
-            project.metadata_fields = Some(Table::new());
-            project
-                .metadata_fields
-                .as_mut()
-                .unwrap()
-                .insert(key, Value::String(value));
-        }
-    } else {
-        return Err(eyre!(
-            "Markdown project with name '{}' does not exist.",
-            name
-        ));
-    }
+    let project = markdown_projects
+        .iter_mut()
+        .find(|p| p.name == name)
+        .ok_or_else(|| eyre!("Markdown project with name '{}' does not exist.", name))?;
+
+    project
+        .metadata_fields
+        .as_mut()
+        .unwrap_or(&mut Table::new())
+        .insert(key, Value::String(value));
 
     manifest.markdown_projects = Some(markdown_projects);
 
@@ -156,19 +153,13 @@ pub fn remove_metadata(project: Option<String>, name: String, key: String) -> Re
 
     let mut markdown_projects = manifest.markdown_projects.unwrap_or(vec![]);
 
-    if let Some(project) = markdown_projects.iter_mut().find(|p| p.name == name) {
-        if let Some(metadata_fields) = &mut project.metadata_fields {
-            if !metadata_fields.contains_key(&key) {
-                return Err(eyre!("Metadata field '{}' not found.", key));
-            }
+    let project = markdown_projects
+        .iter_mut()
+        .find(|p| p.name == name)
+        .ok_or_else(|| eyre!("Markdown project with name '{}' does not exist.", name))?;
 
-            metadata_fields.remove(&key);
-        }
-    } else {
-        return Err(eyre!(
-            "Markdown project with name '{}' does not exist.",
-            name
-        ));
+    if let Some(metadata_fields) = &mut project.metadata_fields {
+        metadata_fields.retain(|k, _| k != &key);
     }
 
     manifest.markdown_projects = Some(markdown_projects);
@@ -179,32 +170,34 @@ pub fn remove_metadata(project: Option<String>, name: String, key: String) -> Re
     Ok(())
 }
 
-pub fn list_metadata(project: Option<String>, name: String) -> Result<()> {
+pub fn get_metadata(project: &Option<String>, name: &String) -> Result<Vec<MetadataField>> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
 
     let manifest = load_and_convert_manifest(&manifest_path)?;
-
     let markdown_projects = manifest.markdown_projects.unwrap_or(vec![]);
-    if let Some(project) = markdown_projects.iter().find(|p| p.name == name) {
-        if let Some(metadata_fields) = &project.metadata_fields {
-            for (key, value) in metadata_fields {
-                info!("{}: {}", key, value);
-            }
-        } else {
-            info!("No metadata fields found.");
-        }
-    } else {
-        return Err(eyre!(
-            "Markdown project with name '{}' does not exist.",
-            name
-        ));
-    }
-    Ok(())
+
+    let project = markdown_projects
+        .iter()
+        .find(|p| p.name == *name)
+        .ok_or_else(|| eyre!("Markdown project with name '{}' does not exist.", name))?;
+
+    Ok(project
+        .metadata_fields
+        .clone()
+        .map(|m| {
+            m.iter()
+                .map(|e| MetadataField {
+                    key: e.0.clone(),
+                    value: e.1.clone().to_string(),
+                })
+                .collect()
+        })
+        .unwrap_or(vec![]))
 }
 
-pub fn list_markdown_projects(project: Option<String>) -> Result<()> {
+pub fn get_markdown_projects(project: &Option<String>) -> Result<Vec<MarkdownProject>> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
@@ -213,25 +206,7 @@ pub fn list_markdown_projects(project: Option<String>) -> Result<()> {
 
     let markdown_projects = manifest.markdown_projects.unwrap_or(vec![]);
 
-    for project in markdown_projects {
-        info!("Name: {}", project.name);
-        info!("  Path: {}", project.path.display());
-        info!("  Output: {}", project.output.display());
-        info!(
-            "  Default Profile: {}",
-            project.default_profile.unwrap_or_default()
-        );
-        info!("  Metadata Fields:");
-        for (key, value) in project.metadata_fields.unwrap_or_default() {
-            info!("    {}: {}", key, value);
-        }
-        info!("  Resources:");
-        for resource in project.resources.unwrap_or_default() {
-            info!("    {}", resource.display());
-        }
-    }
-
-    Ok(())
+    Ok(markdown_projects)
 }
 
 pub fn add_resources(project: Option<String>, name: String, resources: Vec<PathBuf>) -> Result<()> {
@@ -273,23 +248,21 @@ pub fn remove_resource(project: Option<String>, name: String, resource: PathBuf)
 
     let mut markdown_projects = manifest.markdown_projects.unwrap_or(vec![]);
 
-    if let Some(project) = markdown_projects.iter_mut().find(|p| p.name == name) {
-        if let Some(pos) = project
-            .resources
-            .clone()
-            .unwrap_or(vec![])
-            .iter()
-            .position(|r| r == &resource)
-        {
-            project.resources.as_mut().unwrap().remove(pos);
-        } else {
-            return Err(eyre!("Resource '{}' not found.", resource.display()));
-        }
+    let project = markdown_projects
+        .iter_mut()
+        .find(|p| p.name == name)
+        .ok_or_else(|| eyre!("Markdown project with name '{}' does not exist.", name))?;
+
+    if let Some(pos) = project
+        .resources
+        .clone()
+        .unwrap_or(vec![])
+        .iter()
+        .position(|r| r == &resource)
+    {
+        project.resources.as_mut().unwrap().remove(pos);
     } else {
-        return Err(eyre!(
-            "Markdown project with name '{}' does not exist.",
-            name
-        ));
+        return Err(eyre!("Resource '{}' not found.", resource.display()));
     }
 
     manifest.markdown_projects = Some(markdown_projects);
@@ -300,7 +273,7 @@ pub fn remove_resource(project: Option<String>, name: String, resource: PathBuf)
     Ok(())
 }
 
-pub fn list_resources(project: Option<String>, name: String) -> Result<()> {
+pub fn get_resources(project: &Option<String>, name: &String) -> Result<Vec<PathBuf>> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
@@ -308,13 +281,11 @@ pub fn list_resources(project: Option<String>, name: String) -> Result<()> {
     let manifest = load_and_convert_manifest(&manifest_path)?;
 
     let markdown_projects = manifest.markdown_projects.unwrap_or(vec![]);
-    if let Some(project) = markdown_projects.iter().find(|p| p.name == name) {
-        if let Some(resources) = &project.resources {
-            for resource in resources {
-                info!("{}", resource.display());
-            }
-        }
-    }
 
-    Ok(())
+    let project = markdown_projects
+        .iter()
+        .find(|p| p.name == *name)
+        .ok_or_else(|| eyre!("Markdown project with name '{}' does not exist.", name))?;
+
+    Ok(project.resources.clone().unwrap_or(vec![]))
 }

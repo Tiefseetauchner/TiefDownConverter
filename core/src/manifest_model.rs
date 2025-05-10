@@ -8,7 +8,7 @@ use std::{path::PathBuf, sync::LazyLock};
 use toml::Table;
 
 #[derive(Deserialize, Serialize)]
-pub(crate) struct Manifest {
+pub struct Manifest {
     pub version: u32,
     pub markdown_projects: Option<Vec<MarkdownProject>>,
     pub templates: Vec<TemplateMapping>,
@@ -21,7 +21,7 @@ pub(crate) struct Manifest {
 }
 
 #[derive(Deserialize, Serialize, Clone)]
-pub(crate) struct MarkdownProject {
+pub struct MarkdownProject {
     pub name: String,
     pub path: PathBuf,
     pub output: PathBuf,
@@ -30,44 +30,48 @@ pub(crate) struct MarkdownProject {
     pub resources: Option<Vec<PathBuf>>,
 }
 
+#[derive(Clone)]
+pub struct MetadataField {
+    pub key: String,
+    pub value: String,
+}
+
 #[derive(Deserialize, Serialize, Clone)]
-pub(crate) struct Processors {
+pub struct Processors {
     pub preprocessors: Vec<PreProcessor>,
     pub processors: Vec<Processor>,
 }
 
 #[derive(Deserialize, Serialize, Clone)]
-pub(crate) struct PreProcessor {
+pub struct PreProcessor {
     pub name: String,
     pub pandoc_args: Vec<String>,
 }
 
 #[derive(Deserialize, Serialize, Clone)]
-pub(crate) struct Processor {
+pub struct Processor {
     pub name: String,
     pub processor_args: Vec<String>,
 }
 
-pub(crate) static DEFAULT_TEX_PREPROCESSOR: LazyLock<PreProcessor> =
-    LazyLock::new(|| PreProcessor {
-        name: "default_tex_preprocessor".to_string(),
-        pandoc_args: vec!["-o", "output.tex", "-t", "latex"]
-            .iter()
-            .map(|s| s.to_string())
-            .collect(),
-    });
+pub static DEFAULT_TEX_PREPROCESSOR: LazyLock<PreProcessor> = LazyLock::new(|| PreProcessor {
+    name: "default_tex_preprocessor".to_string(),
+    pandoc_args: vec!["-o", "output.tex", "-t", "latex"]
+        .iter()
+        .map(|s| s.to_string())
+        .collect(),
+});
 
-pub(crate) static DEFAULT_TYPST_PREPROCESSOR: LazyLock<PreProcessor> =
-    LazyLock::new(|| PreProcessor {
-        name: "default_typst_preprocessor".to_string(),
-        pandoc_args: vec!["-o", "output.typ", "-t", "typst"]
-            .iter()
-            .map(|s| s.to_string())
-            .collect(),
-    });
+pub static DEFAULT_TYPST_PREPROCESSOR: LazyLock<PreProcessor> = LazyLock::new(|| PreProcessor {
+    name: "default_typst_preprocessor".to_string(),
+    pandoc_args: vec!["-o", "output.typ", "-t", "typst"]
+        .iter()
+        .map(|s| s.to_string())
+        .collect(),
+});
 
 #[derive(Deserialize, Serialize, Clone)]
-pub(crate) struct MetadataSettings {
+pub struct MetadataSettings {
     pub metadata_prefix: Option<String>,
 }
 
@@ -80,13 +84,13 @@ impl MetadataSettings {
 }
 
 #[derive(Deserialize, Serialize, Clone)]
-pub(crate) struct Profile {
+pub struct Profile {
     pub name: String,
     pub templates: Vec<String>,
 }
 
 #[derive(Deserialize, Serialize, Clone)]
-pub(crate) struct TemplateMapping {
+pub struct TemplateMapping {
     pub name: String,
     pub template_type: TemplateType,
     pub template_file: Option<PathBuf>,

@@ -395,20 +395,14 @@ pub fn remove_processor(project: Option<String>, name: String) -> Result<()> {
     Ok(())
 }
 
-pub fn list_processors(project: Option<String>) -> Result<()> {
+pub fn get_processors(project: &Option<String>) -> Result<Vec<Processor>> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
 
     let manifest = load_and_convert_manifest(&manifest_path)?;
 
-    let processors = manifest.custom_processors.processors;
-
-    for processor in processors {
-        info!("{}: {}", processor.name, processor.processor_args.join(" "));
-    }
-
-    Ok(())
+    Ok(manifest.custom_processors.processors)
 }
 
 pub fn add_profile(project: Option<String>, name: String, templates: Vec<String>) -> Result<()> {
@@ -455,33 +449,17 @@ pub fn remove_profile(project: Option<String>, name: String) -> Result<()> {
     Ok(())
 }
 
-pub fn list_templates(project: Option<String>) -> Result<()> {
+pub fn get_templates(project: &Option<String>) -> Result<Vec<TemplateMapping>> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
 
     let manifest = load_and_convert_manifest(&manifest_path)?;
 
-    let templates = manifest.templates;
-
-    for template in templates {
-        info!("{}:", template.name);
-        info!("  Template type: {}", &template.template_type);
-        if let Some(file) = &template.template_file {
-            info!("  Template file: {}", file.display());
-        }
-        if let Some(output) = &template.output {
-            info!("  Output file: {}", output.display());
-        }
-        if let Some(filters) = &template.filters {
-            info!("  Filters: {}", filters.join(", "));
-        }
-    }
-
-    Ok(())
+    Ok(manifest.templates)
 }
 
-pub fn list_profiles(project: Option<String>) -> Result<()> {
+pub fn get_profiles(project: &Option<String>) -> Result<Vec<Profile>> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
@@ -490,34 +468,17 @@ pub fn list_profiles(project: Option<String>) -> Result<()> {
 
     let profiles = manifest.profiles;
 
-    for profile in profiles.unwrap_or_default() {
-        info!("{}:", profile.name);
-        for template in profile.templates {
-            info!("  {}", template);
-        }
-    }
-
-    Ok(())
+    Ok(profiles.unwrap_or_default())
 }
 
-pub fn list_preprocessors(project: Option<String>) -> Result<()> {
+pub fn get_preprocessors(project: &Option<String>) -> Result<Vec<PreProcessor>> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
 
     let manifest = load_and_convert_manifest(&manifest_path)?;
 
-    let preprocessors = manifest.custom_processors.preprocessors;
-
-    for preprocessor in preprocessors {
-        info!(
-            "{}: {}",
-            preprocessor.name,
-            preprocessor.pandoc_args.join(" ")
-        );
-    }
-
-    Ok(())
+    Ok(manifest.custom_processors.preprocessors)
 }
 
 pub fn validate(project: Option<String>) -> Result<()> {

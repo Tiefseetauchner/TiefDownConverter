@@ -1,6 +1,5 @@
-use crate::project_management::load_and_convert_manifest;
+use crate::{manifest_model::MetadataField, project_management::load_and_convert_manifest};
 use color_eyre::eyre::{Result, eyre};
-use log::info;
 use toml::{Table, Value};
 
 pub fn set_metadata(project: Option<String>, key: String, value: String) -> Result<()> {
@@ -10,16 +9,11 @@ pub fn set_metadata(project: Option<String>, key: String, value: String) -> Resu
 
     let mut manifest = load_and_convert_manifest(&manifest_path)?;
 
-    if let Some(shared_metadata) = &mut manifest.shared_metadata {
-        shared_metadata.insert(key, Value::String(value));
-    } else {
-        manifest.shared_metadata = Some(Table::new());
-        manifest
-            .shared_metadata
-            .as_mut()
-            .unwrap()
-            .insert(key, Value::String(value));
-    }
+    manifest
+        .shared_metadata
+        .as_mut()
+        .unwrap_or(&mut Table::new())
+        .insert(key, Value::String(value));
 
     let manifest_content = toml::to_string(&manifest)?;
     std::fs::write(&manifest_path, manifest_content)?;
@@ -34,15 +28,16 @@ pub fn remove_metadata(project: Option<String>, key: String) -> Result<()> {
 
     let mut manifest = load_and_convert_manifest(&manifest_path)?;
 
-    if let Some(shared_metadata) = &mut manifest.shared_metadata {
-        if !shared_metadata.contains_key(&key) {
-            return Err(eyre!("Metadata field '{}' not found.", key));
-        }
+    let shared_metadata = manifest
+        .shared_metadata
+        .as_mut()
+        .ok_or(eyre!("No shared metadata found."))?;
 
-        shared_metadata.remove(&key);
-    } else {
+    if !shared_metadata.contains_key(&key) {
         return Err(eyre!("Metadata field '{}' not found.", key));
     }
+
+    shared_metadata.remove(&key);
 
     let manifest_content = toml::to_string(&manifest)?;
     std::fs::write(&manifest_path, manifest_content)?;
@@ -50,7 +45,7 @@ pub fn remove_metadata(project: Option<String>, key: String) -> Result<()> {
     Ok(())
 }
 
-pub fn list_metadata(project: Option<String>) -> Result<()> {
+pub fn get_metadata(project: &Option<String>) -> Result<Vec<MetadataField>> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
@@ -59,13 +54,11 @@ pub fn list_metadata(project: Option<String>) -> Result<()> {
 
     let metadata_fields = manifest.shared_metadata.unwrap_or_default();
 
-    if metadata_fields.is_empty() {
-        info!("No shared metadata fields found.");
-        return Ok(());
-    }
-    for (key, value) in metadata_fields {
-        info!("{}: {}", key, value);
-    }
-
-    Ok(())
+    Ok(metadata_fields
+        .iter()
+        .map(|e| MetadataField {
+            key: e.0.clone(),
+            value: e.1.clone().to_string(),
+        })
+        .collect())
 }
