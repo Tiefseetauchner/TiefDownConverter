@@ -1,12 +1,11 @@
-use color_eyre::eyre::{Result, eyre};
-use serde::{Deserialize, Serialize};
-use std::{path::PathBuf, sync::LazyLock};
-use toml::Table;
-
 use crate::{
     consts::CURRENT_MANIFEST_VERSION, template_management::get_template_type_from_path,
     template_type::TemplateType,
 };
+use color_eyre::eyre::{Result, eyre};
+use serde::{Deserialize, Serialize};
+use std::{path::PathBuf, sync::LazyLock};
+use toml::Table;
 
 #[derive(Deserialize, Serialize)]
 pub(crate) struct Manifest {

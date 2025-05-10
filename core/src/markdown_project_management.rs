@@ -1,9 +1,8 @@
+use crate::{manifest_model::MarkdownProject, project_management::load_and_convert_manifest};
 use color_eyre::eyre::{Result, eyre};
 use log::info;
 use std::path::PathBuf;
 use toml::{Table, Value};
-
-use crate::{manifest_model::MarkdownProject, project_management::load_and_convert_manifest};
 
 pub fn add_markdown_project(
     project: Option<String>,

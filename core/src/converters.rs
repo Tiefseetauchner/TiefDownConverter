@@ -1,15 +1,3 @@
-use std::{
-    fs,
-    io::{BufRead, BufReader, Write},
-    path::{Path, PathBuf},
-    process::{Command, Stdio},
-    thread,
-};
-
-use color_eyre::eyre::{Ok, Result, eyre};
-use log::{debug, error};
-use toml::Table;
-
 use crate::{
     manifest_model::{
         DEFAULT_TEX_PREPROCESSOR, DEFAULT_TYPST_PREPROCESSOR, MetadataSettings, PreProcessor,
@@ -18,6 +6,16 @@ use crate::{
     template_management::{get_output_path, get_template_path},
     template_type::TemplateType,
 };
+use color_eyre::eyre::{Ok, Result, eyre};
+use log::{debug, error};
+use std::{
+    fs,
+    io::{BufRead, BufReader, Write},
+    path::{Path, PathBuf},
+    process::{Command, Stdio},
+    thread,
+};
+use toml::Table;
 
 pub(crate) fn convert_latex(
     project_directory_path: &Path,

@@ -1,8 +1,7 @@
+use crate::project_management::load_and_convert_manifest;
 use color_eyre::eyre::{Result, eyre};
 use log::info;
 use toml::{Table, Value};
-
-use crate::project_management::load_and_convert_manifest;
 
 pub fn set_metadata(project: Option<String>, key: String, value: String) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");

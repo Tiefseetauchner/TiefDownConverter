@@ -1,10 +1,3 @@
-use std::{fs, path::PathBuf, process::Command};
-
-use color_eyre::eyre::{Result, eyre};
-use fs_extra::dir;
-use log::{debug, error, info};
-use toml::{Table, Value};
-
 use crate::{
     consts::CURRENT_MANIFEST_VERSION,
     manifest_model::{
@@ -14,6 +7,11 @@ use crate::{
     template_management::{self, add_lix_filters, get_template_path, get_template_type_from_path},
     template_type::TemplateType,
 };
+use color_eyre::eyre::{Result, eyre};
+use fs_extra::dir;
+use log::{debug, error, info};
+use std::{fs, path::PathBuf, process::Command};
+use toml::{Table, Value};
 
 pub fn init(
     project: Option<String>,

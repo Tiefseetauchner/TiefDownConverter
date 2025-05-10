@@ -1,15 +1,13 @@
+use crate::{
+    consts::POSSIBLE_TEMPLATES, manifest_model::TemplateMapping, template_type::TemplateType,
+};
+use color_eyre::eyre::{Result, eyre};
+use log::{debug, info, warn};
+use reqwest::blocking::get;
 use std::{
     fs,
     io::{self, Write},
     path::{Path, PathBuf},
-};
-
-use color_eyre::eyre::{Result, eyre};
-use log::{debug, info, warn};
-use reqwest::blocking::get;
-
-use crate::{
-    consts::POSSIBLE_TEMPLATES, manifest_model::TemplateMapping, template_type::TemplateType,
 };
 
 pub(crate) fn get_template_creator(

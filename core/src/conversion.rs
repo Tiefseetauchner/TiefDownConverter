@@ -1,3 +1,11 @@
+use crate::conversion_decider;
+use crate::manifest_model::Manifest;
+use crate::manifest_model::MarkdownProject;
+use crate::manifest_model::MetadataSettings;
+use crate::manifest_model::Processors;
+use crate::manifest_model::TemplateMapping;
+use crate::project_management::load_and_convert_manifest;
+use crate::project_management::run_smart_clean;
 use chrono::prelude::DateTime;
 use chrono::prelude::Utc;
 use color_eyre::eyre::Result;
@@ -10,15 +18,6 @@ use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
 use toml::Table;
-
-use crate::conversion_decider;
-use crate::manifest_model::Manifest;
-use crate::manifest_model::MarkdownProject;
-use crate::manifest_model::MetadataSettings;
-use crate::manifest_model::Processors;
-use crate::manifest_model::TemplateMapping;
-use crate::project_management::load_and_convert_manifest;
-use crate::project_management::run_smart_clean;
 
 pub fn convert(
     project: Option<String>,
