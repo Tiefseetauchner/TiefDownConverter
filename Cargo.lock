@@ -1458,11 +1458,11 @@ dependencies = [
  "regex",
  "rstest",
  "tempfile",
- "tiefdownconverter_core",
+ "tiefdownlib",
 ]
 
 [[package]]
-name = "tiefdownconverter_core"
+name = "tiefdownlib"
 version = "0.8.0-ALPHA"
 dependencies = [
  "assert_cmd",

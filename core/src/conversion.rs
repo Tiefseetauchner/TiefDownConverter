@@ -21,6 +21,14 @@ use toml::Table;
 
 /// Converts a TiefDown project to specified templates.
 ///
+/// Runs the conversion process for all markdown projects in the project.
+///
+/// If no templates are specified, all templates are converted, a profile will be tried.
+///
+/// If no profile is specified, the default profile for the corresponding markdown project is used.
+///
+/// If no profile is specified and no default profile is available, all templates are converted.
+///
 /// # Arguments
 ///
 /// * `project` - The path to the project directory (relative or absolute).

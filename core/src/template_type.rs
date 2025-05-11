@@ -5,6 +5,7 @@ use std::{
     str::FromStr,
 };
 
+/// The type of a template. Defines the conversion behavior of a template.
 #[derive(Deserialize, Serialize, Clone, Debug, PartialEq, Eq)]
 pub enum TemplateType {
     Tex = 0,

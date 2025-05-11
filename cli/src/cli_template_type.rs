@@ -7,7 +7,7 @@ use std::{
     fmt::{Display, Formatter},
     str::FromStr,
 };
-use tiefdownconverter::template_type::TemplateType;
+use tiefdownlib::template_type::TemplateType;
 
 #[derive(Clone, Debug, PartialEq, Eq, ValueEnum)]
 pub(crate) enum CliTemplateType {

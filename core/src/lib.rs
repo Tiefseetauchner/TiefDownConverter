@@ -2,7 +2,7 @@ pub mod consts;
 pub mod conversion;
 mod conversion_decider;
 mod converters;
-mod manifest_model;
+pub mod manifest_model;
 pub mod markdown_project_management;
 pub mod metadata_management;
 pub mod project_management;

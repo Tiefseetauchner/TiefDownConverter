@@ -5,7 +5,7 @@ use color_eyre::eyre::{Result, eyre};
 use env_logger::fmt::Formatter;
 use log::Level;
 use std::io::Write;
-use tiefdownconverter::{
+use tiefdownlib::{
     consts, conversion, markdown_project_management, metadata_management, project_management,
 };
 

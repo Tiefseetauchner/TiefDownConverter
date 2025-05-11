@@ -1,6 +1,6 @@
 use color_eyre::eyre::Result;
 use log::info;
-use tiefdownconverter::{markdown_project_management, metadata_management, project_management};
+use tiefdownlib::{markdown_project_management, metadata_management, project_management};
 
 pub(crate) fn list_preprocessors(project: Option<String>) -> Result<()> {
     let preprocessors = project_management::get_preprocessors(&project)?;
