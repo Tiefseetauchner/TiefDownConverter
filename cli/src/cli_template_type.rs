@@ -10,7 +10,7 @@ use std::{
 use tiefdownconverter::template_type::TemplateType;
 
 #[derive(Clone, Debug, PartialEq, Eq, ValueEnum)]
-pub enum CliTemplateType {
+pub(crate) enum CliTemplateType {
     Tex = 0,
     Typst = 1,
     Epub = 2,

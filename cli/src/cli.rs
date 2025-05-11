@@ -14,15 +14,15 @@ TiefDown is a project structure meant to simplify the conversion process from Ma
 TiefDownConverter consolidates multiple conversion processes and templating systems to generate a configurable set or subset of output documents.
 It is not in itself a converter, but a wrapper around pandoc, xelatex and typst. As such, it requires these dependencies to be installed."#
 )]
-pub struct Cli {
-    #[arg(short, long, help = "Enable verbose output.")]
+pub(crate) struct Cli {
+    #[arg(short, long, help = "Enable verbose output.", global = true)]
     pub verbose: bool,
     #[command(subcommand)]
     pub command: Commands,
 }
 
 #[derive(Subcommand)]
-pub enum Commands {
+pub(crate) enum Commands {
     #[command(
         about = "Convert a TiefDown project. By default, it will convert the current directory."
     )]
@@ -110,7 +110,7 @@ If the number of conversion folders in the project is above this threshold, old 
 }
 
 #[derive(Subcommand)]
-pub enum ProjectCommands {
+pub(crate) enum ProjectCommands {
     #[command(about = "Add or modify templates in the project.")]
     Templates {
         #[arg(help = "The template name to edit or add.")]
@@ -211,7 +211,7 @@ The threshold is set to 5 by default, and is overwritten by the threshold in the
 }
 
 #[derive(Subcommand)]
-pub enum TemplatesCommands {
+pub(crate) enum TemplatesCommands {
     #[command(
         about = "Add a new template to the project.",
         long_about = format!(r#"Add a new template to the project.
@@ -343,7 +343,7 @@ Processors are incompatible with CustomPandoc conversions. Use preprocessors ins
 }
 
 #[derive(Subcommand)]
-pub enum PreProcessorsCommands {
+pub(crate) enum PreProcessorsCommands {
     #[command(about = "Add a new preprocessor to the project.")]
     Add {
         #[arg(help = "The name of the preprocessor to create.")]
@@ -361,7 +361,7 @@ pub enum PreProcessorsCommands {
 }
 
 #[derive(Subcommand)]
-pub enum ProcessorsCommands {
+pub(crate) enum ProcessorsCommands {
     #[command(about = "Add a new processor to the project.")]
     Add {
         #[arg(help = "The name of the processor to create.")]
@@ -379,7 +379,7 @@ pub enum ProcessorsCommands {
 }
 
 #[derive(Subcommand)]
-pub enum ProfilesCommands {
+pub(crate) enum ProfilesCommands {
     #[command(about = "Add a new conversion profile to the project.")]
     Add {
         #[arg(help = "The name of the profile to create.")]
@@ -401,7 +401,7 @@ pub enum ProfilesCommands {
 }
 
 #[derive(Subcommand)]
-pub enum ManageMarkdownProjectsCommand {
+pub(crate) enum ManageMarkdownProjectsCommand {
     #[command(about = "Add a new markdown project to the project.")]
     Add {
         #[arg(help = "The name of the markdown project to create.")]
@@ -459,7 +459,7 @@ Resources are stored in the markdown folder and copied to the conversion directo
 }
 
 #[derive(Subcommand)]
-pub enum ManageMetadataCommand {
+pub(crate) enum ManageMetadataCommand {
     #[command(about = "Add or change the metadata. Overrides previous keys.")]
     Set {
         #[arg(help = "The key to set.")]
@@ -487,7 +487,7 @@ pub enum ManageMetadataCommand {
 }
 
 #[derive(Subcommand)]
-pub enum ManageResourcesCommand {
+pub(crate) enum ManageResourcesCommand {
     #[command(about = "Add a new resource to the project.")]
     Add {
         #[arg(help = "The paths to the resources. Seperated by spaces.", num_args = 1.., value_delimiter = ' ', last = true, allow_hyphen_values = true)]

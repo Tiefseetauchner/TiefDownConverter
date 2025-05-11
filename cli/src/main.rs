@@ -13,7 +13,7 @@ mod cli;
 mod cli_template_type;
 mod project_commands;
 
-pub struct CustomLoggingStyle;
+pub(crate) struct CustomLoggingStyle;
 
 impl CologStyle for CustomLoggingStyle {
     fn prefix_token(&self, level: &Level) -> String {
