@@ -2,6 +2,18 @@ use crate::{manifest_model::MetadataField, project_management::load_and_convert_
 use color_eyre::eyre::{Result, eyre};
 use toml::{Table, Value};
 
+/// Sets the shared metadata fields for a TiefDown project.
+///
+/// # Arguments
+///
+/// * `project` - The path to the project directory (relative or absolute).
+/// ** Defaults to the current directory if not provided.
+/// * `key` - The key of the metadata field to set.
+/// * `value` - The value to set for the metadata field.
+///
+/// # Returns
+///
+/// A Result containing either an error or nothing.
 pub fn set_metadata(project: Option<String>, key: String, value: String) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
@@ -20,6 +32,17 @@ pub fn set_metadata(project: Option<String>, key: String, value: String) -> Resu
     Ok(())
 }
 
+/// Removes a metadata field from the shared metadata of a TiefDown project.
+///
+/// # Arguments
+///
+/// * `project` - The path to the project directory (relative or absolute).
+/// ** Defaults to the current directory if not provided.
+/// * `key` - The key of the metadata field to remove.
+///
+/// # Returns
+///
+/// A Result containing either an error or nothing.
 pub fn remove_metadata(project: Option<String>, key: String) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
@@ -44,6 +67,16 @@ pub fn remove_metadata(project: Option<String>, key: String) -> Result<()> {
     Ok(())
 }
 
+/// Retrieves the shared metadata fields for a TiefDown project.
+///
+/// # Arguments
+///
+/// * `project` - The path to the project directory (relative or absolute).
+/// ** Defaults to the current directory if not provided.
+///
+/// # Returns
+///
+/// A Result containing either an error or a Vec of MetadataField.
 pub fn get_metadata(project: &Option<String>) -> Result<Vec<MetadataField>> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);

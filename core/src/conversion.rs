@@ -19,6 +19,19 @@ use std::path::Path;
 use std::path::PathBuf;
 use toml::Table;
 
+/// Converts a TiefDown project to specified templates.
+///
+/// # Arguments
+///
+/// * `project` - The path to the project directory (relative or absolute).
+/// ** Defaults to the current directory if not provided.
+/// * `templates` - A list of template names to convert to.
+/// ** Defaults to all templates if not provided.
+/// * `profile` - The name of the profile to use for conversion.
+///
+/// # Returns
+///
+/// A Result containing either an error or nothing.
 pub fn convert(
     project: Option<String>,
     templates: Option<Vec<String>>,

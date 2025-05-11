@@ -6,6 +6,19 @@ use color_eyre::eyre::{Result, eyre};
 use std::path::PathBuf;
 use toml::{Table, Value};
 
+/// Adds a new markdown project to the TiefDown project.
+///
+/// # Arguments
+/// * `project` - The path to the project directory (relative or absolute).
+/// ** Defaults to the current directory if not provided.
+/// * `name` - The name of the markdown project.
+/// * `path` - The path to the markdown directory.
+/// * `output` - The path to the output directory.
+/// * `default_profile` - The name of the default profile to use for conversion.
+///
+/// # Returns
+///
+/// A Result containing either an error or nothing.
 pub fn add_markdown_project(
     project: Option<String>,
     name: String,
@@ -45,6 +58,17 @@ pub fn add_markdown_project(
     Ok(())
 }
 
+/// Removes a markdown project from the TiefDown project.
+///
+/// # Arguments
+///
+/// * `project` - The path to the project directory (relative or absolute).
+/// ** Defaults to the current directory if not provided.
+/// * `name` - The name of the markdown project to remove.
+///
+/// # Returns
+///
+/// A Result containing either an error or nothing.
 pub fn remove_markdown_project(project: Option<String>, name: String) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
@@ -71,6 +95,20 @@ pub fn remove_markdown_project(project: Option<String>, name: String) -> Result<
     Ok(())
 }
 
+/// Updates a markdown project in the TiefDown project.
+///
+/// # Arguments
+///
+/// * `project` - The path to the project directory (relative or absolute).
+/// ** Defaults to the current directory if not provided.
+/// * `name` - The name of the markdown project to update.
+/// * `path` - The new path to the markdown directory.
+/// * `output` - The new path to the output directory.
+/// * `default_profile` - The new name of the default profile to use for conversion.
+///
+/// # Returns
+///
+/// A Result containing either an error or nothing.
 pub fn update_markdown_project(
     project: Option<String>,
     name: String,
@@ -111,6 +149,19 @@ pub fn update_markdown_project(
     Ok(())
 }
 
+/// Sets the metadata fields for a markdown project.
+///
+/// # Arguments
+///
+/// * `project` - The path to the project directory (relative or absolute).
+/// ** Defaults to the current directory if not provided.
+/// * `name` - The name of the markdown project.
+/// * `key` - The key of the metadata field to set.
+/// * `value` - The value to set for the metadata field.
+///
+/// # Returns
+///
+/// A Result containing either an error or nothing.
 pub fn set_metadata(
     project: Option<String>,
     name: String,
@@ -143,6 +194,18 @@ pub fn set_metadata(
     Ok(())
 }
 
+/// Removes the metadata fields for a markdown project.
+///
+/// # Arguments
+///
+/// * `project` - The path to the project directory (relative or absolute).
+/// ** Defaults to the current directory if not provided.
+/// * `name` - The name of the markdown project to remove.
+/// * `key` - The key of the metadata field to remove.
+///
+/// # Returns
+///
+/// A Result containing either an error or nothing.
 pub fn remove_metadata(project: Option<String>, name: String, key: String) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
@@ -177,6 +240,17 @@ pub fn remove_metadata(project: Option<String>, name: String, key: String) -> Re
     Ok(())
 }
 
+/// Gets the metadata fields for a markdown project.
+///
+/// # Arguments
+///
+/// * `project` - The path to the project directory (relative or absolute).
+/// ** Defaults to the current directory if not provided.
+/// * `name` - The name of the markdown project to remove.
+///
+/// # Returns
+///
+/// A Result containing either an error or a Vec of MetadataField.
 pub fn get_metadata(project: &Option<String>, name: &String) -> Result<Vec<MetadataField>> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
@@ -204,6 +278,17 @@ pub fn get_metadata(project: &Option<String>, name: &String) -> Result<Vec<Metad
         .unwrap_or(vec![]))
 }
 
+/// Gets the markdown projects.
+///
+/// # Arguments
+///
+/// * `project` - The path to the project directory (relative or absolute).
+/// ** Defaults to the current directory if not provided.
+///
+/// # Returns
+///
+/// A Result containing either an error or a Vec of MarkdownProject.
+
 pub fn get_markdown_projects(project: &Option<String>) -> Result<Vec<MarkdownProject>> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
@@ -216,6 +301,18 @@ pub fn get_markdown_projects(project: &Option<String>) -> Result<Vec<MarkdownPro
     Ok(markdown_projects)
 }
 
+/// Adds a resource to a markdown project.
+///
+/// # Arguments
+///
+/// * `project` - The path to the project directory (relative or absolute).
+/// ** Defaults to the current directory if not provided.
+/// * `name` - The name of the markdown project to remove.
+/// * `resources` - The resources to add.
+///
+/// # Returns
+///
+/// A Result containing either an error or nothing.
 pub fn add_resources(project: Option<String>, name: String, resources: Vec<PathBuf>) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
@@ -246,6 +343,18 @@ pub fn add_resources(project: Option<String>, name: String, resources: Vec<PathB
     Ok(())
 }
 
+/// Removes a resource from a markdown project.
+///
+/// # Arguments
+///
+/// * `project` - The path to the project directory (relative or absolute).
+/// ** Defaults to the current directory if not provided.
+/// * `name` - The name of the markdown project to remove.
+/// * `resource` - The resource to remove.
+///
+/// # Returns
+///
+/// A Result containing either an error or nothing.
 pub fn remove_resource(project: Option<String>, name: String, resource: PathBuf) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
@@ -280,6 +389,17 @@ pub fn remove_resource(project: Option<String>, name: String, resource: PathBuf)
     Ok(())
 }
 
+/// Gets the resources of a markdown project.
+///
+/// # Arguments
+///
+/// * `project` - The path to the project directory (relative or absolute).
+/// ** Defaults to the current directory if not provided.
+/// * `name` - The name of the markdown project to remove.
+///
+/// # Returns
+///
+/// A Result containing either an error or a Vec of PathBuf.
 pub fn get_resources(project: &Option<String>, name: &String) -> Result<Vec<PathBuf>> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);

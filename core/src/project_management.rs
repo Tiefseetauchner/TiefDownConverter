@@ -13,6 +13,23 @@ use log::{debug, error, info};
 use std::{fs, path::PathBuf, process::Command};
 use toml::{Table, Value};
 
+/// Initializes a new TiefDown project.
+///
+/// # Arguments
+///
+/// * `project` - The path to the project directory (relative or absolute).
+/// ** Defaults to the current directory if not provided.
+/// * `template_names` - A list of preset template names to initialize the project with.
+/// ** Defaults to the default TeX template if not provided.
+/// * `no_templates` - A flag indicating whether to skip initializing the templates.
+/// * `force` - A flag indicating whether to force initialization even if the project already exists.
+/// * `markdown_dir` - The path to the markdown directory.
+/// * `smart_clean` - A flag indicating whether to enable smart clean.
+/// * `smart_clean_threshold` - The threshold for smart clean.
+///
+/// # Returns
+///
+/// A Result containing either an error or nothing.
 pub fn init(
     project: Option<String>,
     template_names: Option<Vec<String>>,
@@ -117,6 +134,24 @@ fn get_template_mapping_for_preset(template: &String) -> Result<TemplateMapping>
     Ok(template)
 }
 
+/// Adds a new template to the TiefDown project.
+///
+/// # Arguments
+///
+/// * `project` - The path to the project directory (relative or absolute).
+/// ** Defaults to the current directory if not provided.
+/// * `template_name` - The name of the template to add.
+/// * `template_type` - The type of the template.
+/// * `template_file` - The path to the template file.
+/// * `output` - The output file for the template.
+/// * `filters` - A list of lua-filters to apply to the template.
+/// ** Can be either a file or directory.
+/// * `preprocessor` - The name of the preprocessor to use.
+/// * `processor` - The name of the processor to use.
+///
+/// # Returns
+///
+/// A Result containing either an error or nothing.
 pub fn add_template(
     project: Option<String>,
     template_name: String,
@@ -168,6 +203,17 @@ pub fn add_template(
     Ok(())
 }
 
+/// Removes a template from the TiefDown project.
+///
+/// # Arguments
+///
+/// * `project` - The path to the project directory (relative or absolute).
+/// ** Defaults to the current directory if not provided.
+/// * `template_name` - The name of the template to remove.
+///
+/// # Returns
+///
+/// A Result containing either an error or nothing.
 pub fn remove_template(project: Option<String>, template_name: String) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
@@ -208,6 +254,30 @@ pub fn remove_template(project: Option<String>, template_name: String) -> Result
     Ok(())
 }
 
+/// Updates a template in the TiefDown project.
+///
+/// # Arguments
+///
+/// * `project` - The path to the project directory (relative or absolute).
+/// ** Defaults to the current directory if not provided.
+/// * `template_name` - The name of the template to update.
+/// * `template_type` - The type of the template.
+/// ** It is advised to not update template types, but rather create a new template.
+/// * `template_file` - The path to the template file.
+/// * `output` - The output file for the template.
+/// * `filters` - A list of lua-filters to apply to the template.
+/// ** Can be either a file or directory.
+/// ** Overwrites existing filters!
+/// * `add_filters` - A list of lua-filters to add to the template.
+/// ** Can be either a file or directory.
+/// * `remove_filters` - A list of lua-filters to remove from the template.
+/// ** Can be either a file or directory.
+/// * `preprocessor` - The name of the preprocessor to use.
+/// * `processor` - The name of the processor to use.
+///
+/// # Returns
+///
+/// A Result containing either an error or nothing.
 pub fn update_template(
     project: Option<String>,
     template_name: String,
@@ -278,6 +348,18 @@ pub fn update_template(
     Ok(())
 }
 
+/// Updates the globally managed settings of a TiefDown project.
+///
+/// # Arguments
+///
+/// * `project` - The path to the project directory (relative or absolute).
+/// ** Defaults to the current directory if not provided.
+/// * `smart_clean` - Whether to enable smart cleaning.
+/// * `smart_clean_threshold` - The threshold for smart cleaning.
+///
+/// # Returns
+///
+/// A Result containing either an error or nothing.
 pub fn update_manifest(
     project: Option<String>,
     smart_clean: Option<bool>,
@@ -304,6 +386,18 @@ pub fn update_manifest(
     Ok(())
 }
 
+/// Adds a preprocessor to the project's manifest.
+///
+/// # Arguments
+///
+/// * `project` - The path to the project directory (relative or absolute).
+/// ** Defaults to the current directory if not provided.
+/// * `name` - The name of the preprocessor.
+/// * `pandoc_args` - The arguments for the preprocessor.
+///
+/// # Returns
+///
+/// A Result containing either an error or nothing.
 pub fn add_preprocessor(
     project: Option<String>,
     name: String,
@@ -324,6 +418,17 @@ pub fn add_preprocessor(
     Ok(())
 }
 
+/// Removes a preprocessor from the project's manifest.
+///
+/// # Arguments
+///
+/// * `project` - The path to the project directory (relative or absolute).
+/// ** Defaults to the current directory if not provided.
+/// * `name` - The name of the preprocessor to remove.
+///
+/// # Returns
+///
+/// A Result containing either an error or nothing.
 pub fn remove_preprocessor(project: Option<String>, name: String) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
@@ -348,6 +453,18 @@ pub fn remove_preprocessor(project: Option<String>, name: String) -> Result<()> 
     Ok(())
 }
 
+/// Adds a processor to the project's manifest.
+///
+/// # Arguments
+///
+/// * `project` - The path to the project directory (relative or absolute).
+/// ** Defaults to the current directory if not provided.
+/// * `name` - The name of the processor.
+/// * `processor_args` - The arguments for the processor.
+///
+/// # Returns
+///
+/// A Result containing either an error or nothing.
 pub fn add_processor(
     project: Option<String>,
     name: String,
@@ -371,6 +488,17 @@ pub fn add_processor(
     Ok(())
 }
 
+/// Removes a processor from the project's manifest.
+///
+/// # Arguments
+///
+/// * `project` - The path to the project directory (relative or absolute).
+/// ** Defaults to the current directory if not provided.
+/// * `name` - The name of the processor to remove.
+///
+/// # Returns
+///
+/// A Result containing either an error or nothing.
 pub fn remove_processor(project: Option<String>, name: String) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
@@ -395,6 +523,16 @@ pub fn remove_processor(project: Option<String>, name: String) -> Result<()> {
     Ok(())
 }
 
+/// Retrieves the list of processors from the project's manifest.
+///
+/// # Arguments
+///
+/// * `project` - The path to the project directory (relative or absolute).
+/// ** Defaults to the current directory if not provided.
+///
+/// # Returns
+///
+/// A Result containing either an error or a vector of Processor objects.
 pub fn get_processors(project: &Option<String>) -> Result<Vec<Processor>> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
@@ -405,6 +543,18 @@ pub fn get_processors(project: &Option<String>) -> Result<Vec<Processor>> {
     Ok(manifest.custom_processors.processors)
 }
 
+/// Adds a profile to the project's manifest.
+///
+/// # Arguments
+///
+/// * `project` - The path to the project directory (relative or absolute).
+/// ** Defaults to the current directory if not provided.
+/// * `name` - The name of the profile.
+/// * `templates` - A vector of template names.
+///
+/// # Returns
+///
+/// A Result containing either an error or nothing.
 pub fn add_profile(project: Option<String>, name: String, templates: Vec<String>) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
@@ -426,6 +576,17 @@ pub fn add_profile(project: Option<String>, name: String, templates: Vec<String>
     Ok(())
 }
 
+/// Removes a profile from the project's manifest.
+///
+/// # Arguments
+///
+/// * `project` - The path to the project directory (relative or absolute).
+/// ** Defaults to the current directory if not provided.
+/// * `name` - The name of the profile to remove.
+///
+/// # Returns
+///
+/// A Result containing either an error or nothing.
 pub fn remove_profile(project: Option<String>, name: String) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
@@ -449,6 +610,16 @@ pub fn remove_profile(project: Option<String>, name: String) -> Result<()> {
     Ok(())
 }
 
+/// Retrieves the list of templates from the project's manifest.
+///
+/// # Arguments
+///
+/// * `project` - The path to the project directory (relative or absolute).
+/// ** Defaults to the current directory if not provided.
+///
+/// # Returns
+///
+/// A Result containing either an error or a vector of TemplateMapping objects.
 pub fn get_templates(project: &Option<String>) -> Result<Vec<TemplateMapping>> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
@@ -459,6 +630,16 @@ pub fn get_templates(project: &Option<String>) -> Result<Vec<TemplateMapping>> {
     Ok(manifest.templates)
 }
 
+/// Retrieves the list of profiles from the project's manifest.
+///
+/// # Arguments
+///
+/// * `project` - The path to the project directory (relative or absolute).
+/// ** Defaults to the current directory if not provided.
+///
+/// # Returns
+///
+/// A Result containing either an error or a vector of Profile objects.
 pub fn get_profiles(project: &Option<String>) -> Result<Vec<Profile>> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
@@ -471,6 +652,16 @@ pub fn get_profiles(project: &Option<String>) -> Result<Vec<Profile>> {
     Ok(profiles.unwrap_or_default())
 }
 
+/// Retrieves the list of preprocessors from the project's manifest.
+///
+/// # Arguments
+///
+/// * `project` - The path to the project directory (relative or absolute).
+/// ** Defaults to the current directory if not provided.
+///
+/// # Returns
+///
+/// A Result containing either an error or a vector of PreProcessor objects.
 pub fn get_preprocessors(project: &Option<String>) -> Result<Vec<PreProcessor>> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
@@ -481,6 +672,19 @@ pub fn get_preprocessors(project: &Option<String>) -> Result<Vec<PreProcessor>> 
     Ok(manifest.custom_processors.preprocessors)
 }
 
+/// Validates a project's manifest.
+///
+/// # Arguments
+///
+/// * `project` - The path to the project directory (relative or absolute).
+/// ** Defaults to the current directory if not provided.
+///
+/// # Returns
+///
+/// A Result containing either an error or nothing.
+#[deprecated(
+    note = "This function is deprecated and will be removed in a future release. It's pointless and a maintenance nightmare."
+)]
 pub fn validate(project: Option<String>) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
@@ -572,6 +776,16 @@ pub fn validate(project: Option<String>) -> Result<()> {
     Ok(())
 }
 
+/// Cleans the project's output directories.
+///
+/// # Arguments
+///
+/// * `project` - The path to the project directory (relative or absolute).
+/// ** Defaults to the current directory if not provided.
+///
+/// # Returns
+///
+/// A Result containing either an error or nothing.
 pub fn clean(project: Option<String>) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
@@ -583,6 +797,12 @@ pub fn clean(project: Option<String>) -> Result<()> {
     Ok(())
 }
 
+/// Runs the smart clean operation on the project.
+///
+/// # Arguments
+///
+/// * `project` - The path to the project directory (relative or absolute).
+/// ** Defaults to the current directory if not provided.
 pub fn smart_clean(project: Option<String>) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
@@ -595,7 +815,10 @@ pub fn smart_clean(project: Option<String>) -> Result<()> {
     Ok(())
 }
 
-pub fn run_smart_clean(project_path: &std::path::Path, smart_clean_threshold: u32) -> Result<()> {
+pub(crate) fn run_smart_clean(
+    project_path: &std::path::Path,
+    smart_clean_threshold: u32,
+) -> Result<()> {
     debug!(
         "Running smart clean on project {} with threshold of {}.",
         project_path.display(),
@@ -632,6 +855,15 @@ pub fn run_smart_clean(project_path: &std::path::Path, smart_clean_threshold: u3
     Ok(())
 }
 
+/// Checks if the dependencies are installed.
+///
+/// # Arguments
+///
+/// * `dependencies` - A vector of strings representing the dependencies to check.
+///
+/// # Returns
+///
+/// A Result containing either an error or nothing.
 pub fn check_dependencies(dependencies: Vec<&str>) -> Result<()> {
     let mut errors = Vec::new();
 

@@ -197,7 +197,11 @@ A markdown project can have resources that are copied to the respective conversi
     },
     #[command(about = "List the templates in the project.")]
     ListTemplates,
-    #[command(about = "Validate the TiefDown project structure and metadata.")]
+    #[command(about = r#"Validate the TiefDown project structure and metadata.
+NOTE: This command is deprecated and will be removed in a future release. It's pointless and a maintenance nightmare."#)]
+    #[deprecated(
+        note = "This function is deprecated and will be removed in a future release. It's pointless and a maintenance nightmare."
+    )]
     Validate,
     #[command(about = "Clean temporary files from the TiefDown project.")]
     Clean,
