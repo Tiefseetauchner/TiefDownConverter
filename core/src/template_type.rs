@@ -1,16 +1,12 @@
+use color_eyre::eyre::{self, Result, eyre};
+use serde::{Deserialize, Serialize};
 use std::{
     fmt::{Display, Formatter},
     str::FromStr,
 };
 
-use clap::{
-    ValueEnum,
-    builder::{EnumValueParser, ValueParserFactory},
-};
-use color_eyre::eyre::{self, Result, eyre};
-use serde::{Deserialize, Serialize};
-
-#[derive(Deserialize, Serialize, Clone, Debug, PartialEq, Eq, ValueEnum)]
+/// The type of a template. Defines the conversion behavior of a template.
+#[derive(Deserialize, Serialize, Clone, Debug, PartialEq, Eq)]
 pub enum TemplateType {
     Tex = 0,
     Typst = 1,
@@ -65,13 +61,5 @@ impl Display for TemplateType {
             TemplateType::CustomPandoc => "CustomPandoc",
         };
         write!(f, "{}", text)
-    }
-}
-
-impl ValueParserFactory for TemplateType {
-    type Parser = EnumValueParser<Self>;
-
-    fn value_parser() -> Self::Parser {
-        EnumValueParser::new()
     }
 }

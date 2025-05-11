@@ -1,0 +1,39 @@
+[package]
+name = "tiefdownlib"
+description = "A library to manage and convert TiefDown projects."
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+readme.workspace = true
+license.workspace = true
+keywords = ["markdown", "pandoc", "document-conversion"]
+categories = ["text-processing"]
+
+[dependencies]
+chrono = "0.4.40"
+color-eyre = { version = "0.6", default-features = false }
+fs_extra = "1.3.0"
+regex = "1.11.1"
+serde = { version = "1.0.218", features = ["derive"] }
+toml = "0.8.20"
+reqwest = { version = "0.11", features = ["blocking"] }
+log = "0.4.27"
+colog = "1.3.0"
+env_logger = "0.11.8"
+
+[dev-dependencies]
+assert_cmd = "2.0.16"
+rstest = "0.25.0"
+tempfile = "3.19.0"
+predicates = "3.1.3"
+
+[build-dependencies]
+chrono = "0.4.40"
+
+[lib]
+name = "tiefdownlib"
+path = "src/lib.rs"
+crate-type = ["lib"]

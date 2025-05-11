@@ -1,42 +1,13 @@
-[package]
-name = "tiefdownconverter"
+[workspace]
+resolver = "3"
+members = ["core", "cli"]
+
+[workspace.package]
 version = "0.8.0-ALPHA"
-edition = "2024"
 authors = ["Lena Tauchner <tiefseetauchner@lukechriswalker.at>"]
-license = "MIT"
+edition = "2024"
 repository = "https://github.com/Tiefseetauchner/tiefdownconverter"
-homepage = "https://github.com/Tiefseetauchner/tiefdownconverter"
+homepage = "https://tiefseetauchner.github.io/TiefDownConverter/"
 documentation = "https://github.com/Tiefseetauchner/TiefDownConverter/blob/main/docs/docs.pdf"
-description = "A CLI tool to manage and convert Markdown-based projects."
 readme = "README.md"
-keywords = ["markdown", "pandoc", "cli", "document-conversion"]
-categories = ["command-line-utilities", "text-processing"]
-exclude = [".github/*", "target/*", ".vscode/*", "docs/*", "tools/*"]
-
-[dependencies]
-chrono = "0.4.40"
-clap = { version = "4.4", features = ["derive"] }
-color-eyre = { version = "0.6", default-features = false }
-fs_extra = "1.3.0"
-regex = "1.11.1"
-serde = { version = "1.0.218", features = ["derive"] }
-toml = "0.8.20"
-reqwest = { version = "0.11", features = ["blocking"] }
-clap_mangen = "0.2.26"
-log = "0.4.27"
-colog = "1.3.0"
-env_logger = "0.11.8"
-
-[dev-dependencies]
-assert_cmd = "2.0.16"
-rstest = "0.25.0"
-tempfile = "3.19.0"
-predicates = "3.1.3"
-
-[build-dependencies]
-chrono = "0.4.40"
-
-[lib]
-name = "tiefdownconverter"
-path = "src/lib.rs"
-crate-type = ["lib"]
+license = "MIT"

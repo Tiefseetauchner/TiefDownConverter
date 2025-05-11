@@ -1,3 +1,11 @@
+use crate::conversion_decider;
+use crate::manifest_model::Manifest;
+use crate::manifest_model::MarkdownProject;
+use crate::manifest_model::MetadataSettings;
+use crate::manifest_model::Processors;
+use crate::manifest_model::TemplateMapping;
+use crate::project_management::load_and_convert_manifest;
+use crate::project_management::run_smart_clean;
 use chrono::prelude::DateTime;
 use chrono::prelude::Utc;
 use color_eyre::eyre::Result;
@@ -11,16 +19,28 @@ use std::path::Path;
 use std::path::PathBuf;
 use toml::Table;
 
-use crate::conversion_decider;
-use crate::manifest_model::Manifest;
-use crate::manifest_model::MarkdownProject;
-use crate::manifest_model::MetadataSettings;
-use crate::manifest_model::Processors;
-use crate::manifest_model::TemplateMapping;
-use crate::project_management::load_and_convert_manifest;
-use crate::project_management::run_smart_clean;
-
-pub(crate) fn convert(
+/// Converts a TiefDown project to specified templates.
+///
+/// Runs the conversion process for all markdown projects in the project.
+///
+/// If no templates are specified, all templates are converted, a profile will be tried.
+///
+/// If no profile is specified, the default profile for the corresponding markdown project is used.
+///
+/// If no profile is specified and no default profile is available, all templates are converted.
+///
+/// # Arguments
+///
+/// * `project` - The path to the project directory (relative or absolute).
+/// ** Defaults to the current directory if not provided.
+/// * `templates` - A list of template names to convert to.
+/// ** Defaults to all templates if not provided.
+/// * `profile` - The name of the profile to use for conversion.
+///
+/// # Returns
+///
+/// A Result containing either an error or nothing.
+pub fn convert(
     project: Option<String>,
     templates: Option<Vec<String>>,
     profile: Option<String>,

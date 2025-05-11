@@ -1,15 +1,13 @@
+use crate::{
+    consts::POSSIBLE_TEMPLATES, manifest_model::TemplateMapping, template_type::TemplateType,
+};
+use color_eyre::eyre::{Result, eyre};
+use log::{debug, info, warn};
+use reqwest::blocking::get;
 use std::{
     fs,
     io::{self, Write},
     path::{Path, PathBuf},
-};
-
-use color_eyre::eyre::{Result, eyre};
-use log::{debug, info, warn};
-use reqwest::blocking::get;
-
-use crate::{
-    consts::POSSIBLE_TEMPLATES, manifest_model::TemplateMapping, template_type::TemplateType,
 };
 
 pub(crate) fn get_template_creator(
@@ -139,7 +137,7 @@ fn create_lix_luafilter(project_path: &Path) -> Result<()> {
     Ok(())
 }
 
-pub fn download_lix_files(template_dir: &Path) -> Result<()> {
+pub(crate) fn download_lix_files(template_dir: &Path) -> Result<()> {
     let lix_files = [
         "https://raw.githubusercontent.com/NicklasVraa/LiX/refs/heads/master/lix.sty",
         "https://raw.githubusercontent.com/NicklasVraa/LiX/refs/heads/master/classes/custom_classes/novel.cls",

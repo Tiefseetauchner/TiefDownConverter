@@ -1,13 +1,11 @@
-use std::path::{Path, PathBuf};
-
-use color_eyre::eyre::Result;
-use toml::Table;
-
 use crate::{
     converters,
     manifest_model::{MetadataSettings, Processors, TemplateMapping},
     template_type::TemplateType,
 };
+use color_eyre::eyre::Result;
+use std::path::{Path, PathBuf};
+use toml::Table;
 
 type Converter = fn(
     project_directory_path: &Path,
@@ -19,7 +17,7 @@ type Converter = fn(
     custom_processors: &Processors,
 ) -> Result<PathBuf>;
 
-pub fn get_converter(template_type: &TemplateType) -> Result<Converter> {
+pub(crate) fn get_converter(template_type: &TemplateType) -> Result<Converter> {
     Ok(match template_type {
         TemplateType::Tex => converters::convert_latex,
         TemplateType::Typst => converters::convert_typst,

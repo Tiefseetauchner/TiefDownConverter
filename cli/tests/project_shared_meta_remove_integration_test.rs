@@ -1,5 +1,5 @@
 use assert_cmd::Command;
-use predicates::prelude::{PredicateBooleanExt, predicate};
+use predicates::prelude::*;
 use rstest::rstest;
 use std::{
     fs,
@@ -26,47 +26,40 @@ fn create_empty_project(temp_dir: &Path) -> PathBuf {
     project_path
 }
 
-fn add_metadata(project_path: &Path, key: &str, value: &str) {
+#[rstest]
+fn test_remove_metadata() {
+    let temp_dir = tempdir().expect("Failed to create temporary directory");
+    let project_path = create_empty_project(&temp_dir.path());
+
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
         .arg("shared-meta")
         .arg("set")
-        .arg(key)
-        .arg(value)
+        .arg("author")
+        .arg("John Doe")
         .assert()
         .success();
-}
-
-#[rstest]
-fn test_list_metadata() {
-    let temp_dir = tempdir().expect("Failed to create temporary directory");
-    let project_path = create_empty_project(&temp_dir.path());
-
-    add_metadata(&project_path, "author", "John Doe");
-    add_metadata(&project_path, "title", "My Title");
-    add_metadata(&project_path, "date", "2025-03-27");
-    add_metadata(&project_path, "description", "This is a test project");
 
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
         .arg("shared-meta")
-        .arg("list")
+        .arg("remove")
+        .arg("author")
         .assert()
-        .success()
-        .stdout(
-            predicate::str::contains("author: \"John Doe\"")
-                .and(predicate::str::contains("title: \"My Title\""))
-                .and(predicate::str::contains("date: \"2025-03-27\""))
-                .and(predicate::str::contains(
-                    "description: \"This is a test project\"",
-                )),
-        );
+        .success();
+
+    let manifest_path = project_path.join("manifest.toml");
+    assert!(manifest_path.exists(), "Manifest file should exist");
+    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
+
+    assert_contains!(manifest_content, r#"[shared_metadata]"#);
+    assert_not_contains!(manifest_content, r#"author"#);
 }
 
 #[rstest]
-fn test_list_metadata_empty() {
+fn test_remove_non_existing_metadata() {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
     let project_path = create_empty_project(&temp_dir.path());
 
@@ -74,8 +67,21 @@ fn test_list_metadata_empty() {
     cmd.current_dir(&project_path)
         .arg("project")
         .arg("shared-meta")
-        .arg("list")
+        .arg("set")
+        .arg("other-field")
+        .arg("John Doe")
         .assert()
-        .success()
-        .stdout(predicate::str::contains("No shared metadata fields found."));
+        .success();
+
+    let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
+    cmd.current_dir(&project_path)
+        .arg("project")
+        .arg("shared-meta")
+        .arg("remove")
+        .arg("author")
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains(
+            "Metadata field 'author' not found.",
+        ));
 }

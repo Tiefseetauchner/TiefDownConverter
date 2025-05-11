@@ -1,0 +1,31 @@
+[package]
+name = "tiefdownconverter"
+description = "A CLI tool to manage and convert Markdown-based projects."
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+readme.workspace = true
+license.workspace = true
+keywords = ["markdown", "pandoc", "cli", "document-conversion"]
+categories = ["command-line-utilities", "text-processing"]
+
+[dependencies]
+clap = { version = "4.4", features = ["derive"] }
+color-eyre = { version = "0.6", default-features = false }
+log = "0.4.27"
+colog = "1.3.0"
+env_logger = "0.11.8"
+tiefdownlib = { path = "../core", version = "0.8.0-ALPHA"}
+
+[dev-dependencies]
+assert_cmd = "2.0.16"
+rstest = "0.25.0"
+tempfile = "3.19.0"
+predicates = "3.1.3"
+regex = "1.11.1"
+
+[build-dependencies]
+chrono = "0.4.40"

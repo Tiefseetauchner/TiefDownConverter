@@ -8,7 +8,9 @@
 
 ## Overview
 
-TiefDown Converter is a command-line tool designed to streamline the conversion of structured Markdown projects into various output formats, such as PDF, EPUB, and Typst-based documents. It simplifies the process by acting as a wrapper around Pandoc and XeTeX, enabling users to set up a project once and reproducibly generate multiple formats with a single command.
+TiefDownConverter is a command-line tool designed to streamline the conversion of structured Markdown projects into various output formats, such as PDF, EPUB, and Typst-based documents. It simplifies the process by acting as a wrapper around Pandoc and XeTeX, enabling users to set up a project once and reproducibly generate multiple formats with a single command.
+
+tiefdownconverter_core is the core library for tiefdownconverter - while it is seperated, it is recommended to use the command line tool.
 
 ### Why TiefDown?
 

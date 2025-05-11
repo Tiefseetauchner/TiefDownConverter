@@ -1,15 +1,27 @@
+use crate::{
+    consts::CURRENT_MANIFEST_VERSION, template_management::get_template_type_from_path,
+    template_type::TemplateType,
+};
 use color_eyre::eyre::{Result, eyre};
 use serde::{Deserialize, Serialize};
 use std::{path::PathBuf, sync::LazyLock};
 use toml::Table;
 
-use crate::{
-    consts::CURRENT_MANIFEST_VERSION, template_management::get_template_type_from_path,
-    template_type::TemplateType,
-};
-
+/// Represents the manifest file for a TiefDown project.
+///
+/// # Fields
+///
+/// * `version` - The version of the manifest file.
+/// * `markdown_projects` - A list of markdown projects in the project.
+/// * `templates` - A list of template mappings.
+/// * `custom_processors` - The custom processors and preprocessors available to the project.
+/// * `smart_clean` - A flag indicating whether to enable smart clean on conversion.
+/// * `smart_clean_threshold` - The threshold for smart clean.
+/// * `shared_metadata` - Metadata for the project shared across markdown projects.
+/// * `metadata_settings` - Metadata settings for the project.
+/// * `profiles` - A list of profiles for the project.
 #[derive(Deserialize, Serialize)]
-pub(crate) struct Manifest {
+pub struct Manifest {
     pub version: u32,
     pub markdown_projects: Option<Vec<MarkdownProject>>,
     pub templates: Vec<TemplateMapping>,
@@ -21,8 +33,20 @@ pub(crate) struct Manifest {
     pub profiles: Option<Vec<Profile>>,
 }
 
+/// Represents a markdown project in a TiefDown project.
+///
+/// Markdown projects are used to specify the location of markdown files and their associated output.
+///
+/// # Fields
+///
+/// * `name` - The name of the markdown project.
+/// * `path` - The path to the markdown directory.
+/// * `output` - The path to the output directory.
+/// * `metadata_fields` - Optional metadata fields specific to the markdown project.
+/// * `default_profile` - The name of the default profile to use for conversion.
+/// * `resources` - Optional resources to be copied alongside the combined markdown file.
 #[derive(Deserialize, Serialize, Clone)]
-pub(crate) struct MarkdownProject {
+pub struct MarkdownProject {
     pub name: String,
     pub path: PathBuf,
     pub output: PathBuf,
@@ -31,63 +55,125 @@ pub(crate) struct MarkdownProject {
     pub resources: Option<Vec<PathBuf>>,
 }
 
+/// Represents a metadata field when retrieving the metadata. This is not used for storing metadata.
+///
+/// # Fields
+///
+/// * `key` - The key of the metadata field.
+/// * `value` - The value of the metadata field.
+#[derive(Clone)]
+pub struct MetadataField {
+    pub key: String,
+    pub value: String,
+}
+
+/// DTO containing the custom processors and preprocessors available to the project.
+///
+/// # Fields
+///
+/// * `preprocessors` - A list of preprocessors.
+/// * `processors` - A list of processors.
 #[derive(Deserialize, Serialize, Clone)]
-pub(crate) struct Processors {
+pub struct Processors {
     pub preprocessors: Vec<PreProcessor>,
     pub processors: Vec<Processor>,
 }
 
+/// Represents preprocessors available to the project.
+///
+/// A preprocessor defines custom pandoc conversion arguments, replacing the default arguments.
+///
+/// # Fields
+///
+/// * `name` - The name of the preprocessor.
+/// * `pandoc_args` - The arguments passed to the pandoc conversion process.
 #[derive(Deserialize, Serialize, Clone)]
-pub(crate) struct PreProcessor {
+pub struct PreProcessor {
     pub name: String,
     pub pandoc_args: Vec<String>,
 }
 
+/// Represents processors available to the project.
+///
+/// A processor defines custom conversion arguments passed to the primary conversion process, supplementing the default arguments.
+///
+/// The primary conversion process is the process that processes the template. This could be XeLaTeX or Typst.
+///
+/// # Fields
+///
+/// * `name` - The name of the processor.
+/// * `processor_args` - The arguments passed to the processor.
 #[derive(Deserialize, Serialize, Clone)]
-pub(crate) struct Processor {
+pub struct Processor {
     pub name: String,
     pub processor_args: Vec<String>,
 }
 
-pub(crate) static DEFAULT_TEX_PREPROCESSOR: LazyLock<PreProcessor> =
-    LazyLock::new(|| PreProcessor {
-        name: "default_tex_preprocessor".to_string(),
-        pandoc_args: vec!["-o", "output.tex", "-t", "latex"]
-            .iter()
-            .map(|s| s.to_string())
-            .collect(),
-    });
+/// The default pandoc arguments for LaTeX conversion.
+pub static DEFAULT_TEX_PREPROCESSOR: LazyLock<PreProcessor> = LazyLock::new(|| PreProcessor {
+    name: "default_tex_preprocessor".to_string(),
+    pandoc_args: vec!["-o", "output.tex", "-t", "latex"]
+        .iter()
+        .map(|s| s.to_string())
+        .collect(),
+});
 
-pub(crate) static DEFAULT_TYPST_PREPROCESSOR: LazyLock<PreProcessor> =
-    LazyLock::new(|| PreProcessor {
-        name: "default_typst_preprocessor".to_string(),
-        pandoc_args: vec!["-o", "output.typ", "-t", "typst"]
-            .iter()
-            .map(|s| s.to_string())
-            .collect(),
-    });
+/// The default pandoc arguments for Typst conversion.
+pub static DEFAULT_TYPST_PREPROCESSOR: LazyLock<PreProcessor> = LazyLock::new(|| PreProcessor {
+    name: "default_typst_preprocessor".to_string(),
+    pandoc_args: vec!["-o", "output.typ", "-t", "typst"]
+        .iter()
+        .map(|s| s.to_string())
+        .collect(),
+});
 
+/// Represents the settings for metadata in the project.
+///
+/// # Fields
+///
+/// * `metadata_prefix` - The prefix to use for metadata fields.
+/// ** This is used for defining the LaTeX macro and the name of the typst object containing the metadata.
 #[derive(Deserialize, Serialize, Clone)]
-pub(crate) struct MetadataSettings {
+pub struct MetadataSettings {
     pub metadata_prefix: Option<String>,
 }
 
 impl MetadataSettings {
-    pub(crate) fn default() -> Self {
+    pub fn default() -> Self {
         Self {
             metadata_prefix: None,
         }
     }
 }
 
+/// Represents a conversion profile for the project.
+///
+/// Profiles are used to specify which templates to use for conversion. These can also be used for markdown projects.
+///
+/// # Fields
+///
+/// * `name` - The name of the profile.
+/// * `templates` - A list of templates to use for conversion.
 #[derive(Deserialize, Serialize, Clone)]
-pub(crate) struct Profile {
+pub struct Profile {
     pub name: String,
     pub templates: Vec<String>,
 }
 
+/// Represents a template in the project.
+///
+/// # Fields
+///
+/// * `name` - The name of the template.
+/// * `template_type` - The type of template.
+/// * `template_file` - The path to the template file relative to the template directory.
+/// * `output` - The path to the output file relative to the markdown project conversion directory.
+/// * `filters` - A list of lua filters to apply to the template.
+/// ** Can be a file or a directory.
+/// * `preprocessor` - The name of the preprocessor to use for the template.
+/// * `processor` - The name of the processor to use for the template.
 #[derive(Deserialize, Serialize, Clone)]
-pub(crate) struct TemplateMapping {
+pub struct TemplateMapping {
     pub name: String,
     pub template_type: TemplateType,
     pub template_file: Option<PathBuf>,

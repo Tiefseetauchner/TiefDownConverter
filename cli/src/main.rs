@@ -5,20 +5,15 @@ use color_eyre::eyre::{Result, eyre};
 use env_logger::fmt::Formatter;
 use log::Level;
 use std::io::Write;
+use tiefdownlib::{
+    consts, conversion, markdown_project_management, metadata_management, project_management,
+};
 
 mod cli;
-mod consts;
-mod conversion;
-mod conversion_decider;
-mod converters;
-mod manifest_model;
-mod markdown_project_management;
-mod metadata_management;
-mod project_management;
-mod template_management;
-mod template_type;
+mod cli_template_type;
+mod project_commands;
 
-pub struct CustomLoggingStyle;
+pub(crate) struct CustomLoggingStyle;
 
 impl CologStyle for CustomLoggingStyle {
     fn prefix_token(&self, level: &Level) -> String {
@@ -102,7 +97,7 @@ fn main() -> Result<()> {
                 } => project_management::add_template(
                     project,
                     template,
-                    template_type,
+                    template_type.map(|t| t.into()),
                     template_file,
                     output,
                     filters,
@@ -129,7 +124,7 @@ fn main() -> Result<()> {
                     project_management::update_template(
                         project,
                         template,
-                        template_type,
+                        template_type.map(|t| t.into()),
                         template_file,
                         output,
                         filters,
@@ -151,7 +146,7 @@ fn main() -> Result<()> {
                 PreProcessorsCommands::Remove { name } => {
                     project_management::remove_preprocessor(project, name)?
                 }
-                PreProcessorsCommands::List => project_management::list_preprocessors(project)?,
+                PreProcessorsCommands::List => project_commands::list_preprocessors(project)?,
             },
             ProjectCommands::Processors { command } => match command {
                 ProcessorsCommands::Add {
@@ -161,7 +156,7 @@ fn main() -> Result<()> {
                 ProcessorsCommands::Remove { name } => {
                     project_management::remove_processor(project, name)?
                 }
-                ProcessorsCommands::List => project_management::list_processors(project)?,
+                ProcessorsCommands::List => project_commands::list_processors(project)?,
             },
             ProjectCommands::Profiles { command } => match command {
                 ProfilesCommands::Add { name, templates } => {
@@ -170,7 +165,7 @@ fn main() -> Result<()> {
                 ProfilesCommands::Remove { name } => {
                     project_management::remove_profile(project, name)?
                 }
-                ProfilesCommands::List => project_management::list_profiles(project)?,
+                ProfilesCommands::List => project_commands::list_profiles(project)?,
             },
             ProjectCommands::SharedMeta { command } => match command {
                 ManageMetadataCommand::Set { key, value } => {
@@ -179,7 +174,7 @@ fn main() -> Result<()> {
                 ManageMetadataCommand::Remove { key } => {
                     metadata_management::remove_metadata(project, key)?
                 }
-                ManageMetadataCommand::List => metadata_management::list_metadata(project)?,
+                ManageMetadataCommand::List => project_commands::list_shared_metadata(project)?,
             },
             ProjectCommands::Markdown { command } => match command {
                 ManageMarkdownProjectsCommand::Add {
@@ -217,7 +212,7 @@ fn main() -> Result<()> {
                         markdown_project_management::remove_metadata(project, name, key)?
                     }
                     ManageMetadataCommand::List => {
-                        markdown_project_management::list_metadata(project, name)?
+                        project_commands::list_markdown_project_metadata(project, name)?
                     }
                 },
                 ManageMarkdownProjectsCommand::Resources { name, command } => match command {
@@ -228,14 +223,14 @@ fn main() -> Result<()> {
                         markdown_project_management::remove_resource(project, name, path)?
                     }
                     ManageResourcesCommand::List => {
-                        markdown_project_management::list_resources(project, name)?
+                        project_commands::list_resources(project, name)?
                     }
                 },
                 ManageMarkdownProjectsCommand::List => {
-                    markdown_project_management::list_markdown_projects(project)?
+                    project_commands::list_markdown_projects(project)?
                 }
             },
-            ProjectCommands::ListTemplates => project_management::list_templates(project)?,
+            ProjectCommands::ListTemplates => project_commands::list_templates(project)?,
             ProjectCommands::Validate => project_management::validate(project)?,
             ProjectCommands::Clean => project_management::clean(project)?,
             ProjectCommands::SmartClean => project_management::smart_clean(project)?,

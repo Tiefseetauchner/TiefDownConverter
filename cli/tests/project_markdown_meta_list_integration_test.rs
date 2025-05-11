@@ -1,5 +1,5 @@
 use assert_cmd::Command;
-use predicates::prelude::predicate;
+use predicates::prelude::{PredicateBooleanExt, predicate};
 use rstest::rstest;
 use std::{
     fs,
@@ -54,7 +54,7 @@ fn add_metadata_to_project(project_path: &Path, name: &str, key: &str, value: &s
 }
 
 #[rstest]
-fn test_markdown_meta_remove() {
+fn test_markdown_meta_list() {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
     let project_path = create_empty_project(&temp_dir.path());
 
@@ -69,57 +69,21 @@ fn test_markdown_meta_remove() {
         .arg("markdown")
         .arg("meta")
         .arg("main")
-        .arg("remove")
-        .arg("title")
+        .arg("list")
         .assert()
-        .success();
-
-    let manifest_path = project_path.join("manifest.toml");
-    assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(
-        manifest_content,
-        r#"[[markdown_projects]]
-name = "main"
-path = "Markdown"
-output = "."
-
-[markdown_projects.metadata_fields]
-description = "A description"
-"#
-    );
-
-    assert_not_contains!(manifest_content, r#"title = "My Project""#);
+        .success()
+        .stdout(
+            predicate::str::contains("title=\"My Project\"")
+                .and(predicate::str::contains("description=\"A description\"")),
+        );
 }
 
 #[rstest]
-fn test_markdown_meta_remove_invalid_project() {
-    let temp_dir = tempdir().expect("Failed to create temporary directory");
-    let project_path = create_empty_project(&temp_dir.path());
-
-    let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
-    cmd.current_dir(&project_path)
-        .arg("project")
-        .arg("markdown")
-        .arg("meta")
-        .arg("invalid")
-        .arg("remove")
-        .arg("title")
-        .assert()
-        .failure()
-        .stderr(predicate::str::contains(
-            "Markdown project with name 'invalid' does not exist.",
-        ));
-}
-
-#[rstest]
-fn test_markdown_meta_remove_invalid_field() {
+fn test_markdown_meta_list_no_metadata() {
     let temp_dir = tempdir().expect("Failed to create temporary directory");
     let project_path = create_empty_project(&temp_dir.path());
 
     add_markdown_project(&project_path, "main");
-    add_metadata_to_project(&project_path, "main", "title", "My Project");
 
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
@@ -127,11 +91,10 @@ fn test_markdown_meta_remove_invalid_field() {
         .arg("markdown")
         .arg("meta")
         .arg("main")
-        .arg("remove")
-        .arg("invalid")
+        .arg("list")
         .assert()
-        .failure()
-        .stderr(predicate::str::contains(
-            "Metadata field 'invalid' not found.",
+        .success()
+        .stdout(predicate::str::contains(
+            "No metadata found for project main.",
         ));
 }
