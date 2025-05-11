@@ -73,8 +73,8 @@ fn test_markdown_meta_list() {
         .assert()
         .success()
         .stdout(
-            predicate::str::contains("title: \"My Project\"")
-                .and(predicate::str::contains("description: \"A description\"")),
+            predicate::str::contains("title=\"My Project\"")
+                .and(predicate::str::contains("description=\"A description\"")),
         );
 }
 
@@ -94,5 +94,7 @@ fn test_markdown_meta_list_no_metadata() {
         .arg("list")
         .assert()
         .success()
-        .stdout(predicate::str::contains("No metadata fields found."));
+        .stdout(predicate::str::contains(
+            "No metadata found for project main.",
+        ));
 }

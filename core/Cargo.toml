@@ -1,5 +1,5 @@
 [package]
-name = "tiefdownconverter"
+name = "tiefdownconverter_core"
 description = "A library to manage and convert TiefDown projects."
 version.workspace = true
 authors.workspace = true

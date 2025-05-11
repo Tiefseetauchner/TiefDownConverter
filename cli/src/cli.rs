@@ -1,7 +1,7 @@
 use clap::{Parser, Subcommand, builder::PossibleValuesParser, command};
 use std::path::PathBuf;
 
-use crate::{consts::POSSIBLE_TEMPLATES, cli_template_type::CliTemplateType};
+use crate::{cli_template_type::CliTemplateType, consts::POSSIBLE_TEMPLATES};
 
 #[derive(Parser)]
 #[command(
@@ -239,18 +239,18 @@ Available preset templates are: {}"#, POSSIBLE_TEMPLATES.join(", "))
         )]
         output: Option<PathBuf>,
         #[arg(
-            long, 
-            help = "The luafilters to use for pandoc conversion of this templates markdown.", 
+            long,
+            help = "The luafilters to use for pandoc conversion of this templates markdown.",
             long_help = r#"The luafilters to use for pandoc conversion of this templates markdown.
 Luafilters are lua scripts applied during the pandoc conversion.
 You can add a folder or a filename. If adding a folder, it will be traversed recursively, and any .lua file will be added.
 See the pandoc documentation and 'Writing filters' of the TiefDownConverter documentation for more details."#,
-            num_args = 1.., 
+            num_args = 1..,
             value_delimiter = ','
         )]
         filters: Option<Vec<String>>,
         #[arg(
-            long, 
+            long,
             help = "The preprocessor to use for this template.",
             long_help = r#"The preprocessor to use for this template.
 A preprocessor defines the arguments passed to the pandoc conversion from markdown.
@@ -261,7 +261,7 @@ Preprocessors are incompatible with epub conversion. Use processors instead."#
         )]
         preprocessor: Option<String>,
         #[arg(
-            long, 
+            long,
             help = "The processor to use for this template.",
             long_help = r#"The processor to use for this template.
 A processor defines additional arguments passed to the conversion command.
@@ -293,10 +293,10 @@ Changing this is not recommended, as it is highly unlikely the type and only the
         output: Option<PathBuf>,
         #[arg(
             long,
-            help = "The luafilters to use for pandoc conversion of this templates markdown.", 
+            help = "The luafilters to use for pandoc conversion of this templates markdown.",
             long_help = r#"The luafilters to use for pandoc conversion of this templates markdown.
 This replaces all existing filters."#,
-            num_args = 1.., 
+            num_args = 1..,
             value_delimiter = ','
         )]
         filters: Option<Vec<String>>,
@@ -319,7 +319,7 @@ This removes the filter from the existing filters."#,
         )]
         remove_filters: Option<Vec<String>>,
         #[arg(
-            long, 
+            long,
             help = "The preprocessor to use for this template.",
             long_help = r#"The preprocessor to use for this template.
 A preprocessor defines the arguments passed to the pandoc conversion from markdown.
@@ -330,7 +330,7 @@ Preprocessors are incompatible with epub conversion. Use processors instead."#
         )]
         preprocessor: Option<String>,
         #[arg(
-            long, 
+            long,
             help = "The processor to use for this template.",
             long_help = r#"The processor to use for this template.
 A processor defines additional arguments passed to the conversion command.
@@ -380,9 +380,7 @@ pub enum ProcessorsCommands {
 
 #[derive(Subcommand)]
 pub enum ProfilesCommands {
-    #[command(
-        about = "Add a new conversion profile to the project.",
-    )]
+    #[command(about = "Add a new conversion profile to the project.")]
     Add {
         #[arg(help = "The name of the profile to create.")]
         name: String,

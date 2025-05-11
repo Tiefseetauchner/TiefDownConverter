@@ -90,5 +90,5 @@ fn test_list_templates_empty() {
         .arg("list-templates")
         .assert()
         .success()
-        .stdout(predicate::str::is_empty());
+        .stdout(predicate::str::contains("No templates found."));
 }

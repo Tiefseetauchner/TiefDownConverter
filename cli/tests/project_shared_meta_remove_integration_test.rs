@@ -67,6 +67,16 @@ fn test_remove_non_existing_metadata() {
     cmd.current_dir(&project_path)
         .arg("project")
         .arg("shared-meta")
+        .arg("set")
+        .arg("other-field")
+        .arg("John Doe")
+        .assert()
+        .success();
+
+    let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
+    cmd.current_dir(&project_path)
+        .arg("project")
+        .arg("shared-meta")
         .arg("remove")
         .arg("author")
         .assert()

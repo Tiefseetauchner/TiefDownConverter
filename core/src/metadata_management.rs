@@ -11,8 +11,7 @@ pub fn set_metadata(project: Option<String>, key: String, value: String) -> Resu
 
     manifest
         .shared_metadata
-        .as_mut()
-        .unwrap_or(&mut Table::new())
+        .get_or_insert_with(&mut || Table::new())
         .insert(key, Value::String(value));
 
     let manifest_content = toml::to_string(&manifest)?;

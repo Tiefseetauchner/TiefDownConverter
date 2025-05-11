@@ -56,7 +56,7 @@ pub(crate) fn list_shared_metadata(project: Option<String>) -> Result<()> {
     let metadata = metadata_management::get_metadata(&project)?;
 
     if metadata.is_empty() {
-        info!("No metadata found.");
+        info!("No shared metadata fields found.");
         return Ok(());
     }
 

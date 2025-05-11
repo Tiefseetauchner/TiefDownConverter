@@ -132,6 +132,6 @@ fn test_markdown_meta_remove_invalid_field() {
         .assert()
         .failure()
         .stderr(predicate::str::contains(
-            "Metadata field 'invalid' not found.",
+            "Metadata field 'invalid' does not exist in project 'main'.",
         ));
 }

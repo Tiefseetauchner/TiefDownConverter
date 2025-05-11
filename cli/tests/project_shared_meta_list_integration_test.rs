@@ -56,11 +56,11 @@ fn test_list_metadata() {
         .assert()
         .success()
         .stdout(
-            predicate::str::contains("author: \"John Doe\"")
-                .and(predicate::str::contains("title: \"My Title\""))
-                .and(predicate::str::contains("date: \"2025-03-27\""))
+            predicate::str::contains("author=\"John Doe\"")
+                .and(predicate::str::contains("title=\"My Title\""))
+                .and(predicate::str::contains("date=\"2025-03-27\""))
                 .and(predicate::str::contains(
-                    "description: \"This is a test project\"",
+                    "description=\"This is a test project\"",
                 )),
         );
 }

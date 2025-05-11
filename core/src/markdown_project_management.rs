@@ -132,8 +132,7 @@ pub fn set_metadata(
 
     project
         .metadata_fields
-        .as_mut()
-        .unwrap_or(&mut Table::new())
+        .get_or_insert_with(Table::new)
         .insert(key, Value::String(value));
 
     manifest.markdown_projects = Some(markdown_projects);
@@ -159,7 +158,15 @@ pub fn remove_metadata(project: Option<String>, name: String, key: String) -> Re
         .ok_or_else(|| eyre!("Markdown project with name '{}' does not exist.", name))?;
 
     if let Some(metadata_fields) = &mut project.metadata_fields {
-        metadata_fields.retain(|k, _| k != &key);
+        let removed = metadata_fields.remove(&key);
+
+        if removed.is_none() {
+            return Err(eyre!(
+                "Metadata field '{}' does not exist in project '{}'.",
+                key,
+                name
+            ));
+        }
     }
 
     manifest.markdown_projects = Some(markdown_projects);

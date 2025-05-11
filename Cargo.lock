@@ -1449,6 +1449,24 @@ version = "0.8.0-ALPHA"
 dependencies = [
  "assert_cmd",
  "chrono",
+ "clap",
+ "colog",
+ "color-eyre",
+ "env_logger",
+ "log",
+ "predicates",
+ "regex",
+ "rstest",
+ "tempfile",
+ "tiefdownconverter_core",
+]
+
+[[package]]
+name = "tiefdownconverter_core"
+version = "0.8.0-ALPHA"
+dependencies = [
+ "assert_cmd",
+ "chrono",
  "colog",
  "color-eyre",
  "env_logger",
@@ -1461,24 +1479,6 @@ dependencies = [
  "serde",
  "tempfile",
  "toml",
-]
-
-[[package]]
-name = "tiefdownconverter-cli"
-version = "0.8.0-ALPHA"
-dependencies = [
- "assert_cmd",
- "chrono",
- "clap",
- "colog",
- "color-eyre",
- "env_logger",
- "log",
- "predicates",
- "regex",
- "rstest",
- "tempfile",
- "tiefdownconverter",
 ]
 
 [[package]]
