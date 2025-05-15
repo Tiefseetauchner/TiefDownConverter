@@ -1,17 +1,17 @@
 Documentation for the basic concepts of TiefDown.
 
-- [ ] Conversion folders
-- [ ] Templates
-  - [ ] LaTeX Templates
-  - [ ] Typst Templates
-  - [ ] EPUB Templates
+- [x] Conversion folders
+- [x] Templates
+  - [x] LaTeX Templates
+  - [x] Typst Templates
+  - [x] EPUB Templates
 - [ ] Profiles
 - [ ] Smart Clean
 
 Advanced Concepts
 
-- [ ] Advanced templating
-  - [ ] Custom Pandoc Conversion
+- [x] Advanced templating
+  - [x] Custom Pandoc Conversion
 - [ ] Lua Filters
 - [ ] Markdown projects
   - [ ] Custom resources
