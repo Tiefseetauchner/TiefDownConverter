@@ -25,6 +25,12 @@ output = "cli"
 path = "cli_markdown"
 
 [[markdown_projects]]
+default_profile = "Documentation"
+name = "LIB Docs"
+output = "lib"
+path = "lib_markdown"
+
+[[markdown_projects]]
 default_profile = "Man"
 name = "man"
 output = "man"
