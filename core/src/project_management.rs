@@ -865,6 +865,20 @@ pub(crate) fn run_smart_clean(
 ///
 /// A Result containing either an error or nothing.
 pub fn check_dependencies(dependencies: Vec<&str>) -> Result<()> {
+    let errors = get_missing_dependencies(dependencies)?;
+
+    if !errors.is_empty() {
+        for error in errors {
+            error!("{}", error);
+        }
+        return Err(eyre!("Some dependencies are missing."));
+    }
+
+    info!("All dependencies are installed.");
+    Ok(())
+}
+
+pub(crate) fn get_missing_dependencies(dependencies: Vec<&str>) -> Result<Vec<String>> {
     let mut errors = Vec::new();
 
     for dependency in dependencies {
@@ -879,15 +893,7 @@ pub fn check_dependencies(dependencies: Vec<&str>) -> Result<()> {
         }
     }
 
-    if !errors.is_empty() {
-        for error in errors {
-            error!("{}", error);
-        }
-        return Err(eyre!("Some dependencies are missing."));
-    }
-
-    info!("All dependencies are installed.");
-    Ok(())
+    Ok(errors)
 }
 
 pub(crate) fn load_and_convert_manifest(manifest_path: &std::path::PathBuf) -> Result<Manifest> {

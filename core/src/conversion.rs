@@ -4,6 +4,7 @@ use crate::manifest_model::MarkdownProject;
 use crate::manifest_model::MetadataSettings;
 use crate::manifest_model::Processors;
 use crate::manifest_model::TemplateMapping;
+use crate::project_management::get_missing_dependencies;
 use crate::project_management::load_and_convert_manifest;
 use crate::project_management::run_smart_clean;
 use chrono::prelude::DateTime;
@@ -13,7 +14,9 @@ use color_eyre::eyre::eyre;
 use fs_extra::dir;
 use fs_extra::file;
 use log::debug;
+use log::error;
 use log::info;
+use log::warn;
 use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
@@ -45,6 +48,22 @@ pub fn convert(
     templates: Option<Vec<String>>,
     profile: Option<String>,
 ) -> Result<()> {
+    let pandoc_errors = get_missing_dependencies(vec!["pandoc"])?;
+
+    if !pandoc_errors.is_empty() {
+        error!("{}", pandoc_errors.join("\n"));
+        return Err(eyre!("Pandoc is not installed or not in the PATH."));
+    }
+
+    let other_dependencies = get_missing_dependencies(vec!["xelatex", "typst"])?;
+
+    if !other_dependencies.is_empty() {
+        warn!("{}", other_dependencies.join("\n"));
+        warn!(
+            "Some dependencies are missing. Some features may not work, and conversion may fail."
+        );
+    }
+
     let project = project.unwrap_or_else(|| ".".to_string());
     let project_path = Path::new(&project);
 
