@@ -1,6 +1,6 @@
 ## `tiefdownconverter init` {#init}
 
-**Version:** `tiefdownconverter 0.8.0-ALPHA`
+**Version:** `tiefdownconverter 0.8.0`
 
 ### Usage:
 ```
@@ -20,6 +20,9 @@ Options:
           
           
           [possible values: template.tex, booklet.tex, lix_novel_a4.tex, lix_novel_book.tex, template_typ.typ, default_epub]
+
+  -v, --verbose
+          Enable verbose output.
 
   -n, --no-templates
           Do not include the default templates. You will need to add templates manually with Update

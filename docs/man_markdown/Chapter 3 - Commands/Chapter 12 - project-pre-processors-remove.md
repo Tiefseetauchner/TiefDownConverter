@@ -3,12 +3,13 @@
 ```
 Remove a preprocessor from the project.
 
-Usage: tiefdownconverter project pre-processors remove <NAME>
+Usage: tiefdownconverter project pre-processors remove [OPTIONS] <NAME>
 
 Arguments:
   <NAME>  The name of the preprocessor to remove.
 
 Options:
-  -h, --help  Print help
+  -v, --verbose  Enable verbose output.
+  -h, --help     Print help
 ```
 

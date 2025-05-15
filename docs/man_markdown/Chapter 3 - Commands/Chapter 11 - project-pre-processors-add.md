@@ -3,13 +3,14 @@
 ```
 Add a new preprocessor to the project.
 
-Usage: tiefdownconverter project pre-processors add <NAME> [-- <PANDOC_ARGS>...]
+Usage: tiefdownconverter project pre-processors add [OPTIONS] <NAME> [-- <PANDOC_ARGS>...]
 
 Arguments:
   <NAME>            The name of the preprocessor to create.
   [PANDOC_ARGS]...  The arguments to pass to the preprocessor.
 
 Options:
-  -h, --help  Print help
+  -v, --verbose  Enable verbose output.
+  -h, --help     Print help
 ```
 

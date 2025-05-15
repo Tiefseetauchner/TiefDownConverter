@@ -1,14 +1,15 @@
 ## `tiefdownconverter project templates remove` {#projecttemplatesremove}
 
-**Version:** `tiefdownconverter 0.8.0-ALPHA`
+**Version:** `tiefdownconverter 0.8.0`
 
 ### Usage:
 ```
 Remove a template from the project.
 
-Usage: tiefdownconverter project templates <TEMPLATE> remove
+Usage: tiefdownconverter project templates <TEMPLATE> remove [OPTIONS]
 
 Options:
-  -h, --help  Print help
+  -v, --verbose  Enable verbose output.
+  -h, --help     Print help
 ```
 

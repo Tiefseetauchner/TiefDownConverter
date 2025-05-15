@@ -3,9 +3,10 @@
 ```
 Validate dependencies are installed.
 
-Usage: tiefdownconverter check-dependencies
+Usage: tiefdownconverter check-dependencies [OPTIONS]
 
 Options:
-  -h, --help  Print help
+  -v, --verbose  Enable verbose output.
+  -h, --help     Print help
 ```
 

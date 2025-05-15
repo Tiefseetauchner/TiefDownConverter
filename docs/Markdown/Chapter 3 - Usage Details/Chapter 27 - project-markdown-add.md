@@ -1,6 +1,6 @@
 ## `tiefdownconverter project markdown add` {#projectmarkdownadd}
 
-**Version:** `tiefdownconverter 0.8.0-ALPHA`
+**Version:** `tiefdownconverter 0.8.0`
 
 ### Usage:
 ```
@@ -15,6 +15,7 @@ Arguments:
 
 Options:
       --default-profile <DEFAULT_PROFILE>  The default profile to use for converting this project.
+  -v, --verbose                            Enable verbose output.
   -h, --help                               Print help
 ```
 

@@ -1,14 +1,15 @@
 ## `tiefdownconverter check-dependencies` {#check-dependencies}
 
-**Version:** `tiefdownconverter 0.8.0-ALPHA`
+**Version:** `tiefdownconverter 0.8.0`
 
 ### Usage:
 ```
 Validate dependencies are installed.
 
-Usage: tiefdownconverter check-dependencies
+Usage: tiefdownconverter check-dependencies [OPTIONS]
 
 Options:
-  -h, --help  Print help
+  -v, --verbose  Enable verbose output.
+  -h, --help     Print help
 ```
 

@@ -8,7 +8,7 @@ Preprocessors replace all arguments. Thus, with preprocessors, you need to defin
 For templates, that is the file imported by the template.
 Preprocessors are incompatible with epub conversion. Use processors instead.
 
-Usage: tiefdownconverter project pre-processors <COMMAND>
+Usage: tiefdownconverter project pre-processors [OPTIONS] <COMMAND>
 
 Commands:
   add     Add a new preprocessor to the project.
@@ -17,6 +17,9 @@ Commands:
   help    Print this message or the help of the given subcommand(s)
 
 Options:
+  -v, --verbose
+          Enable verbose output.
+
   -h, --help
           Print help (see a summary with '-h')
 ```

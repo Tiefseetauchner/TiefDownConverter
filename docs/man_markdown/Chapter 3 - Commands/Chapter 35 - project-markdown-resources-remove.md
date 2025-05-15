@@ -3,12 +3,13 @@
 ```
 Remove a resource from the project.
 
-Usage: tiefdownconverter project markdown resources <NAME> remove <PATH>
+Usage: tiefdownconverter project markdown resources <NAME> remove [OPTIONS] <PATH>
 
 Arguments:
   <PATH>  The path to the resource.
 
 Options:
-  -h, --help  Print help
+  -v, --verbose  Enable verbose output.
+  -h, --help     Print help
 ```
 

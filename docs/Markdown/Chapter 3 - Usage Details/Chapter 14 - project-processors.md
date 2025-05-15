@@ -1,6 +1,6 @@
 ## `tiefdownconverter project processors` {#projectprocessors}
 
-**Version:** `tiefdownconverter 0.8.0-ALPHA`
+**Version:** `tiefdownconverter 0.8.0`
 
 ### Usage:
 ```
@@ -10,7 +10,7 @@ For LaTeX and typst templates, this allows extending the respective conversion p
 For epub templates, this allows adding custom pandoc parameters.
 Processors are incompatible with CustomPandoc conversions. Use preprocessors instead.
 
-Usage: tiefdownconverter project processors <COMMAND>
+Usage: tiefdownconverter project processors [OPTIONS] <COMMAND>
 
 Commands:
   add     Add a new processor to the project.
@@ -19,6 +19,9 @@ Commands:
   help    Print this message or the help of the given subcommand(s)
 
 Options:
+  -v, --verbose
+          Enable verbose output.
+
   -h, --help
           Print help (see a summary with '-h')
 ```

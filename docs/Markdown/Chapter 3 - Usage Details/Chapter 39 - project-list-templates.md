@@ -1,14 +1,15 @@
 ## `tiefdownconverter project list-templates` {#projectlist-templates}
 
-**Version:** `tiefdownconverter 0.8.0-ALPHA`
+**Version:** `tiefdownconverter 0.8.0`
 
 ### Usage:
 ```
 List the templates in the project.
 
-Usage: tiefdownconverter project list-templates
+Usage: tiefdownconverter project list-templates [OPTIONS]
 
 Options:
-  -h, --help  Print help
+  -v, --verbose  Enable verbose output.
+  -h, --help     Print help
 ```
 

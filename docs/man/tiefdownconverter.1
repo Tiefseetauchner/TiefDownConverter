@@ -86,6 +86,7 @@ Usage: tiefdownconverter convert [OPTIONS]
 
 Options:
   \-p, \-\-project <PROJECT>         The project to convert. If not provided, the current directory will be used.
+  \-v, \-\-verbose                   Enable verbose output.
   \-t, \-\-templates <TEMPLATES>...  The templates to use. If not provided, the default templates from the manifest file will be used. Cannot be used with \-\-profile.
   \-P, \-\-profile <PROFILE>         The conversion profile to use. Cannot be used with \-\-templates.
   \-h, \-\-help                      Print help
@@ -109,6 +110,9 @@ Options:
           
           
           [possible values: template.tex, booklet.tex, lix_novel_a4.tex, lix_novel_book.tex, template_typ.typ, default_epub]
+
+  \-v, \-\-verbose
+          Enable verbose output.
 
   \-n, \-\-no\-templates
           Do not include the default templates. You will need to add templates manually with Update
@@ -135,7 +139,7 @@ Options:
 .EX
 Update the TiefDown project.
 
-Usage: tiefdownconverter project [PROJECT] <COMMAND>
+Usage: tiefdownconverter project [OPTIONS] [PROJECT] <COMMAND>
 
 Commands:
   templates        Add or modify templates in the project.
@@ -147,6 +151,7 @@ Commands:
   markdown         Manage the markdown projects of the project.
   list\-templates   List the templates in the project.
   validate         Validate the TiefDown project structure and metadata.
+                   NOTE: This command is deprecated and will be removed in a future release. It\[aq]s pointless and a maintenance nightmare.
   clean            Clean temporary files from the TiefDown project.
   smart\-clean      Clean temporary files from the TiefDown project, leaving only the threshold amount of folders.
   help             Print this message or the help of the given subcommand(s)
@@ -155,7 +160,8 @@ Arguments:
   [PROJECT]  The project to edit. If not provided, the current directory will be used.
 
 Options:
-  \-h, \-\-help  Print help
+  \-v, \-\-verbose  Enable verbose output.
+  \-h, \-\-help     Print help
 .EE
 .SS Subcommands:
 .IP \[bu] 2
@@ -185,7 +191,7 @@ smart\-clean
 .EX
 Add or modify templates in the project.
 
-Usage: tiefdownconverter project templates <TEMPLATE> <COMMAND>
+Usage: tiefdownconverter project templates [OPTIONS] <TEMPLATE> <COMMAND>
 
 Commands:
   add     Add a new template to the project.
@@ -197,7 +203,8 @@ Arguments:
   <TEMPLATE>  The template name to edit or add.
 
 Options:
-  \-h, \-\-help  Print help
+  \-v, \-\-verbose  Enable verbose output.
+  \-h, \-\-help     Print help
 .EE
 .SS Subcommands:
 .IP \[bu] 2
@@ -219,6 +226,9 @@ Usage: tiefdownconverter project templates <TEMPLATE> add [OPTIONS]
 Options:
   \-f, \-\-template\-file <TEMPLATE_FILE>
           The file to use as the template. If not provided, the template name will be used.
+
+  \-v, \-\-verbose
+          Enable verbose output.
 
   \-t, \-\-template\-type <TEMPLATE_TYPE>
           The type of the template. If not provided, the type will be inferred from the template file.
@@ -257,10 +267,11 @@ Options:
 .EX
 Remove a template from the project.
 
-Usage: tiefdownconverter project templates <TEMPLATE> remove
+Usage: tiefdownconverter project templates <TEMPLATE> remove [OPTIONS]
 
 Options:
-  \-h, \-\-help  Print help
+  \-v, \-\-verbose  Enable verbose output.
+  \-h, \-\-help     Print help
 .EE
 .SS tiefdownconverter project templates update
 .IP
@@ -272,6 +283,9 @@ Usage: tiefdownconverter project templates <TEMPLATE> update [OPTIONS]
 Options:
       \-\-template\-file <TEMPLATE_FILE>
           The file to use as the template. If not provided, the template name will be used.
+
+  \-v, \-\-verbose
+          Enable verbose output.
 
       \-\-template\-type <TEMPLATE_TYPE>
           The type of the template. If not provided, the type will be inferred from the template file.
@@ -326,6 +340,9 @@ Options:
           
           [possible values: true, false]
 
+  \-v, \-\-verbose
+          Enable verbose output.
+
       \-\-smart\-clean\-threshold <SMART_CLEAN_THRESHOLD>
           The threshold for smart clean. If not provided, the default threshold of 5 will be used.
           If the number of conversion folders in the project is above this threshold, old folders will be cleaned, leaving only the threshold amount of folders.
@@ -343,7 +360,7 @@ Preprocessors replace all arguments. Thus, with preprocessors, you need to defin
 For templates, that is the file imported by the template.
 Preprocessors are incompatible with epub conversion. Use processors instead.
 
-Usage: tiefdownconverter project pre\-processors <COMMAND>
+Usage: tiefdownconverter project pre\-processors [OPTIONS] <COMMAND>
 
 Commands:
   add     Add a new preprocessor to the project.
@@ -352,6 +369,9 @@ Commands:
   help    Print this message or the help of the given subcommand(s)
 
 Options:
+  \-v, \-\-verbose
+          Enable verbose output.
+
   \-h, \-\-help
           Print help (see a summary with \[aq]\-h\[aq])
 .EE
@@ -367,37 +387,40 @@ list
 .EX
 Add a new preprocessor to the project.
 
-Usage: tiefdownconverter project pre\-processors add <NAME> [\-\- <PANDOC_ARGS>...]
+Usage: tiefdownconverter project pre\-processors add [OPTIONS] <NAME> [\-\- <PANDOC_ARGS>...]
 
 Arguments:
   <NAME>            The name of the preprocessor to create.
   [PANDOC_ARGS]...  The arguments to pass to the preprocessor.
 
 Options:
-  \-h, \-\-help  Print help
+  \-v, \-\-verbose  Enable verbose output.
+  \-h, \-\-help     Print help
 .EE
 .SS tiefdownconverter project pre\-processors remove
 .IP
 .EX
 Remove a preprocessor from the project.
 
-Usage: tiefdownconverter project pre\-processors remove <NAME>
+Usage: tiefdownconverter project pre\-processors remove [OPTIONS] <NAME>
 
 Arguments:
   <NAME>  The name of the preprocessor to remove.
 
 Options:
-  \-h, \-\-help  Print help
+  \-v, \-\-verbose  Enable verbose output.
+  \-h, \-\-help     Print help
 .EE
 .SS tiefdownconverter project pre\-processors list
 .IP
 .EX
 List the preprocessors in the project.
 
-Usage: tiefdownconverter project pre\-processors list
+Usage: tiefdownconverter project pre\-processors list [OPTIONS]
 
 Options:
-  \-h, \-\-help  Print help
+  \-v, \-\-verbose  Enable verbose output.
+  \-h, \-\-help     Print help
 .EE
 .SS tiefdownconverter project processors
 .IP
@@ -408,7 +431,7 @@ For LaTeX and typst templates, this allows extending the respective conversion p
 For epub templates, this allows adding custom pandoc parameters.
 Processors are incompatible with CustomPandoc conversions. Use preprocessors instead.
 
-Usage: tiefdownconverter project processors <COMMAND>
+Usage: tiefdownconverter project processors [OPTIONS] <COMMAND>
 
 Commands:
   add     Add a new processor to the project.
@@ -417,6 +440,9 @@ Commands:
   help    Print this message or the help of the given subcommand(s)
 
 Options:
+  \-v, \-\-verbose
+          Enable verbose output.
+
   \-h, \-\-help
           Print help (see a summary with \[aq]\-h\[aq])
 .EE
@@ -432,37 +458,40 @@ list
 .EX
 Add a new processor to the project.
 
-Usage: tiefdownconverter project processors add <NAME> [\-\- <PROCESSOR_ARGS>...]
+Usage: tiefdownconverter project processors add [OPTIONS] <NAME> [\-\- <PROCESSOR_ARGS>...]
 
 Arguments:
   <NAME>               The name of the processor to create.
   [PROCESSOR_ARGS]...  The arguments to pass to the processor.
 
 Options:
-  \-h, \-\-help  Print help
+  \-v, \-\-verbose  Enable verbose output.
+  \-h, \-\-help     Print help
 .EE
 .SS tiefdownconverter project processors remove
 .IP
 .EX
 Remove a processor from the project.
 
-Usage: tiefdownconverter project processors remove <NAME>
+Usage: tiefdownconverter project processors remove [OPTIONS] <NAME>
 
 Arguments:
   <NAME>  The name of the processor to remove.
 
 Options:
-  \-h, \-\-help  Print help
+  \-v, \-\-verbose  Enable verbose output.
+  \-h, \-\-help     Print help
 .EE
 .SS tiefdownconverter project processors list
 .IP
 .EX
 List the processors in the project.
 
-Usage: tiefdownconverter project processors list
+Usage: tiefdownconverter project processors list [OPTIONS]
 
 Options:
-  \-h, \-\-help  Print help
+  \-v, \-\-verbose  Enable verbose output.
+  \-h, \-\-help     Print help
 .EE
 .SS tiefdownconverter project profiles
 .IP
@@ -472,7 +501,7 @@ A conversion profile defines a collection of templates to be converted at the sa
 This can be used to prepare presets (for example, web export, PDF export, ...).
 It can also be used for defining default templates for markdown projects.
 
-Usage: tiefdownconverter project profiles <COMMAND>
+Usage: tiefdownconverter project profiles [OPTIONS] <COMMAND>
 
 Commands:
   add     Add a new conversion profile to the project.
@@ -481,6 +510,9 @@ Commands:
   help    Print this message or the help of the given subcommand(s)
 
 Options:
+  \-v, \-\-verbose
+          Enable verbose output.
+
   \-h, \-\-help
           Print help (see a summary with \[aq]\-h\[aq])
 .EE
@@ -496,37 +528,40 @@ list
 .EX
 Add a new conversion profile to the project.
 
-Usage: tiefdownconverter project profiles add <NAME> [TEMPLATES]...
+Usage: tiefdownconverter project profiles add [OPTIONS] <NAME> [TEMPLATES]...
 
 Arguments:
   <NAME>          The name of the profile to create.
   [TEMPLATES]...  The templates to add to the profile.
 
 Options:
-  \-h, \-\-help  Print help
+  \-v, \-\-verbose  Enable verbose output.
+  \-h, \-\-help     Print help
 .EE
 .SS tiefdownconverter project profiles remove
 .IP
 .EX
 Remove a conversion profile from the project.
 
-Usage: tiefdownconverter project profiles remove <NAME>
+Usage: tiefdownconverter project profiles remove [OPTIONS] <NAME>
 
 Arguments:
   <NAME>  The name of the profile to remove.
 
 Options:
-  \-h, \-\-help  Print help
+  \-v, \-\-verbose  Enable verbose output.
+  \-h, \-\-help     Print help
 .EE
 .SS tiefdownconverter project profiles list
 .IP
 .EX
 List the conversion profiles in the project.
 
-Usage: tiefdownconverter project profiles list
+Usage: tiefdownconverter project profiles list [OPTIONS]
 
 Options:
-  \-h, \-\-help  Print help
+  \-v, \-\-verbose  Enable verbose output.
+  \-h, \-\-help     Print help
 .EE
 .SS tiefdownconverter project shared\-meta
 .IP
@@ -536,7 +571,7 @@ This Metadata is shared between all markdown projects.
 When converting, it is merged with the markdown project specific metadata.
 When using the same key for shared and project metadata, the project metadata overrides the shared metadata.
 
-Usage: tiefdownconverter project shared\-meta <COMMAND>
+Usage: tiefdownconverter project shared\-meta [OPTIONS] <COMMAND>
 
 Commands:
   set     Add or change the metadata. Overrides previous keys.
@@ -545,6 +580,9 @@ Commands:
   help    Print this message or the help of the given subcommand(s)
 
 Options:
+  \-v, \-\-verbose
+          Enable verbose output.
+
   \-h, \-\-help
           Print help (see a summary with \[aq]\-h\[aq])
 .EE
@@ -560,37 +598,40 @@ list
 .EX
 Add or change the metadata. Overrides previous keys.
 
-Usage: tiefdownconverter project shared\-meta set <KEY> <VALUE>
+Usage: tiefdownconverter project shared\-meta set [OPTIONS] <KEY> <VALUE>
 
 Arguments:
   <KEY>    The key to set.
   <VALUE>  The value to set.
 
 Options:
-  \-h, \-\-help  Print help
+  \-v, \-\-verbose  Enable verbose output.
+  \-h, \-\-help     Print help
 .EE
 .SS tiefdownconverter project shared\-meta remove
 .IP
 .EX
 Remove metadata.
 
-Usage: tiefdownconverter project shared\-meta remove <KEY>
+Usage: tiefdownconverter project shared\-meta remove [OPTIONS] <KEY>
 
 Arguments:
   <KEY>  The key to remove.
 
 Options:
-  \-h, \-\-help  Print help
+  \-v, \-\-verbose  Enable verbose output.
+  \-h, \-\-help     Print help
 .EE
 .SS tiefdownconverter project shared\-meta list
 .IP
 .EX
 List the metadata.
 
-Usage: tiefdownconverter project shared\-meta list
+Usage: tiefdownconverter project shared\-meta list [OPTIONS]
 
 Options:
-  \-h, \-\-help  Print help
+  \-v, \-\-verbose  Enable verbose output.
+  \-h, \-\-help     Print help
 .EE
 .SS tiefdownconverter project markdown
 .IP
@@ -602,7 +643,7 @@ Each markdown project also has a seperate output folder (\[aq].\[aq] per default
 A markdown project can have seperate metadata.
 A markdown project can have resources that are copied to the respective conversion folder.
 
-Usage: tiefdownconverter project markdown <COMMAND>
+Usage: tiefdownconverter project markdown [OPTIONS] <COMMAND>
 
 Commands:
   add        Add a new markdown project to the project.
@@ -614,6 +655,9 @@ Commands:
   help       Print this message or the help of the given subcommand(s)
 
 Options:
+  \-v, \-\-verbose
+          Enable verbose output.
+
   \-h, \-\-help
           Print help (see a summary with \[aq]\-h\[aq])
 .EE
@@ -644,6 +688,7 @@ Arguments:
 
 Options:
       \-\-default\-profile <DEFAULT_PROFILE>  The default profile to use for converting this project.
+  \-v, \-\-verbose                            Enable verbose output.
   \-h, \-\-help                               Print help
 .EE
 .SS tiefdownconverter project markdown update
@@ -658,6 +703,7 @@ Arguments:
 
 Options:
       \-\-path <PATH>                        The path to the markdown project.
+  \-v, \-\-verbose                            Enable verbose output.
       \-\-output <OUTPUT>                    The output folder.
       \-\-default\-profile <DEFAULT_PROFILE>  The default profile to use for converting this project.
   \-h, \-\-help                               Print help
@@ -669,7 +715,7 @@ Manage the metadata of a markdown project.
 This metadata is markdown project specific and is not shared between projects.
 This metadata takes precedence over the shared metadata.
 
-Usage: tiefdownconverter project markdown meta <NAME> <COMMAND>
+Usage: tiefdownconverter project markdown meta [OPTIONS] <NAME> <COMMAND>
 
 Commands:
   set     Add or change the metadata. Overrides previous keys.
@@ -682,6 +728,9 @@ Arguments:
           The name of the markdown project to update.
 
 Options:
+  \-v, \-\-verbose
+          Enable verbose output.
+
   \-h, \-\-help
           Print help (see a summary with \[aq]\-h\[aq])
 .EE
@@ -697,37 +746,40 @@ list
 .EX
 Add or change the metadata. Overrides previous keys.
 
-Usage: tiefdownconverter project markdown meta <NAME> set <KEY> <VALUE>
+Usage: tiefdownconverter project markdown meta <NAME> set [OPTIONS] <KEY> <VALUE>
 
 Arguments:
   <KEY>    The key to set.
   <VALUE>  The value to set.
 
 Options:
-  \-h, \-\-help  Print help
+  \-v, \-\-verbose  Enable verbose output.
+  \-h, \-\-help     Print help
 .EE
 .SS tiefdownconverter project markdown meta remove
 .IP
 .EX
 Remove metadata.
 
-Usage: tiefdownconverter project markdown meta <NAME> remove <KEY>
+Usage: tiefdownconverter project markdown meta <NAME> remove [OPTIONS] <KEY>
 
 Arguments:
   <KEY>  The key to remove.
 
 Options:
-  \-h, \-\-help  Print help
+  \-v, \-\-verbose  Enable verbose output.
+  \-h, \-\-help     Print help
 .EE
 .SS tiefdownconverter project markdown meta list
 .IP
 .EX
 List the metadata.
 
-Usage: tiefdownconverter project markdown meta <NAME> list
+Usage: tiefdownconverter project markdown meta <NAME> list [OPTIONS]
 
 Options:
-  \-h, \-\-help  Print help
+  \-v, \-\-verbose  Enable verbose output.
+  \-h, \-\-help     Print help
 .EE
 .SS tiefdownconverter project markdown resources
 .IP
@@ -737,7 +789,7 @@ Resources are a way to include meta information and resources on a per project b
 This is helpful for example for including a custom css file for a project, as that is not possible purely with metadata.
 Resources are stored in the markdown folder and copied to the conversion directory for that profile before conversion.
 
-Usage: tiefdownconverter project markdown resources <NAME> <COMMAND>
+Usage: tiefdownconverter project markdown resources [OPTIONS] <NAME> <COMMAND>
 
 Commands:
   add     Add a new resource to the project.
@@ -750,6 +802,9 @@ Arguments:
           The name of the markdown project to update.
 
 Options:
+  \-v, \-\-verbose
+          Enable verbose output.
+
   \-h, \-\-help
           Print help (see a summary with \[aq]\-h\[aq])
 .EE
@@ -765,89 +820,98 @@ list
 .EX
 Add a new resource to the project.
 
-Usage: tiefdownconverter project markdown resources <NAME> add [\-\- <PATHS>...]
+Usage: tiefdownconverter project markdown resources <NAME> add [OPTIONS] [\-\- <PATHS>...]
 
 Arguments:
   [PATHS]...  The paths to the resources. Seperated by spaces.
 
 Options:
-  \-h, \-\-help  Print help
+  \-v, \-\-verbose  Enable verbose output.
+  \-h, \-\-help     Print help
 .EE
 .SS tiefdownconverter project markdown resources remove
 .IP
 .EX
 Remove a resource from the project.
 
-Usage: tiefdownconverter project markdown resources <NAME> remove <PATH>
+Usage: tiefdownconverter project markdown resources <NAME> remove [OPTIONS] <PATH>
 
 Arguments:
   <PATH>  The path to the resource.
 
 Options:
-  \-h, \-\-help  Print help
+  \-v, \-\-verbose  Enable verbose output.
+  \-h, \-\-help     Print help
 .EE
 .SS tiefdownconverter project markdown resources list
 .IP
 .EX
 List the resources in the project.
 
-Usage: tiefdownconverter project markdown resources <NAME> list
+Usage: tiefdownconverter project markdown resources <NAME> list [OPTIONS]
 
 Options:
-  \-h, \-\-help  Print help
+  \-v, \-\-verbose  Enable verbose output.
+  \-h, \-\-help     Print help
 .EE
 .SS tiefdownconverter project markdown remove
 .IP
 .EX
 Remove a markdown project from the project.
 
-Usage: tiefdownconverter project markdown remove <NAME>
+Usage: tiefdownconverter project markdown remove [OPTIONS] <NAME>
 
 Arguments:
   <NAME>  The name of the markdown project to remove.
 
 Options:
-  \-h, \-\-help  Print help
+  \-v, \-\-verbose  Enable verbose output.
+  \-h, \-\-help     Print help
 .EE
 .SS tiefdownconverter project markdown list
 .IP
 .EX
 List the markdown projects in the project.
 
-Usage: tiefdownconverter project markdown list
+Usage: tiefdownconverter project markdown list [OPTIONS]
 
 Options:
-  \-h, \-\-help  Print help
+  \-v, \-\-verbose  Enable verbose output.
+  \-h, \-\-help     Print help
 .EE
 .SS tiefdownconverter project list\-templates
 .IP
 .EX
 List the templates in the project.
 
-Usage: tiefdownconverter project list\-templates
+Usage: tiefdownconverter project list\-templates [OPTIONS]
 
 Options:
-  \-h, \-\-help  Print help
+  \-v, \-\-verbose  Enable verbose output.
+  \-h, \-\-help     Print help
 .EE
 .SS tiefdownconverter project validate
 .IP
 .EX
 Validate the TiefDown project structure and metadata.
+NOTE: This command is deprecated and will be removed in a future release. It\[aq]s pointless and a maintenance nightmare.
 
-Usage: tiefdownconverter project validate
+Usage: tiefdownconverter project validate [OPTIONS]
 
 Options:
-  \-h, \-\-help  Print help
+  \-v, \-\-verbose  Enable verbose output.
+  \-h, \-\-help     Print help
 .EE
 .SS tiefdownconverter project clean
 .IP
 .EX
 Clean temporary files from the TiefDown project.
 
-Usage: tiefdownconverter project clean
+Usage: tiefdownconverter project clean [OPTIONS]
 
 Options:
-  \-h, \-\-help  Print help
+  \-v, \-\-verbose  Enable verbose output.
+  \-h, \-\-help     Print help
 .EE
 .SS tiefdownconverter project smart\-clean
 .IP
@@ -856,9 +920,12 @@ Clean temporary files from the TiefDown project.
 If the number of conversion folders in the project is above this threshold, old folders will be cleaned, leaving only the threshold amount of folders.
 The threshold is set to 5 by default, and is overwritten by the threshold in the manifest.
 
-Usage: tiefdownconverter project smart\-clean
+Usage: tiefdownconverter project smart\-clean [OPTIONS]
 
 Options:
+  \-v, \-\-verbose
+          Enable verbose output.
+
   \-h, \-\-help
           Print help (see a summary with \[aq]\-h\[aq])
 .EE
@@ -867,8 +934,9 @@ Options:
 .EX
 Validate dependencies are installed.
 
-Usage: tiefdownconverter check\-dependencies
+Usage: tiefdownconverter check\-dependencies [OPTIONS]
 
 Options:
-  \-h, \-\-help  Print help
+  \-v, \-\-verbose  Enable verbose output.
+  \-h, \-\-help     Print help
 .EE

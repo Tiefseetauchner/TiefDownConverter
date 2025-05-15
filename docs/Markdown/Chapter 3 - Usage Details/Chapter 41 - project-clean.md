@@ -1,14 +1,15 @@
 ## `tiefdownconverter project clean` {#projectclean}
 
-**Version:** `tiefdownconverter 0.8.0-ALPHA`
+**Version:** `tiefdownconverter 0.8.0`
 
 ### Usage:
 ```
 Clean temporary files from the TiefDown project.
 
-Usage: tiefdownconverter project clean
+Usage: tiefdownconverter project clean [OPTIONS]
 
 Options:
-  -h, --help  Print help
+  -v, --verbose  Enable verbose output.
+  -h, --help     Print help
 ```
 

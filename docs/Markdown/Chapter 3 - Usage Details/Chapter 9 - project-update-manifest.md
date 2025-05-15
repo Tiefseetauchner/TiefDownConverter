@@ -1,6 +1,6 @@
 ## `tiefdownconverter project update-manifest` {#projectupdate-manifest}
 
-**Version:** `tiefdownconverter 0.8.0-ALPHA`
+**Version:** `tiefdownconverter 0.8.0`
 
 ### Usage:
 ```
@@ -14,6 +14,9 @@ Options:
           If the number of conversion folders in the project is above the smart_clean_threshold, old folders will be cleaned, leaving only the threshold amount of folders.
           
           [possible values: true, false]
+
+  -v, --verbose
+          Enable verbose output.
 
       --smart-clean-threshold <SMART_CLEAN_THRESHOLD>
           The threshold for smart clean. If not provided, the default threshold of 5 will be used.

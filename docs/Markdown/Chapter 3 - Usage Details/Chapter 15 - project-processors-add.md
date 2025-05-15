@@ -1,18 +1,19 @@
 ## `tiefdownconverter project processors add` {#projectprocessorsadd}
 
-**Version:** `tiefdownconverter 0.8.0-ALPHA`
+**Version:** `tiefdownconverter 0.8.0`
 
 ### Usage:
 ```
 Add a new processor to the project.
 
-Usage: tiefdownconverter project processors add <NAME> [-- <PROCESSOR_ARGS>...]
+Usage: tiefdownconverter project processors add [OPTIONS] <NAME> [-- <PROCESSOR_ARGS>...]
 
 Arguments:
   <NAME>               The name of the processor to create.
   [PROCESSOR_ARGS]...  The arguments to pass to the processor.
 
 Options:
-  -h, --help  Print help
+  -v, --verbose  Enable verbose output.
+  -h, --help     Print help
 ```
 

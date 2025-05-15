@@ -3,12 +3,13 @@
 ```
 Remove a markdown project from the project.
 
-Usage: tiefdownconverter project markdown remove <NAME>
+Usage: tiefdownconverter project markdown remove [OPTIONS] <NAME>
 
 Arguments:
   <NAME>  The name of the markdown project to remove.
 
 Options:
-  -h, --help  Print help
+  -v, --verbose  Enable verbose output.
+  -h, --help     Print help
 ```
 

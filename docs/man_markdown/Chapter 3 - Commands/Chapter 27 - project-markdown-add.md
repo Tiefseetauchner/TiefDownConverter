@@ -12,6 +12,7 @@ Arguments:
 
 Options:
       --default-profile <DEFAULT_PROFILE>  The default profile to use for converting this project.
+  -v, --verbose                            Enable verbose output.
   -h, --help                               Print help
 ```
 

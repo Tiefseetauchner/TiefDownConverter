@@ -1,12 +1,12 @@
 ## `tiefdownconverter project templates` {#projecttemplates}
 
-**Version:** `tiefdownconverter 0.8.0-ALPHA`
+**Version:** `tiefdownconverter 0.8.0`
 
 ### Usage:
 ```
 Add or modify templates in the project.
 
-Usage: tiefdownconverter project templates <TEMPLATE> <COMMAND>
+Usage: tiefdownconverter project templates [OPTIONS] <TEMPLATE> <COMMAND>
 
 Commands:
   add     Add a new template to the project.
@@ -18,7 +18,8 @@ Arguments:
   <TEMPLATE>  The template name to edit or add.
 
 Options:
-  -h, --help  Print help
+  -v, --verbose  Enable verbose output.
+  -h, --help     Print help
 ```
 
 ### Subcommands:

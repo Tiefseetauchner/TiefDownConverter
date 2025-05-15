@@ -1,6 +1,6 @@
 ## `tiefdownconverter project markdown meta` {#projectmarkdownmeta}
 
-**Version:** `tiefdownconverter 0.8.0-ALPHA`
+**Version:** `tiefdownconverter 0.8.0`
 
 ### Usage:
 ```
@@ -8,7 +8,7 @@ Manage the metadata of a markdown project.
 This metadata is markdown project specific and is not shared between projects.
 This metadata takes precedence over the shared metadata.
 
-Usage: tiefdownconverter project markdown meta <NAME> <COMMAND>
+Usage: tiefdownconverter project markdown meta [OPTIONS] <NAME> <COMMAND>
 
 Commands:
   set     Add or change the metadata. Overrides previous keys.
@@ -21,6 +21,9 @@ Arguments:
           The name of the markdown project to update.
 
 Options:
+  -v, --verbose
+          Enable verbose output.
+
   -h, --help
           Print help (see a summary with '-h')
 ```

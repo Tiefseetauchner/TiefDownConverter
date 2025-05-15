@@ -1,14 +1,15 @@
 ## `tiefdownconverter project profiles list` {#projectprofileslist}
 
-**Version:** `tiefdownconverter 0.8.0-ALPHA`
+**Version:** `tiefdownconverter 0.8.0`
 
 ### Usage:
 ```
 List the conversion profiles in the project.
 
-Usage: tiefdownconverter project profiles list
+Usage: tiefdownconverter project profiles list [OPTIONS]
 
 Options:
-  -h, --help  Print help
+  -v, --verbose  Enable verbose output.
+  -h, --help     Print help
 ```
 

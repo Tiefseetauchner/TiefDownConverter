@@ -1,6 +1,6 @@
 ## `tiefdownconverter project templates add` {#projecttemplatesadd}
 
-**Version:** `tiefdownconverter 0.8.0-ALPHA`
+**Version:** `tiefdownconverter 0.8.0`
 
 ### Usage:
 ```
@@ -14,6 +14,9 @@ Usage: tiefdownconverter project templates <TEMPLATE> add [OPTIONS]
 Options:
   -f, --template-file <TEMPLATE_FILE>
           The file to use as the template. If not provided, the template name will be used.
+
+  -v, --verbose
+          Enable verbose output.
 
   -t, --template-type <TEMPLATE_TYPE>
           The type of the template. If not provided, the type will be inferred from the template file.
