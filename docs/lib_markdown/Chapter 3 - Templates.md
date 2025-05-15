@@ -27,4 +27,4 @@ Templating in TiefDown is done in several ways:
 LaTeX templates are the most intuitive form of templating in TiefDown, but also
 the most fleshed out. The basic usage generates a LaTeX document from markdown,
 usually output.tex, with [lua-filters](#lua-filters) applied depending on the
-template.
+template, and then converts that template file to a PDF.
