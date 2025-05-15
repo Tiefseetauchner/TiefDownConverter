@@ -55,8 +55,7 @@ pub fn convert(
         return Err(eyre!("Pandoc is not installed or not in the PATH."));
     }
 
-    let other_dependencies =
-        get_missing_dependencies(vec!["xelatex", "typst", "this_is_not_installed"])?;
+    let other_dependencies = get_missing_dependencies(vec!["xelatex", "typst"])?;
 
     if !other_dependencies.is_empty() {
         warn!("{}", other_dependencies.join("\n"));
