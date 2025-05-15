@@ -1,6 +1,6 @@
 ## `tiefdownconverter project markdown resources list` {#projectmarkdownresourceslist}
 
-**Version:** `tiefdownconverter 0.8.0`
+**Version:** `tiefdownconverter 0.8.1`
 
 ### Usage:
 ```
