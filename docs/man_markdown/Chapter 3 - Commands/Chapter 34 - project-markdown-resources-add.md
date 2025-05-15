@@ -3,12 +3,13 @@
 ```
 Add a new resource to the project.
 
-Usage: tiefdownconverter project markdown resources <NAME> add [-- <PATHS>...]
+Usage: tiefdownconverter project markdown resources <NAME> add [OPTIONS] [-- <PATHS>...]
 
 Arguments:
   [PATHS]...  The paths to the resources. Seperated by spaces.
 
 Options:
-  -h, --help  Print help
+  -v, --verbose  Enable verbose output.
+  -h, --help     Print help
 ```
 

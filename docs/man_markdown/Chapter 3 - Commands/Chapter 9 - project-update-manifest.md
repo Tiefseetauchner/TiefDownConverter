@@ -12,6 +12,9 @@ Options:
           
           [possible values: true, false]
 
+  -v, --verbose
+          Enable verbose output.
+
       --smart-clean-threshold <SMART_CLEAN_THRESHOLD>
           The threshold for smart clean. If not provided, the default threshold of 5 will be used.
           If the number of conversion folders in the project is above this threshold, old folders will be cleaned, leaving only the threshold amount of folders.

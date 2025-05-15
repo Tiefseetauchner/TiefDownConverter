@@ -9,6 +9,9 @@ Options:
       --template-file <TEMPLATE_FILE>
           The file to use as the template. If not provided, the template name will be used.
 
+  -v, --verbose
+          Enable verbose output.
+
       --template-type <TEMPLATE_TYPE>
           The type of the template. If not provided, the type will be inferred from the template file.
           Changing this is not recommended, as it is highly unlikely the type and only the type has changed. It is recommended to create a new template instead.

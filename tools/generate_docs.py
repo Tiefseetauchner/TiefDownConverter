@@ -10,7 +10,7 @@ import shutil
 CLI_EXEC = "tiefdownconverter"
 
 # Output directory
-DOCS_DIR = "docs/Markdown/Chapter 3 - Usage Details/"
+DOCS_DIR = "docs/cli_markdown/Chapter 3 - Usage Details/"
 shutil.rmtree(DOCS_DIR, ignore_errors=True)
 os.makedirs(DOCS_DIR, exist_ok=True)
 

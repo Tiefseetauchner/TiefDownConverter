@@ -3,9 +3,10 @@
 ```
 List the templates in the project.
 
-Usage: tiefdownconverter project list-templates
+Usage: tiefdownconverter project list-templates [OPTIONS]
 
 Options:
-  -h, --help  Print help
+  -v, --verbose  Enable verbose output.
+  -h, --help     Print help
 ```
 

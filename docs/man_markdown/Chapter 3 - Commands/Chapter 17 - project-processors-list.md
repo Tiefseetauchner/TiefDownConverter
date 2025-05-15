@@ -3,9 +3,10 @@
 ```
 List the processors in the project.
 
-Usage: tiefdownconverter project processors list
+Usage: tiefdownconverter project processors list [OPTIONS]
 
 Options:
-  -h, --help  Print help
+  -v, --verbose  Enable verbose output.
+  -h, --help     Print help
 ```
 

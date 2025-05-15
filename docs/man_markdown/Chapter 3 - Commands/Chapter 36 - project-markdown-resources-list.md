@@ -3,9 +3,10 @@
 ```
 List the resources in the project.
 
-Usage: tiefdownconverter project markdown resources <NAME> list
+Usage: tiefdownconverter project markdown resources <NAME> list [OPTIONS]
 
 Options:
-  -h, --help  Print help
+  -v, --verbose  Enable verbose output.
+  -h, --help     Print help
 ```
 

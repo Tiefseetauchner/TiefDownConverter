@@ -3,9 +3,10 @@
 ```
 List the metadata.
 
-Usage: tiefdownconverter project shared-meta list
+Usage: tiefdownconverter project shared-meta list [OPTIONS]
 
 Options:
-  -h, --help  Print help
+  -v, --verbose  Enable verbose output.
+  -h, --help     Print help
 ```
 

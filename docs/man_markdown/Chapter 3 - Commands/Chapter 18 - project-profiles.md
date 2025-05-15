@@ -6,7 +6,7 @@ A conversion profile defines a collection of templates to be converted at the sa
 This can be used to prepare presets (for example, web export, PDF export, ...).
 It can also be used for defining default templates for markdown projects.
 
-Usage: tiefdownconverter project profiles <COMMAND>
+Usage: tiefdownconverter project profiles [OPTIONS] <COMMAND>
 
 Commands:
   add     Add a new conversion profile to the project.
@@ -15,6 +15,9 @@ Commands:
   help    Print this message or the help of the given subcommand(s)
 
 Options:
+  -v, --verbose
+          Enable verbose output.
+
   -h, --help
           Print help (see a summary with '-h')
 ```

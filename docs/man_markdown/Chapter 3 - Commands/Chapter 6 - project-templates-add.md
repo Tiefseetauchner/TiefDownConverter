@@ -12,6 +12,9 @@ Options:
   -f, --template-file <TEMPLATE_FILE>
           The file to use as the template. If not provided, the template name will be used.
 
+  -v, --verbose
+          Enable verbose output.
+
   -t, --template-type <TEMPLATE_TYPE>
           The type of the template. If not provided, the type will be inferred from the template file.
           

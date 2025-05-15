@@ -4,7 +4,7 @@ version = 4
 
 [[custom_processors.preprocessors]]
 name = "HTML Conversion"
-pandoc_args = ["--to", "html5", "-s", "-o", "index.html", "--metadata", "title={{title}}", "--metadata", "author={{author}}", "--css", "template/index.html_template/style.css", "--toc", "-B", "index.html_template/header.html"]
+pandoc_args = ["--to", "html5", "-s", "-o", "index.html", "--metadata", "title={{title}}", "--metadata", "author={{author}}", "--css", "template/html_template/style.css", "--toc", "-B", "html_template/header.html"]
 
 [[custom_processors.preprocessors]]
 name = "Enable Listings"
@@ -20,15 +20,21 @@ processor_args = ["--font-path", "fonts/"]
 
 [[markdown_projects]]
 default_profile = "Documentation"
-name = "main"
-output = "."
-path = "Markdown"
+name = "CLI Docs"
+output = "cli"
+path = "cli_markdown"
 
 [[markdown_projects]]
 default_profile = "Man"
 name = "man"
 output = "man"
 path = "man_markdown"
+
+[[markdown_projects]]
+default_profile = "Index HTML"
+name = "Index HTML"
+output = "."
+path = "index_markdown"
 
 [metadata_settings]
 
@@ -39,6 +45,10 @@ templates = ["PDF Documentation LaTeX", "PDF Documentation", "Epub Documentation
 [[profiles]]
 name = "Man"
 templates = ["Man Page"]
+
+[[profiles]]
+name = "Index HTML"
+templates = ["GitHub Page Documentation"]
 
 [shared_metadata]
 author = "Tiefseetauchner et al."

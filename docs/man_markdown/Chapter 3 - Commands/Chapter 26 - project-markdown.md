@@ -8,7 +8,7 @@ Each markdown project also has a seperate output folder ('.' per default).
 A markdown project can have seperate metadata.
 A markdown project can have resources that are copied to the respective conversion folder.
 
-Usage: tiefdownconverter project markdown <COMMAND>
+Usage: tiefdownconverter project markdown [OPTIONS] <COMMAND>
 
 Commands:
   add        Add a new markdown project to the project.
@@ -20,6 +20,9 @@ Commands:
   help       Print this message or the help of the given subcommand(s)
 
 Options:
+  -v, --verbose
+          Enable verbose output.
+
   -h, --help
           Print help (see a summary with '-h')
 ```

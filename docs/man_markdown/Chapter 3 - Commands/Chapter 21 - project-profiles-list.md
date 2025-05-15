@@ -3,9 +3,10 @@
 ```
 List the conversion profiles in the project.
 
-Usage: tiefdownconverter project profiles list
+Usage: tiefdownconverter project profiles list [OPTIONS]
 
 Options:
-  -h, --help  Print help
+  -v, --verbose  Enable verbose output.
+  -h, --help     Print help
 ```
 
