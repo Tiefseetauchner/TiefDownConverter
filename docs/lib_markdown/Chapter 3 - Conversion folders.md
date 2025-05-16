@@ -3,15 +3,18 @@
 The conversion folder is the folder where the template and markdown files are
 located during conversion.
 
-To explain, we need to explain the workflow of TiefDown conversion. Helpfully,
-there's a diagram:
-
-![Workflow](./resources/architecture.jpg)
-
 Before the conversion process begins, a new folder is created in the project
 directory. This is the conversion folder, named after the current date and
 time. This folder can be deleted using the `clean` function, or automatically
 removed when converting using [smart clean](#smart-clean).
+
+If a [markdown project](#markdown-projects) has an output folder defined, this
+is used as the conversion folder for that markdown project.
+
+To explain more thuroughly, we need to explain the workflow of TiefDown
+conversion. Helpfully, there's a diagram:
+
+![Workflow](./resources/architecture.jpg)
 
 As you can see, the first step of any conversion is combining the markdown
 files to a single Markdown file. This is done before conversion, sorting the
