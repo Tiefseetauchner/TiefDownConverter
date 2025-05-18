@@ -130,6 +130,30 @@ pub fn convert(
             &markdown_dir,
         )?;
 
+        // We should copy the input files (non-exclusively markdown) to the conversion directory.
+        // For example:
+        // - 2025-05-18_09-25-16
+        // | - InputFiles
+        // |   | - Chapter 1.md
+        // |   | - Chapter 2.md
+        // |   | - Chapter 3.md
+        // |   | - Chapter 4.md
+        // |   | - Chapter 5.tex
+        // | - template.tex
+        // | - template.typ
+        // - InputFiles
+        // | - Chapter 1.md
+        // | - Chapter 2.md
+        // | - Chapter 3.md
+        // | - Chapter 4.md
+        // | - Chapter 5.tex
+        // Copy InputFiles (i.e. markdown_dir) to InputFiles in ConversionDirectory
+        // Run pandoc (i.e. preprocessor) on every input file and take stdout and append to a buffer, then write that to a combined file as specified by the preprocessor.
+        //   When combining, we grab a new field on the preprocessor (optional, defaults to output) and combine it with the extension
+        //     WITHOUT AN EXTENSION!!! how the hell do we even document this?
+        //   Thus, the preprocessor has to have a concept of what the output type is (required!)
+        //   TODO: Figure out the manifest upgrade path.
+        // run processor (conversion) on templates => This, in theory, remains untouched
         let combined_markdown_name = PathBuf::from("combined.md");
         let combined_markdown_path =
             markdown_project_compiled_directory_path.join(&combined_markdown_name);
