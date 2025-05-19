@@ -91,6 +91,7 @@ pub struct Processors {
 pub struct PreProcessor {
     pub name: String,
     pub pandoc_args: Vec<String>,
+    pub combined_output: String,
 }
 
 /// Represents processors available to the project.
@@ -116,6 +117,7 @@ pub static DEFAULT_TEX_PREPROCESSOR: LazyLock<PreProcessor> = LazyLock::new(|| P
         .iter()
         .map(|s| s.to_string())
         .collect(),
+    combined_output: "combined.md".to_string(),
 });
 
 /// The default pandoc arguments for Typst conversion.
@@ -125,6 +127,7 @@ pub static DEFAULT_TYPST_PREPROCESSOR: LazyLock<PreProcessor> = LazyLock::new(||
         .iter()
         .map(|s| s.to_string())
         .collect(),
+    combined_output: "combined.md".to_string(),
 });
 
 /// Represents the settings for metadata in the project.

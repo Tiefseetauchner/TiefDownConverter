@@ -122,12 +122,12 @@ pub fn convert(
 
         debug!("Copied template directory.");
 
-        let markdown_dir = project_path.join(markdown_project.path.clone());
+        let input_dir = project_path.join(markdown_project.path.clone());
 
         copy_resources(
             &markdown_project,
             &markdown_project_compiled_directory_path,
-            &markdown_dir,
+            &input_dir,
         )?;
 
         // We should copy the input files (non-exclusively markdown) to the conversion directory.
@@ -154,17 +154,6 @@ pub fn convert(
         //   Thus, the preprocessor has to have a concept of what the output type is (required!)
         //   TODO: Figure out the manifest upgrade path.
         // run processor (conversion) on templates => This, in theory, remains untouched
-        let combined_markdown_name = PathBuf::from("combined.md");
-        let combined_markdown_path =
-            markdown_project_compiled_directory_path.join(&combined_markdown_name);
-
-        let combined_content = combine_markdown(&combined_markdown_path, &markdown_dir)?;
-        fs::write(&combined_markdown_path, combined_content)?;
-
-        debug!(
-            "Created combined markdown file {}.",
-            combined_markdown_path.display()
-        );
 
         let shared_metadata = manifest.shared_metadata.clone().unwrap_or(Table::new());
         let project_metadata = markdown_project.metadata_fields.unwrap_or(Table::new());
@@ -179,11 +168,16 @@ pub fn convert(
         );
 
         for template in &templates {
+            let conversion_input_dir =
+                &markdown_project_compiled_directory_path.join(template.name.clone());
+
+            copy_markdown_direcotry(&input_dir, &conversion_input_dir)?;
+
             convert_template(
-                &combined_markdown_name,
                 &markdown_project_compiled_directory_path,
                 template,
                 project_path,
+                &conversion_input_dir,
                 &markdown_project.output,
                 &merged_metadata,
                 &manifest.metadata_settings,
@@ -292,23 +286,6 @@ fn create_build_directory(project_path: &Path) -> Result<std::path::PathBuf> {
     Ok(build_directory_path)
 }
 
-fn combine_markdown(_combined_markdown_path: &PathBuf, markdown_dir: &PathBuf) -> Result<String> {
-    let markdown_files = get_markdown_files(markdown_dir)?;
-
-    let mut combined_content = String::new();
-
-    for entry in markdown_files {
-        if entry.path().extension() == Some("md".as_ref()) {
-            combined_content.push_str(&fs::read_to_string(entry.path())?);
-            combined_content.push_str("\n\n");
-        } else if entry.path().is_dir() {
-            combined_content.push_str(&combine_markdown(_combined_markdown_path, &entry.path())?);
-        }
-    }
-
-    Ok(combined_content)
-}
-
 fn get_markdown_files(markdown_dir: &PathBuf) -> Result<Vec<fs::DirEntry>> {
     let chapter_name_regex = regex::Regex::new(r"Chapter (\d+).*").unwrap();
 
@@ -346,11 +323,25 @@ fn get_markdown_files(markdown_dir: &PathBuf) -> Result<Vec<fs::DirEntry>> {
     Ok(markdown_files)
 }
 
+fn copy_markdown_direcotry(markdown_dir: &Path, output_dir: &Path) -> Result<()> {
+    debug!("Copying markdown directory: {}", markdown_dir.display());
+
+    dir::create_all(output_dir, false)?;
+
+    dir::copy(
+        markdown_dir,
+        output_dir,
+        &dir::CopyOptions::new().overwrite(true).content_only(true),
+    )?;
+
+    Ok(())
+}
+
 fn convert_template(
-    combined_markdown_path: &Path,
     compiled_directory_path: &Path,
     template: &TemplateMapping,
     project_path: &Path,
+    conversion_input_dir: &Path,
     output_dir: &Path,
     metadata_fields: &Table,
     metadata_settings: &Option<MetadataSettings>,
@@ -369,8 +360,8 @@ fn convert_template(
 
     let result_file_path = converter(
         project_path,
-        combined_markdown_path,
         compiled_directory_path,
+        conversion_input_dir,
         template,
         metadata_fields,
         &metadata_settings,

@@ -19,8 +19,8 @@ use toml::Table;
 
 pub(crate) fn convert_latex(
     project_directory_path: &Path,
-    combined_markdown_path: &Path,
     compiled_directory_path: &Path,
+    conversion_input_dir: &Path,
     template: &TemplateMapping,
     metadata_fields: &Table,
     metadata_settings: &MetadataSettings,
@@ -147,8 +147,8 @@ fn compile_latex(
 
 pub(crate) fn convert_custom_pandoc(
     project_directory_path: &Path,
-    combined_markdown_path: &Path,
     compiled_directory_path: &Path,
+    conversion_input_dir: &Path,
     template: &TemplateMapping,
     metadata_fields: &Table,
     metadata_settings: &MetadataSettings,
@@ -195,8 +195,8 @@ pub(crate) fn convert_custom_pandoc(
 
 pub(crate) fn convert_epub(
     project_directory_path: &Path,
-    combined_markdown_path: &Path,
     compiled_directory_path: &Path,
+    conversion_input_dir: &Path,
     template: &TemplateMapping,
     metadata_fields: &Table,
     _metadata_settings: &MetadataSettings,
@@ -349,8 +349,8 @@ fn add_fonts(
 
 pub(crate) fn convert_typst(
     project_directory_path: &Path,
-    combined_markdown_path: &Path,
     compiled_directory_path: &Path,
+    conversion_input_dir: &Path,
     template: &TemplateMapping,
     metadata_fields: &Table,
     metadata_settings: &MetadataSettings,

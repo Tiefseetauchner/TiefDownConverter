@@ -401,6 +401,7 @@ pub fn update_manifest(
 pub fn add_preprocessor(
     project: Option<String>,
     name: String,
+    combined_output: Option<String>,
     pandoc_args: Vec<String>,
 ) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
@@ -409,7 +410,11 @@ pub fn add_preprocessor(
 
     let mut manifest = load_and_convert_manifest(&manifest_path)?;
 
-    let preprocessor = PreProcessor { name, pandoc_args };
+    let preprocessor = PreProcessor {
+        name,
+        pandoc_args,
+        combined_output: combined_output.unwrap_or("combined.md".to_string()),
+    };
     manifest.custom_processors.preprocessors.push(preprocessor);
 
     let manifest_content = toml::to_string(&manifest)?;
