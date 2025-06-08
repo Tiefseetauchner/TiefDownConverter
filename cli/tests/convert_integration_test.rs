@@ -183,7 +183,6 @@ fn test_convert() {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("convert")
-        .arg("-v")
         .assert()
         .success();
 
@@ -225,7 +224,6 @@ fn test_convert_with_multiple_templates() {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("convert")
-        .arg("-v")
         .assert()
         .success();
 
@@ -273,7 +271,6 @@ fn test_convert_specific_template(
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("convert")
-        .arg("-v")
         .arg("--templates")
         .arg(template_name)
         .assert()
@@ -331,7 +328,6 @@ fn test_convert_specific_project_folder(#[case] project_path_name: &str) {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&temp_dir)
         .arg("convert")
-        .arg("-v")
         .arg("--project")
         .arg(project_path_name)
         .assert()
@@ -367,7 +363,6 @@ fn test_convert_epub() {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("convert")
-        .arg("-v")
         .assert()
         .success();
 
@@ -391,7 +386,6 @@ fn test_convert_giant_file() {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("convert")
-        .arg("-v")
         .assert()
         .success();
 
@@ -418,7 +412,6 @@ fn test_convert_many_files() {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("convert")
-        .arg("-v")
         .assert()
         .success();
 
@@ -447,7 +440,6 @@ fn test_convert_far_nested_markdown_file() {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("convert")
-        .arg("-v")
         .assert()
         .success();
 
@@ -474,7 +466,6 @@ fn test_convert_long_markdown_file_name() {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("convert")
-        .arg("-v")
         .assert()
         .success();
 
@@ -495,7 +486,6 @@ fn test_convert_no_markdown_files() {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("convert")
-        .arg("-v")
         .assert()
         .success();
 
@@ -523,7 +513,6 @@ fn test_convert_custom_pandoc_conversion() {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("convert")
-        .arg("-v")
         .assert()
         .success();
 
@@ -573,7 +562,6 @@ fn test_convert_smart_clean() {
         let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
         cmd.current_dir(&project_path)
             .arg("convert")
-            .arg("-v")
             .assert()
             .success();
 
@@ -605,7 +593,6 @@ fn test_convert_profile() {
 
     cmd.current_dir(&project_path)
         .arg("convert")
-        .arg("-v")
         .arg("--profile")
         .arg("Profile 1")
         .assert()
@@ -659,7 +646,6 @@ fn test_convert_multiple_markdown_projects() {
 
     cmd.current_dir(&project_path)
         .arg("convert")
-        .arg("-v")
         .assert()
         .success();
 
