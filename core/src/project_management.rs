@@ -401,7 +401,7 @@ pub fn update_manifest(
 pub fn add_preprocessor(
     project: Option<String>,
     name: String,
-    combined_output: Option<String>,
+    combined_output: PathBuf,
     pandoc_args: Vec<String>,
 ) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
@@ -413,7 +413,7 @@ pub fn add_preprocessor(
     let preprocessor = PreProcessor {
         name,
         pandoc_args,
-        combined_output: combined_output.unwrap_or("combined.md".to_string()),
+        combined_output,
     };
     manifest.custom_processors.preprocessors.push(preprocessor);
 

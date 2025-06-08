@@ -132,6 +132,7 @@ fn add_custom_pandoc_template(
     template_name: &str,
     preprocessor: &str,
     preprocessor_args: &str,
+    preprocessor_combined_path: &str,
     output_file: &str,
 ) {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
@@ -155,6 +156,7 @@ fn add_custom_pandoc_template(
         .arg("pre-processors")
         .arg("add")
         .arg(preprocessor)
+        .arg(preprocessor_combined_path)
         .arg("--")
         .arg(preprocessor_args)
         .assert()
@@ -181,6 +183,7 @@ fn test_convert() {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("convert")
+        .arg("-v")
         .assert()
         .success();
 
@@ -214,6 +217,7 @@ fn test_convert_with_multiple_templates() {
         "RTF Preprocessor",
         "-t rtf -o output.rtf",
         "output.rtf",
+        "output.rtf",
     );
 
     create_markdown_file(&project_path, "Chapter 1.md", VALID_MARKDOWN_CONTENT);
@@ -221,6 +225,7 @@ fn test_convert_with_multiple_templates() {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("convert")
+        .arg("-v")
         .assert()
         .success();
 
@@ -268,6 +273,7 @@ fn test_convert_specific_template(
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("convert")
+        .arg("-v")
         .arg("--templates")
         .arg(template_name)
         .assert()
@@ -317,6 +323,7 @@ fn test_convert_specific_project_folder(#[case] project_path_name: &str) {
         "RTF Preprocessor",
         "-t rtf -o output.rtf",
         "output.rtf",
+        "output.rtf",
     );
 
     create_markdown_file(&project_path, "Chapter 1.md", VALID_MARKDOWN_CONTENT);
@@ -324,6 +331,7 @@ fn test_convert_specific_project_folder(#[case] project_path_name: &str) {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&temp_dir)
         .arg("convert")
+        .arg("-v")
         .arg("--project")
         .arg(project_path_name)
         .assert()
@@ -359,6 +367,7 @@ fn test_convert_epub() {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("convert")
+        .arg("-v")
         .assert()
         .success();
 
@@ -382,6 +391,7 @@ fn test_convert_giant_file() {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("convert")
+        .arg("-v")
         .assert()
         .success();
 
@@ -408,6 +418,7 @@ fn test_convert_many_files() {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("convert")
+        .arg("-v")
         .assert()
         .success();
 
@@ -436,6 +447,7 @@ fn test_convert_far_nested_markdown_file() {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("convert")
+        .arg("-v")
         .assert()
         .success();
 
@@ -462,6 +474,7 @@ fn test_convert_long_markdown_file_name() {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("convert")
+        .arg("-v")
         .assert()
         .success();
 
@@ -482,6 +495,7 @@ fn test_convert_no_markdown_files() {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("convert")
+        .arg("-v")
         .assert()
         .success();
 
@@ -501,6 +515,7 @@ fn test_convert_custom_pandoc_conversion() {
         "RTF Preprocessor",
         "-t rtf -o output.rtf",
         "output.rtf",
+        "output.rtf",
     );
 
     create_markdown_file(&project_path, "Chapter 1.md", VALID_MARKDOWN_CONTENT);
@@ -508,6 +523,7 @@ fn test_convert_custom_pandoc_conversion() {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("convert")
+        .arg("-v")
         .assert()
         .success();
 
@@ -557,6 +573,7 @@ fn test_convert_smart_clean() {
         let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
         cmd.current_dir(&project_path)
             .arg("convert")
+            .arg("-v")
             .assert()
             .success();
 
@@ -588,6 +605,7 @@ fn test_convert_profile() {
 
     cmd.current_dir(&project_path)
         .arg("convert")
+        .arg("-v")
         .arg("--profile")
         .arg("Profile 1")
         .assert()
@@ -641,6 +659,7 @@ fn test_convert_multiple_markdown_projects() {
 
     cmd.current_dir(&project_path)
         .arg("convert")
+        .arg("-v")
         .assert()
         .success();
 

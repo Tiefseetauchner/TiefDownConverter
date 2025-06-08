@@ -33,15 +33,20 @@ pub(crate) fn convert_latex(
         template.template_type.clone(),
     )?);
 
-    run_preprocessor_on_markdown(
+    let preprocessor = get_preprocessor(
+        &template.preprocessor,
+        &custom_processors.preprocessors,
+        Some(DEFAULT_TEX_PREPROCESSOR.clone()),
+    )?;
+
+    run_preprocessor_on_inputs(
         template,
         project_directory_path,
         compiled_directory_path,
-        combined_markdown_path,
+        conversion_input_dir,
         metadata_fields,
         metadata_settings,
-        &custom_processors.preprocessors,
-        Some(&DEFAULT_TEX_PREPROCESSOR),
+        &preprocessor,
     )?;
 
     generate_tex_metadata(compiled_directory_path, metadata_fields, metadata_settings)?;
@@ -177,15 +182,20 @@ pub(crate) fn convert_custom_pandoc(
 
     let output_path = output_path.unwrap();
 
-    run_preprocessor_on_markdown(
+    let preprocessor = get_preprocessor(
+        &template.preprocessor,
+        &custom_processors.preprocessors,
+        None,
+    )?;
+
+    run_preprocessor_on_inputs(
         template,
         project_directory_path,
         compiled_directory_path,
-        combined_markdown_path,
+        conversion_input_dir,
         metadata_fields,
         metadata_settings,
-        &custom_processors.preprocessors,
-        None,
+        &preprocessor,
     )?;
 
     let output_path = compiled_directory_path.join(&output_path);
@@ -267,7 +277,11 @@ pub(crate) fn convert_epub(
         }
     }
 
-    pandoc.arg(combined_markdown_path);
+    pandoc.args(get_sorted_files(
+        conversion_input_dir,
+        project_directory_path,
+        compiled_directory_path,
+    )?);
 
     run_with_logging(pandoc, "pandoc")?;
 
@@ -301,13 +315,14 @@ fn add_css_files(
     for css_file in css_files {
         let css_file = css_file?.path();
         if css_file.is_file() && css_file.extension().unwrap_or_default() == "css" {
-            pandoc
-                .arg("-c")
-                .arg(get_path_relative_to_compiled_directory(
+            pandoc.arg("-c").arg(
+                get_relative_path_from_compiled_dir(
                     &css_file,
                     project_directory_path,
                     compiled_directory_path,
-                )?);
+                )
+                .unwrap_or(css_file),
+            );
         }
     }
 
@@ -334,13 +349,14 @@ fn add_fonts(
             && ["ttf", "otf", "woff"]
                 .contains(&&*font_file.extension().unwrap_or_default().to_string_lossy())
         {
-            pandoc
-                .arg("--epub-embed-font")
-                .arg(get_path_relative_to_compiled_directory(
+            pandoc.arg("--epub-embed-font").arg(
+                get_relative_path_from_compiled_dir(
                     &font_file,
                     project_directory_path,
                     compiled_directory_path,
-                )?);
+                )
+                .unwrap_or(font_file),
+            );
         }
     }
 
@@ -363,15 +379,20 @@ pub(crate) fn convert_typst(
         template.template_type.clone(),
     )?;
 
-    run_preprocessor_on_markdown(
+    let preprocessor = get_preprocessor(
+        &template.preprocessor,
+        &custom_processors.preprocessors,
+        Some(DEFAULT_TYPST_PREPROCESSOR.clone()),
+    )?;
+
+    run_preprocessor_on_inputs(
         template,
         project_directory_path,
         compiled_directory_path,
-        combined_markdown_path,
+        conversion_input_dir,
         metadata_fields,
         metadata_settings,
-        &custom_processors.preprocessors,
-        Some(&DEFAULT_TYPST_PREPROCESSOR),
+        &preprocessor,
     )?;
 
     generate_typst_metadata(compiled_directory_path, metadata_fields, metadata_settings)?;
@@ -453,42 +474,36 @@ fn generate_typst_metadata(
     Ok(())
 }
 
-fn run_preprocessor_on_markdown(
+fn get_preprocessor(
+    preprocessor: &Option<String>,
+    custom_preprocessors: &Vec<PreProcessor>,
+    default_preprocessor: Option<PreProcessor>,
+) -> Result<PreProcessor> {
+    preprocessor
+        .as_ref()
+        .and_then(|n| custom_preprocessors.iter().find(|p| p.name == *n))
+        .or(default_preprocessor.as_ref())
+        .map(|p| p.clone())
+        .ok_or_else(|| {
+            eyre!("Preprocessor not defined and no custom preprocessor found for template.")
+        })
+}
+
+fn run_preprocessor_on_inputs(
     template: &TemplateMapping,
     project_directory_path: &Path,
     compiled_directory_path: &Path,
-    combined_markdown_path: &Path,
+    conversion_input_dir: &Path,
     metadata_fields: &Table,
     _metadata_settings: &MetadataSettings,
-    preprocessors: &Vec<PreProcessor>,
-    default_preprocessor: Option<&PreProcessor>,
+    preprocessor: &PreProcessor,
 ) -> Result<()> {
     let mut pandoc = Command::new("pandoc");
 
-    if let Some(preprocessor) = template.preprocessor.as_ref() {
-        if let Some(preprocessor) = preprocessors.iter().find(|p| &p.name == preprocessor) {
-            let pandoc_args = preprocess_pandoc_args(&preprocessor.pandoc_args, &metadata_fields);
-            pandoc.args(&pandoc_args);
-        } else {
-            return Err(eyre!(
-                "Preprocessor {} not found. Please define it in your manifest file.",
-                preprocessor
-            ));
-        }
-    } else if let Some(preprocessor) = default_preprocessor {
-        pandoc.args(&preprocessor.pandoc_args);
-    } else {
-        return Err(eyre!(
-            "Preprocessor not defined and no custom preprocessor found for template '{}'",
-            template.name
-        ));
-    }
+    let pandoc_args = preprocess_pandoc_args(&preprocessor.pandoc_args, &metadata_fields);
+    pandoc.args(&pandoc_args);
 
-    pandoc
-        .current_dir(compiled_directory_path)
-        .arg("-f")
-        .arg("markdown")
-        .arg(combined_markdown_path);
+    pandoc.current_dir(compiled_directory_path);
 
     add_lua_filters(
         template,
@@ -497,7 +512,18 @@ fn run_preprocessor_on_markdown(
         &mut pandoc,
     )?;
 
-    run_with_logging(pandoc, "Pandoc")?;
+    pandoc.args(get_sorted_files(
+        conversion_input_dir,
+        project_directory_path,
+        compiled_directory_path,
+    )?);
+
+    let combined_output = run_with_logging(pandoc, "Pandoc")?;
+
+    std::fs::write(
+        compiled_directory_path.join(&preprocessor.combined_output),
+        combined_output,
+    )?;
 
     Ok(())
 }
@@ -559,40 +585,115 @@ fn add_lua_filter_or_directory(
             )?;
         }
     } else if filter.is_file() && filter.extension().unwrap_or_default() == "lua" {
-        pandoc
-            .arg("--lua-filter")
-            .arg(get_path_relative_to_compiled_directory(
+        pandoc.arg("--lua-filter").arg(
+            get_relative_path_from_compiled_dir(
                 &filter,
                 project_directory_path,
                 compiled_directory_path,
-            )?);
+            )
+            .unwrap_or(filter),
+        );
     }
 
     Ok(())
 }
 
-fn get_path_relative_to_compiled_directory(
+fn get_relative_path_from_compiled_dir(
     original_path: &Path,
-    project_directory_path: &Path,
-    compiled_directory_path: &Path,
-) -> Result<PathBuf> {
-    let relative_path = compiled_directory_path
-        .strip_prefix(project_directory_path)
-        .unwrap()
-        .to_path_buf();
+    project_root: &Path,
+    compiled_dir: &Path,
+) -> Option<PathBuf> {
+    let relative_to_project = original_path.strip_prefix(project_root).ok()?;
 
-    let components = relative_path.components().count();
+    let depth = compiled_dir
+        .strip_prefix(project_root)
+        .ok()?
+        .components()
+        .count();
     let mut relative_path = PathBuf::new();
-    for _ in 0..components {
+    for _ in 0..depth {
         relative_path.push("..");
     }
 
-    relative_path.push(original_path.strip_prefix(project_directory_path).unwrap());
-
-    Ok(relative_path)
+    relative_path.push(relative_to_project);
+    Some(relative_path)
 }
 
-fn run_with_logging(mut command: Command, command_name: &str) -> Result<()> {
+fn get_sorted_files(
+    input_dir: &Path,
+    project_directory_path: &Path,
+    compiled_directory_path: &Path,
+) -> Result<Vec<PathBuf>> {
+    let dir_content = fs::read_dir(input_dir)?;
+
+    let mut dir_content = dir_content
+        .filter_map(|f| {
+            let entry = f.ok()?;
+
+            Some(entry.path())
+        })
+        .collect::<Vec<_>>();
+
+    dir_content.sort_by(|a, b| {
+        let a_num = retrieve_file_order_number(a);
+        let b_num = retrieve_file_order_number(b);
+
+        match a_num.cmp(&b_num) {
+            std::cmp::Ordering::Equal => {
+                let a_is_file = a.is_file();
+                let b_is_file = b.is_file();
+                match (a_is_file, b_is_file) {
+                    (true, false) => std::cmp::Ordering::Less,
+                    (false, true) => std::cmp::Ordering::Greater,
+                    _ => std::cmp::Ordering::Equal,
+                }
+            }
+            other => other,
+        }
+    });
+
+    let input_files = dir_content
+        .iter()
+        .flat_map(|f| {
+            if f.is_dir() {
+                return get_sorted_files(f, project_directory_path, compiled_directory_path)
+                    .unwrap();
+            } else {
+                return vec![f.clone()];
+            }
+        })
+        .collect::<Vec<_>>();
+
+    let input_files = input_files
+        .iter()
+        .map(|f| {
+            get_relative_path_from_compiled_dir(f, project_directory_path, compiled_directory_path)
+                .unwrap_or(f.to_path_buf())
+        })
+        .collect();
+
+    Ok(input_files)
+}
+
+fn retrieve_file_order_number(p: &Path) -> u32 {
+    let file_name_regex = regex::Regex::new(r"Chapter (\d+).*").unwrap();
+
+    if let Some(order_number) = p
+        .file_name()
+        .and_then(|name| name.to_str().map(|s| s.to_string()))
+        .and_then(|s| file_name_regex.captures(&s).map(|cap| cap[1].to_string()))
+        .and_then(|n| match n.parse::<u32>() {
+            Result::Ok(n) => Some(n),
+            Err(_e) => None,
+        })
+    {
+        return order_number;
+    }
+
+    0
+}
+
+fn run_with_logging(mut command: Command, command_name: &str) -> Result<String> {
     let mut out = command
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
@@ -606,15 +707,21 @@ fn run_with_logging(mut command: Command, command_name: &str) -> Result<()> {
 
     let stdout_thread = thread::spawn(move || {
         let mut buffer = String::new();
+        let mut content = String::new();
+
         while let std::io::Result::Ok(bytes_read) = stdout_reader.read_line(&mut buffer) {
             if bytes_read == 0 {
                 break;
             }
 
+            content.push_str(&buffer);
+
             debug!("{}", buffer);
 
             buffer.clear();
         }
+
+        return content;
     });
 
     let stderr_thread = thread::spawn(move || {
@@ -632,7 +739,7 @@ fn run_with_logging(mut command: Command, command_name: &str) -> Result<()> {
 
     let status = out.wait()?;
 
-    stdout_thread.join().unwrap();
+    let stdout_str = stdout_thread.join().unwrap();
     stderr_thread.join().unwrap();
 
     if !status.success() {
@@ -646,5 +753,5 @@ fn run_with_logging(mut command: Command, command_name: &str) -> Result<()> {
         );
     }
 
-    Ok(())
+    Ok(stdout_str)
 }

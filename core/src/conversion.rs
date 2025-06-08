@@ -17,7 +17,6 @@ use log::debug;
 use log::error;
 use log::info;
 use log::warn;
-use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
 use toml::Table;
@@ -129,31 +128,6 @@ pub fn convert(
             &markdown_project_compiled_directory_path,
             &input_dir,
         )?;
-
-        // We should copy the input files (non-exclusively markdown) to the conversion directory.
-        // For example:
-        // - 2025-05-18_09-25-16
-        // | - InputFiles
-        // |   | - Chapter 1.md
-        // |   | - Chapter 2.md
-        // |   | - Chapter 3.md
-        // |   | - Chapter 4.md
-        // |   | - Chapter 5.tex
-        // | - template.tex
-        // | - template.typ
-        // - InputFiles
-        // | - Chapter 1.md
-        // | - Chapter 2.md
-        // | - Chapter 3.md
-        // | - Chapter 4.md
-        // | - Chapter 5.tex
-        // Copy InputFiles (i.e. markdown_dir) to InputFiles in ConversionDirectory
-        // Run pandoc (i.e. preprocessor) on every input file and take stdout and append to a buffer, then write that to a combined file as specified by the preprocessor.
-        //   When combining, we grab a new field on the preprocessor (optional, defaults to output) and combine it with the extension
-        //     WITHOUT AN EXTENSION!!! how the hell do we even document this?
-        //   Thus, the preprocessor has to have a concept of what the output type is (required!)
-        //   TODO: Figure out the manifest upgrade path.
-        // run processor (conversion) on templates => This, in theory, remains untouched
 
         let shared_metadata = manifest.shared_metadata.clone().unwrap_or(Table::new());
         let project_metadata = markdown_project.metadata_fields.unwrap_or(Table::new());
@@ -284,43 +258,6 @@ fn create_build_directory(project_path: &Path) -> Result<std::path::PathBuf> {
     dir::create_all(&build_directory_path, false)?;
 
     Ok(build_directory_path)
-}
-
-fn get_markdown_files(markdown_dir: &PathBuf) -> Result<Vec<fs::DirEntry>> {
-    let chapter_name_regex = regex::Regex::new(r"Chapter (\d+).*").unwrap();
-
-    let mut markdown_files: Vec<_> = fs::read_dir(markdown_dir)?.filter_map(Result::ok).collect();
-
-    markdown_files.sort_by(|a, b| {
-        let a_binding = a.file_name();
-        let b_binding = b.file_name();
-        let a_name = a_binding.to_string_lossy();
-        let b_name = b_binding.to_string_lossy();
-
-        let a_num = chapter_name_regex
-            .captures(&a_name)
-            .and_then(|caps| caps.get(1)?.as_str().parse::<u32>().ok())
-            .unwrap_or(0);
-        let b_num = chapter_name_regex
-            .captures(&b_name)
-            .and_then(|caps| caps.get(1)?.as_str().parse::<u32>().ok())
-            .unwrap_or(0);
-
-        match a_num.cmp(&b_num) {
-            std::cmp::Ordering::Equal => {
-                let a_is_file = a.metadata().map(|m| m.is_file()).unwrap_or(false);
-                let b_is_file = b.metadata().map(|m| m.is_file()).unwrap_or(false);
-                match (a_is_file, b_is_file) {
-                    (true, false) => std::cmp::Ordering::Less,
-                    (false, true) => std::cmp::Ordering::Greater,
-                    _ => std::cmp::Ordering::Equal,
-                }
-            }
-            other => other,
-        }
-    });
-
-    Ok(markdown_files)
 }
 
 fn copy_markdown_direcotry(markdown_dir: &Path, output_dir: &Path) -> Result<()> {
