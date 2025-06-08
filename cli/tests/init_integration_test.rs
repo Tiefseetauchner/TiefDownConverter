@@ -7,7 +7,7 @@ use tempfile::tempdir;
 #[macro_use]
 mod assertions;
 
-const DEFAULT_MANIFEST_CONTENT: &str = r#"version = 4
+const DEFAULT_MANIFEST_CONTENT: &str = r#"version = 5
 
 [[markdown_projects]]
 name = "Markdown"
@@ -30,7 +30,7 @@ fn assert_default_project(project_path: &Path) {
     let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
     assert_eq!(
         manifest_content, DEFAULT_MANIFEST_CONTENT,
-        "Manifest file should be equivalent to default version 1 manifest."
+        "Manifest file should be equivalent to default version 5 manifest."
     );
 
     let template_dir = project_path.join("template");
