@@ -145,7 +145,11 @@ pub fn convert(
             let conversion_input_dir =
                 &markdown_project_compiled_directory_path.join(template.name.clone());
 
-            copy_markdown_direcotry(&input_dir, &conversion_input_dir)?;
+            copy_markdown_direcotry(
+                &input_dir,
+                &conversion_input_dir,
+                &markdown_project.resources,
+            )?;
 
             convert_template(
                 &markdown_project_compiled_directory_path,
@@ -184,7 +188,7 @@ fn copy_resources(
             dir::copy(
                 resource,
                 markdown_project_compiled_directory_path,
-                &dir::CopyOptions::new().overwrite(true).content_only(true),
+                &dir::CopyOptions::new().overwrite(true).content_only(false),
             )?;
         } else {
             debug!("Copying file: {}", resource.display());
@@ -260,7 +264,11 @@ fn create_build_directory(project_path: &Path) -> Result<std::path::PathBuf> {
     Ok(build_directory_path)
 }
 
-fn copy_markdown_direcotry(markdown_dir: &Path, output_dir: &Path) -> Result<()> {
+fn copy_markdown_direcotry(
+    markdown_dir: &Path,
+    output_dir: &Path,
+    resources: &Option<Vec<PathBuf>>,
+) -> Result<()> {
     debug!("Copying markdown directory: {}", markdown_dir.display());
 
     dir::create_all(output_dir, false)?;
@@ -270,6 +278,16 @@ fn copy_markdown_direcotry(markdown_dir: &Path, output_dir: &Path) -> Result<()>
         output_dir,
         &dir::CopyOptions::new().overwrite(true).content_only(true),
     )?;
+
+    for resource in resources.clone().unwrap_or(vec![]) {
+        let resource = output_dir.join(resource.clone());
+
+        if resource.is_dir() {
+            dir::remove(resource)?;
+        } else {
+            file::remove(resource)?;
+        }
+    }
 
     Ok(())
 }

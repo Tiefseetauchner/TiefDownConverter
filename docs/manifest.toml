@@ -26,6 +26,7 @@ default_profile = "Documentation"
 name = "main"
 output = "."
 path = "Markdown"
+resources = ["resources/"]
 
 [[markdown_projects]]
 default_profile = "Man"
