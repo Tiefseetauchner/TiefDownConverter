@@ -80,18 +80,18 @@ converted.
 Now you should be able to run `tiefdownconverter convert -p path/to/your_project` (or
 ommitting the -p flag if you're already in the project directory) and it should
 generate a PDF file in the project directory. You can now adjust the template, add
-your own Markdown files, and so on.
+your own input files (Markdown or otherwise), and so on.
 
-## The markdown "directory"
+## The input "directory"
 
-Markdown files are the main input for the converter, and as such their structure is
-important. The converter will look for markdown files in the `Markdown` directory, and
-will sort them by a chapter number. Namely, your files should be named
-`Chapter X Whatever else.md`, where X is a number (you don't have to name them 01, 02
-etc., as we parse the number as an integer anyways). The converter will then sort them
-by the number and combine them in that order.
+Your source files are the main input for the converter, and as such their structure is
+important. The converter will look for files in the `Markdown` directory (or the directory
+specified during project creation) and will sort them by a chapter number. Namely, your files
+should be named `Chapter X Whatever else.ext`, where X is a number (you don't have to name them 01, 02
+etc., as we parse the number as an integer). The converter will then sort them
+by the number and combine them in that order regardless of extension.
 
-You can also add subdirectories in the Markdown directory. These will be combined after
+You can also add subdirectories in the input directory. These will be combined after
 the file with the same number. For example, consider the following directory structure:
 
 ```
