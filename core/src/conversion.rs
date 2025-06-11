@@ -145,7 +145,7 @@ pub fn convert(
             let conversion_input_dir =
                 &markdown_project_compiled_directory_path.join(template.name.clone());
 
-            copy_markdown_direcotry(
+            copy_markdown_directory(
                 &input_dir,
                 &conversion_input_dir,
                 &markdown_project.resources,
@@ -264,7 +264,7 @@ fn create_build_directory(project_path: &Path) -> Result<std::path::PathBuf> {
     Ok(build_directory_path)
 }
 
-fn copy_markdown_direcotry(
+fn copy_markdown_directory(
     markdown_dir: &Path,
     output_dir: &Path,
     resources: &Option<Vec<PathBuf>>,
