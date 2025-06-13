@@ -186,6 +186,25 @@ will be used to convert the markdown project _by default_. That doesn't mean you
 all templates as you wish, you can always use the `--profile` flag to specify a different
 profile or the `--templates` flag to specify a different set of templates.
 
+## Input Processing
+
+Input processing is the process of taking the input files and converting them to a format
+usable in templates. Now, this is generically phrased on purpose - input files can be
+anything - markdown files, typst files, so on. Whatever Pandoc supports.
+
+And that gives us a hint - input processing is synonymous with preprocessing - the step of
+the conversion that runs pandoc.
+
+Previously, this was done by combining markdown files into one file and running pandoc on
+that. That was a simple way to do it. Oh so simple.
+
+Now, all input files are passed to pandoc at once - regardless of input format - and then
+combined _by pandoc_, then the output is saved as the output as specified by the
+preprocessor.
+
+This by default would be `output.tex` or `output.typ`, but when you create a preprocessor,
+that can be anything.
+
 ## Customising the template
 
 The key idea behind tiefdownconverter is, that it can handle multiple templates at the
@@ -510,7 +529,7 @@ tiefdownconverter project templates <TEMPLATE_NAME> update --preprocessor <PREPR
 to assign it to a template and
 
 ```bash
-tiefdownconverter project preprocessors <PREPROCESSOR_NAME> add -- [PANDOC_ARGS]
+tiefdownconverter project preprocessors <PREPROCESSOR_NAME> add <OUTPUT_FILE> -- [PANDOC_ARGS]
 ```
 
 to create a new preprocessor.

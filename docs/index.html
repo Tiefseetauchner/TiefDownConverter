@@ -22,6 +22,51 @@
       vertical-align: middle;
     }
     .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="template/index.html_template/style.css" />
+</head>
+<body>
+<header>
+    <em>Available at <a
+            href="https://github.com/Tiefseetauchner/TiefDownConverter">https://github.com/Tiefseetauchner/TiefDownConverter</a></em>
+</header>
+<header id="title-block-header">
+<h1 class="title">TiefDownConverter Documentation</h1>
+<p class="author">Tiefseetauchner et al.</p>
+</header>
+<p>Afdadf</p>
+<p>dfg</p>
+<p><strong>fdaijifdjfd</strong></p>
+<p>dda;kgjf;lkfjds</p>
+<p>Hel<em>l</em><u>o</u>!</p>
+</body>
+</html>
+
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Tiefseetauchner et al." />
+  <title>TiefDownConverter Documentation</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
     /* CSS for syntax highlighting */
     html { -webkit-text-size-adjust: 100%; }
     pre > code.sourceCode { white-space: pre; position: relative; }
@@ -122,6 +167,8 @@ started</a></li>
 input “directory”</a></li>
 <li><a href="#markdown-projects" id="toc-markdown-projects">Markdown
 projects</a></li>
+<li><a href="#input-processing" id="toc-input-processing">Input
+Processing</a></li>
 <li><a href="#customising-the-template"
 id="toc-customising-the-template">Customising the template</a></li>
 <li><a href="#adjusting-template-behaviour"
@@ -746,6 +793,22 @@ mean you can’t use all templates as you wish, you can always use the
 <code>--profile</code> flag to specify a different profile or the
 <code>--templates</code> flag to specify a different set of
 templates.</p>
+<h2 id="input-processing">Input Processing</h2>
+<p>Input processing is the process of taking the input files and
+converting them to a format usable in templates. Now, this is
+generically phrased on purpose - input files can be anything - markdown
+files, typst files, so on. Whatever Pandoc supports.</p>
+<p>And that gives us a hint - input processing is synonymous with
+preprocessing - the step of the conversion that runs pandoc.</p>
+<p>Previously, this was done by combining markdown files into one file
+and running pandoc on that. That was a simple way to do it. Oh so
+simple.</p>
+<p>Now, all input files are passed to pandoc at once - regardless of
+input format - and then combined <em>by pandoc</em>, then the output is
+saved as the output as specified by the preprocessor.</p>
+<p>This by default would be <code>output.tex</code> or
+<code>output.typ</code>, but when you create a preprocessor, that can be
+anything.</p>
 <h2 id="customising-the-template">Customising the template</h2>
 <p>The key idea behind tiefdownconverter is, that it can handle multiple
 templates at the same time. This is done by creating a template file in
@@ -1041,7 +1104,7 @@ be done by defining a preprocessor.</p>
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project templates <span class="op">&lt;</span>TEMPLATE_NAME<span class="op">&gt;</span> update <span class="at">--preprocessor</span> <span class="op">&lt;</span>PREPROCESSOR_NAME<span class="op">&gt;</span></span></code></pre></div>
 <p>to assign it to a template and</p>
 <div class="sourceCode" id="cb16"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project preprocessors <span class="op">&lt;</span>PREPROCESSOR_NAME<span class="op">&gt;</span> add <span class="at">--</span> <span class="pp">[</span><span class="ss">PANDOC_ARGS</span><span class="pp">]</span></span></code></pre></div>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project preprocessors <span class="op">&lt;</span>PREPROCESSOR_NAME<span class="op">&gt;</span> add <span class="op">&lt;</span>OUTPUT_FILE<span class="op">&gt;</span> -- <span class="pp">[</span><span class="ss">PANDOC_ARGS</span><span class="pp">]</span></span></code></pre></div>
 <p>to create a new preprocessor.</p>
 <p>For example, if you want to add <code>--listings</code> to the pandoc
 command, you could do so by adding <code>--listings</code> to the
@@ -2142,5 +2205,50 @@ fonts, you will need to replace them in fonts/ and add your own fonts to
 the templates.</p>
 <h2 id="code-style">Code Style</h2>
 <p>I don’t have one. I’m sorry.</p>
+</body>
+</html>
+
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Tiefseetauchner et al." />
+  <title>TiefDownConverter Documentation</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="template/index.html_template/style.css" />
+</head>
+<body>
+<header>
+    <em>Available at <a
+            href="https://github.com/Tiefseetauchner/TiefDownConverter">https://github.com/Tiefseetauchner/TiefDownConverter</a></em>
+</header>
+<header id="title-block-header">
+<h1 class="title">TiefDownConverter Documentation</h1>
+<p class="author">Tiefseetauchner et al.</p>
+</header>
+<p>Afdadf</p>
+<p>dfg</p>
+<p><strong>fdaijifdjfd</strong></p>
+<p>dda;kgjf;lkfjds</p>
+<p>Hel<em>l</em><u>o</u>!</p>
 </body>
 </html>
