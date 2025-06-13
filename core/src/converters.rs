@@ -8,6 +8,7 @@ use crate::{
 };
 use color_eyre::eyre::{Ok, Result, eyre};
 use log::{debug, error};
+use rayon::iter::*;
 use std::{
     fs,
     io::{BufRead, BufReader, Write},
@@ -145,7 +146,7 @@ fn compile_latex(
         .arg(template_path)
         .args(processor_args);
 
-    run_with_logging(latex_command, "xelatex")?;
+    run_with_logging(latex_command, "xelatex", false)?;
 
     Ok(())
 }
@@ -283,7 +284,7 @@ pub(crate) fn convert_epub(
         compiled_directory_path,
     )?);
 
-    run_with_logging(pandoc, "pandoc")?;
+    run_with_logging(pandoc, "pandoc", false)?;
 
     let output_path = compiled_directory_path.join(output_path);
 
@@ -427,7 +428,7 @@ pub(crate) fn convert_typst(
         .arg(&output_path)
         .args(processor_args);
 
-    run_with_logging(typst_command, "typst")?;
+    run_with_logging(typst_command, "typst", false)?;
 
     let output_path = compiled_directory_path.join(output_path);
 
@@ -498,34 +499,76 @@ fn run_preprocessor_on_inputs(
     _metadata_settings: &MetadataSettings,
     preprocessor: &PreProcessor,
 ) -> Result<()> {
-    let mut pandoc = Command::new("pandoc");
-
     let pandoc_args = preprocess_pandoc_args(&preprocessor.pandoc_args, &metadata_fields);
-    pandoc.args(&pandoc_args);
 
-    pandoc.current_dir(compiled_directory_path);
-
-    add_lua_filters(
-        template,
-        project_directory_path,
-        compiled_directory_path,
-        &mut pandoc,
-    )?;
-
-    pandoc.args(get_sorted_files(
+    let input_files = get_sorted_files(
         conversion_input_dir,
         project_directory_path,
         compiled_directory_path,
-    )?);
+    )?;
 
-    let combined_output = run_with_logging(pandoc, "Pandoc")?;
+    let chunks = get_preprocessing_chunks(&input_files)?;
+
+    let results = chunks
+        .par_iter()
+        .map(|chunk| {
+            let mut pandoc = Command::new("pandoc");
+            pandoc.args(&pandoc_args);
+            pandoc.current_dir(compiled_directory_path);
+            add_lua_filters(
+                template,
+                project_directory_path,
+                compiled_directory_path,
+                &mut pandoc,
+            )?;
+            pandoc.args(chunk);
+            run_with_logging(pandoc, "Pandoc", true)
+        })
+        .collect::<Result<Vec<_>>>()?;
 
     std::fs::write(
         compiled_directory_path.join(&preprocessor.combined_output),
-        combined_output,
+        results.join("\n\n"),
     )?;
 
     Ok(())
+}
+
+fn get_preprocessing_chunks(input_files: &Vec<PathBuf>) -> Result<Vec<Vec<PathBuf>>> {
+    let mut chunks = Vec::new();
+    let mut current_chunk = Vec::new();
+
+    for input_file in input_files {
+        if current_chunk.is_empty() {
+            current_chunk.push(input_file.clone());
+            continue;
+        }
+
+        let current_extension = input_file.extension().ok_or(eyre!(
+            "Input file {} has no extension",
+            input_file.display()
+        ))?;
+        let previous_extension = current_chunk
+            .last()
+            .and_then(|file: &PathBuf| file.extension())
+            .ok_or(eyre!(
+                "Input file {} has no extension",
+                input_file.display()
+            ))?;
+
+        if current_extension != previous_extension {
+            chunks.push(current_chunk);
+            current_chunk = Vec::new();
+        }
+
+        current_chunk.push(input_file.clone());
+    }
+
+    if !current_chunk.is_empty() {
+        chunks.push(current_chunk);
+    }
+
+    Ok(chunks)
 }
 
 fn preprocess_pandoc_args(pandoc_args: &[String], metadata_fields: &Table) -> Vec<String> {
@@ -693,7 +736,11 @@ fn retrieve_file_order_number(p: &Path) -> u32 {
     0
 }
 
-fn run_with_logging(mut command: Command, command_name: &str) -> Result<String> {
+fn run_with_logging(
+    mut command: Command,
+    command_name: &str,
+    supress_verbose: bool,
+) -> Result<String> {
     let mut out = command
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
@@ -716,7 +763,9 @@ fn run_with_logging(mut command: Command, command_name: &str) -> Result<String> 
 
             content.push_str(&buffer);
 
-            debug!("{}", buffer);
+            if !supress_verbose {
+                debug!("{}", buffer);
+            }
 
             buffer.clear();
         }
