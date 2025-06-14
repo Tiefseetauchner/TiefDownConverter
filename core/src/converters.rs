@@ -175,13 +175,11 @@ pub(crate) fn convert_custom_pandoc(
 
     let output_path = template.output.clone();
 
-    if output_path == None {
+    let Some(output_path) = output_path else {
         return Err(eyre!(
             "Output Path is required for Custom Pandoc conversions."
         ));
-    }
-
-    let output_path = output_path.unwrap();
+    };
 
     let preprocessor = get_preprocessor(
         &template.preprocessor,
@@ -697,15 +695,21 @@ fn get_sorted_files(
 
     let input_files = dir_content
         .iter()
-        .flat_map(|f| {
-            if f.is_dir() {
-                return get_sorted_files(f, project_directory_path, compiled_directory_path)
-                    .unwrap();
-            } else {
-                return vec![f.clone()];
+        .map(|f| {
+            if f.is_file() {
+                return Ok(vec![f.clone()]);
             }
+
+            get_sorted_files(f, project_directory_path, compiled_directory_path)
         })
         .collect::<Vec<_>>();
+
+    let input_files: Vec<PathBuf> = input_files
+        .into_iter()
+        .collect::<Result<Vec<_>>>()?
+        .into_iter()
+        .flatten()
+        .collect();
 
     let input_files = input_files
         .iter()
@@ -746,8 +750,18 @@ fn run_with_logging(
         .stderr(Stdio::piped())
         .spawn()?;
 
-    let stdout = out.stdout.take().unwrap();
-    let stderr = out.stderr.take().unwrap();
+    let Some(stdout) = out.stdout.take() else {
+        return Err(eyre!(
+            "Failed to capture stdout for command: {}",
+            command_name
+        ));
+    };
+    let Some(stderr) = out.stderr.take() else {
+        return Err(eyre!(
+            "Failed to capture stderr for command: {}",
+            command_name
+        ));
+    };
 
     let mut stdout_reader = BufReader::new(stdout);
     let mut stderr_reader = BufReader::new(stderr);
@@ -796,6 +810,14 @@ fn run_with_logging(
     };
 
     if !status.success() {
+        if command_name != "xelatex" {
+            return Err(eyre!(
+                "Command {} failed with status code {}.",
+                command_name,
+                status.code().unwrap()
+            ));
+        }
+
         debug!(
             "{} failed with status code {}.",
             command_name,

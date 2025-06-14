@@ -195,7 +195,8 @@ fn copy_resources(
 
             file::copy(
                 &resource,
-                &markdown_project_compiled_directory_path.join(resource.file_name().unwrap()),
+                &markdown_project_compiled_directory_path
+                    .join(resource.file_name().unwrap_or(std::ffi::OsStr::new("."))),
                 &file::CopyOptions::new().overwrite(true),
             )?;
         }
