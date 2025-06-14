@@ -1,9 +1,8 @@
 ## `tiefdownconverter project templates add` {#projecttemplatesadd}
 
-**Version:** `tiefdownconverter 0.8.0`
+**Version:** `tiefdownconverter 0.9.0-ALPHA.1`
 
 ### Usage:
-
 ```
 Add a new template to the project.
 If using a preset template name, the preset will be copied to the template folder.
@@ -21,7 +20,7 @@ Options:
 
   -t, --template-type <TEMPLATE_TYPE>
           The type of the template. If not provided, the type will be inferred from the template file.
-
+          
           [possible values: tex, typst, epub, custom-pandoc]
 
   -o, --output <OUTPUT>
@@ -51,3 +50,4 @@ Options:
   -h, --help
           Print help (see a summary with '-h')
 ```
+

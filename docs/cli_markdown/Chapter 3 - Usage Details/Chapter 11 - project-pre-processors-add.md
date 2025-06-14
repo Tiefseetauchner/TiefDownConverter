@@ -1,13 +1,12 @@
 ## `tiefdownconverter project pre-processors add` {#projectpre-processorsadd}
 
-**Version:** `tiefdownconverter 0.8.0`
+**Version:** `tiefdownconverter 0.9.0-ALPHA.1`
 
 ### Usage:
-
 ```
 Add a new preprocessor to the project.
 
-Usage: tiefdownconverter project pre-processors add [OPTIONS] <NAME> [-- <PANDOC_ARGS>...]
+Usage: tiefdownconverter project pre-processors add [OPTIONS] <NAME> <COMBINED_OUTPUT> [-- <PANDOC_ARGS>...]
 
 Arguments:
   <NAME>
@@ -21,6 +20,10 @@ Arguments:
           The arguments to pass to the preprocessor.
 
 Options:
-  -v, --verbose  Enable verbose output.
-  -h, --help     Print help
+  -v, --verbose
+          Enable verbose output.
+
+  -h, --help
+          Print help (see a summary with '-h')
 ```
+

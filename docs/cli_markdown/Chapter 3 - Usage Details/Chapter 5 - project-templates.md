@@ -1,9 +1,8 @@
 ## `tiefdownconverter project templates` {#projecttemplates}
 
-**Version:** `tiefdownconverter 0.8.0`
+**Version:** `tiefdownconverter 0.9.0-ALPHA.1`
 
 ### Usage:
-
 ```
 Add or modify templates in the project.
 
@@ -24,7 +23,7 @@ Options:
 ```
 
 ### Subcommands:
-
 - [add](#projecttemplatesadd)
 - [remove](#projecttemplatesremove)
 - [update](#projecttemplatesupdate)
+

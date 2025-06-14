@@ -1,9 +1,8 @@
 ## `tiefdownconverter project processors` {#projectprocessors}
 
-**Version:** `tiefdownconverter 0.8.0`
+**Version:** `tiefdownconverter 0.9.0-ALPHA.1`
 
 ### Usage:
-
 ```
 Manage the processors of the project.
 A processor defines additional arguments passed to the conversion command.
@@ -28,7 +27,7 @@ Options:
 ```
 
 ### Subcommands:
-
 - [add](#projectprocessorsadd)
 - [remove](#projectprocessorsremove)
 - [list](#projectprocessorslist)
+

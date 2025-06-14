@@ -1,9 +1,8 @@
 ## `tiefdownconverter project update-manifest` {#projectupdate-manifest}
 
-**Version:** `tiefdownconverter 0.8.0`
+**Version:** `tiefdownconverter 0.9.0-ALPHA.1`
 
 ### Usage:
-
 ```
 Update the project manifest.
 
@@ -13,7 +12,7 @@ Options:
       --smart-clean <SMART_CLEAN>
           Enables smart clean for the project with a default threshold of 5.
           If the number of conversion folders in the project is above the smart_clean_threshold, old folders will be cleaned, leaving only the threshold amount of folders.
-
+          
           [possible values: true, false]
 
   -v, --verbose
@@ -26,3 +25,4 @@ Options:
   -h, --help
           Print help (see a summary with '-h')
 ```
+

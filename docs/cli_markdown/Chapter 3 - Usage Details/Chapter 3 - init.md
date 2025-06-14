@@ -1,9 +1,8 @@
 ## `tiefdownconverter init` {#init}
 
-**Version:** `tiefdownconverter 0.8.0`
+**Version:** `tiefdownconverter 0.9.0-ALPHA.1`
 
 ### Usage:
-
 ```
 Initialize a new TiefDown project.
 
@@ -18,8 +17,8 @@ Options:
           The preset templates to use. If not provided, the default template.tex will be used.
           For custom templates, use the update command after initializing the project.
           If using a LiX template, make sure to install the corresponding .sty and .cls files from https://github.com/NicklasVraa/LiX. Adjust the metadata in template/meta.tex accordingly.
-
-
+          
+          
           [possible values: template.tex, booklet.tex, lix_novel_a4.tex, lix_novel_book.tex, template_typ.typ, default_epub]
 
   -v, --verbose
@@ -45,3 +44,4 @@ Options:
   -h, --help
           Print help (see a summary with '-h')
 ```
+

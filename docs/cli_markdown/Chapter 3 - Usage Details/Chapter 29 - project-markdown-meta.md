@@ -1,9 +1,8 @@
 ## `tiefdownconverter project markdown meta` {#projectmarkdownmeta}
 
-**Version:** `tiefdownconverter 0.8.0`
+**Version:** `tiefdownconverter 0.9.0-ALPHA.1`
 
 ### Usage:
-
 ```
 Manage the metadata of a markdown project.
 This metadata is markdown project specific and is not shared between projects.
@@ -30,7 +29,7 @@ Options:
 ```
 
 ### Subcommands:
-
 - [set](#projectmarkdownmetaset)
 - [remove](#projectmarkdownmetaremove)
 - [list](#projectmarkdownmetalist)
+

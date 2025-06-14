@@ -1,9 +1,8 @@
 ## `tiefdownconverter project markdown update` {#projectmarkdownupdate}
 
-**Version:** `tiefdownconverter 0.8.0`
+**Version:** `tiefdownconverter 0.9.0-ALPHA.1`
 
 ### Usage:
-
 ```
 Update a markdown project in the project.
 
@@ -19,3 +18,4 @@ Options:
       --default-profile <DEFAULT_PROFILE>  The default profile to use for converting this project.
   -h, --help                               Print help
 ```
+

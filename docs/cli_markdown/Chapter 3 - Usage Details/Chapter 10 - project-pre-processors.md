@@ -1,9 +1,8 @@
 ## `tiefdownconverter project pre-processors` {#projectpre-processors}
 
-**Version:** `tiefdownconverter 0.8.0`
+**Version:** `tiefdownconverter 0.9.0-ALPHA.1`
 
 ### Usage:
-
 ```
 Manage the preprocessors of the project.
 A preprocessor defines the arguments passed to the pandoc conversion from markdown.
@@ -29,7 +28,7 @@ Options:
 ```
 
 ### Subcommands:
-
 - [add](#projectpre-processorsadd)
 - [remove](#projectpre-processorsremove)
 - [list](#projectpre-processorslist)
+

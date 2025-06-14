@@ -1,9 +1,8 @@
 ## `tiefdownconverter project markdown meta set` {#projectmarkdownmetaset}
 
-**Version:** `tiefdownconverter 0.8.0`
+**Version:** `tiefdownconverter 0.9.0-ALPHA.1`
 
 ### Usage:
-
 ```
 Add or change the metadata. Overrides previous keys.
 
@@ -17,3 +16,4 @@ Options:
   -v, --verbose  Enable verbose output.
   -h, --help     Print help
 ```
+

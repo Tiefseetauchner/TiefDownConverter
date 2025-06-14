@@ -1,9 +1,8 @@
 ## `tiefdownconverter project shared-meta` {#projectshared-meta}
 
-**Version:** `tiefdownconverter 0.8.0`
+**Version:** `tiefdownconverter 0.9.0-ALPHA.1`
 
 ### Usage:
-
 ```
 Manage the shared metadata of the project.
 This Metadata is shared between all markdown projects.
@@ -27,7 +26,7 @@ Options:
 ```
 
 ### Subcommands:
-
 - [set](#projectshared-metaset)
 - [remove](#projectshared-metaremove)
 - [list](#projectshared-metalist)
+

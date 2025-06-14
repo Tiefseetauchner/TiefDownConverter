@@ -1,9 +1,8 @@
 ## `tiefdownconverter project` {#project}
 
-**Version:** `tiefdownconverter 0.8.0`
+**Version:** `tiefdownconverter 0.9.0-ALPHA.1`
 
 ### Usage:
-
 ```
 Update the TiefDown project.
 
@@ -33,7 +32,6 @@ Options:
 ```
 
 ### Subcommands:
-
 - [templates](#projecttemplates)
 - [update-manifest](#projectupdate-manifest)
 - [pre-processors](#projectpre-processors)
@@ -45,3 +43,4 @@ Options:
 - [validate](#projectvalidate)
 - [clean](#projectclean)
 - [smart-clean](#projectsmart-clean)
+
