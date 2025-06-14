@@ -140,9 +140,16 @@ fn main() -> Result<()> {
                 smart_clean_threshold,
             } => project_management::update_manifest(project, smart_clean, smart_clean_threshold)?,
             ProjectCommands::PreProcessors { command } => match command {
-                PreProcessorsCommands::Add { name, pandoc_args } => {
-                    project_management::add_preprocessor(project, name, pandoc_args)?
-                }
+                PreProcessorsCommands::Add {
+                    name,
+                    combined_output,
+                    pandoc_args,
+                } => project_management::add_preprocessor(
+                    project,
+                    name,
+                    combined_output,
+                    pandoc_args,
+                )?,
                 PreProcessorsCommands::Remove { name } => {
                     project_management::remove_preprocessor(project, name)?
                 }

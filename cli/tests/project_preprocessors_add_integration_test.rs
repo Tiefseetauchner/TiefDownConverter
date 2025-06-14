@@ -35,9 +35,9 @@ fn test_add_preprocessor() {
         .arg("pre-processors")
         .arg("add")
         .arg("My funny preprocessor")
+        .arg("mega.html")
         .arg("--")
         .arg("-t html")
-        .arg("-o mega.html")
         .assert()
         .success();
 
@@ -49,7 +49,8 @@ fn test_add_preprocessor() {
         manifest_content,
         r#"[[custom_processors.preprocessors]]
 name = "My funny preprocessor"
-pandoc_args = ["-t", "html", "-o", "mega.html"]"#
+pandoc_args = ["-t", "html"]
+combined_output = "mega.html""#
     );
 }
 
@@ -65,6 +66,7 @@ fn test_add_preprocessor_no_args() {
         .arg("pre-processors")
         .arg("add")
         .arg("My funny preprocessor")
+        .arg("output.tex")
         .assert()
         .success();
 
@@ -76,6 +78,7 @@ fn test_add_preprocessor_no_args() {
         manifest_content,
         r#"[[custom_processors.preprocessors]]
 name = "My funny preprocessor"
-pandoc_args = []"#
+pandoc_args = []
+combined_output = "output.tex""#
     );
 }

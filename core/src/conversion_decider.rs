@@ -9,8 +9,8 @@ use toml::Table;
 
 type Converter = fn(
     project_directory_path: &Path,
-    compiled_markdown_path: &Path,
     compiled_directory_path: &Path,
+    conversion_input_dir: &Path,
     template: &TemplateMapping,
     metadata_fields: &Table,
     metadata_settings: &MetadataSettings,

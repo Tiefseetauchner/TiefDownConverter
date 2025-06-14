@@ -352,6 +352,12 @@ pub(crate) enum PreProcessorsCommands {
     Add {
         #[arg(help = "The name of the preprocessor to create.")]
         name: String,
+        #[arg(
+            help = "The file the input gets converted to.",
+            long_help = r#"The file the input gets converted to.
+When preprocessing the input files, the files will get converted, combined and written this filename."#
+        )]
+        combined_output: PathBuf,
         #[arg(help = "The arguments to pass to the preprocessor.", num_args = 1.., value_delimiter = ' ', last = true, allow_hyphen_values = true)]
         pandoc_args: Vec<String>,
     },

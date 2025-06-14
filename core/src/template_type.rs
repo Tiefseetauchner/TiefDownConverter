@@ -6,7 +6,7 @@ use std::{
 };
 
 /// The type of a template. Defines the conversion behavior of a template.
-#[derive(Deserialize, Serialize, Clone, Debug, PartialEq, Eq)]
+#[derive(Deserialize, Serialize, Clone, Copy, Debug, PartialEq, Eq)]
 pub enum TemplateType {
     Tex = 0,
     Typst = 1,
@@ -52,14 +52,19 @@ impl From<usize> for TemplateType {
     }
 }
 
-impl Display for TemplateType {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let text = match self {
+impl TemplateType {
+    pub fn as_str(&self) -> &'static str {
+        match self {
             TemplateType::Tex => "Tex",
             TemplateType::Typst => "Typst",
             TemplateType::Epub => "Epub",
             TemplateType::CustomPandoc => "CustomPandoc",
-        };
-        write!(f, "{}", text)
+        }
+    }
+}
+
+impl Display for TemplateType {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.as_str())
     }
 }
