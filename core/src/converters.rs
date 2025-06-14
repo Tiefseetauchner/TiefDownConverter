@@ -788,8 +788,12 @@ fn run_with_logging(
 
     let status = out.wait()?;
 
-    let stdout_str = stdout_thread.join().unwrap();
-    stderr_thread.join().unwrap();
+    let std::result::Result::Ok(stdout_str) = stdout_thread.join() else {
+        return Err(eyre!("Error reading stdout thread"));
+    };
+    let std::result::Result::Ok(_stderr_str) = stderr_thread.join() else {
+        return Err(eyre!("Error reading stderr thread"));
+    };
 
     if !status.success() {
         debug!(
