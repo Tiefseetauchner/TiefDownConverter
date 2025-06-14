@@ -3,6 +3,7 @@
 **Version:** `tiefdownconverter 0.8.0`
 
 ### Usage:
+
 ```
 Convert a TiefDown project. By default, it will convert the current directory.
 
@@ -15,4 +16,3 @@ Options:
   -P, --profile <PROFILE>         The conversion profile to use. Cannot be used with --templates.
   -h, --help                      Print help
 ```
-

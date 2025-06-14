@@ -3,6 +3,7 @@
 **Version:** `tiefdownconverter 0.8.0`
 
 ### Usage:
+
 ```
 Manage the conversion profiles of the project.
 A conversion profile defines a collection of templates to be converted at the same time.
@@ -26,7 +27,7 @@ Options:
 ```
 
 ### Subcommands:
+
 - [add](#projectprofilesadd)
 - [remove](#projectprofilesremove)
 - [list](#projectprofileslist)
-

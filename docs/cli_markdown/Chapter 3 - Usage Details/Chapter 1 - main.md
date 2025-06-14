@@ -3,6 +3,7 @@
 **Version:** `tiefdownconverter 0.8.0`
 
 ### Usage:
+
 ```
 TiefDownConverter manages TiefDown projects.
 TiefDown is a project structure meant to simplify the conversion process from Markdown to PDFs.
@@ -30,8 +31,8 @@ Options:
 ```
 
 ### Subcommands:
+
 - [convert](#convert)
 - [init](#init)
 - [project](#project)
 - [check-dependencies](#check-dependencies)
-

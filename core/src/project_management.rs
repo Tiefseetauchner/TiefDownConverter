@@ -401,6 +401,7 @@ pub fn update_manifest(
 pub fn add_preprocessor(
     project: Option<String>,
     name: String,
+    combined_output: PathBuf,
     pandoc_args: Vec<String>,
 ) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
@@ -409,7 +410,11 @@ pub fn add_preprocessor(
 
     let mut manifest = load_and_convert_manifest(&manifest_path)?;
 
-    let preprocessor = PreProcessor { name, pandoc_args };
+    let preprocessor = PreProcessor {
+        name,
+        pandoc_args,
+        combined_output,
+    };
     manifest.custom_processors.preprocessors.push(preprocessor);
 
     let manifest_content = toml::to_string(&manifest)?;
@@ -865,6 +870,20 @@ pub(crate) fn run_smart_clean(
 ///
 /// A Result containing either an error or nothing.
 pub fn check_dependencies(dependencies: Vec<&str>) -> Result<()> {
+    let errors = get_missing_dependencies(dependencies)?;
+
+    if !errors.is_empty() {
+        for error in errors {
+            error!("{}", error);
+        }
+        return Err(eyre!("Some dependencies are missing."));
+    }
+
+    info!("All dependencies are installed.");
+    Ok(())
+}
+
+pub(crate) fn get_missing_dependencies(dependencies: Vec<&str>) -> Result<Vec<String>> {
     let mut errors = Vec::new();
 
     for dependency in dependencies {
@@ -879,15 +898,7 @@ pub fn check_dependencies(dependencies: Vec<&str>) -> Result<()> {
         }
     }
 
-    if !errors.is_empty() {
-        for error in errors {
-            error!("{}", error);
-        }
-        return Err(eyre!("Some dependencies are missing."));
-    }
-
-    info!("All dependencies are installed.");
-    Ok(())
+    Ok(errors)
 }
 
 pub(crate) fn load_and_convert_manifest(manifest_path: &std::path::PathBuf) -> Result<Manifest> {

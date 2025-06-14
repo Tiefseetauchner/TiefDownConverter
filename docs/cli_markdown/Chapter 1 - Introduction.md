@@ -34,7 +34,7 @@ Well, that's a good question. Ask it later.
 
 Jk, of course you may ask it now.
 TiefDown is a project format I made up to make
-it easier to convert my markdown files into something pretty.
+it easier to convert my files (mostly Markdown, but any type works) into something pretty.
 As a matter of fact, this documentation is managed by a TiefDown project!
 
 The important thing is that this isn't a markdown parser, replacement or
@@ -46,7 +46,7 @@ pretty much just a manifest file and an executable.
 I wonder myself every day.
 But alas, I should know, I wrote this cluster\*\*\*\* so let
 me explain. The initial concept was born from pain (as many are).
-I was pretty tired of exporting my markdown files, then converting them,
+I was pretty tired of exporting my files, then converting them,
 overwriting my old files, then converting them again, overwriting all history
 in the process. It was just... a mess.
 
@@ -106,11 +106,12 @@ of how it works internally:
   bobs, but importantly the `manifest.toml` file. This contains all the
   information needed to actually manage and convert the project.
 - You can then manipulate the project, and so on.
-- When you add your markdown files to the Markdown directory, running
+- When you add your files to the input directory, running
   `tiefdownconverter convert` will do a few things:
   - Create a new folder for the current compilation. That way, you have a
     history.
-  - Combine all the markdown files into one megafile called `combined.md`.
+  - Combine all the input files into a single file. The resulting path is passed to
+    preprocessors via the `COMBINED_OUTPUT` parameter.
   - Run Pandoc conversion to TeX, EPUB, or Typst. This uses Lua filters and
     preprocessors that are defined in the `manifest.toml` file.
   - Run XeLaTeX on all TeX templates, Typst on all Typst templates, and so on. It even

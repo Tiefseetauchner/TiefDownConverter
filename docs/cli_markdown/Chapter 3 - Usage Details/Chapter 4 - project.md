@@ -3,6 +3,7 @@
 **Version:** `tiefdownconverter 0.8.0`
 
 ### Usage:
+
 ```
 Update the TiefDown project.
 
@@ -32,6 +33,7 @@ Options:
 ```
 
 ### Subcommands:
+
 - [templates](#projecttemplates)
 - [update-manifest](#projectupdate-manifest)
 - [pre-processors](#projectpre-processors)
@@ -43,4 +45,3 @@ Options:
 - [validate](#projectvalidate)
 - [clean](#projectclean)
 - [smart-clean](#projectsmart-clean)
-

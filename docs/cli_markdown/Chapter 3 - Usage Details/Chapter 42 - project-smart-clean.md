@@ -3,6 +3,7 @@
 **Version:** `tiefdownconverter 0.8.0`
 
 ### Usage:
+
 ```
 Clean temporary files from the TiefDown project.
 If the number of conversion folders in the project is above this threshold, old folders will be cleaned, leaving only the threshold amount of folders.
@@ -17,4 +18,3 @@ Options:
   -h, --help
           Print help (see a summary with '-h')
 ```
-

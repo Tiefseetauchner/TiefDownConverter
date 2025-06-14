@@ -3,6 +3,7 @@
 **Version:** `tiefdownconverter 0.8.0`
 
 ### Usage:
+
 ```
 Manage the resources of a markdown project.
 Resources are a way to include meta information and resources on a per project basis.
@@ -30,7 +31,7 @@ Options:
 ```
 
 ### Subcommands:
+
 - [add](#projectmarkdownresourcesadd)
 - [remove](#projectmarkdownresourcesremove)
 - [list](#projectmarkdownresourceslist)
-

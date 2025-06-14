@@ -9,7 +9,7 @@ use std::{
 };
 use tiefdownlib::template_type::TemplateType;
 
-#[derive(Clone, Debug, PartialEq, Eq, ValueEnum)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, ValueEnum)]
 pub(crate) enum CliTemplateType {
     Tex = 0,
     Typst = 1,
@@ -55,9 +55,9 @@ impl From<usize> for CliTemplateType {
     }
 }
 
-impl Into<TemplateType> for CliTemplateType {
-    fn into(self) -> TemplateType {
-        match self {
+impl From<CliTemplateType> for TemplateType {
+    fn from(value: CliTemplateType) -> Self {
+        match value {
             CliTemplateType::Tex => TemplateType::Tex,
             CliTemplateType::Typst => TemplateType::Typst,
             CliTemplateType::Epub => TemplateType::Epub,
@@ -66,15 +66,31 @@ impl Into<TemplateType> for CliTemplateType {
     }
 }
 
-impl Display for CliTemplateType {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let text = match self {
+impl From<TemplateType> for CliTemplateType {
+    fn from(value: TemplateType) -> Self {
+        match value {
+            TemplateType::Tex => CliTemplateType::Tex,
+            TemplateType::Typst => CliTemplateType::Typst,
+            TemplateType::Epub => CliTemplateType::Epub,
+            TemplateType::CustomPandoc => CliTemplateType::CustomPandoc,
+        }
+    }
+}
+
+impl CliTemplateType {
+    pub fn as_str(&self) -> &'static str {
+        match self {
             CliTemplateType::Tex => "Tex",
             CliTemplateType::Typst => "Typst",
             CliTemplateType::Epub => "Epub",
             CliTemplateType::CustomPandoc => "CustomPandoc",
-        };
-        write!(f, "{}", text)
+        }
+    }
+}
+
+impl Display for CliTemplateType {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.as_str())
     }
 }
 

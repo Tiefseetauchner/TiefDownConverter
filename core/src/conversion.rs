@@ -4,6 +4,7 @@ use crate::manifest_model::MarkdownProject;
 use crate::manifest_model::MetadataSettings;
 use crate::manifest_model::Processors;
 use crate::manifest_model::TemplateMapping;
+use crate::project_management::get_missing_dependencies;
 use crate::project_management::load_and_convert_manifest;
 use crate::project_management::run_smart_clean;
 use chrono::prelude::DateTime;
@@ -13,8 +14,9 @@ use color_eyre::eyre::eyre;
 use fs_extra::dir;
 use fs_extra::file;
 use log::debug;
+use log::error;
 use log::info;
-use std::fs;
+use log::warn;
 use std::path::Path;
 use std::path::PathBuf;
 use toml::Table;
@@ -45,6 +47,22 @@ pub fn convert(
     templates: Option<Vec<String>>,
     profile: Option<String>,
 ) -> Result<()> {
+    let pandoc_errors = get_missing_dependencies(vec!["pandoc"])?;
+
+    if !pandoc_errors.is_empty() {
+        error!("{}", pandoc_errors.join("\n"));
+        return Err(eyre!("Pandoc is not installed or not in the PATH."));
+    }
+
+    let other_dependencies = get_missing_dependencies(vec!["xelatex", "typst"])?;
+
+    if !other_dependencies.is_empty() {
+        warn!("{}", other_dependencies.join("\n"));
+        warn!(
+            "Some dependencies are missing. Some features may not work, and conversion may fail."
+        );
+    }
+
     let project = project.unwrap_or_else(|| ".".to_string());
     let project_path = Path::new(&project);
 
@@ -103,25 +121,13 @@ pub fn convert(
 
         debug!("Copied template directory.");
 
-        let markdown_dir = project_path.join(markdown_project.path.clone());
+        let input_dir = project_path.join(markdown_project.path.clone());
 
         copy_resources(
             &markdown_project,
             &markdown_project_compiled_directory_path,
-            &markdown_dir,
+            &input_dir,
         )?;
-
-        let combined_markdown_name = PathBuf::from("combined.md");
-        let combined_markdown_path =
-            markdown_project_compiled_directory_path.join(&combined_markdown_name);
-
-        let combined_content = combine_markdown(&combined_markdown_path, &markdown_dir)?;
-        fs::write(&combined_markdown_path, combined_content)?;
-
-        debug!(
-            "Created combined markdown file {}.",
-            combined_markdown_path.display()
-        );
 
         let shared_metadata = manifest.shared_metadata.clone().unwrap_or(Table::new());
         let project_metadata = markdown_project.metadata_fields.unwrap_or(Table::new());
@@ -136,11 +142,20 @@ pub fn convert(
         );
 
         for template in &templates {
+            let conversion_input_dir =
+                &markdown_project_compiled_directory_path.join(template.name.clone());
+
+            copy_markdown_directory(
+                &input_dir,
+                &conversion_input_dir,
+                &markdown_project.resources,
+            )?;
+
             convert_template(
-                &combined_markdown_name,
                 &markdown_project_compiled_directory_path,
                 template,
                 project_path,
+                &conversion_input_dir,
                 &markdown_project.output,
                 &merged_metadata,
                 &manifest.metadata_settings,
@@ -173,14 +188,15 @@ fn copy_resources(
             dir::copy(
                 resource,
                 markdown_project_compiled_directory_path,
-                &dir::CopyOptions::new().overwrite(true).content_only(true),
+                &dir::CopyOptions::new().overwrite(true).content_only(false),
             )?;
         } else {
             debug!("Copying file: {}", resource.display());
 
             file::copy(
                 &resource,
-                &markdown_project_compiled_directory_path.join(resource.file_name().unwrap()),
+                &markdown_project_compiled_directory_path
+                    .join(resource.file_name().unwrap_or(std::ffi::OsStr::new("."))),
                 &file::CopyOptions::new().overwrite(true),
             )?;
         }
@@ -249,65 +265,39 @@ fn create_build_directory(project_path: &Path) -> Result<std::path::PathBuf> {
     Ok(build_directory_path)
 }
 
-fn combine_markdown(_combined_markdown_path: &PathBuf, markdown_dir: &PathBuf) -> Result<String> {
-    let markdown_files = get_markdown_files(markdown_dir)?;
+fn copy_markdown_directory(
+    markdown_dir: &Path,
+    output_dir: &Path,
+    resources: &Option<Vec<PathBuf>>,
+) -> Result<()> {
+    debug!("Copying markdown directory: {}", markdown_dir.display());
 
-    let mut combined_content = String::new();
+    dir::create_all(output_dir, false)?;
 
-    for entry in markdown_files {
-        if entry.path().extension() == Some("md".as_ref()) {
-            combined_content.push_str(&fs::read_to_string(entry.path())?);
-            combined_content.push_str("\n\n");
-        } else if entry.path().is_dir() {
-            combined_content.push_str(&combine_markdown(_combined_markdown_path, &entry.path())?);
+    dir::copy(
+        markdown_dir,
+        output_dir,
+        &dir::CopyOptions::new().overwrite(true).content_only(true),
+    )?;
+
+    for resource in resources.clone().unwrap_or(vec![]) {
+        let resource = output_dir.join(resource.clone());
+
+        if resource.is_dir() {
+            dir::remove(resource)?;
+        } else {
+            file::remove(resource)?;
         }
     }
 
-    Ok(combined_content)
-}
-
-fn get_markdown_files(markdown_dir: &PathBuf) -> Result<Vec<fs::DirEntry>> {
-    let chapter_name_regex = regex::Regex::new(r"Chapter (\d+).*").unwrap();
-
-    let mut markdown_files: Vec<_> = fs::read_dir(markdown_dir)?.filter_map(Result::ok).collect();
-
-    markdown_files.sort_by(|a, b| {
-        let a_binding = a.file_name();
-        let b_binding = b.file_name();
-        let a_name = a_binding.to_string_lossy();
-        let b_name = b_binding.to_string_lossy();
-
-        let a_num = chapter_name_regex
-            .captures(&a_name)
-            .and_then(|caps| caps.get(1)?.as_str().parse::<u32>().ok())
-            .unwrap_or(0);
-        let b_num = chapter_name_regex
-            .captures(&b_name)
-            .and_then(|caps| caps.get(1)?.as_str().parse::<u32>().ok())
-            .unwrap_or(0);
-
-        match a_num.cmp(&b_num) {
-            std::cmp::Ordering::Equal => {
-                let a_is_file = a.metadata().map(|m| m.is_file()).unwrap_or(false);
-                let b_is_file = b.metadata().map(|m| m.is_file()).unwrap_or(false);
-                match (a_is_file, b_is_file) {
-                    (true, false) => std::cmp::Ordering::Less,
-                    (false, true) => std::cmp::Ordering::Greater,
-                    _ => std::cmp::Ordering::Equal,
-                }
-            }
-            other => other,
-        }
-    });
-
-    Ok(markdown_files)
+    Ok(())
 }
 
 fn convert_template(
-    combined_markdown_path: &Path,
     compiled_directory_path: &Path,
     template: &TemplateMapping,
     project_path: &Path,
+    conversion_input_dir: &Path,
     output_dir: &Path,
     metadata_fields: &Table,
     metadata_settings: &Option<MetadataSettings>,
@@ -326,8 +316,8 @@ fn convert_template(
 
     let result_file_path = converter(
         project_path,
-        combined_markdown_path,
         compiled_directory_path,
+        conversion_input_dir,
         template,
         metadata_fields,
         &metadata_settings,

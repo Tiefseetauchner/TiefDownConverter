@@ -6,6 +6,10 @@ use std::{
 };
 use tempfile::tempdir;
 
+#[path = "assertions.rs"]
+#[macro_use]
+mod assertions;
+
 const VALID_TEMPLATE_CONTENT_TEX: &str = r#"\documentclass[a4paper,12pt]{article}
 
 \begin{document}
@@ -20,6 +24,9 @@ const VALID_TEMPLATE_CONTENT_TYP: &str = r#"#include "output.typ""#;
 
 const VALID_MARKDOWN_CONTENT: &str = r#"# Chapter 1
 Basic test content"#;
+
+const VALID_HTML_CONTENT: &str = r#"<h1>Chapter 2</h1>
+<p>Basic test content 02</p>"#;
 
 fn create_empty_project(temp_dir: &Path, custom_args: Vec<&str>) -> PathBuf {
     let project_path = temp_dir.join("project");
@@ -132,6 +139,7 @@ fn add_custom_pandoc_template(
     template_name: &str,
     preprocessor: &str,
     preprocessor_args: &str,
+    preprocessor_combined_path: &str,
     output_file: &str,
 ) {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
@@ -155,13 +163,14 @@ fn add_custom_pandoc_template(
         .arg("pre-processors")
         .arg("add")
         .arg(preprocessor)
+        .arg(preprocessor_combined_path)
         .arg("--")
         .arg(preprocessor_args)
         .assert()
         .success();
 }
 
-fn create_markdown_file(project_path: &Path, filename: &str, content: &str) {
+fn create_input_file(project_path: &Path, filename: &str, content: &str) {
     let markdown_dir = project_path.join("Markdown");
     let markdown_path = markdown_dir.join(filename);
     fs::create_dir_all(&markdown_dir).expect("Failed to create markdown directory");
@@ -176,7 +185,7 @@ fn test_convert() {
 
     add_tex_template(&project_path, "Template 1", "templ1.tex", None);
 
-    create_markdown_file(&project_path, "Chapter 1.md", VALID_MARKDOWN_CONTENT);
+    create_input_file(&project_path, "Chapter 1.md", VALID_MARKDOWN_CONTENT);
 
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
@@ -214,9 +223,10 @@ fn test_convert_with_multiple_templates() {
         "RTF Preprocessor",
         "-t rtf -o output.rtf",
         "output.rtf",
+        "output.rtf",
     );
 
-    create_markdown_file(&project_path, "Chapter 1.md", VALID_MARKDOWN_CONTENT);
+    create_input_file(&project_path, "Chapter 1.md", VALID_MARKDOWN_CONTENT);
 
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
@@ -263,7 +273,7 @@ fn test_convert_specific_template(
     );
     add_typst_template(&project_path, "Template 3", "templ3.typ", None);
 
-    create_markdown_file(&project_path, "Chapter 1.md", VALID_MARKDOWN_CONTENT);
+    create_input_file(&project_path, "Chapter 1.md", VALID_MARKDOWN_CONTENT);
 
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
@@ -317,9 +327,10 @@ fn test_convert_specific_project_folder(#[case] project_path_name: &str) {
         "RTF Preprocessor",
         "-t rtf -o output.rtf",
         "output.rtf",
+        "output.rtf",
     );
 
-    create_markdown_file(&project_path, "Chapter 1.md", VALID_MARKDOWN_CONTENT);
+    create_input_file(&project_path, "Chapter 1.md", VALID_MARKDOWN_CONTENT);
 
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&temp_dir)
@@ -354,7 +365,7 @@ fn test_convert_epub() {
 
     add_epub_template(&project_path, "Epub Template", "epub_template", None);
 
-    create_markdown_file(&project_path, "Chapter 1.md", VALID_MARKDOWN_CONTENT);
+    create_input_file(&project_path, "Chapter 1.md", VALID_MARKDOWN_CONTENT);
 
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
@@ -376,7 +387,7 @@ fn test_convert_giant_file() {
 
     let content = include_str!("testdata/large_document_markdown.md");
     for i in 0..5 {
-        create_markdown_file(&project_path, &format!("Chapter {}.md", i), content);
+        create_input_file(&project_path, &format!("Chapter {}.md", i), content);
     }
 
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
@@ -398,7 +409,7 @@ fn test_convert_many_files() {
     add_tex_template(&project_path, "Template 1", "templ1.tex", None);
 
     for i in 1..=1000 {
-        create_markdown_file(
+        create_input_file(
             &project_path,
             format!("Chapter {}.md", i).as_str(),
             VALID_MARKDOWN_CONTENT,
@@ -453,7 +464,7 @@ fn test_convert_long_markdown_file_name() {
 
     let long_markdown_file_name =
         "Chapter 0001 - This is a very long chapter name and might cause issues.md";
-    create_markdown_file(
+    create_input_file(
         &project_path,
         long_markdown_file_name,
         VALID_MARKDOWN_CONTENT,
@@ -501,9 +512,10 @@ fn test_convert_custom_pandoc_conversion() {
         "RTF Preprocessor",
         "-t rtf -o output.rtf",
         "output.rtf",
+        "output.rtf",
     );
 
-    create_markdown_file(&project_path, "Chapter 1.md", VALID_MARKDOWN_CONTENT);
+    create_input_file(&project_path, "Chapter 1.md", VALID_MARKDOWN_CONTENT);
 
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
@@ -551,7 +563,7 @@ fn test_convert_smart_clean() {
 
     add_tex_template(&project_path, "Template 1", "templ1.tex", None);
 
-    create_markdown_file(&project_path, "Chapter 1.md", VALID_MARKDOWN_CONTENT);
+    create_input_file(&project_path, "Chapter 1.md", VALID_MARKDOWN_CONTENT);
 
     for _ in 1..5 {
         let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
@@ -582,7 +594,7 @@ fn test_convert_profile() {
 
     add_profile(&project_path, "Profile 1", vec!["Template 1", "Template 3"]);
 
-    create_markdown_file(&project_path, "Chapter 1.md", VALID_MARKDOWN_CONTENT);
+    create_input_file(&project_path, "Chapter 1.md", VALID_MARKDOWN_CONTENT);
 
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
 
@@ -626,12 +638,12 @@ fn test_convert_multiple_markdown_projects() {
     add_markdown_project(&project_path, "Project 1", "markdown_dir1", "out1");
     add_markdown_project(&project_path, "Project 2", "markdown_dir2", "out2");
 
-    create_markdown_file(
+    create_input_file(
         &project_path.join("markdown_dir1"),
         "test.md",
         VALID_MARKDOWN_CONTENT,
     );
-    create_markdown_file(
+    create_input_file(
         &project_path.join("markdown_dir2"),
         "test.md",
         VALID_MARKDOWN_CONTENT,
@@ -673,4 +685,46 @@ fn add_markdown_project(
         .arg(output_dir)
         .assert()
         .success();
+}
+
+#[rstest]
+fn test_convert_mixed_input_formats() {
+    let temp_dir = tempdir().expect("Failed to create temporary directory");
+
+    let project_path = create_empty_project(&temp_dir.path(), vec![]);
+
+    add_custom_pandoc_template(
+        &project_path,
+        "Template 1",
+        "test_preprocessor",
+        "-t markdown",
+        "test.md",
+        "test.md",
+    );
+
+    create_input_file(&project_path, "Chapter 1.md", VALID_MARKDOWN_CONTENT);
+    create_input_file(&project_path, "Chapter 2.html", VALID_HTML_CONTENT);
+
+    let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
+    cmd.current_dir(&project_path)
+        .arg("convert")
+        .assert()
+        .success();
+
+    let output = project_path.join("test.md");
+    assert!(output.exists(), "Output should exist");
+
+    let output_content = fs::read_to_string(&output).expect("Failed to read output file");
+
+    assert_contains!(
+        output_content,
+        r#"# Chapter 1
+
+Basic test content
+
+
+# Chapter 2
+
+Basic test content 02"#
+    );
 }

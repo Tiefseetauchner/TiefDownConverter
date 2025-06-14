@@ -3,6 +3,7 @@
 **Version:** `tiefdownconverter 0.8.0`
 
 ### Usage:
+
 ```
 Remove a resource from the project.
 
@@ -15,4 +16,3 @@ Options:
   -v, --verbose  Enable verbose output.
   -h, --help     Print help
 ```
-

@@ -3,6 +3,7 @@
 **Version:** `tiefdownconverter 0.8.0`
 
 ### Usage:
+
 ```
 Update a template in the project.
 
@@ -18,7 +19,7 @@ Options:
       --template-type <TEMPLATE_TYPE>
           The type of the template. If not provided, the type will be inferred from the template file.
           Changing this is not recommended, as it is highly unlikely the type and only the type has changed. It is recommended to create a new template instead.
-          
+
           [possible values: tex, typst, epub, custom-pandoc]
 
       --output <OUTPUT>
@@ -54,4 +55,3 @@ Options:
   -h, --help
           Print help (see a summary with '-h')
 ```
-

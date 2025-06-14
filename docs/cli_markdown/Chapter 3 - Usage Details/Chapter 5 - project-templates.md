@@ -3,6 +3,7 @@
 **Version:** `tiefdownconverter 0.8.0`
 
 ### Usage:
+
 ```
 Add or modify templates in the project.
 
@@ -23,7 +24,7 @@ Options:
 ```
 
 ### Subcommands:
+
 - [add](#projecttemplatesadd)
 - [remove](#projecttemplatesremove)
 - [update](#projecttemplatesupdate)
-

@@ -12,7 +12,7 @@ fn main() {
         .join(", ");
     let date = chrono::Utc::now().format("%B %Y").to_string();
 
-    let dest_path = Path::new("docs/template/man_metadata.yaml");
+    let dest_path = Path::new("../docs/template/man_metadata.yaml");
     if let Some(parent) = dest_path.parent() {
         create_dir_all(parent).unwrap();
     }
@@ -26,4 +26,5 @@ fn main() {
     .unwrap();
 
     println!("cargo:rerun-if-changed=Cargo.toml");
+    println!("cargo:rerun-if-changed=../Cargo.toml");
 }
