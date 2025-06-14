@@ -5,7 +5,7 @@ version = 5
 [[custom_processors.preprocessors]]
 combined_output = "index.html"
 name = "HTML Conversion"
-pandoc_args = ["--to", "html5", "-s", "--metadata", "title={{title}}", "--metadata", "author={{author}}", "--css", "template/index.html_template/style.css", "--toc", "-B", "index.html_template/header.html"]
+pandoc_args = ["--to", "html5", "-s", "--metadata", "title={{title}}", "--metadata", "author={{author}}", "--css", "template/html_template/style.css", "--toc", "-B", "html_template/header.html"]
 
 [[custom_processors.preprocessors]]
 combined_output = "output.tex"

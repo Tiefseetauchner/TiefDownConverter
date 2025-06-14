@@ -123,10 +123,12 @@ the point?</a></li>
 <li><a href="#installation" id="toc-installation">Installation</a></li>
 <li><a href="#getting-started" id="toc-getting-started">Getting
 started</a></li>
-<li><a href="#the-markdown-directory"
-id="toc-the-markdown-directory">The markdown “directory”</a></li>
+<li><a href="#the-input-directory" id="toc-the-input-directory">The
+input “directory”</a></li>
 <li><a href="#markdown-projects" id="toc-markdown-projects">Markdown
 projects</a></li>
+<li><a href="#input-processing" id="toc-input-processing">Input
+Processing</a></li>
 <li><a href="#customising-the-template"
 id="toc-customising-the-template">Customising the template</a></li>
 <li><a href="#adjusting-template-behaviour"
@@ -449,18 +451,18 @@ the</em> &gt; <em><a href="#usage">Usage</a> section.</em></p>
 </blockquote>
 <p>Well, that’s a good question. Ask it later.</p>
 <p>Jk, of course you may ask it now. TiefDown is a project format I made
-up to make it easier to convert my markdown files into something pretty.
-As a matter of fact, this documentation is managed by a TiefDown
-project!</p>
+up to make it easier to convert my files (mostly Markdown, but any type
+works) into something pretty. As a matter of fact, this documentation is
+managed by a TiefDown project!</p>
 <p>The important thing is that this isn’t a markdown parser, replacement
 or anything like that. It’s a project format, and it’s not even a
 format, it’s pretty much just a manifest file and an executable.</p>
 <h2 id="why">Why?</h2>
 <p>I wonder myself every day. But alas, I should know, I wrote this
 cluster**** so let me explain. The initial concept was born from pain
-(as many are). I was pretty tired of exporting my markdown files, then
-converting them, overwriting my old files, then converting them again,
-overwriting all history in the process. It was just… a mess.</p>
+(as many are). I was pretty tired of exporting my files, then converting
+them, overwriting my old files, then converting them again, overwriting
+all history in the process. It was just… a mess.</p>
 <p>So I did what any sane person would do: I learned Python.</p>
 <p>Well, I’m being facetious. I didn’t “learn Python,” I just expanded
 my capabilities to calling programs from the command line.</p>
@@ -511,13 +513,14 @@ This creates a few bits and bobs, but importantly the
 <code>manifest.toml</code> file. This contains all the information
 needed to actually manage and convert the project.</li>
 <li>You can then manipulate the project, and so on.</li>
-<li>When you add your markdown files to the Markdown directory, running
+<li>When you add your files to the input directory, running
 <code>tiefdownconverter convert</code> will do a few things:
 <ul>
 <li>Create a new folder for the current compilation. That way, you have
 a history.</li>
-<li>Combine all the markdown files into one megafile called
-<code>combined.md</code>.</li>
+<li>Combine all the input files into a single file. The resulting path
+is passed to preprocessors via the <code>COMBINED_OUTPUT</code>
+parameter.</li>
 <li>Run Pandoc conversion to TeX, EPUB, or Typst. This uses Lua filters
 and preprocessors that are defined in the <code>manifest.toml</code>
 file.</li>
@@ -648,19 +651,20 @@ order they should be converted.</p>
 <code>tiefdownconverter convert -p path/to/your_project</code> (or
 ommitting the -p flag if you’re already in the project directory) and it
 should generate a PDF file in the project directory. You can now adjust
-the template, add your own Markdown files, and so on.</p>
-<h2 id="the-markdown-directory">The markdown “directory”</h2>
-<p>Markdown files are the main input for the converter, and as such
-their structure is important. The converter will look for markdown files
-in the <code>Markdown</code> directory, and will sort them by a chapter
-number. Namely, your files should be named
-<code>Chapter X Whatever else.md</code>, where X is a number (you don’t
-have to name them 01, 02 etc., as we parse the number as an integer
-anyways). The converter will then sort them by the number and combine
-them in that order.</p>
-<p>You can also add subdirectories in the Markdown directory. These will
-be combined after the file with the same number. For example, consider
-the following directory structure:</p>
+the template, add your own input files (Markdown or otherwise), and so
+on.</p>
+<h2 id="the-input-directory">The input “directory”</h2>
+<p>Your source files are the main input for the converter, and as such
+their structure is important. The converter will look for files in the
+<code>Markdown</code> directory (or the directory specified during
+project creation) and will sort them by a chapter number. Namely, your
+files should be named <code>Chapter X Whatever else.ext</code>, where X
+is a number (you don’t have to name them 01, 02 etc., as we parse the
+number as an integer). The converter will then sort them by the number
+and combine them in that order regardless of extension.</p>
+<p>You can also add subdirectories in the input directory. These will be
+combined after the file with the same number. For example, consider the
+following directory structure:</p>
 <pre><code>Markdown/
 ├── Chapter 1 - Introduction.md
 ├── Chapter 2 - Usage.md
@@ -749,6 +753,22 @@ mean you can’t use all templates as you wish, you can always use the
 <code>--profile</code> flag to specify a different profile or the
 <code>--templates</code> flag to specify a different set of
 templates.</p>
+<h2 id="input-processing">Input Processing</h2>
+<p>Input processing is the process of taking the input files and
+converting them to a format usable in templates. Now, this is
+generically phrased on purpose - input files can be anything - markdown
+files, typst files, so on. Whatever Pandoc supports.</p>
+<p>And that gives us a hint - input processing is synonymous with
+preprocessing - the step of the conversion that runs pandoc.</p>
+<p>Previously, this was done by combining markdown files into one file
+and running pandoc on that. That was a simple way to do it. Oh so
+simple.</p>
+<p>Now, all input files are passed to pandoc at once - regardless of
+input format - and then combined <em>by pandoc</em>, then the output is
+saved as the output as specified by the preprocessor.</p>
+<p>This by default would be <code>output.tex</code> or
+<code>output.typ</code>, but when you create a preprocessor, that can be
+anything.</p>
 <h2 id="customising-the-template">Customising the template</h2>
 <p>The key idea behind tiefdownconverter is, that it can handle multiple
 templates at the same time. This is done by creating a template file in
@@ -1044,7 +1064,7 @@ be done by defining a preprocessor.</p>
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project templates <span class="op">&lt;</span>TEMPLATE_NAME<span class="op">&gt;</span> update <span class="at">--preprocessor</span> <span class="op">&lt;</span>PREPROCESSOR_NAME<span class="op">&gt;</span></span></code></pre></div>
 <p>to assign it to a template and</p>
 <div class="sourceCode" id="cb16"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project preprocessors <span class="op">&lt;</span>PREPROCESSOR_NAME<span class="op">&gt;</span> add <span class="at">--</span> <span class="pp">[</span><span class="ss">PANDOC_ARGS</span><span class="pp">]</span></span></code></pre></div>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project preprocessors <span class="op">&lt;</span>PREPROCESSOR_NAME<span class="op">&gt;</span> add <span class="op">&lt;</span>OUTPUT_FILE<span class="op">&gt;</span> -- <span class="pp">[</span><span class="ss">PANDOC_ARGS</span><span class="pp">]</span></span></code></pre></div>
 <p>to create a new preprocessor.</p>
 <p>For example, if you want to add <code>--listings</code> to the pandoc
 command, you could do so by adding <code>--listings</code> to the
@@ -1194,8 +1214,8 @@ Options:
           The preset templates to use. If not provided, the default template.tex will be used.
           For custom templates, use the update command after initializing the project.
           If using a LiX template, make sure to install the corresponding .sty and .cls files from https://github.com/NicklasVraa/LiX. Adjust the metadata in template/meta.tex accordingly.
-          
-          
+
+
           [possible values: template.tex, booklet.tex, lix_novel_a4.tex, lix_novel_book.tex, template_typ.typ, default_epub]
 
   -v, --verbose
@@ -1308,7 +1328,7 @@ Options:
 
   -t, --template-type &lt;TEMPLATE_TYPE&gt;
           The type of the template. If not provided, the type will be inferred from the template file.
-          
+
           [possible values: tex, typst, epub, custom-pandoc]
 
   -o, --output &lt;OUTPUT&gt;
@@ -1366,7 +1386,7 @@ Options:
       --template-type &lt;TEMPLATE_TYPE&gt;
           The type of the template. If not provided, the type will be inferred from the template file.
           Changing this is not recommended, as it is highly unlikely the type and only the type has changed. It is recommended to create a new template instead.
-          
+
           [possible values: tex, typst, epub, custom-pandoc]
 
       --output &lt;OUTPUT&gt;
@@ -1413,7 +1433,7 @@ Options:
       --smart-clean &lt;SMART_CLEAN&gt;
           Enables smart clean for the project with a default threshold of 5.
           If the number of conversion folders in the project is above the smart_clean_threshold, old folders will be cleaned, leaving only the threshold amount of folders.
-          
+
           [possible values: true, false]
 
   -v, --verbose
@@ -1465,8 +1485,15 @@ id="projectpre-processorsadd"><code>tiefdownconverter project pre-processors add
 Usage: tiefdownconverter project pre-processors add [OPTIONS] &lt;NAME&gt; [-- &lt;PANDOC_ARGS&gt;...]
 
 Arguments:
-  &lt;NAME&gt;            The name of the preprocessor to create.
-  [PANDOC_ARGS]...  The arguments to pass to the preprocessor.
+  &lt;NAME&gt;
+          The name of the preprocessor to create.
+
+  &lt;COMBINED_OUTPUT&gt;
+          The file the input gets converted to.
+          When preprocessing the input files, the files will get converted, combined and written this filename.
+
+  [PANDOC_ARGS]...
+          The arguments to pass to the preprocessor.
 
 Options:
   -v, --verbose  Enable verbose output.
