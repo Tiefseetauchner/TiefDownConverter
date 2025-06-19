@@ -702,8 +702,8 @@ fn test_convert_mixed_input_formats() {
         "test.md",
     );
 
-    create_input_file(&project_path, "Chapter 1.md", VALID_MARKDOWN_CONTENT);
-    create_input_file(&project_path, "Chapter 2.html", VALID_HTML_CONTENT);
+    create_input_file(&project_path, "Chapter 2.md", VALID_MARKDOWN_CONTENT);
+    create_input_file(&project_path, "Chapter 3.html", VALID_HTML_CONTENT);
 
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
