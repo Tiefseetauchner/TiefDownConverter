@@ -24,7 +24,7 @@ Whether you're a developer, a writer, or a student, TiefDown is the perfect
 solution for you. It's flexibility rivals no solution I know of, and it's
 super easy to get started with.
 
-**TiefDownConverter** is the official CLI tool — but it’s just one way to work
+**TiefDownConverter** is the official CLI tool - but it’s just one way to work
 with TiefDown projects.
 
 ## Use Cases

@@ -64,7 +64,7 @@ Then I realized that writing a 40-chapter story in a single markdown file was
 even dumber than whatever I made in Python. So I added a little combination
 logic. In the process, I had to write Lua filters as well, and then I added
 versioning, and then I added conversion to multiple different PDFs, and then I
-added EPUB support and—you know what? That was a dumb idea. The Python script
+added EPUB support and-you know what? That was a dumb idea. The Python script
 soon reached 200 lines of code, which was untenable.
 
 So yeah, I decided to make a new book. And of course - _**everything**_ broke.
