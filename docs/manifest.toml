@@ -5,7 +5,7 @@ version = 5
 [[custom_processors.preprocessors]]
 combined_output = "index.html"
 name = "HTML Conversion"
-pandoc_args = ["--to", "html5", "-s", "--metadata", "title={{title}}", "--metadata", "author={{author}}", "--css", "template/index.html_template/style.css", "--toc", "-B", "index.html_template/header.html"]
+pandoc_args = ["--to", "html5", "-s", "--metadata", "title={{title}}", "--metadata", "author={{author}}", "--css", "template/html_template/style.css", "--toc", "-B", "html_template/header.html"]
 
 [[custom_processors.preprocessors]]
 combined_output = "output.tex"
@@ -23,9 +23,16 @@ processor_args = ["--font-path", "fonts/"]
 
 [[markdown_projects]]
 default_profile = "Documentation"
-name = "main"
-output = "."
-path = "Markdown"
+name = "CLI Docs"
+output = "cli"
+path = "cli_markdown"
+resources = ["resources/"]
+
+[[markdown_projects]]
+default_profile = "Documentation"
+name = "LIB Docs"
+output = "lib"
+path = "lib_markdown"
 resources = ["resources/"]
 
 [[markdown_projects]]
@@ -33,6 +40,12 @@ default_profile = "Man"
 name = "man"
 output = "man"
 path = "man_markdown"
+
+[[markdown_projects]]
+default_profile = "Index HTML"
+name = "Index HTML"
+output = "."
+path = "index_markdown"
 
 [metadata_settings]
 
@@ -43,6 +56,10 @@ templates = ["PDF Documentation LaTeX", "PDF Documentation", "Epub Documentation
 [[profiles]]
 name = "Man"
 templates = ["Man Page"]
+
+[[profiles]]
+name = "Index HTML"
+templates = ["GitHub Page Documentation"]
 
 [shared_metadata]
 author = "Tiefseetauchner et al."

@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Tiefseetauchner et al." />
+  <title>TiefDownConverter Documentation</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="template/html_template/style.css" />
+</head>
+<body>
+<header>
+    <em>Available at <a
+            href="https://github.com/Tiefseetauchner/TiefDownConverter">https://github.com/Tiefseetauchner/TiefDownConverter</a></em><br />
+    <nav class="nav-container">
+        <a href="/TiefDownConverter/">Home</a>
+        <a href="/TiefDownConverter/cli/">CLI Docs</a>
+        <a href="/TiefDownConverter/lib/">Library Docs</a>
+    </nav>
+</header>
+<header id="title-block-header">
+<h1 class="title">TiefDownConverter Documentation</h1>
+<p class="author">Tiefseetauchner et al.</p>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#introduction" id="toc-introduction">Introduction</a>
+<ul>
+<li><a href="#what-is-tiefdown" id="toc-what-is-tiefdown">What is
+TiefDown?</a></li>
+</ul></li>
+<li><a href="#manifest-file" id="toc-manifest-file">Manifest
+File</a></li>
+<li><a href="#conversion-folders" id="toc-conversion-folders">Conversion
+folders</a></li>
+<li><a href="#templates" id="toc-templates">Templates</a>
+<ul>
+<li><a href="#latex-templates" id="toc-latex-templates">LaTeX
+Templates</a></li>
+<li><a href="#typst-templates" id="toc-typst-templates">Typst
+Templates</a></li>
+<li><a href="#epub-templates" id="toc-epub-templates">EPUB
+Templates</a></li>
+<li><a href="#custom-pandoc-conversion"
+id="toc-custom-pandoc-conversion">Custom Pandoc Conversion</a></li>
+</ul></li>
+<li><a href="#smart-clean" id="toc-smart-clean">Smart Clean</a></li>
+<li><a href="#profiles" id="toc-profiles">Profiles</a></li>
+<li><a href="#lua-filters" id="toc-lua-filters">Lua Filters</a></li>
+<li><a href="#markdown-projects" id="toc-markdown-projects">Markdown
+Projects</a>
+<ul>
+<li><a href="#custom-resources" id="toc-custom-resources">Custom
+Resources</a></li>
+<li><a href="#markdown-project-metadata"
+id="toc-markdown-project-metadata">Markdown Project Metadata</a></li>
+</ul></li>
+<li><a href="#custom-processors" id="toc-custom-processors">Custom
+Processors</a></li>
+<li><a href="#shared-metadata" id="toc-shared-metadata">Shared
+Metadata</a></li>
+<li><a href="#metadata-settings" id="toc-metadata-settings">Metadata
+Settings</a></li>
+</ul>
+</nav>
+<h1 id="introduction">Introduction</h1>
+<blockquote>
+<p>For the documenation of the library, see <a
+href="docs.rs/tiefdownlib">docs.rs</a>.</p>
+<p>For the documentation of the CLI, see <a
+href="https://tiefseetauchner.github.io/TiefDownConverter/cli">TiefDownConverter</a>.</p>
+</blockquote>
+<p>This is the documentation for the TiefDown concepts. This won’t
+explain the library or the CLI usage, but rather function as an
+introduction to the basics of TiefDown for users and contributors
+alike.</p>
+<h2 id="what-is-tiefdown">What is TiefDown?</h2>
+<p>TiefDown is a project format for managing markdown files and
+converting them to other formats. It’s not a markdown parser, but rather
+a project format and management system.</p>
+<p>Importantly, the project is split in a few parts:</p>
+<ul>
+<li>The <code>manifest.toml</code> file, which contains all the
+information needed to manage and convert the project.</li>
+<li>The <code>template</code> directory, which contains all the
+templates for the project.</li>
+<li>One or more markdown directories, corresponding to markdown
+projects.</li>
+</ul>
+<h1 id="manifest-file">Manifest File</h1>
+<p>The manifest file is the heart of the project. It contains all the
+information needed to manage and convert the project.</p>
+<p>It consists of a few important parts (for the full documentation,
+check <a
+href="https://docs.rs/tiefdownlib/latest/tiefdownlib/manifest_model/index.html">https://docs.rs/tiefdownlib/latest/tiefdownlib/manifest_model/index.html</a>):</p>
+<ul>
+<li>A version number
+<ul>
+<li>This is used to determine if the manifest is compatible with the
+current version of TiefDownConverter. If it’s not, the manifest will be
+automatically updated in the process of loading. Newer versions of the
+manifest file are rejected by the implementation.</li>
+</ul></li>
+<li>The automatic smart clean flag
+<ul>
+<li>This is a boolean flag that determines if the project should be
+cleaned automatically when a conversion is run. This is useful for
+projects that are constantly being updated, allowing a user to decide
+how many <a href="#conversion-folders">conversion folders</a> they want
+to keep.</li>
+</ul></li>
+<li>The smart clean threshold
+<ul>
+<li>This is the number of conversion folders that are kept before the
+oldest ones are deleted.</li>
+</ul></li>
+<li>A list of <a href="#markdown-projects">markdown projects</a></li>
+<li>A list of <a href="#templates">templates</a></li>
+<li>A <a href="#custom-processors">custom processors</a> object</li>
+<li>A table of <a href="#shared-metadata">shared metadata</a> for all
+markdown projects</li>
+<li>A <a href="#metadata-settings">metadata settings</a> object</li>
+<li>A list of <a href="#profiles">profiles</a> available for the
+conversion</li>
+</ul>
+<h1 id="conversion-folders">Conversion folders</h1>
+<p>The conversion folder is the folder where the template and markdown
+files are located during conversion.</p>
+<p>Before the conversion process begins, a new folder is created in the
+project directory. This is the conversion folder, named after the
+current date and time. This folder can be deleted using the
+<code>clean</code> function, or automatically removed when converting
+using <a href="#smart-clean">smart clean</a>.</p>
+<p>If a <a href="#markdown-projects">markdown project</a> has an output
+folder defined, this is used as the conversion folder for that markdown
+project.</p>
+<p>To explain more thuroughly, we need to explain the workflow of
+TiefDown conversion. Helpfully, there’s a diagram:</p>
+<figure>
+<img src="./resources/architecture.jpg" alt="Workflow" />
+<figcaption aria-hidden="true">Workflow</figcaption>
+</figure>
+<p>As you can see, the first step of any conversion is combining the
+markdown files to a single Markdown file. This is done before
+conversion, sorting the files by chapter number. This chapter number is
+retrieved from the filename. The file must thus be named
+<code>Chapter X.md</code> where X is the chapter number. This does not
+need to include leading zeros. This combined file is then saved as
+<code>combined.md</code> in the conversion folder.</p>
+<p>After combination, pandoc is run on the combined file to derive
+LaTeX, typst, epub or custom outputs in case of <a
+href="#custom-pandoc-conversion">custom pandoc conversion</a>.</p>
+<p>For LaTeX and Typst templates, the output file is imported into the
+template file as described in the <a href="#templates">templates</a>
+section. The conversion process converts the template file and stores
+the output in the conversion folder.</p>
+<p>The output file is then copied to the output folder.</p>
+<h1 id="templates">Templates</h1>
+<p>Templating in TiefDown is done in several ways:</p>
+<ul>
+<li><a href="#latex-templates">LaTeX templates</a>
+<ul>
+<li>The most basic form of templating, it generates a LaTeX document
+from the markdown files that can be included in a LaTeX document.</li>
+<li>Supports Metadata file generation.</li>
+</ul></li>
+<li><a href="#typst-templates">Typst templates</a>
+<ul>
+<li>Similar to LaTeX, it generates a Typst document from the markdown
+files that can be included in a Typst document.</li>
+<li>Supports Metadata file generation.</li>
+</ul></li>
+<li><a href="#epub-templates">EPUB templates</a>
+<ul>
+<li>A legacy templating system, it generates a EPUB document from the
+markdown files. Convoluted and very much custom to basic usage.</li>
+<li>Adds Metadata directly to the EPUB file.</li>
+<li>(!) This template type should be forgone in favour of Custom Pandoc
+Conversion.</li>
+</ul></li>
+<li><a href="#custom-pandoc-conversion">Custom pandoc conversion</a>
+<ul>
+<li>A more advanced templating system, it runs custom pandoc commands on
+the markdown files. This is the most flexible templating system, but
+also the most complex.</li>
+<li>Supports Metadata insertion into command line arguments.</li>
+</ul></li>
+</ul>
+<h2 id="latex-templates">LaTeX Templates</h2>
+<p>LaTeX templates are the most intuitive form of templating in
+TiefDown, but also the most fleshed out. The basic usage generates a
+LaTeX document from markdown, usually output.tex, with <a
+href="#lua-filters">lua-filters</a> applied depending on the template,
+and then converts that template file to a PDF.</p>
+<p>The LaTeX file must include the following:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode latex"><code class="sourceCode latex"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">\input</span>{./output.tex}</span></code></pre></div>
+<p>This imports the converted markdown files into the LaTeX document.
+You may adjust the behaviour by using <a
+href="#custom-processors">custom preprocessors</a> and <a
+href="#custom-processors">custom processors</a>.</p>
+<p>For Metadata, one can also import the metadata file, which is
+generated by TiefDown during the conversion process.</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode latex"><code class="sourceCode latex"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">\input</span>{./metadata.tex}</span></code></pre></div>
+<p>This file provides a macro to access metadata using the
+<code>\meta{}</code> keyword. This can be adjusted using the <a
+href="#metadata-settings">metadata settings</a>.</p>
+<p>There are preset templates available in the core library. These give
+a basic framework for extension and shouldn’t be taken as the only way
+to use LaTeX templates.</p>
+<h2 id="typst-templates">Typst Templates</h2>
+<p>Typst templates are, in concept, identical to LaTeX templates. They
+generate a Typst document from markdown, usually output.typ, with <a
+href="#lua-filters">lua-filters</a> applied depending on the template,
+and then converts that template file to a PDF.</p>
+<p>Importing the typst file works similar:</p>
+<pre class="typst"><code>#include &quot;output.typ&quot;</code></pre>
+<p>Again, see <a href="#custom-processors">custom preprocessors</a> and
+<a href="#custom-processors">custom processors</a> for more information
+on customization.</p>
+<p>Metadata importing is easier as typst has an object system.</p>
+<pre class="typst"><code>#import &quot;./metadata.typ&quot;: meta</code></pre>
+<p>One can then access metadata using the <code>meta</code> object.</p>
+<p>There are also preset templates available in the core library. Again,
+these are just a basic suggestion.</p>
+<h2 id="epub-templates">EPUB Templates</h2>
+<p>EPUB templates are a special version of custom pandoc conversion.
+They are legacy and should be avoided in favour of custom pandoc
+conversion. Thus, they are not documented here.</p>
+<h2 id="custom-pandoc-conversion">Custom Pandoc Conversion</h2>
+<p>Custom pandoc conversion is the most advanced templating system in
+TiefDown. It allows specifying the exact pandoc command to run on the
+markdown files, but does not allow any post processing like LaTeX or
+Typst.</p>
+<p>A template requires a <a href="#custom-processors">custom
+preprocessor</a> to be specified. This processor defines the pandoc
+command to run and must include an output file. The output file must
+then also be included in the template for copying to the output
+folder.</p>
+<p>The pandoc conversion runs in the compilation directory of the
+markdown project and can thus access the markdown file. This is always
+available as <code>combined.md</code>. See <a
+href="#conversion-folders">conversion folders</a> for more
+information.</p>
+<h1 id="smart-clean">Smart Clean</h1>
+<p>Smart clean automatically removes old conversion folders. When
+enabled via <code>smart_clean</code> in <code>manifest.toml</code>,
+TiefDown keeps only a given number of recent folders. The number is
+specified with <code>smart_clean_threshold</code> and defaults to
+<code>5</code>.</p>
+<p>During conversion the library checks the amount of existing
+conversion folders and deletes the oldest ones once the threshold is
+exceeded.</p>
+<h1 id="profiles">Profiles</h1>
+<p>A profile is a named list of templates that can be converted
+together. Defining profiles avoids having to pass a long list of
+template names every time you run the converter.</p>
+<p>Profiles are stored in the project’s <code>manifest.toml</code>:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[profiles]]</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Documentation&quot;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="dt">templates</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;PDF Documentation LaTeX&quot;</span><span class="op">,</span> <span class="st">&quot;PDF Documentation&quot;</span><span class="op">]</span></span></code></pre></div>
+<p>Use the <code>--profile</code> option with
+<code>tiefdownconverter convert</code> to select a profile. Markdown
+projects may also specify a <code>default_profile</code>; this profile
+is used if none is supplied on the command line.</p>
+<h1 id="lua-filters">Lua Filters</h1>
+<p>Lua filters allow you to modify the document structure during
+Pandoc’s conversion step. They are attached to templates through the
+<code>filters</code> field. The value may be a single Lua file or a
+directory containing multiple filter scripts.</p>
+<p>Pandoc executes the filters in the order they are listed. Filters can
+rename headers, insert custom blocks or otherwise transform the document
+before it reaches the template engine.</p>
+<p>Example filter to adjust chapter headings:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode lua"><code class="sourceCode lua"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> Header<span class="op">(</span><span class="va">el</span><span class="op">)</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="va">el</span><span class="op">.</span><span class="va">level</span> <span class="op">==</span> <span class="dv">1</span> <span class="cf">then</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">pandoc</span><span class="op">.</span>RawBlock<span class="op">(</span><span class="st">&quot;latex&quot;</span><span class="op">,</span> <span class="st">&quot;</span><span class="sc">\\</span><span class="st">chapter{&quot;</span> <span class="op">..</span> <span class="va">pandoc</span><span class="op">.</span><span class="va">utils</span><span class="op">.</span>stringify<span class="op">(</span><span class="va">el</span><span class="op">.</span><span class="va">content</span><span class="op">)</span> <span class="op">..</span> <span class="st">&quot;}&quot;</span><span class="op">)</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
+<p>For more details on writing filters see the Pandoc documentation.</p>
+<h1 id="markdown-projects">Markdown Projects</h1>
+<p>A TiefDown project can contain multiple markdown projects. Each
+project defines where the source files live and where the converted
+results should be placed. The information is stored in
+<code>[[markdown_projects]]</code> entries in
+<code>manifest.toml</code>.</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[markdown_projects]]</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Book One&quot;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="dt">path</span> <span class="op">=</span> <span class="st">&quot;book_one/markdown&quot;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">=</span> <span class="st">&quot;book_one/output&quot;</span></span></code></pre></div>
+<p>A markdown project may define a <code>default_profile</code> used for
+conversion, a list of <code>resources</code> to copy into the conversion
+folder and its own metadata.</p>
+<h2 id="custom-resources">Custom Resources</h2>
+<p>Resources are additional files that are copied from the markdown
+project directory to the conversion folder before processing. Typical
+examples are images, CSS files or fonts needed by a template. Specify
+them in the <code>resources</code> array:</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="dt">resources</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;resources/cover.png&quot;</span><span class="op">,</span> <span class="st">&quot;resources/styles.css&quot;</span><span class="op">]</span></span></code></pre></div>
+<h2 id="markdown-project-metadata">Markdown Project Metadata</h2>
+<p>Project specific metadata is stored under the
+<code>metadata_fields</code> table of a markdown project. These values
+are merged with the <code>[shared_metadata]</code> of the project during
+conversion. When keys collide, the markdown project metadata overrides
+the shared metadata.</p>
+<h1 id="custom-processors">Custom Processors</h1>
+<p>Custom processors let you change the commands used during conversion.
+They come in two forms:</p>
+<ul>
+<li><strong>Preprocessors</strong> replace the default pandoc invocation
+that generates the intermediate file.</li>
+<li><strong>Processors</strong> provide additional arguments to the
+program that handles the template itself (for example XeLaTeX or
+Typst).</li>
+</ul>
+<p>A preprocessor is defined under
+<code>[[custom_processors.preprocessors]]</code>:</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.preprocessors]]</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Enable Listings&quot;</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="dt">pandoc_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;-t&quot;</span><span class="op">,</span> <span class="st">&quot;latex&quot;</span><span class="op">,</span> <span class="st">&quot;--listings&quot;</span><span class="op">]</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="dt">combined_output</span> <span class="op">=</span> <span class="st">&quot;output.tex&quot;</span></span></code></pre></div>
+<p>Templates reference it with their <code>preprocessor</code> field.
+Processors are specified similarly and referenced via the
+<code>processor</code> field:</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.processors]]</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Typst Font Directory&quot;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="dt">processor_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;--font-path&quot;</span><span class="op">,</span> <span class="st">&quot;fonts/&quot;</span><span class="op">]</span></span></code></pre></div>
+<p>These mechanisms allow fine-grained control over the conversion
+pipeline when the defaults are not sufficient.</p>
+<h1 id="shared-metadata">Shared Metadata</h1>
+<p>Shared metadata is defined once for the whole project and is
+available to every markdown project. It lives under
+<code>[shared_metadata]</code> in the manifest file and is merged with
+project specific metadata at conversion time. Values defined in a
+markdown project override entries from the shared metadata.</p>
+<p>Use shared metadata for information that stays the same across
+multiple books or documents, like the publisher or an overarching author
+list.</p>
+<h1 id="metadata-settings">Metadata Settings</h1>
+<p>Metadata settings influence how metadata files are generated. The
+<code>[metadata_settings]</code> table currently supports the
+<code>metadata_prefix</code> option. This prefix determines the name of
+the macro or object used to access metadata in templates.</p>
+<p>For example, with</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[metadata_settings]</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="dt">metadata_prefix</span> <span class="op">=</span> <span class="st">&quot;book&quot;</span></span></code></pre></div>
+<p>the generated LaTeX file defines a <code>\book{}</code> command while
+Typst exposes a <code>book</code> object. In other words, the prefix
+fully replaces the default <code>meta</code> name. If no prefix is set
+the command and object are called <code>meta</code>.</p>
+</body>
+</html>

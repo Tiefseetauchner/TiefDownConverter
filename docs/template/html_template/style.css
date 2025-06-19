@@ -2,56 +2,56 @@
     font-family: 'Cormorant Garamond';
     font-style: normal;
     font-weight: normal;
-    src: url('fonts/CormorantGaramond-Regular.ttf');
+    src: url('../fonts/CormorantGaramond-Regular.ttf');
 }
 
 @font-face {
     font-family: 'Cormorant Garamond';
     font-style: italic;
     font-weight: normal;
-    src: url('fonts/CormorantGaramond-Italic.ttf');
+    src: url('../fonts/CormorantGaramond-Italic.ttf');
 }
 
 @font-face {
     font-family: 'Cormorant Garamond';
     font-style: normal;
     font-weight: bold;
-    src: url('fonts/CormorantGaramond-Bold.ttf');
+    src: url('../fonts/CormorantGaramond-Bold.ttf');
 }
 
 @font-face {
     font-family: 'Cormorant Garamond';
     font-style: italic;
     font-weight: bold;
-    src: url('fonts/CormorantGaramond-BoldItalic.ttf');
+    src: url('../fonts/CormorantGaramond-BoldItalic.ttf');
 }
 
 @font-face {
     font-family: 'IosevkaSS10';
     font-style: normal;
     font-weight: normal;
-    src: url('fonts/IosevkaSS10-Regular.ttf');
+    src: url('../fonts/IosevkaSS10-Regular.ttf');
 }
 
 @font-face {
     font-family: 'IosevkaSS10';
     font-style: italic;
     font-weight: normal;
-    src: url('fonts/IosevkaSS10-Oblique.ttf');
+    src: url('../fonts/IosevkaSS10-Oblique.ttf');
 }
 
 @font-face {
     font-family: 'IosevkaSS10';
     font-style: normal;
     font-weight: bold;
-    src: url('fonts/IosevkaSS10-Bold.ttf');
+    src: url('../fonts/IosevkaSS10-Bold.ttf');
 }
 
 @font-face {
     font-family: 'IosevkaSS10';
     font-style: italic;
     font-weight: bold;
-    src: url('fonts/IosevkaSS10-BoldOblique.ttf');
+    src: url('../fonts/IosevkaSS10-BoldOblique.ttf');
 }
 
 body {
@@ -89,7 +89,16 @@ pre {
 }
 
 code {
-    font-family: "Iosevka SS10", monospace;
+    font-family: "IosevkaSS10", monospace;
     font-size: 0.8rem;
     line-height: 1.2;
+}
+
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    text-align: center;
 }
