@@ -8,7 +8,7 @@
 
 ## Overview
 
-TiefDownConverter is a command-line tool designed to streamline the conversion of structured Markdown projects into various output formats, such as PDF, EPUB, and Typst-based documents. It simplifies the process by acting as a wrapper around Pandoc and XeTeX, enabling users to set up a project once and reproducibly generate multiple formats with a single command.
+TiefDownConverter is a command-line tool designed to streamline the conversion of structured projects into various output formats, such as PDF, EPUB, and Typst-based documents. While it was originally built for Markdown, it can now combine any file type. The tool acts as a wrapper around Pandoc and XeTeX, enabling users to set up a project once and reproducibly generate multiple formats with a single command.
 
 tiefdownconverter_core is the core library for tiefdownconverter - while it is seperated, it is recommended to use the command line tool.
 
@@ -16,7 +16,7 @@ tiefdownconverter_core is the core library for tiefdownconverter - while it is s
 
 - **One-Command Workflow**: TiefDown removes the need for complex Pandoc CLI setups, automating template management and format conversions.
 - **Project-Based Structure**: Every TiefDown project is self-contained, making it easy to manage large documents.
-- **Multi-Format Support**: Convert Markdown into PDFs (via XeTeX), EPUBs, or other formats using Typst.
+- **Multi-Format Support**: Convert your source files into PDFs (via XeTeX), EPUBs, or other formats using Typst.
 - **Extensibility**: Customize projects with templates and Lua filters for advanced document processing.
 
 ## Documentation
@@ -27,7 +27,7 @@ These are generated using `tiefdownconverter` as well, thus the two files. It's 
 
 ## Features
 
-- Converts Markdown projects into PDFs, EPUB, and Typst-based documents.
+- Converts projects into PDFs, EPUB, and Typst-based documents.
 - Reads structured project metadata from `manifest.toml`.
 - Supports customizable LaTeX, Typst, and EPUB templates.
 - Allows users to add, remove, and update templates.
@@ -54,7 +54,7 @@ This will create an executable in the `target/release/` directory.
 
 TiefDown requires the following external dependencies:
 
-- **Pandoc**: Handles Markdown parsing and conversion.
+- **Pandoc**: Handles parsing and conversion of your source files.
 - **XeTeX**: Required for LaTeX-based PDF generation.
 - **Typst** (optional): Enables Typst-based conversion.
 
@@ -77,7 +77,7 @@ sudo apt install pandoc texlive-xetex typst
 ### Available Commands
 
 - **Convert** – Converts a TiefDown project, using either the current directory or a specified project. Templates can be selected manually or default ones from the manifest will be used.
-- **Initialize** – Creates a new TiefDown project with optional templates. Supports setting up a Markdown directory, skipping default templates, and overwriting existing projects.
+- **Initialize** – Creates a new TiefDown project with optional templates. Supports setting up an input directory, skipping default templates, and overwriting existing projects.
 - **Project Management** – Offers various subcommands to manage TiefDown projects:
   - Add, remove, and update templates.
   - Update the project manifest.
@@ -181,7 +181,7 @@ Templates must include:
 \input{./output.tex}
 ```
 
-to correctly insert converted Markdown content.
+to correctly insert the converted content.
 
 ### Custom Lua Filters
 

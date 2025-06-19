@@ -87,10 +87,12 @@ pub struct Processors {
 ///
 /// * `name` - The name of the preprocessor.
 /// * `pandoc_args` - The arguments passed to the pandoc conversion process.
+/// * `combined_output` - The name of the combined output file.
 #[derive(Deserialize, Serialize, Clone)]
 pub struct PreProcessor {
     pub name: String,
     pub pandoc_args: Vec<String>,
+    pub combined_output: PathBuf,
 }
 
 /// Represents processors available to the project.
@@ -112,19 +114,15 @@ pub struct Processor {
 /// The default pandoc arguments for LaTeX conversion.
 pub static DEFAULT_TEX_PREPROCESSOR: LazyLock<PreProcessor> = LazyLock::new(|| PreProcessor {
     name: "default_tex_preprocessor".to_string(),
-    pandoc_args: vec!["-o", "output.tex", "-t", "latex"]
-        .iter()
-        .map(|s| s.to_string())
-        .collect(),
+    pandoc_args: vec!["-t", "latex"].iter().map(|s| s.to_string()).collect(),
+    combined_output: PathBuf::from("output.tex"),
 });
 
 /// The default pandoc arguments for Typst conversion.
 pub static DEFAULT_TYPST_PREPROCESSOR: LazyLock<PreProcessor> = LazyLock::new(|| PreProcessor {
     name: "default_typst_preprocessor".to_string(),
-    pandoc_args: vec!["-o", "output.typ", "-t", "typst"]
-        .iter()
-        .map(|s| s.to_string())
-        .collect(),
+    pandoc_args: vec!["-t", "typst"].iter().map(|s| s.to_string()).collect(),
+    combined_output: PathBuf::from("output.typ"),
 });
 
 /// Represents the settings for metadata in the project.
@@ -196,6 +194,8 @@ pub(crate) fn upgrade_manifest(manifest: &mut Table, current_version: u32) -> Re
                 upgrade_manifest_v2_to_v3(manifest)?
             } else if updated_version == 3 {
                 upgrade_manifest_v3_to_v4(manifest)?
+            } else if updated_version == 4 {
+                upgrade_manifest_v4_to_v5(manifest)?
             } else {
                 return Err(eyre!(
                     "Manifest version {} is not supported for upgrades.",
@@ -310,6 +310,45 @@ fn upgrade_manifest_v3_to_v4(manifest: &mut Table) -> Result<()> {
         }
 
         manifest.remove("markdown_dir");
+    }
+
+    Ok(())
+}
+
+fn upgrade_manifest_v4_to_v5(manifest: &mut Table) -> Result<()> {
+    manifest.insert("version".into(), toml::Value::Integer(5));
+
+    if let Some(toml::Value::Table(custom)) = manifest.get_mut("custom_processors") {
+        if let Some(toml::Value::Array(preprocessors)) = custom.get_mut("preprocessors") {
+            for preproc in preprocessors {
+                if let toml::Value::Table(tbl) = preproc {
+                    let mut captured: Option<toml::Value> = None;
+
+                    if let Some(toml::Value::Array(args)) = tbl.get_mut("pandoc_args") {
+                        let mut i = 0;
+                        while i < args.len() {
+                            match &args[i] {
+                                toml::Value::String(flag) if flag == "-o" || flag == "--output" => {
+                                    args.remove(i);
+                                    if i < args.len() {
+                                        captured = Some(args.remove(i));
+                                    }
+                                }
+                                _ => i += 1,
+                            }
+                        }
+                    }
+
+                    if let Some(captured) = captured {
+                        tbl.insert("combined_output".into(), captured);
+                    } else {
+                        return Err(eyre!(
+                            "The custom preprocessor does not contain the output flag"
+                        ));
+                    }
+                }
+            }
+        }
     }
 
     Ok(())

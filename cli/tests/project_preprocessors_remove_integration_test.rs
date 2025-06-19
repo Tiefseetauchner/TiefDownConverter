@@ -31,8 +31,9 @@ fn add_preprocessor(project_path: &Path, preprocessor_name: &str) {
         .arg("pre-processors")
         .arg("add")
         .arg(preprocessor_name)
+        .arg("test.tex")
         .arg("--")
-        .arg("-o test.tex")
+        .arg("--listings")
         .assert()
         .success();
 }
@@ -98,13 +99,13 @@ name = "Remove this""#
         manifest_content,
         r#"[[custom_processors.preprocessors]]
 name = "My funny preprocessor"
-pandoc_args = ["-o", "test.tex"]"#
+pandoc_args = ["--listings"]"#
     );
     assert_contains!(
         manifest_content,
         r#"[[custom_processors.preprocessors]]
 name = "My best preprocessor"
-pandoc_args = ["-o", "test.tex"]"#
+pandoc_args = ["--listings"]"#
     );
 }
 
@@ -135,7 +136,8 @@ fn test_remove_preprocessor_does_not_exist() {
     assert_contains!(
         manifest_content,
         r#"[[custom_processors.preprocessors]]
+combined_output = "test.tex"
 name = "My funny preprocessor"
-pandoc_args = ["-o", "test.tex"]"#
+pandoc_args = ["--listings"]"#
     );
 }

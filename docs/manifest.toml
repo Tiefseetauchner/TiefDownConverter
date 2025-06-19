@@ -1,18 +1,21 @@
 smart_clean = true
 smart_clean_threshold = 3
-version = 4
+version = 5
 
 [[custom_processors.preprocessors]]
+combined_output = "index.html"
 name = "HTML Conversion"
-pandoc_args = ["--to", "html5", "-s", "-o", "index.html", "--metadata", "title={{title}}", "--metadata", "author={{author}}", "--css", "template/index.html_template/style.css", "--toc", "-B", "index.html_template/header.html"]
+pandoc_args = ["--to", "html5", "-s", "--metadata", "title={{title}}", "--metadata", "author={{author}}", "--css", "template/index.html_template/style.css", "--toc", "-B", "index.html_template/header.html"]
 
 [[custom_processors.preprocessors]]
+combined_output = "output.tex"
 name = "Enable Listings"
-pandoc_args = ["-o", "output.tex", "-t", "latex", "--listings"]
+pandoc_args = ["-t", "latex", "--listings"]
 
 [[custom_processors.preprocessors]]
+combined_output = "tiefdownconverter.1"
 name = "Man Page"
-pandoc_args = ["-s", "-t", "man", "-o", "tiefdownconverter.1", "--metadata-file", "man_metadata.yaml"]
+pandoc_args = ["-s", "-t", "man", "--metadata-file", "man_metadata.yaml"]
 
 [[custom_processors.processors]]
 name = "Typst Font Directory"
@@ -23,6 +26,7 @@ default_profile = "Documentation"
 name = "main"
 output = "."
 path = "Markdown"
+resources = ["resources/"]
 
 [[markdown_projects]]
 default_profile = "Man"
