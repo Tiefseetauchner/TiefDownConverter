@@ -91,7 +91,7 @@ Custom pandoc conversion is the most advanced templating system in TiefDown.
 It allows specifying the exact pandoc command to run on the markdown files,
 but does not allow any post processing like LaTeX or Typst.
 
-A template requires a [custom preprocessor](#custom-preprocessors) to be specified.
+A template requires a [custom preprocessor](#custom-processors) to be specified.
 This processor defines the pandoc command to run and must include an output
 file. The output file must then also be included in the template for copying
 to the output folder.
