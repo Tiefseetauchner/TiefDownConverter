@@ -143,7 +143,7 @@ pub fn convert(
 
         for template in &templates {
             let conversion_input_dir =
-                &markdown_project_compiled_directory_path.join(template.name.clone());
+                &markdown_project_compiled_directory_path.join(template.name.clone() + "_convdir/");
 
             copy_markdown_directory(
                 &input_dir,
@@ -270,9 +270,15 @@ fn copy_markdown_directory(
     output_dir: &Path,
     resources: &Option<Vec<PathBuf>>,
 ) -> Result<()> {
-    debug!("Copying markdown directory: {}", markdown_dir.display());
+    debug!(
+        "Copying markdown directory '{}' to '{}'",
+        markdown_dir.display(),
+        output_dir.display()
+    );
 
-    dir::create_all(output_dir, false)?;
+    if !output_dir.exists() {
+        dir::create_all(output_dir, false)?;
+    }
 
     dir::copy(
         markdown_dir,
