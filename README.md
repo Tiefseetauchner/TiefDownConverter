@@ -231,7 +231,7 @@ If you appreciate this project, consider supporting it by contributing or donati
 
 ## Attributions
 
-Mascot (Fibschiiiiiiiiiiiii) by my lovely boyfriend Finn <3
+Mascot (Fibschiiiiiiiiiiiii) by Finn <3
 
 ## Graphs
 
