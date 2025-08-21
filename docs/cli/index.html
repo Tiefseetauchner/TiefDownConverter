@@ -1493,7 +1493,7 @@ id="projectpre-processorsadd"><code>tiefdownconverter project pre-processors add
 <h3 id="usage-11">Usage:</h3>
 <pre><code>Add a new preprocessor to the project.
 
-Usage: tiefdownconverter project pre-processors add [OPTIONS] &lt;NAME&gt; &lt;COMBINED_OUTPUT&gt; [-- &lt;PANDOC_ARGS&gt;...]
+Usage: tiefdownconverter project pre-processors add [OPTIONS] &lt;NAME&gt; &lt;COMBINED_OUTPUT&gt; [-- &lt;CLI_ARGS&gt;...]
 
 Arguments:
   &lt;NAME&gt;
@@ -1503,10 +1503,15 @@ Arguments:
           The file the input gets converted to.
           When preprocessing the input files, the files will get converted, combined and written this filename.
 
-  [PANDOC_ARGS]...
+  [CLI_ARGS]...
           The arguments to pass to the preprocessor.
 
 Options:
+      --cli &lt;CLI&gt;
+          The program to use as the preprocessor.
+          Requires cli arguments
+          Should Pandoc not be the required preprocessor for your use case, you can change the called cli program.
+
   -v, --verbose
           Enable verbose output.
 

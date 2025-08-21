@@ -405,15 +405,24 @@ Typst).</li>
 <div class="sourceCode" id="cb9"><pre
 class="sourceCode toml"><code class="sourceCode toml"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.preprocessors]]</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Enable Listings&quot;</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="dt">pandoc_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;-t&quot;</span><span class="op">,</span> <span class="st">&quot;latex&quot;</span><span class="op">,</span> <span class="st">&quot;--listings&quot;</span><span class="op">]</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="dt">cli_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;-t&quot;</span><span class="op">,</span> <span class="st">&quot;latex&quot;</span><span class="op">,</span> <span class="st">&quot;--listings&quot;</span><span class="op">]</span></span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="dt">combined_output</span> <span class="op">=</span> <span class="st">&quot;output.tex&quot;</span></span></code></pre></div>
+<p>A preprocessor can also define a command using the <code>cli</code>
+field. This replaces the Pandoc preprocessing step with a custom cli
+command preprocessing step.</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.preprocessors]]</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Copy without modification&quot;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="dt">cli</span> <span class="op">=</span> <span class="st">&quot;cat&quot;</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="dt">cli_args</span> <span class="op">=</span> <span class="op">[]</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="dt">combined_output</span> <span class="op">=</span> <span class="st">&quot;output.tex&quot;</span></span></code></pre></div>
 <p>Templates reference it with their <code>preprocessor</code> field.
 Processors are specified similarly and referenced via the
 <code>processor</code> field:</p>
-<div class="sourceCode" id="cb10"><pre
-class="sourceCode toml"><code class="sourceCode toml"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.processors]]</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Typst Font Directory&quot;</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="dt">processor_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;--font-path&quot;</span><span class="op">,</span> <span class="st">&quot;fonts/&quot;</span><span class="op">]</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.processors]]</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Typst Font Directory&quot;</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="dt">processor_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;--font-path&quot;</span><span class="op">,</span> <span class="st">&quot;fonts/&quot;</span><span class="op">]</span></span></code></pre></div>
 <p>These mechanisms allow fine-grained control over the conversion
 pipeline when the defaults are not sufficient.</p>
 <h1 id="shared-metadata">Shared Metadata</h1>
@@ -431,9 +440,9 @@ list.</p>
 <code>metadata_prefix</code> option. This prefix determines the name of
 the macro or object used to access metadata in templates.</p>
 <p>For example, with</p>
-<div class="sourceCode" id="cb11"><pre
-class="sourceCode toml"><code class="sourceCode toml"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[metadata_settings]</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="dt">metadata_prefix</span> <span class="op">=</span> <span class="st">&quot;book&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[metadata_settings]</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="dt">metadata_prefix</span> <span class="op">=</span> <span class="st">&quot;book&quot;</span></span></code></pre></div>
 <p>the generated LaTeX file defines a <code>\book{}</code> command while
 Typst exposes a <code>book</code> object. In other words, the prefix
 fully replaces the default <code>meta</code> name. If no prefix is set

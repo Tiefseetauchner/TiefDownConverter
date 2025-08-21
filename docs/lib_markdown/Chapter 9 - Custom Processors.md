@@ -13,7 +13,18 @@ A preprocessor is defined under `[[custom_processors.preprocessors]]`:
 ```toml
 [[custom_processors.preprocessors]]
 name = "Enable Listings"
-pandoc_args = ["-t", "latex", "--listings"]
+cli_args = ["-t", "latex", "--listings"]
+combined_output = "output.tex"
+```
+
+A preprocessor can also define a command using the `cli` field. This replaces the
+Pandoc preprocessing step with a custom cli command preprocessing step.
+
+```toml
+[[custom_processors.preprocessors]]
+name = "Copy without modification"
+cli = "cat"
+cli_args = []
 combined_output = "output.tex"
 ```
 

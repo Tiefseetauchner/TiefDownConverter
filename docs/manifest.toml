@@ -3,19 +3,19 @@ smart_clean_threshold = 3
 version = 5
 
 [[custom_processors.preprocessors]]
+cli_args = ["--to", "html5", "-s", "--metadata", "title={{title}}", "--metadata", "author={{author}}", "--css", "/TiefDownConverter/template/html_template/style.css", "--toc", "-B", "html_template/header.html"]
 combined_output = "index.html"
 name = "HTML Conversion"
-pandoc_args = ["--to", "html5", "-s", "--metadata", "title={{title}}", "--metadata", "author={{author}}", "--css", "/TiefDownConverter/template/html_template/style.css", "--toc", "-B", "html_template/header.html"]
 
 [[custom_processors.preprocessors]]
+cli_args = ["-t", "latex", "--listings"]
 combined_output = "output.tex"
 name = "Enable Listings"
-pandoc_args = ["-t", "latex", "--listings"]
 
 [[custom_processors.preprocessors]]
+cli_args = ["-s", "-t", "man", "--metadata-file", "man_metadata.yaml"]
 combined_output = "tiefdownconverter.1"
 name = "Man Page"
-pandoc_args = ["-s", "-t", "man", "--metadata-file", "man_metadata.yaml"]
 
 [[custom_processors.processors]]
 name = "Typst Font Directory"
