@@ -727,7 +727,7 @@ fn get_sorted_files(
 }
 
 fn retrieve_file_order_number(p: &Path) -> u32 {
-    let file_name_regex = regex::Regex::new(r"Chapter (\d+).*").unwrap();
+    let file_name_regex = regex::Regex::new(r".*(\d+).*").unwrap();
 
     if let Some(order_number) = p
         .file_name()
