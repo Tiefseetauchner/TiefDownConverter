@@ -358,8 +358,16 @@ pub(crate) enum PreProcessorsCommands {
 When preprocessing the input files, the files will get converted, combined and written this filename."#
         )]
         combined_output: PathBuf,
+        #[arg(
+            long,
+            help = "The program to use as the preprocessor.",
+            long_help = "The program to use as the preprocessor.
+Requires cli arguments
+Should Pandoc not be the required preprocessor for your use case, you can change the called cli program."
+        )]
+        cli: Option<String>,
         #[arg(help = "The arguments to pass to the preprocessor.", num_args = 1.., value_delimiter = ' ', last = true, allow_hyphen_values = true)]
-        pandoc_args: Vec<String>,
+        cli_args: Vec<String>,
     },
     #[command(about = "Remove a preprocessor from the project.")]
     Remove {

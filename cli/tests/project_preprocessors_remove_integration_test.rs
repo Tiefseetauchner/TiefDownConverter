@@ -99,13 +99,13 @@ name = "Remove this""#
         manifest_content,
         r#"[[custom_processors.preprocessors]]
 name = "My funny preprocessor"
-pandoc_args = ["--listings"]"#
+cli_args = ["--listings"]"#
     );
     assert_contains!(
         manifest_content,
         r#"[[custom_processors.preprocessors]]
 name = "My best preprocessor"
-pandoc_args = ["--listings"]"#
+cli_args = ["--listings"]"#
     );
 }
 
@@ -138,6 +138,6 @@ fn test_remove_preprocessor_does_not_exist() {
         r#"[[custom_processors.preprocessors]]
 combined_output = "test.tex"
 name = "My funny preprocessor"
-pandoc_args = ["--listings"]"#
+cli_args = ["--listings"]"#
     );
 }

@@ -7,7 +7,7 @@ use toml::{Table, Value};
 /// # Arguments
 ///
 /// * `project` - The path to the project directory (relative or absolute).
-/// ** Defaults to the current directory if not provided.
+///   * Defaults to the current directory if not provided.
 /// * `key` - The key of the metadata field to set.
 /// * `value` - The value to set for the metadata field.
 ///
@@ -37,7 +37,7 @@ pub fn set_metadata(project: Option<String>, key: String, value: String) -> Resu
 /// # Arguments
 ///
 /// * `project` - The path to the project directory (relative or absolute).
-/// ** Defaults to the current directory if not provided.
+///   * Defaults to the current directory if not provided.
 /// * `key` - The key of the metadata field to remove.
 ///
 /// # Returns
@@ -72,7 +72,7 @@ pub fn remove_metadata(project: Option<String>, key: String) -> Result<()> {
 /// # Arguments
 ///
 /// * `project` - The path to the project directory (relative or absolute).
-/// ** Defaults to the current directory if not provided.
+///   * Defaults to the current directory if not provided.
 ///
 /// # Returns
 ///

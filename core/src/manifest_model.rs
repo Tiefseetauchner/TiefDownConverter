@@ -86,12 +86,15 @@ pub struct Processors {
 /// # Fields
 ///
 /// * `name` - The name of the preprocessor.
-/// * `pandoc_args` - The arguments passed to the pandoc conversion process.
+/// * `cli` - The program used for the preprocessing.
+///   * Defaults to "pandoc" if not specified.
+/// * `cli_args` - The arguments passed to the cli conversion process.
 /// * `combined_output` - The name of the combined output file.
 #[derive(Deserialize, Serialize, Clone)]
 pub struct PreProcessor {
     pub name: String,
-    pub pandoc_args: Vec<String>,
+    pub cli: Option<String>,
+    pub cli_args: Vec<String>,
     pub combined_output: PathBuf,
 }
 
@@ -114,14 +117,16 @@ pub struct Processor {
 /// The default pandoc arguments for LaTeX conversion.
 pub static DEFAULT_TEX_PREPROCESSOR: LazyLock<PreProcessor> = LazyLock::new(|| PreProcessor {
     name: "default_tex_preprocessor".to_string(),
-    pandoc_args: vec!["-t", "latex"].iter().map(|s| s.to_string()).collect(),
+    cli: Some("pandoc".to_string()),
+    cli_args: vec!["-t", "latex"].iter().map(|s| s.to_string()).collect(),
     combined_output: PathBuf::from("output.tex"),
 });
 
 /// The default pandoc arguments for Typst conversion.
 pub static DEFAULT_TYPST_PREPROCESSOR: LazyLock<PreProcessor> = LazyLock::new(|| PreProcessor {
     name: "default_typst_preprocessor".to_string(),
-    pandoc_args: vec!["-t", "typst"].iter().map(|s| s.to_string()).collect(),
+    cli: Some("pandoc".to_string()),
+    cli_args: vec!["-t", "typst"].iter().map(|s| s.to_string()).collect(),
     combined_output: PathBuf::from("output.typ"),
 });
 
@@ -130,7 +135,7 @@ pub static DEFAULT_TYPST_PREPROCESSOR: LazyLock<PreProcessor> = LazyLock::new(||
 /// # Fields
 ///
 /// * `metadata_prefix` - The prefix to use for metadata fields.
-/// ** This is used for defining the LaTeX macro and the name of the typst object containing the metadata.
+///   * This is used for defining the LaTeX macro and the name of the typst object containing the metadata.
 #[derive(Deserialize, Serialize, Clone)]
 pub struct MetadataSettings {
     pub metadata_prefix: Option<String>,
@@ -167,7 +172,7 @@ pub struct Profile {
 /// * `template_file` - The path to the template file relative to the template directory.
 /// * `output` - The path to the output file relative to the markdown project conversion directory.
 /// * `filters` - A list of lua filters to apply to the template.
-/// ** Can be a file or a directory.
+///   * Can be a file or a directory.
 /// * `preprocessor` - The name of the preprocessor to use for the template.
 /// * `processor` - The name of the processor to use for the template.
 #[derive(Deserialize, Serialize, Clone)]
@@ -196,6 +201,8 @@ pub(crate) fn upgrade_manifest(manifest: &mut Table, current_version: u32) -> Re
                 upgrade_manifest_v3_to_v4(manifest)?
             } else if updated_version == 4 {
                 upgrade_manifest_v4_to_v5(manifest)?
+            } else if updated_version == 5 {
+                upgrade_manifest_v5_to_v6(manifest)?
             } else {
                 return Err(eyre!(
                     "Manifest version {} is not supported for upgrades.",
@@ -346,10 +353,20 @@ fn upgrade_manifest_v4_to_v5(manifest: &mut Table) -> Result<()> {
                             "The custom preprocessor does not contain the output flag"
                         ));
                     }
+                    
+                    if let Some(args) = tbl.get("pandoc_args") {
+                        tbl.insert("cli_args".to_string(), args.clone());
+                    }
                 }
             }
         }
     }
+
+    Ok(())
+}
+
+fn upgrade_manifest_v5_to_v6(manifest: &mut Table) -> Result<()> {
+    manifest.insert("version".into(), toml::Value::Integer(5));
 
     Ok(())
 }

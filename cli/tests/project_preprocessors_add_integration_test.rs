@@ -49,7 +49,39 @@ fn test_add_preprocessor() {
         manifest_content,
         r#"[[custom_processors.preprocessors]]
 name = "My funny preprocessor"
-pandoc_args = ["-t", "html"]
+cli_args = ["-t", "html"]
+combined_output = "mega.html""#
+    );
+}
+
+#[rstest]
+fn test_add_preprocessor_custom_cli() {
+    let temp_dir = tempdir().expect("Failed to create temporary directory");
+
+    let project_path = create_empty_project(&temp_dir.path());
+
+    let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
+    cmd.current_dir(&project_path)
+        .arg("project")
+        .arg("pre-processors")
+        .arg("add")
+        .arg("My funny preprocessor")
+        .arg("mega.html")
+        .arg("--cli")
+        .arg("cat")
+        .assert()
+        .success();
+
+    let manifest_path = project_path.join("manifest.toml");
+    assert!(manifest_path.exists(), "Manifest file should exist");
+    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
+
+    assert_contains!(
+        manifest_content,
+        r#"[[custom_processors.preprocessors]]
+name = "My funny preprocessor"
+cli = "cat"
+cli_args = []
 combined_output = "mega.html""#
     );
 }
@@ -78,7 +110,7 @@ fn test_add_preprocessor_no_args() {
         manifest_content,
         r#"[[custom_processors.preprocessors]]
 name = "My funny preprocessor"
-pandoc_args = []
+cli_args = []
 combined_output = "output.tex""#
     );
 }

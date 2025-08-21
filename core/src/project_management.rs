@@ -18,9 +18,9 @@ use toml::{Table, Value};
 /// # Arguments
 ///
 /// * `project` - The path to the project directory (relative or absolute).
-/// ** Defaults to the current directory if not provided.
+///   * Defaults to the current directory if not provided.
 /// * `template_names` - A list of preset template names to initialize the project with.
-/// ** Defaults to the default TeX template if not provided.
+///   * Defaults to the default TeX template if not provided.
 /// * `no_templates` - A flag indicating whether to skip initializing the templates.
 /// * `force` - A flag indicating whether to force initialization even if the project already exists.
 /// * `markdown_dir` - The path to the markdown directory.
@@ -139,13 +139,13 @@ fn get_template_mapping_for_preset(template: &String) -> Result<TemplateMapping>
 /// # Arguments
 ///
 /// * `project` - The path to the project directory (relative or absolute).
-/// ** Defaults to the current directory if not provided.
+///   * Defaults to the current directory if not provided.
 /// * `template_name` - The name of the template to add.
 /// * `template_type` - The type of the template.
 /// * `template_file` - The path to the template file.
 /// * `output` - The output file for the template.
 /// * `filters` - A list of lua-filters to apply to the template.
-/// ** Can be either a file or directory.
+///   * Can be either a file or directory.
 /// * `preprocessor` - The name of the preprocessor to use.
 /// * `processor` - The name of the processor to use.
 ///
@@ -208,7 +208,7 @@ pub fn add_template(
 /// # Arguments
 ///
 /// * `project` - The path to the project directory (relative or absolute).
-/// ** Defaults to the current directory if not provided.
+///   * Defaults to the current directory if not provided.
 /// * `template_name` - The name of the template to remove.
 ///
 /// # Returns
@@ -259,19 +259,19 @@ pub fn remove_template(project: Option<String>, template_name: String) -> Result
 /// # Arguments
 ///
 /// * `project` - The path to the project directory (relative or absolute).
-/// ** Defaults to the current directory if not provided.
+///   * Defaults to the current directory if not provided.
 /// * `template_name` - The name of the template to update.
 /// * `template_type` - The type of the template.
-/// ** It is advised to not update template types, but rather create a new template.
+///   * It is advised to not update template types, but rather create a new template.
 /// * `template_file` - The path to the template file.
 /// * `output` - The output file for the template.
 /// * `filters` - A list of lua-filters to apply to the template.
-/// ** Can be either a file or directory.
-/// ** Overwrites existing filters!
+///   * Can be either a file or directory.
+///   * Overwrites existing filters!
 /// * `add_filters` - A list of lua-filters to add to the template.
-/// ** Can be either a file or directory.
+///   * Can be either a file or directory.
 /// * `remove_filters` - A list of lua-filters to remove from the template.
-/// ** Can be either a file or directory.
+///   * Can be either a file or directory.
 /// * `preprocessor` - The name of the preprocessor to use.
 /// * `processor` - The name of the processor to use.
 ///
@@ -353,7 +353,7 @@ pub fn update_template(
 /// # Arguments
 ///
 /// * `project` - The path to the project directory (relative or absolute).
-/// ** Defaults to the current directory if not provided.
+///   * Defaults to the current directory if not provided.
 /// * `smart_clean` - Whether to enable smart cleaning.
 /// * `smart_clean_threshold` - The threshold for smart cleaning.
 ///
@@ -391,9 +391,10 @@ pub fn update_manifest(
 /// # Arguments
 ///
 /// * `project` - The path to the project directory (relative or absolute).
-/// ** Defaults to the current directory if not provided.
+///   * Defaults to the current directory if not provided.
 /// * `name` - The name of the preprocessor.
-/// * `pandoc_args` - The arguments for the preprocessor.
+/// * `cli` - The program to call as the preprocessor.
+/// * `cli_args` - The arguments for the preprocessor.
 ///
 /// # Returns
 ///
@@ -402,7 +403,8 @@ pub fn add_preprocessor(
     project: Option<String>,
     name: String,
     combined_output: PathBuf,
-    pandoc_args: Vec<String>,
+    cli: Option<String>,
+    cli_args: Vec<String>,
 ) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
@@ -412,7 +414,8 @@ pub fn add_preprocessor(
 
     let preprocessor = PreProcessor {
         name,
-        pandoc_args,
+        cli,
+        cli_args,
         combined_output,
     };
     manifest.custom_processors.preprocessors.push(preprocessor);
@@ -428,7 +431,7 @@ pub fn add_preprocessor(
 /// # Arguments
 ///
 /// * `project` - The path to the project directory (relative or absolute).
-/// ** Defaults to the current directory if not provided.
+///   * Defaults to the current directory if not provided.
 /// * `name` - The name of the preprocessor to remove.
 ///
 /// # Returns
@@ -463,7 +466,7 @@ pub fn remove_preprocessor(project: Option<String>, name: String) -> Result<()> 
 /// # Arguments
 ///
 /// * `project` - The path to the project directory (relative or absolute).
-/// ** Defaults to the current directory if not provided.
+///   * Defaults to the current directory if not provided.
 /// * `name` - The name of the processor.
 /// * `processor_args` - The arguments for the processor.
 ///
@@ -498,7 +501,7 @@ pub fn add_processor(
 /// # Arguments
 ///
 /// * `project` - The path to the project directory (relative or absolute).
-/// ** Defaults to the current directory if not provided.
+///   * Defaults to the current directory if not provided.
 /// * `name` - The name of the processor to remove.
 ///
 /// # Returns
@@ -533,7 +536,7 @@ pub fn remove_processor(project: Option<String>, name: String) -> Result<()> {
 /// # Arguments
 ///
 /// * `project` - The path to the project directory (relative or absolute).
-/// ** Defaults to the current directory if not provided.
+///   * Defaults to the current directory if not provided.
 ///
 /// # Returns
 ///
@@ -553,7 +556,7 @@ pub fn get_processors(project: &Option<String>) -> Result<Vec<Processor>> {
 /// # Arguments
 ///
 /// * `project` - The path to the project directory (relative or absolute).
-/// ** Defaults to the current directory if not provided.
+///   * Defaults to the current directory if not provided.
 /// * `name` - The name of the profile.
 /// * `templates` - A vector of template names.
 ///
@@ -586,7 +589,7 @@ pub fn add_profile(project: Option<String>, name: String, templates: Vec<String>
 /// # Arguments
 ///
 /// * `project` - The path to the project directory (relative or absolute).
-/// ** Defaults to the current directory if not provided.
+///   * Defaults to the current directory if not provided.
 /// * `name` - The name of the profile to remove.
 ///
 /// # Returns
@@ -620,7 +623,7 @@ pub fn remove_profile(project: Option<String>, name: String) -> Result<()> {
 /// # Arguments
 ///
 /// * `project` - The path to the project directory (relative or absolute).
-/// ** Defaults to the current directory if not provided.
+///   * Defaults to the current directory if not provided.
 ///
 /// # Returns
 ///
@@ -640,7 +643,7 @@ pub fn get_templates(project: &Option<String>) -> Result<Vec<TemplateMapping>> {
 /// # Arguments
 ///
 /// * `project` - The path to the project directory (relative or absolute).
-/// ** Defaults to the current directory if not provided.
+///   * Defaults to the current directory if not provided.
 ///
 /// # Returns
 ///
@@ -662,7 +665,7 @@ pub fn get_profiles(project: &Option<String>) -> Result<Vec<Profile>> {
 /// # Arguments
 ///
 /// * `project` - The path to the project directory (relative or absolute).
-/// ** Defaults to the current directory if not provided.
+///   * Defaults to the current directory if not provided.
 ///
 /// # Returns
 ///
@@ -682,7 +685,7 @@ pub fn get_preprocessors(project: &Option<String>) -> Result<Vec<PreProcessor>> 
 /// # Arguments
 ///
 /// * `project` - The path to the project directory (relative or absolute).
-/// ** Defaults to the current directory if not provided.
+///   * Defaults to the current directory if not provided.
 ///
 /// # Returns
 ///
@@ -786,7 +789,7 @@ pub fn validate(project: Option<String>) -> Result<()> {
 /// # Arguments
 ///
 /// * `project` - The path to the project directory (relative or absolute).
-/// ** Defaults to the current directory if not provided.
+///   * Defaults to the current directory if not provided.
 ///
 /// # Returns
 ///
@@ -807,7 +810,7 @@ pub fn clean(project: Option<String>) -> Result<()> {
 /// # Arguments
 ///
 /// * `project` - The path to the project directory (relative or absolute).
-/// ** Defaults to the current directory if not provided.
+///   * Defaults to the current directory if not provided.
 pub fn smart_clean(project: Option<String>) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);

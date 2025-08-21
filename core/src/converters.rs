@@ -497,7 +497,8 @@ fn run_preprocessor_on_inputs(
     _metadata_settings: &MetadataSettings,
     preprocessor: &PreProcessor,
 ) -> Result<()> {
-    let pandoc_args = preprocess_pandoc_args(&preprocessor.pandoc_args, &metadata_fields);
+    let cli_name = preprocessor.cli.clone().unwrap_or("pandoc".to_string());
+    let cli_args = preprocess_cli_args(&preprocessor.cli_args, &metadata_fields);
 
     let input_files = get_sorted_files(
         conversion_input_dir,
@@ -510,17 +511,17 @@ fn run_preprocessor_on_inputs(
     let results = chunks
         .par_iter()
         .map(|chunk| {
-            let mut pandoc = Command::new("pandoc");
-            pandoc.args(&pandoc_args);
-            pandoc.current_dir(compiled_directory_path);
+            let mut cli = Command::new(&cli_name);
+            cli.args(&cli_args);
+            cli.current_dir(compiled_directory_path);
             add_lua_filters(
                 template,
                 project_directory_path,
                 compiled_directory_path,
-                &mut pandoc,
+                &mut cli,
             )?;
-            pandoc.args(chunk);
-            run_with_logging(pandoc, "Pandoc", true)
+            cli.args(chunk);
+            run_with_logging(cli, &cli_name, true)
         })
         .collect::<Result<Vec<_>>>()?;
 
@@ -569,10 +570,10 @@ fn get_preprocessing_chunks(input_files: &Vec<PathBuf>) -> Result<Vec<Vec<PathBu
     Ok(chunks)
 }
 
-fn preprocess_pandoc_args(pandoc_args: &[String], metadata_fields: &Table) -> Vec<String> {
+fn preprocess_cli_args(cli_args: &[String], metadata_fields: &Table) -> Vec<String> {
     let mut processed_args = Vec::new();
 
-    for arg in pandoc_args.iter() {
+    for arg in cli_args.iter() {
         let mut processed_arg = arg.clone();
         for (metadata_key, metadata_value) in metadata_fields.iter() {
             let value = metadata_value.as_str().unwrap_or("");
@@ -594,7 +595,10 @@ fn add_lua_filters(
         let filter = project_directory_path.join(&filter);
 
         if !filter.exists() {
-            return Err(eyre!("Filter file does not exist: {}", filter.display()));
+            return Err(eyre!(
+                "Filter file or directory does not exist: {}",
+                filter.display()
+            ));
         }
 
         add_lua_filter_or_directory(
