@@ -136,8 +136,8 @@ fn test_remove_preprocessor_does_not_exist() {
     assert_contains!(
         manifest_content,
         r#"[[custom_processors.preprocessors]]
+cli_args = ["--listings"]
 combined_output = "test.tex"
-name = "My funny preprocessor"
-cli_args = ["--listings"]"#
+name = "My funny preprocessor""#
     );
 }
