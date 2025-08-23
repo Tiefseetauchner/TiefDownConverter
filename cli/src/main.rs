@@ -143,12 +143,14 @@ fn main() -> Result<()> {
                 PreProcessorsCommands::Add {
                     name,
                     combined_output,
-                    pandoc_args,
+                    cli,
+                    cli_args,
                 } => project_management::add_preprocessor(
                     project,
                     name,
                     combined_output,
-                    pandoc_args,
+                    cli,
+                    cli_args,
                 )?,
                 PreProcessorsCommands::Remove { name } => {
                     project_management::remove_preprocessor(project, name)?

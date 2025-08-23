@@ -12,9 +12,10 @@ pub(crate) fn list_preprocessors(project: Option<String>) -> Result<()> {
 
     for preprocessor in preprocessors {
         info!(
-            "{}: {}",
+            "{}: {} {}",
             preprocessor.name,
-            preprocessor.pandoc_args.join(" ")
+            preprocessor.cli.unwrap_or("pandoc".to_string()),
+            preprocessor.cli_args.join(" ")
         );
     }
 

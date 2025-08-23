@@ -10,7 +10,7 @@ use toml::{Table, Value};
 ///
 /// # Arguments
 /// * `project` - The path to the project directory (relative or absolute).
-/// ** Defaults to the current directory if not provided.
+///   * Defaults to the current directory if not provided.
 /// * `name` - The name of the markdown project.
 /// * `path` - The path to the markdown directory.
 /// * `output` - The path to the output directory.
@@ -63,7 +63,7 @@ pub fn add_markdown_project(
 /// # Arguments
 ///
 /// * `project` - The path to the project directory (relative or absolute).
-/// ** Defaults to the current directory if not provided.
+///   * Defaults to the current directory if not provided.
 /// * `name` - The name of the markdown project to remove.
 ///
 /// # Returns
@@ -100,7 +100,7 @@ pub fn remove_markdown_project(project: Option<String>, name: String) -> Result<
 /// # Arguments
 ///
 /// * `project` - The path to the project directory (relative or absolute).
-/// ** Defaults to the current directory if not provided.
+///   * Defaults to the current directory if not provided.
 /// * `name` - The name of the markdown project to update.
 /// * `path` - The new path to the markdown directory.
 /// * `output` - The new path to the output directory.
@@ -154,7 +154,7 @@ pub fn update_markdown_project(
 /// # Arguments
 ///
 /// * `project` - The path to the project directory (relative or absolute).
-/// ** Defaults to the current directory if not provided.
+///   * Defaults to the current directory if not provided.
 /// * `name` - The name of the markdown project.
 /// * `key` - The key of the metadata field to set.
 /// * `value` - The value to set for the metadata field.
@@ -199,7 +199,7 @@ pub fn set_metadata(
 /// # Arguments
 ///
 /// * `project` - The path to the project directory (relative or absolute).
-/// ** Defaults to the current directory if not provided.
+///   * Defaults to the current directory if not provided.
 /// * `name` - The name of the markdown project to remove.
 /// * `key` - The key of the metadata field to remove.
 ///
@@ -245,7 +245,7 @@ pub fn remove_metadata(project: Option<String>, name: String, key: String) -> Re
 /// # Arguments
 ///
 /// * `project` - The path to the project directory (relative or absolute).
-/// ** Defaults to the current directory if not provided.
+///   * Defaults to the current directory if not provided.
 /// * `name` - The name of the markdown project to remove.
 ///
 /// # Returns
@@ -283,7 +283,7 @@ pub fn get_metadata(project: &Option<String>, name: &String) -> Result<Vec<Metad
 /// # Arguments
 ///
 /// * `project` - The path to the project directory (relative or absolute).
-/// ** Defaults to the current directory if not provided.
+///   * Defaults to the current directory if not provided.
 ///
 /// # Returns
 ///
@@ -306,7 +306,7 @@ pub fn get_markdown_projects(project: &Option<String>) -> Result<Vec<MarkdownPro
 /// # Arguments
 ///
 /// * `project` - The path to the project directory (relative or absolute).
-/// ** Defaults to the current directory if not provided.
+///   * Defaults to the current directory if not provided.
 /// * `name` - The name of the markdown project to remove.
 /// * `resources` - The resources to add.
 ///
@@ -348,7 +348,7 @@ pub fn add_resources(project: Option<String>, name: String, resources: Vec<PathB
 /// # Arguments
 ///
 /// * `project` - The path to the project directory (relative or absolute).
-/// ** Defaults to the current directory if not provided.
+///   * Defaults to the current directory if not provided.
 /// * `name` - The name of the markdown project to remove.
 /// * `resource` - The resource to remove.
 ///
@@ -394,7 +394,7 @@ pub fn remove_resource(project: Option<String>, name: String, resource: PathBuf)
 /// # Arguments
 ///
 /// * `project` - The path to the project directory (relative or absolute).
-/// ** Defaults to the current directory if not provided.
+///   * Defaults to the current directory if not provided.
 /// * `name` - The name of the markdown project to remove.
 ///
 /// # Returns

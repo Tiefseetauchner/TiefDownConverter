@@ -34,9 +34,9 @@ use toml::Table;
 /// # Arguments
 ///
 /// * `project` - The path to the project directory (relative or absolute).
-/// ** Defaults to the current directory if not provided.
+///   * Defaults to the current directory if not provided.
 /// * `templates` - A list of template names to convert to.
-/// ** Defaults to all templates if not provided.
+///   * Defaults to all templates if not provided.
 /// * `profile` - The name of the profile to use for conversion.
 ///
 /// # Returns
