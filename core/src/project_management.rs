@@ -1,8 +1,8 @@
 use crate::{
     consts::CURRENT_MANIFEST_VERSION,
     manifest_model::{
-        Manifest, MarkdownProject, PreProcessor, Processor, Processors, Profile, TemplateMapping,
-        upgrade_manifest,
+        Manifest, MarkdownProject, PreProcessor, PreProcessors, Processor, Processors, Profile,
+        TemplateMapping, upgrade_manifest,
     },
     template_management::{self, add_lix_filters, get_template_path, get_template_type_from_path},
     template_type::TemplateType,
@@ -125,7 +125,7 @@ fn get_template_mapping_for_preset(template: &String) -> Result<TemplateMapping>
         output: None,
         template_file: None,
         filters: None,
-        preprocessor: None,
+        preprocessors: None,
         processor: None,
     };
 
@@ -159,7 +159,8 @@ pub fn add_template(
     template_file: Option<PathBuf>,
     output: Option<PathBuf>,
     filters: Option<Vec<String>>,
-    preprocessor: Option<String>,
+    preprocessors: Option<Vec<String>>,
+    preprocessor_output: Option<String>,
     processor: Option<String>,
 ) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
@@ -182,13 +183,27 @@ pub fn add_template(
         }
     };
 
+    if preprocessors.is_some() && preprocessor_output.is_none() {
+        return Err(eyre!(
+            "Cannot set preprocessors without setting a combined output."
+        ));
+    }
+
+    let mut template_preprocessors = None;
+    if preprocessor_output.is_some() {
+        template_preprocessors = Some(PreProcessors {
+            preprocessors: preprocessors.unwrap_or(vec![]),
+            combined_output: PathBuf::from(preprocessor_output.unwrap()),
+        });
+    }
+
     let mut template = TemplateMapping {
         name: template_name.clone(),
         template_type,
         output,
         template_file,
         filters,
-        preprocessor,
+        preprocessors: template_preprocessors,
         processor,
     };
 
@@ -287,7 +302,10 @@ pub fn update_template(
     filters: Option<Vec<String>>,
     add_filters: Option<Vec<String>>,
     remove_filters: Option<Vec<String>>,
-    preprocessor: Option<String>,
+    preprocessors: Option<Vec<String>>,
+    add_preprocessors: Option<Vec<String>>,
+    remove_preprocessors: Option<Vec<String>>,
+    preprocessor_output: Option<String>,
     processor: Option<String>,
 ) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
@@ -333,7 +351,64 @@ pub fn update_template(
                 filters.retain(|filter| !remove_filters.contains(filter));
             }
         }
-        template.preprocessor = preprocessor.or(template.preprocessor.clone());
+
+        if let Some(preprocessor_output) = preprocessor_output {
+            if let Some(preprocessors) = &mut template.preprocessors {
+                preprocessors.combined_output = PathBuf::from(preprocessor_output);
+            } else {
+                template.preprocessors = Some(PreProcessors {
+                    preprocessors: vec![],
+                    combined_output: PathBuf::from(preprocessor_output),
+                });
+            }
+        }
+
+        if let Some(preprocessors) = preprocessors {
+            if let Some(template_preprocessors) = &mut template.preprocessors {
+                template_preprocessors.preprocessors = preprocessors;
+            } else {
+                return Err(eyre!(
+                    "Preprocessor cannot be set as no combined output is set for the template '{}'. Please set a combined output first.",
+                    template_name
+                ));
+            }
+        } else if let Some(add_preprocessors) = add_preprocessors {
+            if add_preprocessors.iter().any(|filter| {
+                manifest
+                    .custom_processors
+                    .preprocessors
+                    .iter()
+                    .all(|p| p.name != *filter)
+            }) {
+                return Err(eyre!(
+                    "Preprocessor '{}' cannot be added as it does not exist or is invalid.",
+                    template_name
+                ));
+            }
+
+            if let Some(preprocessors) = &mut template.preprocessors {
+                preprocessors.preprocessors.extend(add_preprocessors);
+            } else {
+                return Err(eyre!(
+                    "Preprocessor cannot be set as no combined output is set for the template '{}'. Please set a combined output first.",
+                    template_name
+                ));
+            }
+        } else if let Some(remove_preprocessors) = remove_preprocessors {
+            if remove_preprocessors.iter().any(|filter| filter.is_empty()) {
+                return Err(eyre!(
+                    "Cannot remove an empty preprocessor from the template '{}'.",
+                    template_name
+                ));
+            }
+
+            if let Some(preprocessors) = &mut template.preprocessors {
+                preprocessors
+                    .preprocessors
+                    .retain(|filter| !remove_preprocessors.contains(filter));
+            }
+        }
+
         template.processor = processor.or(template.processor.clone());
     } else {
         return Err(eyre!(
@@ -393,6 +468,8 @@ pub fn update_manifest(
 /// * `project` - The path to the project directory (relative or absolute).
 ///   * Defaults to the current directory if not provided.
 /// * `name` - The name of the preprocessor.
+/// * `combined_output` - The output file for the preprocessor.
+/// * `extension_filter` - The file extension the preprocessor should be applied to.
 /// * `cli` - The program to call as the preprocessor.
 /// * `cli_args` - The arguments for the preprocessor.
 ///
@@ -402,7 +479,7 @@ pub fn update_manifest(
 pub fn add_preprocessor(
     project: Option<String>,
     name: String,
-    combined_output: PathBuf,
+    extension_filter: Option<String>,
     cli: Option<String>,
     cli_args: Vec<String>,
 ) -> Result<()> {
@@ -414,9 +491,9 @@ pub fn add_preprocessor(
 
     let preprocessor = PreProcessor {
         name,
+        extension_filter,
         cli,
         cli_args,
-        combined_output,
     };
     manifest.custom_processors.preprocessors.push(preprocessor);
 

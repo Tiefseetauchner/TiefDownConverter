@@ -1,7 +1,7 @@
 use crate::{
     manifest_model::{
-        DEFAULT_TEX_PREPROCESSOR, DEFAULT_TYPST_PREPROCESSOR, MetadataSettings, PreProcessor,
-        Processors, TemplateMapping,
+        DEFAULT_TEX_PREPROCESSORS, DEFAULT_TYPST_PREPROCESSORS, MetadataSettings, PreProcessor,
+        PreProcessors, Processors, TemplateMapping,
     },
     template_management::{get_output_path, get_template_path},
     template_type::TemplateType,
@@ -35,9 +35,9 @@ pub(crate) fn convert_latex(
     )?);
 
     let preprocessor = get_preprocessor(
-        &template.preprocessor,
+        &template.preprocessors,
         &custom_processors.preprocessors,
-        Some(DEFAULT_TEX_PREPROCESSOR.clone()),
+        Some(DEFAULT_TEX_PREPROCESSORS.clone()),
     )?;
 
     run_preprocessor_on_inputs(
@@ -166,7 +166,7 @@ pub(crate) fn convert_custom_pandoc(
         ));
     }
 
-    if template.preprocessor == None {
+    if template.preprocessors.is_none() {
         return Err(eyre!(
             "Template type {} has to define a preprocessor.",
             TemplateType::CustomPandoc
@@ -182,7 +182,7 @@ pub(crate) fn convert_custom_pandoc(
     };
 
     let preprocessor = get_preprocessor(
-        &template.preprocessor,
+        &template.preprocessors,
         &custom_processors.preprocessors,
         None,
     )?;
@@ -211,7 +211,7 @@ pub(crate) fn convert_epub(
     _metadata_settings: &MetadataSettings,
     custom_processors: &Processors,
 ) -> Result<PathBuf> {
-    if template.preprocessor.is_some() {
+    if template.preprocessors.is_some() {
         return Err(eyre!(
             "EPUB conversion is not supported with a preprocessor. Use processors instead."
         ));
@@ -379,9 +379,9 @@ pub(crate) fn convert_typst(
     )?;
 
     let preprocessor = get_preprocessor(
-        &template.preprocessor,
+        &template.preprocessors,
         &custom_processors.preprocessors,
-        Some(DEFAULT_TYPST_PREPROCESSOR.clone()),
+        Some(DEFAULT_TYPST_PREPROCESSORS.clone()),
     )?;
 
     run_preprocessor_on_inputs(
@@ -474,18 +474,21 @@ fn generate_typst_metadata(
 }
 
 fn get_preprocessor(
-    preprocessor: &Option<String>,
+    preprocessors: &Option<PreProcessors>,
     custom_preprocessors: &Vec<PreProcessor>,
-    default_preprocessor: Option<PreProcessor>,
-) -> Result<PreProcessor> {
-    preprocessor
+    default_preprocessors: Option<Vec<PreProcessor>>,
+) -> Result<Vec<PreProcessor>> {
+    preprocessors
         .as_ref()
-        .and_then(|n| custom_preprocessors.iter().find(|p| p.name == *n))
-        .or(default_preprocessor.as_ref())
-        .map(|p| p.clone())
-        .ok_or_else(|| {
-            eyre!("Preprocessor not defined and no custom preprocessor found for template.")
+        .map(|p| {
+            custom_preprocessors
+                .iter()
+                .filter(|cp| p.preprocessors.contains(&cp.name))
+                .cloned()
+                .collect::<Vec<PreProcessor>>()
         })
+        .or_else(|| default_preprocessors.as_ref().map(|p| p.clone()))
+        .ok_or(eyre!("No preprocessor defined for this template."))
 }
 
 fn run_preprocessor_on_inputs(

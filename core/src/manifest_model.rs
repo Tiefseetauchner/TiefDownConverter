@@ -86,15 +86,30 @@ pub struct Processors {
 /// # Fields
 ///
 /// * `name` - The name of the preprocessor.
+/// * `extension_filter` - The file extension the preprocessor should be applied to.
+///   * If not specified, the preprocessor will be applied to all files.
 /// * `cli` - The program used for the preprocessing.
 ///   * Defaults to "pandoc" if not specified.
 /// * `cli_args` - The arguments passed to the cli conversion process.
-/// * `combined_output` - The name of the combined output file.
 #[derive(Deserialize, Serialize, Clone)]
 pub struct PreProcessor {
     pub name: String,
+    pub extension_filter: Option<String>,
     pub cli: Option<String>,
     pub cli_args: Vec<String>,
+}
+
+/// DTO containing the preprocessors applied to a template.
+///
+/// Preprocessors are applied in the order they are listed.
+///
+/// # Fields
+///
+/// * `preprocessors` - A list of preprocessors.
+/// * `combined_output` - The name of the combined output file.
+#[derive(Deserialize, Serialize, Clone)]
+pub struct PreProcessors {
+    pub preprocessors: Vec<String>,
     pub combined_output: PathBuf,
 }
 
@@ -115,20 +130,49 @@ pub struct Processor {
 }
 
 /// The default pandoc arguments for LaTeX conversion.
-pub static DEFAULT_TEX_PREPROCESSOR: LazyLock<PreProcessor> = LazyLock::new(|| PreProcessor {
-    name: "default_tex_preprocessor".to_string(),
-    cli: Some("pandoc".to_string()),
-    cli_args: vec!["-t", "latex"].iter().map(|s| s.to_string()).collect(),
-    combined_output: PathBuf::from("output.tex"),
-});
+pub static DEFAULT_TEX_PREPROCESSORS: LazyLock<(PreProcessors, Vec<PreProcessor>)> =
+    LazyLock::new(|| {
+        (
+            PreProcessors {
+                preprocessors: vec!["default_tex_preprocessor".to_string()],
+                combined_output: PathBuf::from("output.tex"),
+            },
+            vec![PreProcessor {
+                name: "default_tex_preprocessor".to_string(),
+                extension_filter: None,
+                cli: None,
+                cli_args: vec!["-t", "latex"].iter().map(|s| s.to_string()).collect(),
+            }],
+        )
+    });
 
 /// The default pandoc arguments for Typst conversion.
-pub static DEFAULT_TYPST_PREPROCESSOR: LazyLock<PreProcessor> = LazyLock::new(|| PreProcessor {
-    name: "default_typst_preprocessor".to_string(),
-    cli: Some("pandoc".to_string()),
-    cli_args: vec!["-t", "typst"].iter().map(|s| s.to_string()).collect(),
-    combined_output: PathBuf::from("output.typ"),
-});
+pub static DEFAULT_TYPST_PREPROCESSORS: LazyLock<(PreProcessors, Vec<PreProcessor>)> =
+    LazyLock::new(|| {
+        (
+            PreProcessors {
+                preprocessors: vec![
+                    "default_typst_preprocessor".to_string(),
+                    "default_typst_preprocessor_typst_files".to_string(),
+                ],
+                combined_output: PathBuf::from("output.typ"),
+            },
+            vec![
+                PreProcessor {
+                    name: "default_typst_preprocessor".to_string(),
+                    extension_filter: None,
+                    cli: None,
+                    cli_args: vec!["-t", "typst"].iter().map(|s| s.to_string()).collect(),
+                },
+                PreProcessor {
+                    name: "default_typst_preprocessor_typst_files".to_string(),
+                    extension_filter: Some("typ".to_string()),
+                    cli: Some("cat".to_string()),
+                    cli_args: vec![],
+                },
+            ],
+        )
+    });
 
 /// Represents the settings for metadata in the project.
 ///
@@ -182,7 +226,7 @@ pub struct TemplateMapping {
     pub template_file: Option<PathBuf>,
     pub output: Option<PathBuf>,
     pub filters: Option<Vec<String>>,
-    pub preprocessor: Option<String>,
+    pub preprocessors: Option<PreProcessors>,
     pub processor: Option<String>,
 }
 
@@ -201,8 +245,6 @@ pub(crate) fn upgrade_manifest(manifest: &mut Table, current_version: u32) -> Re
                 upgrade_manifest_v3_to_v4(manifest)?
             } else if updated_version == 4 {
                 upgrade_manifest_v4_to_v5(manifest)?
-            } else if updated_version == 5 {
-                upgrade_manifest_v5_to_v6(manifest)?
             } else {
                 return Err(eyre!(
                     "Manifest version {} is not supported for upgrades.",
@@ -325,6 +367,8 @@ fn upgrade_manifest_v3_to_v4(manifest: &mut Table) -> Result<()> {
 fn upgrade_manifest_v4_to_v5(manifest: &mut Table) -> Result<()> {
     manifest.insert("version".into(), toml::Value::Integer(5));
 
+    let mut preprocessor_combined_output_mapping = vec![];
+
     if let Some(toml::Value::Table(custom)) = manifest.get_mut("custom_processors") {
         if let Some(toml::Value::Array(preprocessors)) = custom.get_mut("preprocessors") {
             for preproc in preprocessors {
@@ -347,13 +391,19 @@ fn upgrade_manifest_v4_to_v5(manifest: &mut Table) -> Result<()> {
                     }
 
                     if let Some(captured) = captured {
-                        tbl.insert("combined_output".into(), captured);
+                        preprocessor_combined_output_mapping.push((
+                            tbl.get("name")
+                                .and_then(|n| n.as_str())
+                                .unwrap_or_default()
+                                .to_string(),
+                            captured.clone(),
+                        ));
                     } else {
                         return Err(eyre!(
                             "The custom preprocessor does not contain the output flag"
                         ));
                     }
-                    
+
                     if let Some(args) = tbl.get("pandoc_args") {
                         tbl.insert("cli_args".to_string(), args.clone());
                     }
@@ -362,11 +412,38 @@ fn upgrade_manifest_v4_to_v5(manifest: &mut Table) -> Result<()> {
         }
     }
 
-    Ok(())
-}
+    if let Some(toml::Value::Array(templates)) = manifest.get_mut("templates") {
+        for template in templates {
+            if let toml::Value::Table(tbl) = template {
+                if let Some(toml::Value::String(preprocessor)) = tbl.get("preprocessor") {
+                    let preprocessor = preprocessor_combined_output_mapping
+                        .iter()
+                        .find(|(name, _)| name == preprocessor);
 
-fn upgrade_manifest_v5_to_v6(manifest: &mut Table) -> Result<()> {
-    manifest.insert("version".into(), toml::Value::Integer(5));
+                    let mut preprocessors_tbl = Table::new();
+
+                    preprocessors_tbl.insert(
+                        "preprocessors".to_string(),
+                        toml::Value::Array(vec![toml::Value::String(
+                            preprocessor
+                                .map(|(name, _)| name.clone())
+                                .unwrap_or_default(),
+                        )]),
+                    );
+
+                    if let Some((_, combined_output)) = preprocessor {
+                        preprocessors_tbl
+                            .insert("combined_output".to_string(), combined_output.clone());
+                    }
+
+                    tbl.insert(
+                        "preprocessors".to_string(),
+                        toml::Value::Table(preprocessors_tbl.clone()),
+                    );
+                }
+            }
+        }
+    }
 
     Ok(())
 }
