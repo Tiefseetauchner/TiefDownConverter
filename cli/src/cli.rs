@@ -255,15 +255,24 @@ See the pandoc documentation and 'Writing filters' of the TiefDownConverter docu
         filters: Option<Vec<String>>,
         #[arg(
             long,
-            help = "The preprocessor to use for this template.",
-            long_help = r#"The preprocessor to use for this template.
-A preprocessor defines the arguments passed to the pandoc conversion from markdown.
+            help = "The preprocessors to use for this template.",
+            long_help = r#"The preprocessors to use for this template.
+A preprocessor defines the arguments passed to the pandoc conversion from the specified input format.
+Each input format can have at most one preprocessor. Multiple preprocessors for the same input format will lead to an error.
+There can be a preprocessor without an input format, which will be used if no other preprocessor matches the input format. Only one such preprocessor is allowed.
 If using a CustomPandoc template, a preprocessor is required.
 Preprocessors replace all arguments. Thus, with preprocessors, you need to define the output file and format.
 For templates, that is the file imported by the template.
 Preprocessors are incompatible with epub conversion. Use processors instead."#
         )]
-        preprocessor: Option<String>,
+        preprocessors: Option<Vec<String>>,
+        #[arg(
+            long,
+            help = "The output file of the preprocessor. If not provided, the template name with the appropriate ending will be used.",
+            long_help = r#"The output file of the preprocessor. If not provided, the template name with the appropriate ending will be used.
+This is the file the input gets converted to. When preprocessing the input files, the files will get converted, combined and written to this filename."#
+        )]
+        preprocessor_output: Option<PathBuf>,
         #[arg(
             long,
             help = "The processor to use for this template.",
@@ -325,14 +334,41 @@ This removes the filter from the existing filters."#,
         #[arg(
             long,
             help = "The preprocessor to use for this template.",
-            long_help = r#"The preprocessor to use for this template.
-A preprocessor defines the arguments passed to the pandoc conversion from markdown.
+            long_help = r#"The preprocessors to use for this template.
+A preprocessor defines the arguments passed to the pandoc conversion from the specified input format.
+Each input format can have at most one preprocessor. Multiple preprocessors for the same input format will lead to an error.
+There can be a preprocessor without an input format, which will be used if no other preprocessor matches the input format. Only one such preprocessor is allowed.
 If using a CustomPandoc template, a preprocessor is required.
 Preprocessors replace all arguments. Thus, with preprocessors, you need to define the output file and format.
 For templates, that is the file imported by the template.
 Preprocessors are incompatible with epub conversion. Use processors instead."#
         )]
-        preprocessor: Option<String>,
+        preprocessors: Option<Vec<String>>,
+        #[arg(
+            long,
+            help = "The preprocessors to add to the template.",
+            long_help = r#"The preprocessors to use for this template.
+This adds to the existing preprocessors."#,
+            num_args = 1..,
+            value_delimiter = ',',
+        )]
+        add_preprocessors: Option<Vec<String>>,
+        #[arg(
+            long,
+            help = "The preprocessors to remove from the template.",
+            long_help = r#"The preprocessors to use for this template.
+This removes the preprocessor from the existing preprocessors."#,
+            num_args = 1..,
+            value_delimiter = ',',
+        )]
+        remove_preprocessors: Option<Vec<String>>,
+        #[arg(
+            long,
+            help = "The output file of the preprocessor. If not provided, the template name with the appropriate ending will be used.",
+            long_help = r#"The output file of the preprocessor. If not provided, the template name with the appropriate ending will be used.
+This is the file the input gets converted to. When preprocessing the input files, the files will get converted, combined and written to this filename."#
+        )]
+        preprocessor_output: Option<PathBuf>,
         #[arg(
             long,
             help = "The processor to use for this template.",
@@ -353,11 +389,13 @@ pub(crate) enum PreProcessorsCommands {
         #[arg(help = "The name of the preprocessor to create.")]
         name: String,
         #[arg(
-            help = "The file the input gets converted to.",
-            long_help = r#"The file the input gets converted to.
-When preprocessing the input files, the files will get converted, combined and written this filename."#
+            long,
+            help = "The file extension filter for the preprocessor.",
+            long_help = r#"The file extension filter for the preprocessor.
+This defines which input files the preprocessor is applied to. If not provided, the preprocessor will be applied to all input files.
+Allows glob patterns. Excludes the leading dot. Only matches the file extension."#
         )]
-        combined_output: PathBuf,
+        filter: Option<String>,
         #[arg(
             long,
             help = "The program to use as the preprocessor.",

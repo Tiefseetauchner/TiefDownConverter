@@ -92,7 +92,8 @@ fn main() -> Result<()> {
                     template_type,
                     output,
                     filters,
-                    preprocessor,
+                    preprocessors,
+                    preprocessor_output,
                     processor,
                 } => project_management::add_template(
                     project,
@@ -101,7 +102,8 @@ fn main() -> Result<()> {
                     template_file,
                     output,
                     filters,
-                    preprocessor,
+                    preprocessors,
+                    preprocessor_output,
                     processor,
                 )?,
                 TemplatesCommands::Remove => {
@@ -114,11 +116,22 @@ fn main() -> Result<()> {
                     filters,
                     add_filters,
                     remove_filters,
-                    preprocessor,
+                    preprocessors,
+                    add_preprocessors,
+                    remove_preprocessors,
+                    preprocessor_output,
                     processor,
                 } => {
                     if filters.is_some() && (add_filters.is_some() || remove_filters.is_some()) {
-                        return Err(eyre!("Cannot specify both filters and add/remove filters."));
+                        return Err(eyre!("Cannot specify both filters or add/remove filters."));
+                    }
+
+                    if preprocessors.is_some()
+                        && (add_preprocessors.is_some() || remove_preprocessors.is_some())
+                    {
+                        return Err(eyre!(
+                            "Cannot specify both preprocessors or add/remove preprocessors."
+                        ));
                     }
 
                     project_management::update_template(
@@ -130,7 +143,10 @@ fn main() -> Result<()> {
                         filters,
                         add_filters,
                         remove_filters,
-                        preprocessor,
+                        preprocessors,
+                        add_preprocessors,
+                        remove_preprocessors,
+                        preprocessor_output,
                         processor,
                     )?
                 }
@@ -142,16 +158,10 @@ fn main() -> Result<()> {
             ProjectCommands::PreProcessors { command } => match command {
                 PreProcessorsCommands::Add {
                     name,
-                    combined_output,
+                    filter,
                     cli,
                     cli_args,
-                } => project_management::add_preprocessor(
-                    project,
-                    name,
-                    combined_output,
-                    cli,
-                    cli_args,
-                )?,
+                } => project_management::add_preprocessor(project, name, filter, cli, cli_args)?,
                 PreProcessorsCommands::Remove { name } => {
                     project_management::remove_preprocessor(project, name)?
                 }

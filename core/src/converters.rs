@@ -7,8 +7,9 @@ use crate::{
     template_type::TemplateType,
 };
 use color_eyre::eyre::{Ok, Result, eyre};
+use fast_glob::glob_match;
 use log::{debug, error};
-use rayon::iter::*;
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use std::{
     fs,
     io::{BufRead, BufReader, Write},
@@ -34,11 +35,15 @@ pub(crate) fn convert_latex(
         template.template_type.clone(),
     )?);
 
-    let preprocessor = get_preprocessor(
-        &template.preprocessors,
-        &custom_processors.preprocessors,
-        Some(DEFAULT_TEX_PREPROCESSORS.clone()),
-    )?;
+    let preprocessors =
+        retrieve_preprocessors(&template.preprocessors, &custom_processors.preprocessors);
+    let default_preprocessors = retrieve_preprocessors(
+        &Some(DEFAULT_TEX_PREPROCESSORS.0.clone()),
+        &DEFAULT_TEX_PREPROCESSORS.1,
+    );
+    let preprocessors = merge_preprocessors(vec![preprocessors, default_preprocessors]);
+
+    let combined_output = retrieve_combined_output(template)?;
 
     run_preprocessor_on_inputs(
         template,
@@ -47,7 +52,8 @@ pub(crate) fn convert_latex(
         conversion_input_dir,
         metadata_fields,
         metadata_settings,
-        &preprocessor,
+        &preprocessors,
+        &combined_output,
     )?;
 
     generate_tex_metadata(compiled_directory_path, metadata_fields, metadata_settings)?;
@@ -181,11 +187,10 @@ pub(crate) fn convert_custom_pandoc(
         ));
     };
 
-    let preprocessor = get_preprocessor(
-        &template.preprocessors,
-        &custom_processors.preprocessors,
-        None,
-    )?;
+    let preprocessors =
+        retrieve_preprocessors(&template.preprocessors, &custom_processors.preprocessors);
+
+    let combined_output = retrieve_combined_output(template)?;
 
     run_preprocessor_on_inputs(
         template,
@@ -194,7 +199,8 @@ pub(crate) fn convert_custom_pandoc(
         conversion_input_dir,
         metadata_fields,
         metadata_settings,
-        &preprocessor,
+        &preprocessors,
+        &combined_output,
     )?;
 
     let output_path = compiled_directory_path.join(&output_path);
@@ -378,11 +384,15 @@ pub(crate) fn convert_typst(
         template.template_type.clone(),
     )?;
 
-    let preprocessor = get_preprocessor(
-        &template.preprocessors,
-        &custom_processors.preprocessors,
-        Some(DEFAULT_TYPST_PREPROCESSORS.clone()),
-    )?;
+    let preprocessors =
+        retrieve_preprocessors(&template.preprocessors, &custom_processors.preprocessors);
+    let default_preprocessors = retrieve_preprocessors(
+        &Some(DEFAULT_TYPST_PREPROCESSORS.0.clone()),
+        &DEFAULT_TYPST_PREPROCESSORS.1,
+    );
+    let preprocessors = merge_preprocessors(vec![preprocessors, default_preprocessors]);
+
+    let combined_output = retrieve_combined_output(template)?;
 
     run_preprocessor_on_inputs(
         template,
@@ -391,7 +401,8 @@ pub(crate) fn convert_typst(
         conversion_input_dir,
         metadata_fields,
         metadata_settings,
-        &preprocessor,
+        &preprocessors,
+        &combined_output,
     )?;
 
     generate_typst_metadata(compiled_directory_path, metadata_fields, metadata_settings)?;
@@ -473,22 +484,50 @@ fn generate_typst_metadata(
     Ok(())
 }
 
-fn get_preprocessor(
+fn retrieve_preprocessors(
     preprocessors: &Option<PreProcessors>,
     custom_preprocessors: &Vec<PreProcessor>,
-    default_preprocessors: Option<Vec<PreProcessor>>,
-) -> Result<Vec<PreProcessor>> {
+) -> Vec<PreProcessor> {
     preprocessors
+        .clone()
+        .and_then(|p| Some(p.preprocessors.clone()))
         .as_ref()
         .map(|p| {
             custom_preprocessors
                 .iter()
-                .filter(|cp| p.preprocessors.contains(&cp.name))
+                .filter(|cp| p.contains(&cp.name))
                 .cloned()
                 .collect::<Vec<PreProcessor>>()
         })
-        .or_else(|| default_preprocessors.as_ref().map(|p| p.clone()))
-        .ok_or(eyre!("No preprocessor defined for this template."))
+        .unwrap_or(vec![])
+}
+
+fn merge_preprocessors(preprocessor_lists: Vec<Vec<PreProcessor>>) -> Vec<PreProcessor> {
+    let mut merged = vec![];
+
+    for preprocessors in preprocessor_lists.iter() {
+        for preprocessor in preprocessors {
+            if !merged
+                .iter()
+                .any(|p: &PreProcessor| p.extension_filter == preprocessor.extension_filter)
+            {
+                merged.push(preprocessor.clone());
+            }
+        }
+    }
+
+    merged
+}
+
+fn retrieve_combined_output(template: &TemplateMapping) -> Result<PathBuf> {
+    Ok(template
+        .preprocessors
+        .clone()
+        .and_then(|p| Some(p.combined_output))
+        .or(Some(DEFAULT_TYPST_PREPROCESSORS.0.clone().combined_output))
+        .ok_or(eyre!(
+            "No combined output defined for this template's preprocessor."
+        ))?)
 }
 
 fn run_preprocessor_on_inputs(
@@ -498,11 +537,9 @@ fn run_preprocessor_on_inputs(
     conversion_input_dir: &Path,
     metadata_fields: &Table,
     _metadata_settings: &MetadataSettings,
-    preprocessor: &PreProcessor,
+    preprocessors: &Vec<PreProcessor>,
+    combined_output: &Path,
 ) -> Result<()> {
-    let cli_name = preprocessor.cli.clone().unwrap_or("pandoc".to_string());
-    let cli_args = preprocess_cli_args(&preprocessor.cli_args, &metadata_fields);
-
     let input_files = get_sorted_files(
         conversion_input_dir,
         project_directory_path,
@@ -514,6 +551,19 @@ fn run_preprocessor_on_inputs(
     let results = chunks
         .par_iter()
         .map(|chunk| {
+            let preprocessor = preprocessors
+                .iter()
+                .filter(|p| p.extension_filter.is_some())
+                .find(|p| glob_match(p.extension_filter.as_ref().unwrap(), chunk.1.clone()))
+                .or(preprocessors.iter().find(|p| p.extension_filter.is_none()))
+                .ok_or(eyre!(
+                    "No preprocessor found for files with extension {}",
+                    chunk.1
+                ))?;
+
+            let cli_name = preprocessor.cli.clone().unwrap_or("pandoc".to_string());
+            let cli_args = preprocess_cli_args(&preprocessor.cli_args, &metadata_fields);
+
             let mut cli = Command::new(&cli_name);
             cli.args(&cli_args);
             cli.current_dir(compiled_directory_path);
@@ -523,22 +573,23 @@ fn run_preprocessor_on_inputs(
                 compiled_directory_path,
                 &mut cli,
             )?;
-            cli.args(chunk);
+            cli.args(chunk.0.clone());
             run_with_logging(cli, &cli_name, true)
         })
         .collect::<Result<Vec<_>>>()?;
 
     std::fs::write(
-        compiled_directory_path.join(&preprocessor.combined_output),
+        compiled_directory_path.join(&combined_output),
         results.join("\n\n"),
     )?;
 
     Ok(())
 }
 
-fn get_preprocessing_chunks(input_files: &Vec<PathBuf>) -> Result<Vec<Vec<PathBuf>>> {
+fn get_preprocessing_chunks(input_files: &Vec<PathBuf>) -> Result<Vec<(Vec<PathBuf>, String)>> {
     let mut chunks = Vec::new();
     let mut current_chunk = Vec::new();
+    let mut chunk_extension = std::ffi::OsString::new();
 
     for input_file in input_files {
         if current_chunk.is_empty() {
@@ -550,16 +601,17 @@ fn get_preprocessing_chunks(input_files: &Vec<PathBuf>) -> Result<Vec<Vec<PathBu
             "Input file {} has no extension",
             input_file.display()
         ))?;
-        let previous_extension = current_chunk
+        chunk_extension = current_chunk
             .last()
             .and_then(|file: &PathBuf| file.extension())
             .ok_or(eyre!(
                 "Input file {} has no extension",
                 input_file.display()
-            ))?;
+            ))?
+            .to_owned();
 
-        if current_extension != previous_extension {
-            chunks.push(current_chunk);
+        if current_extension != chunk_extension {
+            chunks.push((current_chunk, chunk_extension.to_string_lossy().to_string()));
             current_chunk = Vec::new();
         }
 
@@ -567,7 +619,7 @@ fn get_preprocessing_chunks(input_files: &Vec<PathBuf>) -> Result<Vec<Vec<PathBu
     }
 
     if !current_chunk.is_empty() {
-        chunks.push(current_chunk);
+        chunks.push((current_chunk, chunk_extension.to_string_lossy().to_string()));
     }
 
     Ok(chunks)

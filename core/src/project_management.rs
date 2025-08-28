@@ -160,7 +160,7 @@ pub fn add_template(
     output: Option<PathBuf>,
     filters: Option<Vec<String>>,
     preprocessors: Option<Vec<String>>,
-    preprocessor_output: Option<String>,
+    preprocessor_output: Option<PathBuf>,
     processor: Option<String>,
 ) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
@@ -305,7 +305,7 @@ pub fn update_template(
     preprocessors: Option<Vec<String>>,
     add_preprocessors: Option<Vec<String>>,
     remove_preprocessors: Option<Vec<String>>,
-    preprocessor_output: Option<String>,
+    preprocessor_output: Option<PathBuf>,
     processor: Option<String>,
 ) -> Result<()> {
     let project = project.as_deref().unwrap_or(".");
