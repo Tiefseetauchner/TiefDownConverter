@@ -438,7 +438,8 @@ class="sourceCode toml"><code class="sourceCode toml"><span id="cb11-1"><a href=
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="dt">cli</span> <span class="op">=</span> <span class="st">&quot;cat&quot;</span></span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="dt">cli_args</span> <span class="op">=</span> <span class="op">[]</span></span>
 <span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="dt">combined_output</span> <span class="op">=</span> <span class="st">&quot;output.tex&quot;</span></span></code></pre></div>
-<p>Templates reference it with their <code>preprocessor</code> field.
+<p>Templates reference it with their <code>preprocessors</code> field,
+which also has to define a <code>combined_output</code> field.
 Processors are specified similarly and referenced via the
 <code>processor</code> field:</p>
 <div class="sourceCode" id="cb12"><pre

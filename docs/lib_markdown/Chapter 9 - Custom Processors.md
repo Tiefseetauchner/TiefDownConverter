@@ -28,8 +28,9 @@ cli_args = []
 combined_output = "output.tex"
 ```
 
-Templates reference it with their `preprocessor` field. Processors are specified
-similarly and referenced via the `processor` field:
+Templates reference it with their `preprocessors` field, which also has to define a
+`combined_output` field. Processors are specified similarly and referenced via the
+`processor` field:
 
 ```toml
 [[custom_processors.processors]]

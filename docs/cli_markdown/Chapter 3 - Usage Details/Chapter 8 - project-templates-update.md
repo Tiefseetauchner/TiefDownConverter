@@ -36,13 +36,27 @@ Options:
           The luafilters to use for pandoc conversion of this templates markdown.
           This removes the filter from the existing filters.
 
-      --preprocessor <PREPROCESSOR>
-          The preprocessor to use for this template.
-          A preprocessor defines the arguments passed to the pandoc conversion from markdown.
+      --preprocessors <PREPROCESSORS>
+          The preprocessors to use for this template.
+          A preprocessor defines the arguments passed to the pandoc conversion from the specified input format.
+          Each input format can have at most one preprocessor. Multiple preprocessors for the same input format will lead to an error.
+          There can be a preprocessor without an input format, which will be used if no other preprocessor matches the input format. Only one such preprocessor is allowed.
           If using a CustomPandoc template, a preprocessor is required.
           Preprocessors replace all arguments. Thus, with preprocessors, you need to define the output file and format.
           For templates, that is the file imported by the template.
           Preprocessors are incompatible with epub conversion. Use processors instead.
+
+      --add-preprocessors <ADD_PREPROCESSORS>...
+          The preprocessors to use for this template.
+          This adds to the existing preprocessors.
+
+      --remove-preprocessors <REMOVE_PREPROCESSORS>...
+          The preprocessors to use for this template.
+          This removes the preprocessor from the existing preprocessors.
+
+      --preprocessor-output <PREPROCESSOR_OUTPUT>
+          The output file of the preprocessor. If not provided, the template name with the appropriate ending will be used.
+          This is the file the input gets converted to. When preprocessing the input files, the files will get converted, combined and written to this filename.
 
       --processor <PROCESSOR>
           The processor to use for this template.

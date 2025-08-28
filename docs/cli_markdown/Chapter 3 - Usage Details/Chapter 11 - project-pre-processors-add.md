@@ -6,27 +6,28 @@
 ```
 Add a new preprocessor to the project.
 
-Usage: tiefdownconverter project pre-processors add [OPTIONS] <NAME> <COMBINED_OUTPUT> [-- <CLI_ARGS>...]
+Usage: tiefdownconverter project pre-processors add [OPTIONS] <NAME> [-- <CLI_ARGS>...]
 
 Arguments:
   <NAME>
           The name of the preprocessor to create.
 
-  <COMBINED_OUTPUT>
-          The file the input gets converted to.
-          When preprocessing the input files, the files will get converted, combined and written this filename.
-
   [CLI_ARGS]...
           The arguments to pass to the preprocessor.
 
 Options:
+      --filter <FILTER>
+          The file extension filter for the preprocessor.
+          This defines which input files the preprocessor is applied to. If not provided, the preprocessor will be applied to all input files.
+          Allows glob patterns. Excludes the leading dot. Only matches the file extension.
+
+  -v, --verbose
+          Enable verbose output.
+
       --cli <CLI>
           The program to use as the preprocessor.
           Requires cli arguments
           Should Pandoc not be the required preprocessor for your use case, you can change the called cli program.
-
-  -v, --verbose
-          Enable verbose output.
 
   -h, --help
           Print help (see a summary with '-h')
