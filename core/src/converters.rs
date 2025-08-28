@@ -378,6 +378,8 @@ pub(crate) fn convert_typst(
     metadata_settings: &MetadataSettings,
     custom_processors: &Processors,
 ) -> Result<PathBuf> {
+    debug!("Starting Typst conversion...");
+
     let template_path = get_template_path(template.template_file.clone(), &template.name);
     let output_path = get_output_path(
         template.output.clone(),
@@ -393,6 +395,14 @@ pub(crate) fn convert_typst(
     );
     let preprocessors = merge_preprocessors(vec![preprocessors, default_preprocessors]);
 
+    debug!(
+        "Using preprocessors: {:?}",
+        preprocessors
+            .iter()
+            .map(|p| p.name.clone())
+            .collect::<Vec<String>>()
+    );
+
     let combined_output =
         retrieve_combined_output(template, &Some(DEFAULT_TYPST_PREPROCESSORS.0.clone()))?;
 
@@ -407,9 +417,13 @@ pub(crate) fn convert_typst(
         &combined_output,
     )?;
 
+    debug!("Generating Typst metadata...");
+
     generate_typst_metadata(compiled_directory_path, metadata_fields, metadata_settings)?;
 
     let mut processor_args = vec![];
+
+    debug!("Compiling Typst document...");
 
     if let Some(processor) = &template.processor {
         if let Some(processor_pos) = custom_processors
@@ -558,6 +572,7 @@ fn run_preprocessor_on_inputs(
     let results = chunks
         .par_iter()
         .map(|chunk| {
+            debug!("Processing chunk with extension {}: {:?}", chunk.1, chunk.0);
             let preprocessor = preprocessors
                 .iter()
                 .filter(|p| p.extension_filter.is_some())
@@ -570,6 +585,11 @@ fn run_preprocessor_on_inputs(
 
             let cli_name = preprocessor.cli.clone().unwrap_or("pandoc".to_string());
             let cli_args = preprocess_cli_args(&preprocessor.cli_args, &metadata_fields);
+
+            debug!(
+                "Using preprocessor {} for files with extension {} with command {} {:?}",
+                preprocessor.name, chunk.1, cli_name, cli_args
+            );
 
             let mut cli = Command::new(&cli_name);
             cli.args(&cli_args);
@@ -596,37 +616,40 @@ fn run_preprocessor_on_inputs(
 fn get_preprocessing_chunks(input_files: &Vec<PathBuf>) -> Result<Vec<(Vec<PathBuf>, String)>> {
     let mut chunks = Vec::new();
     let mut current_chunk = Vec::new();
-    let mut chunk_extension = std::ffi::OsString::new();
+    let mut chunk_extension: Option<std::ffi::OsString> = None;
 
     for input_file in input_files {
-        if current_chunk.is_empty() {
-            current_chunk.push(input_file.clone());
-            continue;
-        }
-
-        let current_extension = input_file.extension().ok_or(eyre!(
-            "Input file {} has no extension",
-            input_file.display()
-        ))?;
-        chunk_extension = current_chunk
-            .last()
-            .and_then(|file: &PathBuf| file.extension())
+        let current_extension = input_file
+            .extension()
             .ok_or(eyre!(
                 "Input file {} has no extension",
                 input_file.display()
             ))?
             .to_owned();
 
-        if current_extension != chunk_extension {
-            chunks.push((current_chunk, chunk_extension.to_string_lossy().to_string()));
-            current_chunk = Vec::new();
+        if current_chunk.is_empty() {
+            current_chunk.push(input_file.clone());
+            chunk_extension = Some(current_extension);
+            continue;
         }
 
-        current_chunk.push(input_file.clone());
+        if Some(&current_extension) != chunk_extension.as_ref() {
+            // Push the previous chunk
+            if let Some(ext) = &chunk_extension {
+                chunks.push((current_chunk, ext.to_string_lossy().to_string()));
+            }
+            current_chunk = vec![input_file.clone()];
+            chunk_extension = Some(current_extension);
+        } else {
+            current_chunk.push(input_file.clone());
+        }
     }
 
+    // Push the last chunk if not empty
     if !current_chunk.is_empty() {
-        chunks.push((current_chunk, chunk_extension.to_string_lossy().to_string()));
+        if let Some(ext) = &chunk_extension {
+            chunks.push((current_chunk, ext.to_string_lossy().to_string()));
+        }
     }
 
     Ok(chunks)
