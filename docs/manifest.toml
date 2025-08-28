@@ -12,7 +12,6 @@ name = "Enable Listings"
 
 [[custom_processors.preprocessors]]
 cli_args = ["-s", "-t", "man", "--metadata-file", "man_metadata.yaml"]
-combined_output = "tiefdownconverter.1"
 name = "Man Page"
 
 [[custom_processors.processors]]

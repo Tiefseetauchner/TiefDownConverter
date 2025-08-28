@@ -188,26 +188,15 @@ profile or the `--templates` flag to specify a different set of templates.
 
 ## Input Processing
 
-Input processing is the process of taking the input files and converting them to a format
-usable in templates. Now, this is generically phrased on purpose - input files can be
-anything - markdown files, typst files, so on. Whatever Pandoc supports.
+Input processing converts source files into a format your template includes. This happens
+via preprocessors. Input files are grouped by extension, and each group is processed in one
+shot by the matching preprocessor (default or custom). The converter concatenates the
+stdout of these runs and writes it to the configured combined output file.
 
-And that gives us a hint - input processing is synonymous with preprocessing - the step of
-the conversion that runs pandoc.
+By default, LaTeX templates use `output.tex` and Typst templates use `output.typ`. When you
+assign preprocessors to a template, you also specify the combined output filename.
 
-Previously, this was done by combining markdown files into one file and running pandoc on
-that. That was a simple way to do it. Oh so simple.
-
-Now, all input files are passed to pandoc at once - regardless of input format - and then
-combined _by pandoc_, then the output is saved as the output as specified by the templates
-preprocessor metadata.
-
-This by default would be `output.tex` or `output.typ`, but when you assign a preprocessor
-to a template, that can be anything.
-
-Preprocessors also have the ability to be extension specific. I'll talk about that in
-[Preprocessing](#preprocessing) a tad more, but you can define a preprocessor with a extension
-filter, allowing you to use a different preprocessor for some files than others
+Preprocessors can be extension-specific. See [Preprocessing](#preprocessing) for details.
 
 ## Customising the template
 
@@ -527,13 +516,15 @@ you can define a typst specific preprocessor that simply uses cat.
 If you want to define a preprocessor, you can do so by running
 
 ```bash
-tiefdownconverter project templates <TEMPLATE_NAME> update --preprocessors <PREPROCESSOR_NAMES,...> --preprocessor-output <PREPROCESSOR_OUTPUT>
+tiefdownconverter project templates <TEMPLATE_NAME> update \
+  --preprocessors <PREPROCESSOR_NAMES,...> \
+  --preprocessor-output <PREPROCESSOR_OUTPUT>
 ```
 
 to assign it to a template and
 
 ```bash
-tiefdownconverter project preprocessors <PREPROCESSOR_NAME> add -- [PANDOC_ARGS]
+tiefdownconverter project pre-processors add <PREPROCESSOR_NAME> -- [CLI_ARGS]
 ```
 
 to create a new preprocessor.
@@ -543,7 +534,7 @@ For example, if you want to add `--listings` to the pandoc command, you could do
 Defaults from that (as few as they may be) won't get carried over to the conversion.
 
 ```bash
-tiefdownconverter project preprocessor "Enable Listings" add -- --listings
+tiefdownconverter project pre-processors add "Enable Listings" -- --listings
 ```
 
 The manifest would look something like this:
@@ -564,19 +555,18 @@ template_type = "Tex"
 
 [templates.preprocessors]
 preprocessors = ["Enable Listings"]
-combined_output = "output.typ"
+combined_output = "output.tex"
 
 ...
 ```
 
 Now, you may be able to spot a neato featureo: preprocessors are assigned in an array.
 That means, you can have multiple preprocessors per template. With this power however
-comes the responsibility to define extension filters on your preprocessors. That is
-simply a globbed filter that can be set via the `--filter` option on preprocessor
-creation.
+comes the responsibility to define extension filters on your preprocessors. This is an
+extension-only glob pattern set via the `--filter` option when creating the preprocessor.
 
 ```bash
-tiefdownconverter project preprocessor "No typst conversion" add --filter "typ" --cli "cat"
+tiefdownconverter project pre-processors add "No typst conversion" --filter "typ" --cli "cat"
 ```
 
 If no filter is provided, the preprocessor applies to all files. In your template, you
@@ -593,7 +583,7 @@ and just skip any further processing. Straight from pandoc to the output.
 You can do this by first defining a preprocessor, for example:
 
 ```bash
-tiefdownconverter project preprocessor "RTF Preprocessor" add -- -t rtf
+tiefdownconverter project pre-processors add "RTF Preprocessor" -- -t rtf
 ```
 
 As you can see, we're outputting as an RTF file. This means we need to add a template

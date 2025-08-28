@@ -43,7 +43,8 @@ pub(crate) fn convert_latex(
     );
     let preprocessors = merge_preprocessors(vec![preprocessors, default_preprocessors]);
 
-    let combined_output = retrieve_combined_output(template)?;
+    let combined_output =
+        retrieve_combined_output(template, &Some(DEFAULT_TEX_PREPROCESSORS.0.clone()))?;
 
     run_preprocessor_on_inputs(
         template,
@@ -190,7 +191,7 @@ pub(crate) fn convert_custom_pandoc(
     let preprocessors =
         retrieve_preprocessors(&template.preprocessors, &custom_processors.preprocessors);
 
-    let combined_output = retrieve_combined_output(template)?;
+    let combined_output = retrieve_combined_output(template, &None)?;
 
     run_preprocessor_on_inputs(
         template,
@@ -392,7 +393,8 @@ pub(crate) fn convert_typst(
     );
     let preprocessors = merge_preprocessors(vec![preprocessors, default_preprocessors]);
 
-    let combined_output = retrieve_combined_output(template)?;
+    let combined_output =
+        retrieve_combined_output(template, &Some(DEFAULT_TYPST_PREPROCESSORS.0.clone()))?;
 
     run_preprocessor_on_inputs(
         template,
@@ -519,12 +521,17 @@ fn merge_preprocessors(preprocessor_lists: Vec<Vec<PreProcessor>>) -> Vec<PrePro
     merged
 }
 
-fn retrieve_combined_output(template: &TemplateMapping) -> Result<PathBuf> {
+fn retrieve_combined_output(
+    template: &TemplateMapping,
+    default_processors: &Option<PreProcessors>,
+) -> Result<PathBuf> {
     Ok(template
         .preprocessors
         .clone()
         .and_then(|p| Some(p.combined_output))
-        .or(Some(DEFAULT_TYPST_PREPROCESSORS.0.clone().combined_output))
+        .or(default_processors
+            .as_ref()
+            .and_then(|p| Some(p.clone().combined_output)))
         .ok_or(eyre!(
             "No combined output defined for this template's preprocessor."
         ))?)

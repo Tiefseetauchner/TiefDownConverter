@@ -518,9 +518,6 @@ needed to actually manage and convert the project.</li>
 <ul>
 <li>Create a new folder for the current compilation. That way, you have
 a history.</li>
-<li>Combine all the input files into a single file. The resulting path
-is passed to preprocessors via the <code>COMBINED_OUTPUT</code>
-parameter.</li>
 <li>Run Pandoc conversion to TeX, EPUB, or Typst. This uses Lua filters
 and preprocessors that are defined in the <code>manifest.toml</code>
 file.</li>
@@ -755,27 +752,16 @@ mean you can’t use all templates as you wish, you can always use the
 <code>--templates</code> flag to specify a different set of
 templates.</p>
 <h2 id="input-processing">Input Processing</h2>
-<p>Input processing is the process of taking the input files and
-converting them to a format usable in templates. Now, this is
-generically phrased on purpose - input files can be anything - markdown
-files, typst files, so on. Whatever Pandoc supports.</p>
-<p>And that gives us a hint - input processing is synonymous with
-preprocessing - the step of the conversion that runs pandoc.</p>
-<p>Previously, this was done by combining markdown files into one file
-and running pandoc on that. That was a simple way to do it. Oh so
-simple.</p>
-<p>Now, all input files are passed to pandoc at once - regardless of
-input format - and then combined <em>by pandoc</em>, then the output is
-saved as the output as specified by the templates preprocessor
-metadata.</p>
-<p>This by default would be <code>output.tex</code> or
-<code>output.typ</code>, but when you assign a preprocessor to a
-template, that can be anything.</p>
-<p>Preprocessors also have the ability to be extension specific. I’ll
-talk about that in <a href="#preprocessing">Preprocessing</a> a tad
-more, but you can define a preprocessor with a extension filter,
-allowing you to use a different preprocessor for some files than
-others</p>
+<p>Input processing converts source files into a format your template
+includes. This happens via preprocessors. Input files are grouped by
+extension, and each group is processed in one shot by the matching
+preprocessor (default or custom). The converter concatenates the stdout
+of these runs and writes it to the configured combined output file.</p>
+<p>By default, LaTeX templates use <code>output.tex</code> and Typst
+templates use <code>output.typ</code>. When you assign preprocessors to
+a template, you also specify the combined output filename.</p>
+<p>Preprocessors can be extension-specific. See <a
+href="#preprocessing">Preprocessing</a> for details.</p>
 <h2 id="customising-the-template">Customising the template</h2>
 <p>The key idea behind tiefdownconverter is, that it can handle multiple
 templates at the same time. This is done by creating a template file in
@@ -1069,10 +1055,12 @@ and typ files, you can define a typst specific preprocessor that simply
 uses cat.</p>
 <p>If you want to define a preprocessor, you can do so by running</p>
 <div class="sourceCode" id="cb15"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project templates <span class="op">&lt;</span>TEMPLATE_NAME<span class="op">&gt;</span> update <span class="at">--preprocessors</span> <span class="op">&lt;</span>PREPROCESSOR_NAMES,...<span class="op">&gt;</span> --preprocessor-output <span class="op">&lt;</span>PREPROCESSOR_OUTPUT<span class="op">&gt;</span></span></code></pre></div>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project templates <span class="op">&lt;</span>TEMPLATE_NAME<span class="op">&gt;</span> update <span class="dt">\</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--preprocessors</span> <span class="op">&lt;</span>PREPROCESSOR_NAMES,...<span class="op">&gt;</span> <span class="dt">\</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--preprocessor-output</span> <span class="op">&lt;</span>PREPROCESSOR_OUTPUT<span class="op">&gt;</span></span></code></pre></div>
 <p>to assign it to a template and</p>
 <div class="sourceCode" id="cb16"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project preprocessors <span class="op">&lt;</span>PREPROCESSOR_NAME<span class="op">&gt;</span> add <span class="at">--</span> <span class="pp">[</span><span class="ss">PANDOC_ARGS</span><span class="pp">]</span></span></code></pre></div>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project pre-processors add <span class="op">&lt;</span>PREPROCESSOR_NAME<span class="op">&gt;</span> -- <span class="pp">[</span><span class="ss">CLI_ARGS</span><span class="pp">]</span></span></code></pre></div>
 <p>to create a new preprocessor.</p>
 <p>For example, if you want to add <code>--listings</code> to the pandoc
 command, you could do so by adding <code>--listings</code> to the
@@ -1080,7 +1068,7 @@ preprocessor. But importantly, <strong>this overwrites the default
 preprocessor</strong>. Defaults from that (as few as they may be) won’t
 get carried over to the conversion.</p>
 <div class="sourceCode" id="cb17"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project preprocessor <span class="st">&quot;Enable Listings&quot;</span> add <span class="at">--</span> <span class="at">--listings</span></span></code></pre></div>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project pre-processors add <span class="st">&quot;Enable Listings&quot;</span> <span class="at">--</span> <span class="at">--listings</span></span></code></pre></div>
 <p>The manifest would look something like this:</p>
 <div class="sourceCode" id="cb18"><pre
 class="sourceCode toml"><code class="sourceCode toml"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="dt">...</span></span>
@@ -1098,17 +1086,17 @@ class="sourceCode toml"><code class="sourceCode toml"><span id="cb18-1"><a href=
 <span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a><span class="kw">[templates.preprocessors]</span></span>
 <span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a><span class="dt">preprocessors</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;Enable Listings&quot;</span><span class="op">]</span></span>
-<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a><span class="dt">combined_output</span> <span class="op">=</span> <span class="st">&quot;output.typ&quot;</span></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a><span class="dt">combined_output</span> <span class="op">=</span> <span class="st">&quot;output.tex&quot;</span></span>
 <span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a><span class="dt">...</span></span></code></pre></div>
 <p>Now, you may be able to spot a neato featureo: preprocessors are
 assigned in an array. That means, you can have multiple preprocessors
 per template. With this power however comes the responsibility to define
-extension filters on your preprocessors. That is simply a globbed filter
-that can be set via the <code>--filter</code> option on preprocessor
-creation.</p>
+extension filters on your preprocessors. This is an extension-only glob
+pattern set via the <code>--filter</code> option when creating the
+preprocessor.</p>
 <div class="sourceCode" id="cb19"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project preprocessor <span class="st">&quot;No typst conversion&quot;</span> add <span class="at">--filter</span> <span class="st">&quot;typ&quot;</span> <span class="at">--cli</span> <span class="st">&quot;cat&quot;</span></span></code></pre></div>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project pre-processors add <span class="st">&quot;No typst conversion&quot;</span> <span class="at">--filter</span> <span class="st">&quot;typ&quot;</span> <span class="at">--cli</span> <span class="st">&quot;cat&quot;</span></span></code></pre></div>
 <p>If no filter is provided, the preprocessor applies to all files. In
 your template, you can then define the preprocessor list as well as the
 combined output of the preprocessor. This is important, as this output
@@ -1121,7 +1109,7 @@ run a preprocessor and just skip any further processing. Straight from
 pandoc to the output.</p>
 <p>You can do this by first defining a preprocessor, for example:</p>
 <div class="sourceCode" id="cb20"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project preprocessor <span class="st">&quot;RTF Preprocessor&quot;</span> add <span class="at">--</span> <span class="at">-t</span> rtf</span></code></pre></div>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project pre-processors add <span class="st">&quot;RTF Preprocessor&quot;</span> <span class="at">--</span> <span class="at">-t</span> rtf</span></code></pre></div>
 <p>As you can see, we’re outputting as an RTF file. This means we need
 to add a template that deals with the same output:</p>
 <div class="sourceCode" id="cb21"><pre

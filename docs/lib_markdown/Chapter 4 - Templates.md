@@ -97,6 +97,6 @@ file. The output file must then also be included in the template for copying
 to the output folder.
 
 The pandoc conversion runs in the compilation directory of the markdown project
-and can thus access the markdown file. This is always available as
-`combined.md`. See [conversion folders](#conversion-folders) for more
-information.
+and receives the project’s input files. The converter captures the preprocessor’s
+stdout and writes it to the `combined_output` file you configure on the template.
+See [conversion folders](#conversion-folders) for more information.

@@ -115,8 +115,12 @@ TiefDown?</a></li>
 </ul></li>
 <li><a href="#metadata-settings" id="toc-metadata-settings">Metadata
 Settings</a></li>
-<li><a href="#manifest-file" id="toc-manifest-file">Manifest
-File</a></li>
+<li><a href="#manifest-file" id="toc-manifest-file">Manifest File</a>
+<ul>
+<li><a href="#templates-and-processors-at-a-glance"
+id="toc-templates-and-processors-at-a-glance">Templates and processors
+(at a glance)</a></li>
+</ul></li>
 <li><a href="#conversion-folders" id="toc-conversion-folders">Conversion
 folders</a></li>
 <li><a href="#templates" id="toc-templates">Templates</a>
@@ -142,7 +146,10 @@ Resources</a></li>
 id="toc-markdown-project-metadata">Markdown Project Metadata</a></li>
 </ul></li>
 <li><a href="#custom-processors" id="toc-custom-processors">Custom
-Processors</a></li>
+Processors</a>
+<ul>
+<li><a href="#defaults" id="toc-defaults">Defaults</a></li>
+</ul></li>
 </ul>
 </nav>
 <h1 id="shared-metadata">Shared Metadata</h1>
@@ -227,38 +234,69 @@ markdown projects</li>
 <li>A list of <a href="#profiles">profiles</a> available for the
 conversion</li>
 </ul>
+<h2 id="templates-and-processors-at-a-glance">Templates and processors
+(at a glance)</h2>
+<p>Each entry under <code>[[templates]]</code> specifies one output
+variant. Important fields are:</p>
+<ul>
+<li><code>template_type</code>: <code>Tex</code>, <code>Typst</code>,
+<code>Epub</code>, or <code>CustomPandoc</code>.</li>
+<li><code>template_file</code>: Path relative to the template directory;
+if omitted, the template name is used.</li>
+<li><code>output</code>: Optional output filename (defaults based on
+template type).</li>
+<li><code>filters</code>: Lua filters (file or directory paths) applied
+during Pandoc steps.</li>
+<li><code>preprocessors</code>: Names of preprocessors plus a required
+<code>combined_output</code> filename the template includes.</li>
+<li><code>processor</code>: Name of a processor whose arguments are
+passed to XeLaTeX/Typst/Pandoc as applicable.</li>
+</ul>
+<p>Project-wide <code>[[custom_processors.preprocessors]]</code> and
+<code>[[custom_processors.processors]]</code> define reusable building
+blocks referenced by templates.</p>
 <h1 id="conversion-folders">Conversion folders</h1>
-<p>The conversion folder is the folder where the template and markdown
-files are located during conversion.</p>
-<p>Before the conversion process begins, a new folder is created in the
-project directory. This is the conversion folder, named after the
-current date and time. This folder can be deleted using the
-<code>clean</code> function, or automatically removed when converting
-using <a href="#smart-clean">smart clean</a>.</p>
-<p>If a <a href="#markdown-projects">markdown project</a> has an output
-folder defined, this is used as the conversion folder for that markdown
-project.</p>
-<p>To explain more thuroughly, we need to explain the workflow of
-TiefDown conversion. Helpfully, there’s a diagram:</p>
+<p>The conversion folder is where inputs are collected and processed for
+a run. A new, time-stamped folder is created inside the project whenever
+a conversion starts. If a <a href="#markdown-projects">markdown
+project</a> specifies an <code>output</code> directory, TiefDown uses
+that as the base for that project’s conversion folder. Old conversion
+folders can be removed manually with the clean command or automatically
+with <a href="#smart-clean">smart clean</a>.</p>
+<p>To understand what goes into the folder, it helps to look at the
+conversion pipeline (see the overview diagram):</p>
 <figure>
 <img src="./resources/architecture.jpg" alt="Workflow" />
 <figcaption aria-hidden="true">Workflow</figcaption>
 </figure>
-<p>As you can see, the first step of any conversion is combining the
-markdown files to a single Markdown file. This is done before
-conversion, sorting the files by chapter number. This chapter number is
-retrieved from the filename. The file must thus be named
-<code>Chapter X.md</code> where X is the chapter number. This does not
-need to include leading zeros. This combined file is then saved as
-<code>combined.md</code> in the conversion folder.</p>
-<p>After combination, pandoc is run on the combined file to derive
-LaTeX, typst, epub or custom outputs in case of <a
-href="#custom-pandoc-conversion">custom pandoc conversion</a>.</p>
-<p>For LaTeX and Typst templates, the output file is imported into the
-template file as described in the <a href="#templates">templates</a>
-section. The conversion process converts the template file and stores
-the output in the conversion folder.</p>
-<p>The output file is then copied to the output folder.</p>
+<ol type="1">
+<li><p>Input discovery and ordering: TiefDown scans the markdown project
+directory, orders files by the first number in the filename
+(e.g. <code>Chapter 10 - …</code>), and recurses into similarly numbered
+subfolders, preserving their order.</p></li>
+<li><p>Preprocessing by extension: Inputs are grouped by file extension.
+For each group, TiefDown selects the matching preprocessor for the
+active template (either a default or a custom one filtered by extension)
+and runs it in the conversion folder. The stdout from each run is
+captured.</p></li>
+<li><p>Combined output: The captured outputs are concatenated and
+written to the template’s configured
+<code>preprocessors.combined_output</code> file (typically
+<code>output.tex</code> for LaTeX or <code>output.typ</code> for Typst).
+Your template includes this file.</p></li>
+<li><p>Metadata files: TiefDown generates <code>metadata.tex</code> or
+<code>metadata.typ</code> (only if they don’t already exist) based on
+<code>[shared_metadata]</code>, any project-specific metadata, and your
+optional <a href="#metadata-settings">metadata settings</a>.</p></li>
+<li><p>Template processing: Depending on the template type, TiefDown
+runs XeLaTeX (twice) or Typst on the template file in the conversion
+folder, optionally passing arguments from a named <a
+href="#custom-processors">processor</a>. EPUB templates invoke Pandoc
+directly; custom pandoc templates copy the combined output to the final
+destination.</p></li>
+<li><p>Finalization: The produced artifact (e.g. a PDF or EPUB) is then
+copied to the markdown project’s configured output path.</p></li>
+</ol>
 <h1 id="templates">Templates</h1>
 <p>Templating in TiefDown is done in several ways:</p>
 <ul>
@@ -343,8 +381,9 @@ command to run and must include an output file. The output file must
 then also be included in the template for copying to the output
 folder.</p>
 <p>The pandoc conversion runs in the compilation directory of the
-markdown project and can thus access the markdown file. This is always
-available as <code>combined.md</code>. See <a
+markdown project and receives the project’s input files. The converter
+captures the preprocessor’s stdout and writes it to the
+<code>combined_output</code> file you configure on the template. See <a
 href="#conversion-folders">conversion folders</a> for more
 information.</p>
 <h1 id="smart-clean">Smart Clean</h1>
@@ -385,6 +424,9 @@ class="sourceCode lua"><code class="sourceCode lua"><span id="cb7-1"><a href="#c
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
 <p>For more details on writing filters see the Pandoc documentation.</p>
+<p>Note: Lua filters apply to the Pandoc preprocessing step(s). If a
+template uses a custom preprocessor whose CLI is not Pandoc, those
+filters have no effect on that preprocessor’s output.</p>
 <h1 id="markdown-projects">Markdown Projects</h1>
 <p>A TiefDown project can contain multiple markdown projects. Each
 project defines where the source files live and where the converted
@@ -427,8 +469,7 @@ Typst).</li>
 <div class="sourceCode" id="cb10"><pre
 class="sourceCode toml"><code class="sourceCode toml"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.preprocessors]]</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Enable Listings&quot;</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="dt">cli_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;-t&quot;</span><span class="op">,</span> <span class="st">&quot;latex&quot;</span><span class="op">,</span> <span class="st">&quot;--listings&quot;</span><span class="op">]</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="dt">combined_output</span> <span class="op">=</span> <span class="st">&quot;output.tex&quot;</span></span></code></pre></div>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="dt">cli_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;-t&quot;</span><span class="op">,</span> <span class="st">&quot;latex&quot;</span><span class="op">,</span> <span class="st">&quot;--listings&quot;</span><span class="op">]</span></span></code></pre></div>
 <p>A preprocessor can also define a command using the <code>cli</code>
 field. This replaces the Pandoc preprocessing step with a custom cli
 command preprocessing step.</p>
@@ -437,10 +478,37 @@ class="sourceCode toml"><code class="sourceCode toml"><span id="cb11-1"><a href=
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Copy without modification&quot;</span></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="dt">cli</span> <span class="op">=</span> <span class="st">&quot;cat&quot;</span></span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="dt">cli_args</span> <span class="op">=</span> <span class="op">[]</span></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="dt">combined_output</span> <span class="op">=</span> <span class="st">&quot;output.tex&quot;</span></span></code></pre></div>
-<p>Templates reference it with their <code>preprocessors</code> field,
-which also has to define a <code>combined_output</code> field.
-Processors are specified similarly and referenced via the
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="dt">extension_filter</span> <span class="op">=</span> <span class="st">&quot;typ&quot;</span></span></code></pre></div>
+<p>Templates reference one or more preprocessors with their
+<code>preprocessors</code> field, which also has to define a
+<code>combined_output</code> field. The converter captures the stdout of
+each preprocessor run and writes it to this file, which your template
+then includes (<code>\input{./output.tex}</code> or
+<code>#include "./output.typ"</code>).</p>
+<h3 id="defaults">Defaults</h3>
+<p>TiefDown provides reasonable defaults per template type:</p>
+<ul>
+<li>Tex templates preprocess inputs with Pandoc using
+<code>-t latex</code>, writing <code>output.tex</code>.</li>
+<li>Typst templates use two preprocessors: Pandoc with
+<code>-t typst</code> for non-<code>.typ</code> inputs, and a
+pass-through step for <code>.typ</code> inputs so existing Typst files
+are concatenated. The combined output is <code>output.typ</code>.</li>
+</ul>
+<p>You can override a default for a particular extension by defining a
+preprocessor with a matching <code>extension_filter</code>; defaults for
+other extensions remain.</p>
+<p>Preprocessors can be scoped by extension via
+<code>extension_filter</code>, which matches only the file extension
+(glob patterns such as <code>t*</code> are supported). If you omit the
+filter, the preprocessor acts as a fallback when no more specific filter
+matches. Defaults exist per template type and are merged by extension;
+defining your own preprocessor for a particular extension replaces the
+default for that extension but leaves the others intact. Finally,
+<code>cli_args</code> support metadata substitution, so any occurrence
+of <code>{{key}}</code> is replaced with the corresponding metadata
+value at conversion time.</p>
+<p>Processors are specified similarly and referenced via the
 <code>processor</code> field:</p>
 <div class="sourceCode" id="cb12"><pre
 class="sourceCode toml"><code class="sourceCode toml"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.processors]]</span></span>

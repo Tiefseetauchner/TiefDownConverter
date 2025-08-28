@@ -110,8 +110,6 @@ of how it works internally:
   `tiefdownconverter convert` will do a few things:
   - Create a new folder for the current compilation. That way, you have a
     history.
-  - Combine all the input files into a single file. The resulting path is passed to
-    preprocessors via the `COMBINED_OUTPUT` parameter.
   - Run Pandoc conversion to TeX, EPUB, or Typst. This uses Lua filters and
     preprocessors that are defined in the `manifest.toml` file.
   - Run XeLaTeX on all TeX templates, Typst on all Typst templates, and so on. It even

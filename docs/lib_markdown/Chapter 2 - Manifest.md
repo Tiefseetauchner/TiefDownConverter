@@ -25,3 +25,18 @@ It consists of a few important parts (for the full documentation, check
 - A table of [shared metadata](#shared-metadata) for all markdown projects
 - A [metadata settings](#metadata-settings) object
 - A list of [profiles](#profiles) available for the conversion
+
+## Templates and processors (at a glance)
+
+Each entry under `[[templates]]` specifies one output variant. Important fields are:
+
+- `template_type`: `Tex`, `Typst`, `Epub`, or `CustomPandoc`.
+- `template_file`: Path relative to the template directory; if omitted, the template name is used.
+- `output`: Optional output filename (defaults based on template type).
+- `filters`: Lua filters (file or directory paths) applied during Pandoc steps.
+- `preprocessors`: Names of preprocessors plus a required `combined_output` filename the
+  template includes.
+- `processor`: Name of a processor whose arguments are passed to XeLaTeX/Typst/Pandoc as applicable.
+
+Project-wide `[[custom_processors.preprocessors]]` and `[[custom_processors.processors]]` define
+reusable building blocks referenced by templates.
