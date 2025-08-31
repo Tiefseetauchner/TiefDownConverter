@@ -63,7 +63,7 @@ pub(crate) fn retrieve_combined_output(
         ))?)
 }
 
-pub(crate) fn run_preprocessor_on_inputs(
+pub(crate) fn run_preprocessors_on_inputs(
     template: &TemplateMapping,
     project_directory_path: &Path,
     compiled_directory_path: &Path,
@@ -261,7 +261,9 @@ pub(crate) fn get_relative_path_from_compiled_dir(
     Some(relative_path)
 }
 
-fn get_sorted_files(
+// TODO: When we solved the issues with custom pandoc conversion and epub conversion, we can
+// make this private again.
+pub(crate) fn get_sorted_files(
     input_dir: &Path,
     project_directory_path: &Path,
     compiled_directory_path: &Path,

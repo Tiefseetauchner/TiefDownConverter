@@ -5,7 +5,7 @@ use toml::Table;
 
 use crate::{
     converters::common::{
-        retrieve_combined_output, retrieve_preprocessors, run_preprocessor_on_inputs,
+        retrieve_combined_output, retrieve_preprocessors, run_preprocessors_on_inputs,
     },
     manifest_model::{MetadataSettings, Processors, TemplateMapping},
     template_type::TemplateType,
@@ -46,7 +46,7 @@ pub(crate) fn convert_custom_pandoc(
 
     let combined_output = retrieve_combined_output(template, &None)?;
 
-    run_preprocessor_on_inputs(
+    run_preprocessors_on_inputs(
         template,
         project_directory_path,
         compiled_directory_path,

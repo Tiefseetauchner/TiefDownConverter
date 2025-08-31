@@ -7,7 +7,9 @@ use color_eyre::eyre::{Result, eyre};
 use toml::Table;
 
 use crate::{
-    converters::common::{add_lua_filters, get_relative_path_from_compiled_dir, run_with_logging},
+    converters::common::{
+        add_lua_filters, get_relative_path_from_compiled_dir, get_sorted_files, run_with_logging,
+    },
     manifest_model::{MetadataSettings, Processors, TemplateMapping},
     template_management::{get_output_path, get_template_path},
 };
@@ -21,13 +23,6 @@ pub(crate) fn convert_epub(
     _metadata_settings: &MetadataSettings,
     custom_processors: &Processors,
 ) -> Result<PathBuf> {
-    return Err(eyre!("Epub conversion is broken. Please fix."));
-
-    if template.preprocessors.is_some() {
-        return Err(eyre!(
-            "EPUB conversion is not supported with a preprocessor. Use processors instead."
-        ));
-    }
     let template_path = get_template_path(template.template_file.clone(), &template.name);
     let output_path = get_output_path(
         template.output.clone(),
@@ -88,11 +83,11 @@ pub(crate) fn convert_epub(
         }
     }
 
-    // pandoc.args(get_sorted_files(
-    //     conversion_input_dir,
-    //     project_directory_path,
-    //     compiled_directory_path,
-    // )?);
+    pandoc.args(get_sorted_files(
+        conversion_input_dir,
+        project_directory_path,
+        compiled_directory_path,
+    )?);
 
     run_with_logging(pandoc, "pandoc", false)?;
 
