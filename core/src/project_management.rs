@@ -53,6 +53,7 @@ pub fn init(
 
     if !project_path.exists() {
         std::fs::create_dir(project_path)?;
+        debug!("Created project directory at '{}'.", project_path.display());
     }
 
     let manifest_path = project_path.join("manifest.toml");
@@ -84,10 +85,16 @@ pub fn init(
             r#"# Test Document
 This is a simple test document for you to edit or overwrite."#,
         )?;
+        debug!("Initialized markdown directory at '{}'.", markdown_dir_path.display());
     }
 
     let smart_clean_value = if smart_clean { Some(true) } else { None };
 
+    debug!(
+        "Initializing templates ({}): {:?}",
+        templates.len(),
+        templates.iter().map(|t| t.name.clone()).collect::<Vec<_>>()
+    );
     create_templates(project_path, &templates)?;
 
     let manifest: Manifest = Manifest {
@@ -112,7 +119,8 @@ This is a simple test document for you to edit or overwrite."#,
         profiles: None,
     };
 
-    std::fs::write(manifest_path, toml::to_string(&manifest)?)?;
+    std::fs::write(manifest_path.clone(), toml::to_string(&manifest)?)?;
+    debug!("Wrote manifest to '{}'.", manifest_path.display());
 
     Ok(())
 }
@@ -163,6 +171,11 @@ pub fn add_template(
     preprocessor_output: Option<PathBuf>,
     processor: Option<String>,
 ) -> Result<()> {
+    debug!(
+        "Adding template '{}' (type: {:?})...",
+        template_name,
+        template_type
+    );
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
@@ -214,6 +227,7 @@ pub fn add_template(
 
     let manifest_content = toml::to_string(&manifest)?;
     std::fs::write(&manifest_path, manifest_content)?;
+    debug!("Template '{}' added and manifest updated.", template_name);
 
     Ok(())
 }
@@ -230,6 +244,7 @@ pub fn add_template(
 ///
 /// A Result containing either an error or nothing.
 pub fn remove_template(project: Option<String>, template_name: String) -> Result<()> {
+    debug!("Removing template '{}'...", template_name);
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
@@ -259,6 +274,7 @@ pub fn remove_template(project: Option<String>, template_name: String) -> Result
         } else {
             fs::remove_file(template_path)?;
         }
+        debug!("Removed template resources for '{}'.", template_name);
     } else {
         return Err(eyre!(
             "Template {} could not be found in the project.",
@@ -308,6 +324,13 @@ pub fn update_template(
     preprocessor_output: Option<PathBuf>,
     processor: Option<String>,
 ) -> Result<()> {
+    debug!(
+        "Updating template '{}' (fields provided: type={:?}, file={:?}, output={:?})",
+        template_name,
+        template_type,
+        template_file,
+        output
+    );
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
@@ -419,6 +442,7 @@ pub fn update_template(
 
     let manifest_content = toml::to_string(&manifest)?;
     std::fs::write(&manifest_path, manifest_content)?;
+    debug!("Template '{}' updated and manifest saved.", template_name);
 
     Ok(())
 }
@@ -950,6 +974,7 @@ pub(crate) fn run_smart_clean(
 ///
 /// A Result containing either an error or nothing.
 pub fn check_dependencies(dependencies: Vec<&str>) -> Result<()> {
+    debug!("Checking dependencies: {:?}", dependencies);
     let errors = get_missing_dependencies(dependencies)?;
 
     if !errors.is_empty() {
@@ -967,6 +992,7 @@ pub(crate) fn get_missing_dependencies(dependencies: Vec<&str>) -> Result<Vec<St
     let mut errors = Vec::new();
 
     for dependency in dependencies {
+        debug!("Probing dependency: '{}' --version", dependency);
         let output = Command::new(dependency).arg("--version").output();
 
         if !output.is_ok() {
@@ -989,6 +1015,11 @@ pub(crate) fn load_and_convert_manifest(manifest_path: &std::path::PathBuf) -> R
     }
 
     let manifest_content = fs::read_to_string(manifest_path)?;
+    debug!(
+        "Loading manifest from '{}' ({} bytes).",
+        manifest_path.display(),
+        manifest_content.len()
+    );
 
     let mut manifest: Table = toml::from_str(&manifest_content)?;
 
@@ -1010,6 +1041,7 @@ pub(crate) fn load_and_convert_manifest(manifest_path: &std::path::PathBuf) -> R
 
     let manifest = &toml::to_string(&manifest)?;
     fs::write(manifest_path, manifest)?;
+    debug!("Manifest written back after potential upgrade ({} bytes).", manifest.len());
 
     let manifest: Manifest = toml::from_str(manifest)?;
 
@@ -1023,6 +1055,7 @@ fn create_templates(
     for template in templates {
         let template_creator = template_management::get_template_creator(template.name.as_str())?;
 
+        debug!("Creating template '{}' of type {}...", template.name, template.template_type);
         template_creator(project_path, template)?;
     }
 

@@ -16,7 +16,7 @@ pub(crate) fn retrieve_preprocessors(
     preprocessors: &Option<PreProcessors>,
     custom_preprocessors: &Vec<PreProcessor>,
 ) -> Vec<PreProcessor> {
-    preprocessors
+    let selected = preprocessors
         .clone()
         .and_then(|p| Some(p.preprocessors.clone()))
         .as_ref()
@@ -27,7 +27,13 @@ pub(crate) fn retrieve_preprocessors(
                 .cloned()
                 .collect::<Vec<PreProcessor>>()
         })
-        .unwrap_or(vec![])
+        .unwrap_or(vec![]);
+    debug!(
+        "retrieve_preprocessors -> {} selected: {:?}",
+        selected.len(),
+        selected.iter().map(|p| p.name.clone()).collect::<Vec<_>>()
+    );
+    selected
 }
 
 pub(crate) fn merge_preprocessors(preprocessor_lists: Vec<Vec<PreProcessor>>) -> Vec<PreProcessor> {
@@ -43,7 +49,11 @@ pub(crate) fn merge_preprocessors(preprocessor_lists: Vec<Vec<PreProcessor>>) ->
             }
         }
     }
-
+    debug!(
+        "merge_preprocessors -> {} merged: {:?}",
+        merged.len(),
+        merged.iter().map(|p| p.name.clone()).collect::<Vec<_>>()
+    );
     merged
 }
 
@@ -51,16 +61,20 @@ pub(crate) fn retrieve_combined_output(
     template: &TemplateMapping,
     default_processors: &Option<PreProcessors>,
 ) -> Result<PathBuf> {
-    Ok(template
+    let from_template = template
         .preprocessors
         .clone()
-        .and_then(|p| Some(p.combined_output))
-        .or(default_processors
-            .as_ref()
-            .and_then(|p| Some(p.clone().combined_output)))
+        .and_then(|p| Some(p.combined_output));
+    let from_defaults = default_processors
+        .as_ref()
+        .and_then(|p| Some(p.clone().combined_output));
+    let chosen = from_template
+        .or(from_defaults)
         .ok_or(eyre!(
             "No combined output defined for this template's preprocessor."
-        ))?)
+        ))?;
+    debug!("retrieve_combined_output -> {}", chosen.display());
+    Ok(chosen)
 }
 
 pub(crate) fn run_preprocessors_on_inputs(
@@ -73,13 +87,16 @@ pub(crate) fn run_preprocessors_on_inputs(
     preprocessors: &Vec<PreProcessor>,
     combined_output: &Path,
 ) -> Result<()> {
+    debug!("Collecting input files for preprocessing...");
     let input_files = get_sorted_files(
         conversion_input_dir,
         project_directory_path,
         compiled_directory_path,
     )?;
+    debug!("Found {} input files.", input_files.len());
 
     let chunks = get_preprocessing_chunks(&input_files)?;
+    debug!("Created {} preprocessing chunks.", chunks.len());
 
     let results = chunks
         .par_iter()
@@ -163,7 +180,14 @@ fn get_preprocessing_chunks(input_files: &Vec<PathBuf>) -> Result<Vec<(Vec<PathB
             chunks.push((current_chunk, ext.to_string_lossy().to_string()));
         }
     }
-
+    debug!(
+        "get_preprocessing_chunks -> {} chunks: {:?}",
+        chunks.len(),
+        chunks
+            .iter()
+            .map(|(_, ext)| ext.clone())
+            .collect::<Vec<_>>()
+    );
     Ok(chunks)
 }
 
@@ -178,7 +202,11 @@ fn preprocess_cli_args(cli_args: &[String], metadata_fields: &Table) -> Vec<Stri
         }
         processed_args.push(processed_arg);
     }
-
+    debug!(
+        "preprocess_cli_args -> {} args: {:?}",
+        processed_args.len(),
+        processed_args
+    );
     processed_args
 }
 
@@ -205,7 +233,7 @@ pub(crate) fn add_lua_filters(
             pandoc,
         )?;
     }
-
+    debug!("add_lua_filters -> filters processed.");
     Ok(())
 }
 
@@ -227,6 +255,10 @@ fn add_lua_filter_or_directory(
             )?;
         }
     } else if filter.is_file() && filter.extension().unwrap_or_default() == "lua" {
+        let rel =
+            get_relative_path_from_compiled_dir(&filter, project_directory_path, compiled_directory_path)
+                .unwrap_or(filter.clone());
+        debug!("Adding lua filter: {}", rel.display());
         pandoc.arg("--lua-filter").arg(
             get_relative_path_from_compiled_dir(
                 &filter,
@@ -314,14 +346,18 @@ pub(crate) fn get_sorted_files(
         .flatten()
         .collect();
 
-    let input_files = input_files
+    let input_files: Vec<PathBuf> = input_files
         .iter()
         .map(|f| {
             get_relative_path_from_compiled_dir(f, project_directory_path, compiled_directory_path)
                 .unwrap_or(f.to_path_buf())
         })
         .collect();
-
+    debug!(
+        "get_sorted_files('{}') -> {} files",
+        input_dir.display(),
+        input_files.len()
+    );
     Ok(input_files)
 }
 
@@ -348,6 +384,7 @@ pub(crate) fn run_with_logging(
     command_name: &str,
     supress_verbose: bool,
 ) -> Result<String> {
+    debug!("Executing command: {} (suppress_verbose={})", command_name, supress_verbose);
     let mut out = command
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
@@ -429,6 +466,8 @@ pub(crate) fn run_with_logging(
         debug!(
             "Note: For xelatex, this is expected if there are warnings. These are ignored, but genuine errors may be present."
         );
+    } else {
+        debug!("Command {} completed successfully.", command_name);
     }
 
     Ok(stdout_str)

@@ -6,6 +6,7 @@ use std::{
 };
 
 use color_eyre::eyre::{Result, eyre};
+use log::debug;
 use toml::Table;
 
 use crate::{
@@ -26,12 +27,18 @@ pub fn convert_latex(
     metadata_settings: &MetadataSettings,
     custom_processors: &Processors,
 ) -> Result<PathBuf> {
+    debug!("Starting LaTeX conversion for template '{}'...", template.name);
     let template_path = get_template_path(template.template_file.clone(), &template.name);
     let output_path = compiled_directory_path.join(get_output_path(
         template.output.clone(),
         &template_path,
         template.template_type.clone(),
     )?);
+    debug!(
+        "Template path: {} | Output path: {}",
+        compiled_directory_path.join(&template_path).display(),
+        output_path.display()
+    );
 
     let preprocessors =
         retrieve_preprocessors(&template.preprocessors, &custom_processors.preprocessors);
@@ -40,10 +47,19 @@ pub fn convert_latex(
         &DEFAULT_TEX_PREPROCESSORS.1,
     );
     let preprocessors = merge_preprocessors(vec![preprocessors, default_preprocessors]);
+    debug!(
+        "Using preprocessors: {:?}",
+        preprocessors
+            .iter()
+            .map(|p| p.name.clone())
+            .collect::<Vec<String>>()
+    );
 
     let combined_output =
         retrieve_combined_output(template, &Some(DEFAULT_TEX_PREPROCESSORS.0.clone()))?;
+    debug!("Combined output file: {}", combined_output.display());
 
+    debug!("Running preprocessors on inputs...");
     run_preprocessors_on_inputs(
         template,
         project_directory_path,
@@ -54,7 +70,9 @@ pub fn convert_latex(
         &preprocessors,
         &combined_output,
     )?;
+    debug!("Preprocessing complete.");
 
+    debug!("Generating LaTeX metadata...");
     generate_tex_metadata(compiled_directory_path, metadata_fields, metadata_settings)?;
 
     let mut processor_args = vec![];
@@ -65,6 +83,7 @@ pub fn convert_latex(
             .iter()
             .position(|p| p.name == *processor)
         {
+            debug!("Adding processor args from '{}'.", processor);
             processor_args.extend(
                 custom_processors.processors[processor_pos]
                     .processor_args
@@ -78,14 +97,22 @@ pub fn convert_latex(
         }
     }
 
+    debug!("Compiling LaTeX (first pass)...");
     compile_latex(compiled_directory_path, &template_path, &processor_args)?;
+    debug!("Compiling LaTeX (second pass)...");
     compile_latex(compiled_directory_path, &template_path, &processor_args)?;
 
     let template_path = compiled_directory_path.join(template_path.with_extension("pdf"));
     if template_path.exists() && template_path.as_os_str() != output_path.as_os_str() {
+        debug!(
+            "Copying compiled PDF from '{}' to '{}'",
+            template_path.display(),
+            output_path.display()
+        );
         fs::copy(&template_path, &output_path)?;
     }
 
+    debug!("LaTeX result path: {}", output_path.display());
     Ok(output_path)
 }
 

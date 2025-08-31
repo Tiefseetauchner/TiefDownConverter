@@ -4,6 +4,7 @@ use std::{
 };
 
 use color_eyre::eyre::{Result, eyre};
+use log::debug;
 use toml::Table;
 
 use crate::{
@@ -23,12 +24,18 @@ pub(crate) fn convert_epub(
     _metadata_settings: &MetadataSettings,
     custom_processors: &Processors,
 ) -> Result<PathBuf> {
+    debug!("Starting EPUB conversion for template '{}'...", template.name);
     let template_path = get_template_path(template.template_file.clone(), &template.name);
     let output_path = get_output_path(
         template.output.clone(),
         &template_path,
         template.template_type.clone(),
     )?;
+    debug!(
+        "Template path: {} | Output path: {}",
+        compiled_directory_path.join(&template_path).display(),
+        output_path.display()
+    );
 
     let template_path = compiled_directory_path.join(template_path);
 
@@ -41,8 +48,10 @@ pub(crate) fn convert_epub(
         .arg("epub3")
         .arg("-o")
         .arg(&output_path);
+    debug!("Initialized pandoc command for EPUB output.");
 
     add_meta_args(metadata_fields, &mut pandoc)?;
+    debug!("Added {} metadata entries to pandoc.", metadata_fields.len());
 
     add_css_files(
         project_directory_path,
@@ -50,12 +59,14 @@ pub(crate) fn convert_epub(
         &template_path,
         &mut pandoc,
     )?;
+    debug!("Added CSS files from template directory if present.");
     add_fonts(
         project_directory_path,
         compiled_directory_path,
         &template_path,
         &mut pandoc,
     )?;
+    debug!("Added embedded fonts if present.");
 
     add_lua_filters(
         template,
@@ -63,6 +74,7 @@ pub(crate) fn convert_epub(
         compiled_directory_path,
         &mut pandoc,
     )?;
+    debug!("Added lua filters if configured.");
 
     if let Some(processor) = &template.processor {
         if let Some(processor_pos) = custom_processors
@@ -70,6 +82,7 @@ pub(crate) fn convert_epub(
             .iter()
             .position(|p| p.name == *processor)
         {
+            debug!("Adding processor args from '{}'.", processor);
             pandoc.args(
                 custom_processors.processors[processor_pos]
                     .processor_args
@@ -83,15 +96,18 @@ pub(crate) fn convert_epub(
         }
     }
 
-    pandoc.args(get_sorted_files(
+    let sorted_files = get_sorted_files(
         conversion_input_dir,
         project_directory_path,
         compiled_directory_path,
-    )?);
+    )?;
+    debug!("Adding {} input files to pandoc.", sorted_files.len());
+    pandoc.args(sorted_files);
 
     run_with_logging(pandoc, "pandoc", false)?;
 
     let output_path = compiled_directory_path.join(output_path);
+    debug!("EPUB result path: {}", output_path.display());
 
     Ok(output_path)
 }

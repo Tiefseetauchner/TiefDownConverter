@@ -7,6 +7,7 @@ use crate::{
     template_type::TemplateType,
 };
 use color_eyre::eyre::Result;
+use log::debug;
 use std::path::{Path, PathBuf};
 use toml::Table;
 
@@ -21,10 +22,13 @@ type Converter = fn(
 ) -> Result<PathBuf>;
 
 pub(crate) fn get_converter(template_type: &TemplateType) -> Result<Converter> {
-    Ok(match template_type {
+    debug!("Selecting converter for template type: {:?}", template_type);
+    let converter = match template_type {
         TemplateType::Tex => convert_latex,
         TemplateType::Typst => convert_typst,
         TemplateType::Epub => convert_epub,
         TemplateType::CustomPandoc => convert_custom_pandoc,
-    })
+    };
+    debug!("Converter selected.");
+    Ok(converter)
 }

@@ -13,8 +13,10 @@ use std::{
 pub(crate) fn get_template_creator(
     template: &str,
 ) -> Result<fn(project_path: &Path, template: &TemplateMapping) -> Result<()>> {
+    debug!("get_template_creator -> template: '{}'", template);
     if is_preset_template(template) {
         let template_type = get_template_type_from_path(template)?;
+        debug!("Preset template detected. Type: {}", template_type);
         match template_type {
             TemplateType::Tex => Ok(create_tex_presets),
             TemplateType::Typst => Ok(create_typst_presets),
@@ -40,6 +42,7 @@ pub(crate) fn get_template_creator(
                 debug!("  Filters: {}", filters.join(", "));
             }
 
+            debug!("Custom template prepared.");
             Ok(())
         })
     }
@@ -94,6 +97,7 @@ fn create_tex_presets(project_path: &Path, template: &TemplateMapping) -> Result
         &template.name,
     ));
     fs::write(&template_path, content)?;
+    debug!("Wrote TeX preset template to '{}'.", template_path.display());
 
     Ok(())
 }
@@ -108,6 +112,7 @@ fn create_latex_meta(template_dir: &Path) -> Result<()> {
         info!(
             "meta.tex was written to the template directory. Make sure to adjust the metadata in the file."
         );
+        debug!("Created 'meta.tex' in '{}'.", meta_path.display());
     };
     Ok(())
 }
@@ -122,6 +127,7 @@ fn create_lix_meta(template_dir: &Path) -> Result<()> {
         info!(
             "meta_lix.tex was written to the template directory. Make sure to adjust the metadata in the file."
         );
+        debug!("Created 'meta_lix.tex' in '{}'.", meta_path.display());
     };
     Ok(())
 }
@@ -213,6 +219,7 @@ fn create_typst_presets(project_path: &Path, template: &TemplateMapping) -> Resu
         &template.name,
     ));
     fs::write(&template_path, content)?;
+    debug!("Wrote Typst preset template to '{}'.", template_path.display());
 
     let meta_path = template_dir.join("meta.typ");
     if !meta_path.exists() {
@@ -256,13 +263,23 @@ pub(crate) fn get_template_type_from_path<P: AsRef<Path>>(path: P) -> Result<Tem
     let path = path.as_ref();
 
     if path.to_string_lossy().ends_with("_epub") {
+        debug!(
+            "get_template_type_from_path: '{}' -> Epub",
+            path.display()
+        );
         return Ok(TemplateType::Epub);
     }
 
     if let Some(extension) = path.extension().and_then(|ext| ext.to_str()) {
         match extension.to_lowercase().as_str() {
-            "tex" => return Ok(TemplateType::Tex),
-            "typ" => return Ok(TemplateType::Typst),
+            "tex" => {
+                debug!("get_template_type_from_path: '{}' -> Tex", path.display());
+                return Ok(TemplateType::Tex);
+            }
+            "typ" => {
+                debug!("get_template_type_from_path: '{}' -> Typst", path.display());
+                return Ok(TemplateType::Typst);
+            }
             _ => {}
         }
     }

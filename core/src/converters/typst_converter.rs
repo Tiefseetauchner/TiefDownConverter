@@ -35,6 +35,7 @@ pub(crate) fn convert_typst(
         &template_path,
         template.template_type.clone(),
     )?;
+    debug!("Determined Typst output path: {}", output_path.display());
 
     let preprocessors =
         retrieve_preprocessors(&template.preprocessors, &custom_processors.preprocessors);
@@ -105,6 +106,7 @@ pub(crate) fn convert_typst(
     run_with_logging(typst_command, "typst", false)?;
 
     let output_path = compiled_directory_path.join(output_path);
+    debug!("Typst result path: {}", output_path.display());
 
     Ok(output_path)
 }

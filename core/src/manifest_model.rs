@@ -3,6 +3,7 @@ use crate::{
     template_type::TemplateType,
 };
 use color_eyre::eyre::{Result, eyre};
+use log::debug;
 use serde::{Deserialize, Serialize};
 use std::{path::PathBuf, sync::LazyLock};
 use toml::Table;
@@ -232,18 +233,28 @@ pub struct TemplateMapping {
 
 pub(crate) fn upgrade_manifest(manifest: &mut Table, current_version: u32) -> Result<()> {
     if current_version != CURRENT_MANIFEST_VERSION {
+        debug!(
+            "Upgrading manifest from version {} to {}...",
+            current_version,
+            CURRENT_MANIFEST_VERSION
+        );
         let mut updated_version = current_version;
 
         while updated_version < CURRENT_MANIFEST_VERSION {
             if updated_version == 0 {
+                debug!("Applying upgrade v0 -> v1...");
                 upgrade_manifest_v0_to_v1(manifest)?
             } else if updated_version == 1 {
+                debug!("Applying upgrade v1 -> v2...");
                 upgrade_manifest_v1_to_v2(manifest)?
             } else if updated_version == 2 {
+                debug!("Applying upgrade v2 -> v3...");
                 upgrade_manifest_v2_to_v3(manifest)?
             } else if updated_version == 3 {
+                debug!("Applying upgrade v3 -> v4...");
                 upgrade_manifest_v3_to_v4(manifest)?
             } else if updated_version == 4 {
+                debug!("Applying upgrade v4 -> v5...");
                 upgrade_manifest_v4_to_v5(manifest)?
             } else {
                 return Err(eyre!(
@@ -260,6 +271,7 @@ pub(crate) fn upgrade_manifest(manifest: &mut Table, current_version: u32) -> Re
 }
 
 fn upgrade_manifest_v0_to_v1(manifest: &mut Table) -> Result<()> {
+    debug!("upgrade_manifest_v0_to_v1: Starting...");
     manifest.insert("version".to_string(), toml::Value::Integer(1));
 
     if let Some(templates) = manifest.get("templates") {
@@ -297,6 +309,7 @@ fn upgrade_manifest_v0_to_v1(manifest: &mut Table) -> Result<()> {
 }
 
 fn upgrade_manifest_v1_to_v2(manifest: &mut Table) -> Result<()> {
+    debug!("upgrade_manifest_v1_to_v2: Starting...");
     manifest.insert("version".to_string(), toml::Value::Integer(2));
 
     manifest.insert(
@@ -312,6 +325,7 @@ fn upgrade_manifest_v1_to_v2(manifest: &mut Table) -> Result<()> {
 }
 
 fn upgrade_manifest_v2_to_v3(manifest: &mut Table) -> Result<()> {
+    debug!("upgrade_manifest_v2_to_v3: Starting...");
     manifest.insert("version".to_string(), toml::Value::Integer(3));
 
     manifest.insert(
@@ -331,6 +345,7 @@ fn upgrade_manifest_v2_to_v3(manifest: &mut Table) -> Result<()> {
 }
 
 fn upgrade_manifest_v3_to_v4(manifest: &mut Table) -> Result<()> {
+    debug!("upgrade_manifest_v3_to_v4: Starting...");
     manifest.insert("version".to_string(), toml::Value::Integer(4));
 
     let metadata_fields = manifest["metadata_fields"].clone();
@@ -365,6 +380,7 @@ fn upgrade_manifest_v3_to_v4(manifest: &mut Table) -> Result<()> {
 }
 
 fn upgrade_manifest_v4_to_v5(manifest: &mut Table) -> Result<()> {
+    debug!("upgrade_manifest_v4_to_v5: Starting...");
     manifest.insert("version".into(), toml::Value::Integer(5));
 
     let mut preprocessor_combined_output_mapping = vec![];

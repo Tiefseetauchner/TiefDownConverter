@@ -1,6 +1,7 @@
 use std::path::{Path, PathBuf};
 
 use color_eyre::eyre::{Result, eyre};
+use log::debug;
 use toml::Table;
 
 use crate::{
@@ -20,6 +21,10 @@ pub(crate) fn convert_custom_pandoc(
     metadata_settings: &MetadataSettings,
     custom_processors: &Processors,
 ) -> Result<PathBuf> {
+    debug!(
+        "Starting CustomPandoc conversion for template '{}'...",
+        template.name
+    );
     if template.processor != None {
         return Err(eyre!(
             "Custom Pandoc templates cannot have a processor. Use preprocessors instead.",
@@ -41,11 +46,21 @@ pub(crate) fn convert_custom_pandoc(
         ));
     };
 
+    debug!("Retrieving preprocessors...");
     let preprocessors =
         retrieve_preprocessors(&template.preprocessors, &custom_processors.preprocessors);
+    debug!(
+        "Selected preprocessors: {:?}",
+        preprocessors
+            .iter()
+            .map(|p| p.name.clone())
+            .collect::<Vec<String>>()
+    );
 
     let combined_output = retrieve_combined_output(template, &None)?;
+    debug!("Combined output file: {}", combined_output.display());
 
+    debug!("Running preprocessors on inputs...");
     run_preprocessors_on_inputs(
         template,
         project_directory_path,
@@ -56,8 +71,10 @@ pub(crate) fn convert_custom_pandoc(
         &preprocessors,
         &combined_output,
     )?;
+    debug!("Preprocessing complete.");
 
     let output_path = compiled_directory_path.join(&output_path);
+    debug!("CustomPandoc result path: {}", output_path.display());
 
     Ok(output_path)
 }

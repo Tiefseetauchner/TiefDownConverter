@@ -1,5 +1,6 @@
 use crate::{manifest_model::MetadataField, project_management::load_and_convert_manifest};
 use color_eyre::eyre::{Result, eyre};
+use log::debug;
 use toml::{Table, Value};
 
 /// Sets the shared metadata fields for a TiefDown project.
@@ -15,6 +16,7 @@ use toml::{Table, Value};
 ///
 /// A Result containing either an error or nothing.
 pub fn set_metadata(project: Option<String>, key: String, value: String) -> Result<()> {
+    debug!("metadata.set: key='{}'", key);
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
@@ -28,6 +30,7 @@ pub fn set_metadata(project: Option<String>, key: String, value: String) -> Resu
 
     let manifest_content = toml::to_string(&manifest)?;
     std::fs::write(&manifest_path, manifest_content)?;
+    debug!("metadata.set: updated manifest at '{}'", manifest_path.display());
 
     Ok(())
 }
@@ -44,6 +47,7 @@ pub fn set_metadata(project: Option<String>, key: String, value: String) -> Resu
 ///
 /// A Result containing either an error or nothing.
 pub fn remove_metadata(project: Option<String>, key: String) -> Result<()> {
+    debug!("metadata.remove: key='{}'", key);
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
@@ -63,6 +67,7 @@ pub fn remove_metadata(project: Option<String>, key: String) -> Result<()> {
 
     let manifest_content = toml::to_string(&manifest)?;
     std::fs::write(&manifest_path, manifest_content)?;
+    debug!("metadata.remove: updated manifest at '{}'", manifest_path.display());
 
     Ok(())
 }
@@ -85,6 +90,7 @@ pub fn get_metadata(project: &Option<String>) -> Result<Vec<MetadataField>> {
     let manifest = load_and_convert_manifest(&manifest_path)?;
 
     let metadata_fields = manifest.shared_metadata.unwrap_or_default();
+    debug!("metadata.get: {} entries", metadata_fields.len());
 
     Ok(metadata_fields
         .iter()

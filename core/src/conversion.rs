@@ -108,7 +108,13 @@ pub fn convert(
         }
 
         let templates = get_template_names(&templates, profile, &manifest)?;
+        debug!(
+            "Templates selected ({}): {:?}",
+            templates.len(),
+            templates
+        );
         let templates = get_template_mappings_from_names(&templates, &manifest)?;
+        debug!("Resolved {} template mappings.", templates.len());
         let markdown_project_compiled_directory_path =
             compiled_directory_path.join(markdown_project.output.clone());
 
@@ -144,6 +150,10 @@ pub fn convert(
         for template in &templates {
             let conversion_input_dir =
                 &markdown_project_compiled_directory_path.join(template.name.clone() + "_convdir/");
+            debug!(
+                "Prepared conversion input directory: {}",
+                conversion_input_dir.display()
+            );
 
             copy_markdown_directory(
                 &input_dir,
@@ -219,17 +229,27 @@ fn get_template_names(
     manifest: &Manifest,
 ) -> Result<Vec<String>> {
     if let Some(templates) = templates {
+        debug!(
+            "get_template_names: using provided templates ({}).",
+            templates.len()
+        );
         return Ok(templates.clone());
     }
 
     if let Some(profile) = profile {
         if let Some(available_profiles) = &manifest.profiles {
             if let Some(profile_pos) = available_profiles.iter().position(|p| p.name == profile) {
-                return Ok(available_profiles[profile_pos]
+                let resolved: Vec<String> = available_profiles[profile_pos]
                     .templates
                     .iter()
                     .map(|t| t.clone())
-                    .collect());
+                    .collect();
+                debug!(
+                    "get_template_names: using profile '{}' with {} templates.",
+                    profile,
+                    resolved.len()
+                );
+                return Ok(resolved);
             } else {
                 return Err(eyre!("Profile '{}' could not be found.", profile));
             }
@@ -237,8 +257,12 @@ fn get_template_names(
             return Err(eyre!("No profiles are defined in the manifest.toml file."));
         }
     }
-
-    Ok(manifest.templates.iter().map(|t| t.name.clone()).collect())
+    let all: Vec<String> = manifest.templates.iter().map(|t| t.name.clone()).collect();
+    debug!(
+        "get_template_names: no explicit selection; using all templates ({}).",
+        all.len()
+    );
+    Ok(all)
 }
 
 fn get_template_mappings_from_names(
@@ -250,7 +274,11 @@ fn get_template_mappings_from_names(
         .map(|t| manifest.templates.iter().find(|mapping| mapping.name == *t))
         .filter_map(|t| t.cloned())
         .collect::<Vec<_>>();
-
+    debug!(
+        "get_template_mappings_from_names: resolved {} mappings from {} names.",
+        templates.len(),
+        templates.len()
+    );
     Ok(templates)
 }
 
@@ -262,6 +290,10 @@ fn create_build_directory(project_path: &Path) -> Result<std::path::PathBuf> {
 
     dir::create_all(&build_directory_path, false)?;
 
+    debug!(
+        "Created build directory at '{}'.",
+        build_directory_path.display()
+    );
     Ok(build_directory_path)
 }
 
