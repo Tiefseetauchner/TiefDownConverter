@@ -235,8 +235,7 @@ pub(crate) fn upgrade_manifest(manifest: &mut Table, current_version: u32) -> Re
     if current_version != CURRENT_MANIFEST_VERSION {
         debug!(
             "Upgrading manifest from version {} to {}...",
-            current_version,
-            CURRENT_MANIFEST_VERSION
+            current_version, CURRENT_MANIFEST_VERSION
         );
         let mut updated_version = current_version;
 

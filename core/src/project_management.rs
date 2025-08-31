@@ -85,7 +85,10 @@ pub fn init(
             r#"# Test Document
 This is a simple test document for you to edit or overwrite."#,
         )?;
-        debug!("Initialized markdown directory at '{}'.", markdown_dir_path.display());
+        debug!(
+            "Initialized markdown directory at '{}'.",
+            markdown_dir_path.display()
+        );
     }
 
     let smart_clean_value = if smart_clean { Some(true) } else { None };
@@ -173,8 +176,7 @@ pub fn add_template(
 ) -> Result<()> {
     debug!(
         "Adding template '{}' (type: {:?})...",
-        template_name,
-        template_type
+        template_name, template_type
     );
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
@@ -326,10 +328,7 @@ pub fn update_template(
 ) -> Result<()> {
     debug!(
         "Updating template '{}' (fields provided: type={:?}, file={:?}, output={:?})",
-        template_name,
-        template_type,
-        template_file,
-        output
+        template_name, template_type, template_file, output
     );
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
@@ -1041,7 +1040,10 @@ pub(crate) fn load_and_convert_manifest(manifest_path: &std::path::PathBuf) -> R
 
     let manifest = &toml::to_string(&manifest)?;
     fs::write(manifest_path, manifest)?;
-    debug!("Manifest written back after potential upgrade ({} bytes).", manifest.len());
+    debug!(
+        "Manifest written back after potential upgrade ({} bytes).",
+        manifest.len()
+    );
 
     let manifest: Manifest = toml::from_str(manifest)?;
 
@@ -1055,7 +1057,10 @@ fn create_templates(
     for template in templates {
         let template_creator = template_management::get_template_creator(template.name.as_str())?;
 
-        debug!("Creating template '{}' of type {}...", template.name, template.template_type);
+        debug!(
+            "Creating template '{}' of type {}...",
+            template.name, template.template_type
+        );
         template_creator(project_path, template)?;
     }
 

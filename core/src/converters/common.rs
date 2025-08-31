@@ -68,11 +68,9 @@ pub(crate) fn retrieve_combined_output(
     let from_defaults = default_processors
         .as_ref()
         .and_then(|p| Some(p.clone().combined_output));
-    let chosen = from_template
-        .or(from_defaults)
-        .ok_or(eyre!(
-            "No combined output defined for this template's preprocessor."
-        ))?;
+    let chosen = from_template.or(from_defaults).ok_or(eyre!(
+        "No combined output defined for this template's preprocessor."
+    ))?;
     debug!("retrieve_combined_output -> {}", chosen.display());
     Ok(chosen)
 }
@@ -255,9 +253,12 @@ fn add_lua_filter_or_directory(
             )?;
         }
     } else if filter.is_file() && filter.extension().unwrap_or_default() == "lua" {
-        let rel =
-            get_relative_path_from_compiled_dir(&filter, project_directory_path, compiled_directory_path)
-                .unwrap_or(filter.clone());
+        let rel = get_relative_path_from_compiled_dir(
+            &filter,
+            project_directory_path,
+            compiled_directory_path,
+        )
+        .unwrap_or(filter.clone());
         debug!("Adding lua filter: {}", rel.display());
         pandoc.arg("--lua-filter").arg(
             get_relative_path_from_compiled_dir(
@@ -384,7 +385,10 @@ pub(crate) fn run_with_logging(
     command_name: &str,
     supress_verbose: bool,
 ) -> Result<String> {
-    debug!("Executing command: {} (suppress_verbose={})", command_name, supress_verbose);
+    debug!(
+        "Executing command: {} (suppress_verbose={})",
+        command_name, supress_verbose
+    );
     let mut out = command
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())

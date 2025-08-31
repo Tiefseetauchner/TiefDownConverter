@@ -108,11 +108,7 @@ pub fn convert(
         }
 
         let templates = get_template_names(&templates, profile, &manifest)?;
-        debug!(
-            "Templates selected ({}): {:?}",
-            templates.len(),
-            templates
-        );
+        debug!("Templates selected ({}): {:?}", templates.len(), templates);
         let templates = get_template_mappings_from_names(&templates, &manifest)?;
         debug!("Resolved {} template mappings.", templates.len());
         let markdown_project_compiled_directory_path =

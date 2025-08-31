@@ -27,7 +27,10 @@ pub fn convert_latex(
     metadata_settings: &MetadataSettings,
     custom_processors: &Processors,
 ) -> Result<PathBuf> {
-    debug!("Starting LaTeX conversion for template '{}'...", template.name);
+    debug!(
+        "Starting LaTeX conversion for template '{}'...",
+        template.name
+    );
     let template_path = get_template_path(template.template_file.clone(), &template.name);
     let output_path = compiled_directory_path.join(get_output_path(
         template.output.clone(),

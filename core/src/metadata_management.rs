@@ -30,7 +30,10 @@ pub fn set_metadata(project: Option<String>, key: String, value: String) -> Resu
 
     let manifest_content = toml::to_string(&manifest)?;
     std::fs::write(&manifest_path, manifest_content)?;
-    debug!("metadata.set: updated manifest at '{}'", manifest_path.display());
+    debug!(
+        "metadata.set: updated manifest at '{}'",
+        manifest_path.display()
+    );
 
     Ok(())
 }
@@ -67,7 +70,10 @@ pub fn remove_metadata(project: Option<String>, key: String) -> Result<()> {
 
     let manifest_content = toml::to_string(&manifest)?;
     std::fs::write(&manifest_path, manifest_content)?;
-    debug!("metadata.remove: updated manifest at '{}'", manifest_path.display());
+    debug!(
+        "metadata.remove: updated manifest at '{}'",
+        manifest_path.display()
+    );
 
     Ok(())
 }

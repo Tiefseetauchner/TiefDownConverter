@@ -24,7 +24,10 @@ pub(crate) fn convert_epub(
     _metadata_settings: &MetadataSettings,
     custom_processors: &Processors,
 ) -> Result<PathBuf> {
-    debug!("Starting EPUB conversion for template '{}'...", template.name);
+    debug!(
+        "Starting EPUB conversion for template '{}'...",
+        template.name
+    );
     let template_path = get_template_path(template.template_file.clone(), &template.name);
     let output_path = get_output_path(
         template.output.clone(),
@@ -51,7 +54,10 @@ pub(crate) fn convert_epub(
     debug!("Initialized pandoc command for EPUB output.");
 
     add_meta_args(metadata_fields, &mut pandoc)?;
-    debug!("Added {} metadata entries to pandoc.", metadata_fields.len());
+    debug!(
+        "Added {} metadata entries to pandoc.",
+        metadata_fields.len()
+    );
 
     add_css_files(
         project_directory_path,

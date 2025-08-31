@@ -97,7 +97,10 @@ fn create_tex_presets(project_path: &Path, template: &TemplateMapping) -> Result
         &template.name,
     ));
     fs::write(&template_path, content)?;
-    debug!("Wrote TeX preset template to '{}'.", template_path.display());
+    debug!(
+        "Wrote TeX preset template to '{}'.",
+        template_path.display()
+    );
 
     Ok(())
 }
@@ -219,7 +222,10 @@ fn create_typst_presets(project_path: &Path, template: &TemplateMapping) -> Resu
         &template.name,
     ));
     fs::write(&template_path, content)?;
-    debug!("Wrote Typst preset template to '{}'.", template_path.display());
+    debug!(
+        "Wrote Typst preset template to '{}'.",
+        template_path.display()
+    );
 
     let meta_path = template_dir.join("meta.typ");
     if !meta_path.exists() {
@@ -263,10 +269,7 @@ pub(crate) fn get_template_type_from_path<P: AsRef<Path>>(path: P) -> Result<Tem
     let path = path.as_ref();
 
     if path.to_string_lossy().ends_with("_epub") {
-        debug!(
-            "get_template_type_from_path: '{}' -> Epub",
-            path.display()
-        );
+        debug!("get_template_type_from_path: '{}' -> Epub", path.display());
         return Ok(TemplateType::Epub);
     }
 

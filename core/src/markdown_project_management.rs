@@ -128,10 +128,7 @@ pub fn update_markdown_project(
 ) -> Result<()> {
     debug!(
         "Updating markdown project '{}' (path={:?}, output={:?}, default_profile={:?})",
-        name,
-        path,
-        output,
-        default_profile
+        name, path, output, default_profile
     );
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
@@ -186,11 +183,7 @@ pub fn set_metadata(
     key: String,
     value: String,
 ) -> Result<()> {
-    debug!(
-        "markdown.set_metadata: project='{}' key='{}'",
-        name,
-        key
-    );
+    debug!("markdown.set_metadata: project='{}' key='{}'", name, key);
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
@@ -231,11 +224,7 @@ pub fn set_metadata(
 ///
 /// A Result containing either an error or nothing.
 pub fn remove_metadata(project: Option<String>, name: String, key: String) -> Result<()> {
-    debug!(
-        "markdown.remove_metadata: project='{}' key='{}'",
-        name,
-        key
-    );
+    debug!("markdown.remove_metadata: project='{}' key='{}'", name, key);
     let project = project.as_deref().unwrap_or(".");
     let project_path = std::path::Path::new(&project);
     let manifest_path = project_path.join("manifest.toml");
@@ -329,7 +318,10 @@ pub fn get_markdown_projects(project: &Option<String>) -> Result<Vec<MarkdownPro
     let manifest = load_and_convert_manifest(&manifest_path)?;
 
     let markdown_projects = manifest.markdown_projects.unwrap_or(vec![]);
-    debug!("markdown.get_markdown_projects: {} projects", markdown_projects.len());
+    debug!(
+        "markdown.get_markdown_projects: {} projects",
+        markdown_projects.len()
+    );
     Ok(markdown_projects)
 }
 
