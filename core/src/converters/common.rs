@@ -113,11 +113,6 @@ pub(crate) fn run_preprocessors_on_inputs(
             let cli_name = preprocessor.cli.clone().unwrap_or("pandoc".to_string());
             let cli_args = preprocess_cli_args(&preprocessor.cli_args, &metadata_fields);
 
-            debug!(
-                "Using preprocessor {} for files with extension {} with command {} {:?}",
-                preprocessor.name, chunk.1, cli_name, cli_args
-            );
-
             let mut cli = Command::new(&cli_name);
             cli.args(&cli_args);
             cli.current_dir(compiled_directory_path);
@@ -128,6 +123,15 @@ pub(crate) fn run_preprocessors_on_inputs(
                 &mut cli,
             )?;
             cli.args(chunk.0.clone());
+            debug!(
+                "Running preprocessor '{}' with args: \"{}\"",
+                cli.get_program().to_string_lossy(),
+                cli.get_args()
+                    .into_iter()
+                    .map(|a| a.to_string_lossy())
+                    .collect::<Vec<_>>()
+                    .join("\" \"")
+            );
             run_with_logging(cli, &cli_name, true)
         })
         .collect::<Result<Vec<_>>>()?;
@@ -363,7 +367,7 @@ pub(crate) fn get_sorted_files(
 }
 
 fn retrieve_file_order_number(p: &Path) -> u32 {
-    let file_name_regex = regex::Regex::new(r".*(\d+).*").unwrap();
+    let file_name_regex = regex::Regex::new(r".*?(\d+).*").unwrap();
 
     if let Some(order_number) = p
         .file_name()
