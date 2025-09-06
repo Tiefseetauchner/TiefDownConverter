@@ -446,6 +446,11 @@ fn upgrade_manifest_v4_to_v5(manifest: &mut Table) -> Result<()> {
     if let Some(toml::Value::Array(templates)) = manifest.get_mut("templates") {
         for template in templates {
             if let toml::Value::Table(tbl) = template {
+                if let Some(toml::Value::String(template_type)) = tbl.get_mut("template_type") {
+                    if template_type == "CustomPandoc" {
+                        *template_type = "CustomPreprocessors".to_string();
+                    }
+                }
                 if let Some(toml::Value::String(preprocessor)) = tbl.get("preprocessor") {
                     let preprocessor = preprocessor_combined_output_mapping
                         .iter()
