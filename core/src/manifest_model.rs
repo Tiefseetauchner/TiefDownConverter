@@ -180,7 +180,7 @@ pub static DEFAULT_CUSTOM_PROCESSOR_PREPROCESSORS: LazyLock<(PreProcessors, Vec<
         (
             PreProcessors {
                 preprocessors: vec!["native_pandoc".to_string()],
-                combined_output: PathBuf::from("output"),
+                combined_output: PathBuf::from("output.pandoc_native"),
             },
             vec![PreProcessor {
                 name: "native_pandoc".to_string(),

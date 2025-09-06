@@ -9,8 +9,8 @@ use toml::Table;
 
 use crate::{
     converters::common::{
-        merge_preprocessors, retrieve_combined_output, retrieve_preprocessors,
-        run_preprocessors_on_inputs, write_combined_output,
+        merge_preprocessors, preprocess_cli_args, retrieve_combined_output, retrieve_preprocessors,
+        run_preprocessors_on_inputs, run_with_logging, write_combined_output,
     },
     manifest_model::{
         DEFAULT_CUSTOM_PROCESSOR_PREPROCESSORS, MetadataSettings, Processors, TemplateMapping,
@@ -87,13 +87,15 @@ pub(crate) fn convert_custom_processor(
             "Processor is required for Custom Processor conversions.",
         ));
     };
-    let processor_args = custom_processors
-        .processors
-        .iter()
-        .find(|p| p.name == *processor)
-        .ok_or_else(|| eyre!("Processor {} not found in custom processors.", processor))?
-        .processor_args
-        .clone();
+    let processor_args = preprocess_cli_args(
+        &custom_processors
+            .processors
+            .iter()
+            .find(|p| p.name == *processor)
+            .ok_or_else(|| eyre!("Processor {} not found in custom processors.", processor))?
+            .processor_args,
+        metadata_fields,
+    );
 
     let mut pandoc_command = Command::new("pandoc");
 
@@ -102,7 +104,12 @@ pub(crate) fn convert_custom_processor(
         .args(vec!["-f", "native"])
         .arg("-o")
         .arg(&output_path)
+        .arg(&combined_output)
         .args(processor_args);
+
+    run_with_logging(pandoc_command, "pandoc", false)?;
+
+    let output_path = compiled_directory_path.join(&output_path);
 
     Ok(output_path)
 }
@@ -111,10 +118,10 @@ fn combine_pandoc_native(results: Vec<String>) -> String {
     let mut combined = String::new();
 
     combined.push_str(&format!(
-        "[\n{} \n]",
+        "[\n{}\n]",
         results
             .iter()
-            .map(|r| r.trim())
+            .map(|r| r.trim()[1..r.trim().len() - 1].trim())
             .filter(|r| !r.is_empty())
             .collect::<Vec<&str>>()
             .join(",\n")

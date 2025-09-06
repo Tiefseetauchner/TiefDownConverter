@@ -187,7 +187,7 @@ fn get_preprocessing_chunks(input_files: &Vec<PathBuf>) -> Result<Vec<(Vec<PathB
     Ok(chunks)
 }
 
-fn preprocess_cli_args(cli_args: &[String], metadata_fields: &Table) -> Vec<String> {
+pub(crate) fn preprocess_cli_args(cli_args: &[String], metadata_fields: &Table) -> Vec<String> {
     let mut processed_args = Vec::new();
 
     for arg in cli_args.iter() {
