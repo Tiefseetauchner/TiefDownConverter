@@ -12,7 +12,7 @@ use toml::Table;
 use crate::{
     converters::common::{
         merge_preprocessors, retrieve_combined_output, retrieve_preprocessors,
-        run_preprocessors_on_inputs, run_with_logging,
+        run_preprocessors_on_inputs, run_with_logging, write_combined_output,
     },
     manifest_model::{DEFAULT_TYPST_PREPROCESSORS, MetadataSettings, Processors, TemplateMapping},
     template_management::{get_output_path, get_template_path},
@@ -56,7 +56,7 @@ pub(crate) fn convert_typst(
     let combined_output =
         retrieve_combined_output(template, &Some(DEFAULT_TYPST_PREPROCESSORS.0.clone()))?;
 
-    run_preprocessors_on_inputs(
+    let results = run_preprocessors_on_inputs(
         template,
         project_directory_path,
         compiled_directory_path,
@@ -64,8 +64,9 @@ pub(crate) fn convert_typst(
         metadata_fields,
         metadata_settings,
         &preprocessors,
-        &combined_output,
     )?;
+
+    write_combined_output(compiled_directory_path, &combined_output, &results)?;
 
     debug!("Generating Typst metadata...");
 

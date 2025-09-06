@@ -250,7 +250,6 @@ fn main() -> Result<()> {
                 }
             },
             ProjectCommands::ListTemplates => project_commands::list_templates(project)?,
-            ProjectCommands::Validate => project_management::validate(project)?,
             ProjectCommands::Clean => project_management::clean(project)?,
             ProjectCommands::SmartClean => project_management::smart_clean(project)?,
         },

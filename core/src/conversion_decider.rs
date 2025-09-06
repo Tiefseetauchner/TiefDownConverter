@@ -1,6 +1,7 @@
 use crate::{
     converters::{
-        custom_pandoc_converter::convert_custom_pandoc, epub_converter::convert_epub,
+        custom_preprocessor_converter::convert_custom_preprocessors,
+        custom_processor_converter::convert_custom_processor, epub_converter::convert_epub,
         tex_converter::convert_latex, typst_converter::convert_typst,
     },
     manifest_model::{MetadataSettings, Processors, TemplateMapping},
@@ -27,7 +28,8 @@ pub(crate) fn get_converter(template_type: &TemplateType) -> Result<Converter> {
         TemplateType::Tex => convert_latex,
         TemplateType::Typst => convert_typst,
         TemplateType::Epub => convert_epub,
-        TemplateType::CustomPandoc => convert_custom_pandoc,
+        TemplateType::CustomPreprocessors => convert_custom_preprocessors,
+        TemplateType::CustomProcessor => convert_custom_processor,
     };
     debug!("Converter selected.");
     Ok(converter)

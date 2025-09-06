@@ -12,7 +12,7 @@ use toml::Table;
 use crate::{
     converters::common::{
         merge_preprocessors, retrieve_combined_output, retrieve_preprocessors,
-        run_preprocessors_on_inputs, run_with_logging,
+        run_preprocessors_on_inputs, run_with_logging, write_combined_output,
     },
     manifest_model::{DEFAULT_TEX_PREPROCESSORS, MetadataSettings, Processors, TemplateMapping},
     template_management::{get_output_path, get_template_path},
@@ -63,7 +63,7 @@ pub fn convert_latex(
     debug!("Combined output file: {}", combined_output.display());
 
     debug!("Running preprocessors on inputs...");
-    run_preprocessors_on_inputs(
+    let results = run_preprocessors_on_inputs(
         template,
         project_directory_path,
         compiled_directory_path,
@@ -71,9 +71,9 @@ pub fn convert_latex(
         metadata_fields,
         metadata_settings,
         &preprocessors,
-        &combined_output,
     )?;
-    debug!("Preprocessing complete.");
+
+    write_combined_output(compiled_directory_path, &combined_output, &results)?;
 
     debug!("Generating LaTeX metadata...");
     generate_tex_metadata(compiled_directory_path, metadata_fields, metadata_settings)?;

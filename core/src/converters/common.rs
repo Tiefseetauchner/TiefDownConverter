@@ -83,8 +83,7 @@ pub(crate) fn run_preprocessors_on_inputs(
     metadata_fields: &Table,
     _metadata_settings: &MetadataSettings,
     preprocessors: &Vec<PreProcessor>,
-    combined_output: &Path,
-) -> Result<()> {
+) -> Result<Vec<String>> {
     debug!("Collecting input files for preprocessing...");
     let input_files = get_sorted_files(
         conversion_input_dir,
@@ -136,12 +135,7 @@ pub(crate) fn run_preprocessors_on_inputs(
         })
         .collect::<Result<Vec<_>>>()?;
 
-    std::fs::write(
-        compiled_directory_path.join(&combined_output),
-        results.join("\n\n"),
-    )?;
-
-    Ok(())
+    Ok(results)
 }
 
 fn get_preprocessing_chunks(input_files: &Vec<PathBuf>) -> Result<Vec<(Vec<PathBuf>, String)>> {
@@ -382,6 +376,23 @@ fn retrieve_file_order_number(p: &Path) -> u32 {
     }
 
     0
+}
+
+pub(crate) fn write_combined_output(
+    compiled_directory_path: &Path,
+    combined_output: &Path,
+    results: &Vec<String>,
+) -> Result<()> {
+    debug!(
+        "Writing combined output to file: {}",
+        combined_output.display()
+    );
+
+    std::fs::write(
+        compiled_directory_path.join(&combined_output),
+        results.join("\n\n"),
+    )?;
+    Ok(())
 }
 
 pub(crate) fn run_with_logging(

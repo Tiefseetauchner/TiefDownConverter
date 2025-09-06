@@ -7,12 +7,13 @@ use toml::Table;
 use crate::{
     converters::common::{
         retrieve_combined_output, retrieve_preprocessors, run_preprocessors_on_inputs,
+        write_combined_output,
     },
     manifest_model::{MetadataSettings, Processors, TemplateMapping},
     template_type::TemplateType,
 };
 
-pub(crate) fn convert_custom_pandoc(
+pub(crate) fn convert_custom_preprocessors(
     project_directory_path: &Path,
     compiled_directory_path: &Path,
     conversion_input_dir: &Path,
@@ -34,11 +35,11 @@ pub(crate) fn convert_custom_pandoc(
     if template.preprocessors.is_none() {
         return Err(eyre!(
             "Template type {} has to define a preprocessor.",
-            TemplateType::CustomPandoc
+            TemplateType::CustomPreprocessors
         ));
     }
 
-    let output_path = template.output.clone();
+    let output_path: Option<PathBuf> = template.output.clone();
 
     let Some(output_path) = output_path else {
         return Err(eyre!(
@@ -57,11 +58,11 @@ pub(crate) fn convert_custom_pandoc(
             .collect::<Vec<String>>()
     );
 
-    let combined_output = retrieve_combined_output(template, &None)?;
+    let combined_output: PathBuf = retrieve_combined_output(template, &None)?;
     debug!("Combined output file: {}", combined_output.display());
 
     debug!("Running preprocessors on inputs...");
-    run_preprocessors_on_inputs(
+    let results = run_preprocessors_on_inputs(
         template,
         project_directory_path,
         compiled_directory_path,
@@ -69,8 +70,10 @@ pub(crate) fn convert_custom_pandoc(
         metadata_fields,
         metadata_settings,
         &preprocessors,
-        &combined_output,
     )?;
+
+    write_combined_output(compiled_directory_path, &combined_output, &results)?;
+
     debug!("Preprocessing complete.");
 
     let output_path = compiled_directory_path.join(&output_path);

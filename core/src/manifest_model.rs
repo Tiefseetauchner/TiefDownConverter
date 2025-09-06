@@ -175,6 +175,22 @@ pub static DEFAULT_TYPST_PREPROCESSORS: LazyLock<(PreProcessors, Vec<PreProcesso
         )
     });
 
+pub static DEFAULT_CUSTOM_PROCESSOR_PREPROCESSORS: LazyLock<(PreProcessors, Vec<PreProcessor>)> =
+    LazyLock::new(|| {
+        (
+            PreProcessors {
+                preprocessors: vec!["native_pandoc".to_string()],
+                combined_output: PathBuf::from("output"),
+            },
+            vec![PreProcessor {
+                name: "native_pandoc".to_string(),
+                extension_filter: None,
+                cli: None,
+                cli_args: vec!["-t", "native"].iter().map(|s| s.to_string()).collect(),
+            }],
+        )
+    });
+
 /// Represents the settings for metadata in the project.
 ///
 /// # Fields

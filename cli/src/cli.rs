@@ -139,7 +139,7 @@ If the number of conversion folders in the project is above this threshold, old 
         about = "Manage the preprocessors of the project.",
         long_about = r#"Manage the preprocessors of the project.
 A preprocessor defines the arguments passed to the pandoc conversion from markdown.
-If using a CustomPandoc template, a preprocessor is required.
+If using a CustomPreprocessor template, a preprocessor is required.
 Preprocessors replace all arguments. Thus, with preprocessors, you need to define the output file and format.
 For templates, that is the file imported by the template.
 Preprocessors are incompatible with epub conversion. Use processors instead."#
@@ -153,8 +153,8 @@ Preprocessors are incompatible with epub conversion. Use processors instead."#
         long_about = r#"Manage the processors of the project.
 A processor defines additional arguments passed to the conversion command.
 For LaTeX and typst templates, this allows extending the respective conversion parameters.
-For epub templates, this allows adding custom pandoc parameters.
-Processors are incompatible with CustomPandoc conversions. Use preprocessors instead."#
+For CustomProcessor templates, this allows adding custom pandoc parameters.
+Processors are incompatible with CustomPreprocessors conversions. Use preprocessors instead."#
     )]
     Processors {
         #[command(subcommand)]
@@ -197,12 +197,6 @@ A markdown project can have resources that are copied to the respective conversi
     },
     #[command(about = "List the templates in the project.")]
     ListTemplates,
-    #[command(about = r#"Validate the TiefDown project structure and metadata.
-NOTE: This command is deprecated and will be removed in a future release. It's pointless and a maintenance nightmare."#)]
-    #[deprecated(
-        note = "This function is deprecated and will be removed in a future release. It's pointless and a maintenance nightmare."
-    )]
-    Validate,
     #[command(about = "Clean temporary files from the TiefDown project.")]
     Clean,
     #[command(
@@ -260,10 +254,9 @@ See the pandoc documentation and 'Writing filters' of the TiefDownConverter docu
 A preprocessor defines the arguments passed to the pandoc conversion from the specified input format.
 Each input format can have at most one preprocessor. Multiple preprocessors for the same input format will lead to an error.
 There can be a preprocessor without an input format, which will be used if no other preprocessor matches the input format. Only one such preprocessor is allowed.
-If using a CustomPandoc template, a preprocessor is required.
+If using a CustomPreprocessors template, at least one preprocessor is required.
 Preprocessors replace all arguments. Thus, with preprocessors, you need to define the output file and format.
-For templates, that is the file imported by the template.
-Preprocessors are incompatible with epub conversion. Use processors instead."#
+For templates, that is the file imported by the template."#
         )]
         preprocessors: Option<Vec<String>>,
         #[arg(
@@ -279,8 +272,7 @@ This is the file the input gets converted to. When preprocessing the input files
             long_help = r#"The processor to use for this template.
 A processor defines additional arguments passed to the conversion command.
 For LaTeX and typst templates, this allows extending the respective conversion parameters.
-For epub templates, this allows adding custom pandoc parameters.
-Processors are incompatible with CustomPandoc conversions. Use preprocessors instead."#
+Processors are incompatible with CustomPreprocessors conversions. Use preprocessors instead."#
         )]
         processor: Option<String>,
     },
@@ -338,10 +330,9 @@ This removes the filter from the existing filters."#,
 A preprocessor defines the arguments passed to the pandoc conversion from the specified input format.
 Each input format can have at most one preprocessor. Multiple preprocessors for the same input format will lead to an error.
 There can be a preprocessor without an input format, which will be used if no other preprocessor matches the input format. Only one such preprocessor is allowed.
-If using a CustomPandoc template, a preprocessor is required.
+If using a CustomPreprocessor template, at least one preprocessor is required.
 Preprocessors replace all arguments. Thus, with preprocessors, you need to define the output file and format.
-For templates, that is the file imported by the template.
-Preprocessors are incompatible with epub conversion. Use processors instead."#
+For templates, that is the file imported by the template."#
         )]
         preprocessors: Option<Vec<String>>,
         #[arg(
@@ -375,8 +366,7 @@ This is the file the input gets converted to. When preprocessing the input files
             long_help = r#"The processor to use for this template.
 A processor defines additional arguments passed to the conversion command.
 For LaTeX and typst templates, this allows extending the respective conversion parameters.
-For epub templates, this allows adding custom pandoc parameters.
-Processors are incompatible with CustomPandoc conversions. Use preprocessors instead."#
+Processors are incompatible with CustomPreprocessor conversions. Use preprocessors instead."#
         )]
         processor: Option<String>,
     },
