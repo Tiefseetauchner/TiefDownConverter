@@ -3,16 +3,16 @@ smart_clean_threshold = 3
 version = 5
 
 [[custom_processors.preprocessors]]
-cli_args = ["--to", "html5", "-s", "--metadata", "title={{title}}", "--metadata", "author={{author}}", "--css", "/TiefDownConverter/template/html_template/style.css", "--toc", "-B", "html_template/header.html"]
-name = "HTML Conversion"
-
-[[custom_processors.preprocessors]]
 cli_args = ["-t", "latex", "--listings"]
 name = "Enable Listings"
 
 [[custom_processors.preprocessors]]
 cli_args = ["-s", "-t", "man", "--metadata-file", "man_metadata.yaml"]
 name = "Man Page"
+
+[[custom_processors.processors]]
+name = "HTML Conversion"
+processor_args = ["--to", "html5", "-s", "--metadata", "title={{title}}", "--metadata", "author={{author}}", "--css", "/TiefDownConverter/template/html_template/style.css", "--toc", "-B", "html_template/header.html"]
 
 [[custom_processors.processors]]
 name = "Typst Font Directory"
@@ -92,7 +92,7 @@ template_type = "Epub"
 [[templates]]
 name = "Man Page"
 output = "tiefdownconverter.1"
-template_type = "CustomPandoc"
+template_type = "CustomPreprocessors"
 
 [templates.preprocessors]
 combined_output = "tiefdownconverter.1"
@@ -101,8 +101,5 @@ preprocessors = ["Man Page"]
 [[templates]]
 name = "GitHub Page Documentation"
 output = "index.html"
-template_type = "CustomPandoc"
-
-[templates.preprocessors]
-combined_output = "index.html"
-preprocessors = ["HTML Conversion"]
+processor = "HTML Conversion"
+template_type = "CustomProcessor"
