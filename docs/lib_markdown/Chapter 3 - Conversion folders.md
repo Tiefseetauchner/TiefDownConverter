@@ -33,8 +33,10 @@ pipeline (see the overview diagram):
 5) Template processing: Depending on the template type, TiefDown runs XeLaTeX
    (twice) or Typst on the template file in the conversion folder, optionally
    passing arguments from a named [processor](#custom-processors). EPUB templates
-   invoke Pandoc directly; custom pandoc templates copy the combined output to
-   the final destination.
+   invoke Pandoc directly. `CustomPreprocessors` templates copy the combined
+   output as-is to the final destination. `CustomProcessor` templates run a
+   final Pandoc invocation reading the combined Pandoc Native input and passing
+   the configured processor arguments.
 
 6) Finalization: The produced artifact (e.g. a PDF or EPUB) is then copied to
    the markdown project’s configured output path.

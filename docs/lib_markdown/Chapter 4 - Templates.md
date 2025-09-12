@@ -14,13 +14,17 @@ Templating in TiefDown is done in several ways:
   - A legacy templating system, it generates a EPUB document from the markdown
     files. Convoluted and very much custom to basic usage.
   - Adds Metadata directly to the EPUB file.
-  - (!) This template type should be forgone in favour of Custom Pandoc
-    Conversion.
-- [Custom pandoc conversion](#custom-pandoc-conversion)
-  - A more advanced templating system, it runs custom pandoc commands on the
-    markdown files. This is the most flexible templating system, but also the
-    most complex.
-  - Supports Metadata insertion into command line arguments.
+  - (!) This template type should be forgone in favour of CustomPreprocessors
+    conversion.
+- [CustomPreprocessors conversion](#custompreprocessors-conversion)
+  - A flexible pipeline where you define one or more preprocessors (Pandoc or
+    any CLI) and write their combined output to a file your template or output
+    references. No final processing step is performed.
+  - Supports metadata insertion into CLI arguments.
+- [CustomProcessor conversion](#customprocessor-conversion)
+  - Preprocesses inputs to a single Pandoc Native document and then runs a
+    final Pandoc call with your processor arguments to produce the artifact
+    (e.g., HTML, docx, reveal.js, etc.).
 
 ## LaTeX Templates
 
@@ -81,22 +85,82 @@ are just a basic suggestion.
 
 ## EPUB Templates
 
-EPUB templates are a special version of custom pandoc conversion. They are
-legacy and should be avoided in favour of custom pandoc conversion. Thus,
+EPUB templates are a special version of custom preprocessing. They are
+legacy and should be avoided in favour of CustomPreprocessors conversion. Thus,
 they are not documented here.
 
-## Custom Pandoc Conversion
+## CustomPreprocessors Conversion
 
-Custom pandoc conversion is the most advanced templating system in TiefDown.
-It allows specifying the exact pandoc command to run on the markdown files,
-but does not allow any post processing like LaTeX or Typst.
+CustomPreprocessors replaces the older “Custom Pandoc Conversion” naming. It lets
+you define exactly how inputs are preprocessed (with Pandoc or any CLI) and where
+the combined output is written. There is no additional processing step after the
+combined output is produced.
 
-A template requires a [custom preprocessor](#custom-processors) to be specified.
-This processor defines the pandoc command to run and must include an output
-file. The output file must then also be included in the template for copying
-to the output folder.
+Key points
 
-The pandoc conversion runs in the compilation directory of the markdown project
-and receives the project’s input files. The converter captures the preprocessor’s
-stdout and writes it to the `combined_output` file you configure on the template.
-See [conversion folders](#conversion-folders) for more information.
+- Define one or more preprocessors under `[[custom_processors.preprocessors]]`.
+- In the template, reference them via `preprocessors.preprocessors` and specify
+  `preprocessors.combined_output`.
+- The converter runs each preprocessor per extension group, captures stdout, and
+  concatenates into the combined output file.
+- Your template or output process must copy or reference this file to the final
+  destination.
+
+Example: single-file HTML without a LaTeX/Typst step
+
+```toml
+[[templates]]
+name = "HTML Article"
+template_type = "CustomPreprocessors"
+output = "article.html"
+
+  [templates.preprocessors]
+  preprocessors = ["md-to-html"]
+  combined_output = "output.html"
+
+[[custom_processors.preprocessors]]
+name = "md-to-html"
+cli = "pandoc"
+cli_args = ["-f", "gfm", "-t", "html"]
+```
+
+## CustomProcessor Conversion
+
+CustomProcessor is a two-phase pipeline:
+
+- Preprocess: Convert all inputs to Pandoc Native (defaults provided) and write
+  a single `output.pandoc_native` file.
+- Process: Run Pandoc once more, reading the native file and applying your
+  processor’s arguments to produce the final artifact.
+
+Requirements and behavior
+
+- The template’s `processor` is required and must reference an entry under
+  `[[custom_processors.processors]]`.
+- `preprocessors.combined_output` should be a native file (defaults to
+  `output.pandoc_native`).
+- Lua filters configured on the template are applied to Pandoc preprocessing
+  steps; the final Pandoc step uses `processor_args` only.
+
+Example: produce a docx from the combined native document
+
+```toml
+[[templates]]
+name = "Docx"
+template_type = "CustomProcessor"
+output = "book.docx"
+processor = "docx"
+
+  [templates.preprocessors]
+  preprocessors = ["native"]
+  combined_output = "output.pandoc_native"
+
+[[custom_processors.preprocessors]]
+name = "native"
+cli = "pandoc"
+cli_args = ["-t", "native"]
+
+[[custom_processors.processors]]
+name = "docx"
+processor_args = ["--reference-doc", "resources/ref.docx"]
+```

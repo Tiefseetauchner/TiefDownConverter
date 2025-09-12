@@ -463,7 +463,7 @@ and mobile devices.
 ### Custom Preprocessors Converter
 
 Okay. Stick with me here. The idea is, you are already converting my input files with Pandoc, why not let
-me convert them to whatever format? Well, this is where Custom Pandoc Conversion comes in. This long
+me convert them to whatever format? Well, this is where Custom Preprocessors Conversion comes in. This long
 fabled feature is the most complicated one, and you need a deep understanding of how TiefDownConverter works
 and at least the ability to read Pandoc's documentation to even use it.
 But if you're willing to put in the effort, you can do some pretty cool things.
@@ -485,7 +485,22 @@ one input format. Use [custom processor conversion](#custom-processor-converter)
 
 If that wasn't bad enough: We've got more. Custom Processor Conversions are a way to combine multiple
 input files to a file type that isn't just a collection of lines. For example, take a docx file. It
-isn't just multiple simpler files strung together
+isn't just multiple simpler files strung together, it is a complicated web of zip files and openxml
+and all that jazz.
+
+Now, why may that be an issue? Simply put: multiple input formats are converted in batches and strung
+together when using a custom preprocessor converter. Instead, we need to convert all output formats
+to a common type and merge them afterwards for the conversion to a docx to work.
+
+That's what custom processor conversion is for. It uses preprocessors to convert all input files
+to a common format (Pandoc native AST) and combines these files to arrive at a single AST file,
+letting pandoc then convert to the required format using a custom processor.
+
+Custom processors require an output file compatible with pandoc. When creating such a template,
+make sure to reference the pandoc guide. You can use custom preprocessors as usual, but you will
+need to set the output format flag (`-t`) to `native`. A custom processor can also be used when
+converting from AST to the output format. Any pandoc parameter is accepted, but the `-o` and
+`-f` flags are set at compile time and mustn't be added.
 
 ## Writing filters
 
@@ -605,11 +620,11 @@ tiefdownconverter project pre-processors add "No typst conversion" --filter "typ
 If no filter is provided, the preprocessor applies to all files. In your template, you
 can then define the preprocessor list as well as the combined output of the preprocessor.
 This is important, as this output is then passed to the conversion engine (or copied for
-[Custom Pandoc Conversion](#custom-pandoc-conversion)).
+[Custom Preprocessors Conversion](#custom-preprocessors-conversion)).
 
-## Custom Pandoc Conversion
+## Custom Preprocessors Conversion
 
-I already hinted at it in [Custom Pandoc Converter](#custom-pandoc-converter),
+I already hinted at it in [Custom Preprocessors Converter](#custom-preprocessors-converter),
 but I'll go into more detail here. The idea is to run a preprocessor
 and just skip any further processing. Straight from pandoc to the output.
 
@@ -670,6 +685,8 @@ Then append it to a template.
 ```bash
 tiefdownconverter project template "PDF Documentation" update --processor "Typst Font Directory"
 ```
+
+This is especially useful with [custom processor converters](#custom-processor-converter).
 
 ## Smart Cleaning
 

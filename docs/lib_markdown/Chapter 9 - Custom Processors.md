@@ -30,9 +30,53 @@ extension_filter = "typ"
 Templates reference one or more preprocessors with their `preprocessors` field, which
 also has to define a `combined_output` field. The converter captures the stdout of each
 preprocessor run and writes it to this file, which your template then includes
-(`\input{./output.tex}` or `#include "./output.typ"`).
+(`\input{./output.tex}` or `#include "./output.typ"`) or copies to the output
+location for `CustomPreprocessors` templates.
 
-### Defaults
+Processors are specified similarly and referenced via the `processor` field:
+
+```toml
+[[custom_processors.processors]]
+name = "Typst Font Directory"
+processor_args = ["--font-path", "fonts/"]
+```
+
+Usage notes and examples
+
+- For `CustomPreprocessors` templates, there is no processor step. You are
+  responsible for ensuring the `combined_output` is the final artifact you want
+  to copy to the project’s output.
+- For `CustomProcessor` templates, a processor is required. TiefDown combines
+  inputs to Pandoc Native (defaults provided) and then runs Pandoc with your
+  `processor_args` to produce the final artifact.
+
+Example: Reveal.js slide deck via CustomProcessor
+
+```toml
+[[templates]]
+name = "Slides"
+template_type = "CustomProcessor"
+output = "talk.html"
+processor = "reveal"
+
+  [templates.preprocessors]
+  preprocessors = ["native"]
+  combined_output = "output.pandoc_native"
+
+[[custom_processors.preprocessors]]
+name = "native"
+cli = "pandoc"
+cli_args = ["-t", "native"]
+
+[[custom_processors.processors]]
+name = "reveal"
+processor_args = ["-t", "revealjs", "-s", "--slide-level", "2"]
+```
+
+These mechanisms allow fine-grained control over the conversion pipeline when the
+defaults are not sufficient.
+
+## Defaults
 
 TiefDown provides reasonable defaults per template type:
 
@@ -52,14 +96,3 @@ template type and are merged by extension; defining your own preprocessor for a 
 extension replaces the default for that extension but leaves the others intact. Finally,
 `cli_args` support metadata substitution, so any occurrence of `{{key}}` is replaced with
 the corresponding metadata value at conversion time.
-
-Processors are specified similarly and referenced via the `processor` field:
-
-```toml
-[[custom_processors.processors]]
-name = "Typst Font Directory"
-processor_args = ["--font-path", "fonts/"]
-```
-
-These mechanisms allow fine-grained control over the conversion pipeline when the
-defaults are not sufficient.
