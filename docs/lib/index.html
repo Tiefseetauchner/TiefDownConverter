@@ -127,8 +127,11 @@ Templates</a></li>
 Templates</a></li>
 <li><a href="#epub-templates" id="toc-epub-templates">EPUB
 Templates</a></li>
-<li><a href="#custom-pandoc-conversion"
-id="toc-custom-pandoc-conversion">Custom Pandoc Conversion</a></li>
+<li><a href="#custompreprocessors-conversion"
+id="toc-custompreprocessors-conversion">CustomPreprocessors
+Conversion</a></li>
+<li><a href="#customprocessor-conversion"
+id="toc-customprocessor-conversion">CustomProcessor Conversion</a></li>
 </ul></li>
 <li><a href="#smart-clean" id="toc-smart-clean">Smart Clean</a></li>
 <li><a href="#profiles" id="toc-profiles">Profiles</a></li>
@@ -218,7 +221,8 @@ conversion</li>
 variant. Important fields are:</p>
 <ul>
 <li><code>template_type</code>: <code>Tex</code>, <code>Typst</code>,
-<code>Epub</code>, or <code>CustomPandoc</code>.</li>
+<code>Epub</code>, <code>CustomPreprocessors</code>, or
+<code>CustomProcessor</code>.</li>
 <li><code>template_file</code>: Path relative to the template directory;
 if omitted, the template name is used.</li>
 <li><code>output</code>: Optional output filename (defaults based on
@@ -228,11 +232,51 @@ during Pandoc steps.</li>
 <li><code>preprocessors</code>: Names of preprocessors plus a required
 <code>combined_output</code> filename the template includes.</li>
 <li><code>processor</code>: Name of a processor whose arguments are
-passed to XeLaTeX/Typst/Pandoc as applicable.</li>
+passed to XeLaTeX/Typst. For <code>CustomProcessor</code>, the
+<code>processor</code> arguments are passed to Pandoc as the final
+conversion step.</li>
 </ul>
 <p>Project-wide <code>[[custom_processors.preprocessors]]</code> and
 <code>[[custom_processors.processors]]</code> define reusable building
 blocks referenced by templates.</p>
+<p>Example snippets</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># CustomPreprocessors: you decide how inputs are preprocessed; the combined</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># output is copied to the final destination without an additional processor step.</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">[[templates]]</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Website HTML&quot;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="dt">template_type</span> <span class="op">=</span> <span class="st">&quot;CustomPreprocessors&quot;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">=</span> <span class="st">&quot;site/index.html&quot;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">[templates.preprocessors]</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">preprocessors</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;html-from-md&quot;</span><span class="op">]</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">combined_output</span> <span class="op">=</span> <span class="st">&quot;output.html&quot;</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.preprocessors]]</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;html-from-md&quot;</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="dt">cli</span> <span class="op">=</span> <span class="st">&quot;pandoc&quot;</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="dt">cli_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;-f&quot;</span><span class="op">,</span> <span class="st">&quot;markdown&quot;</span><span class="op">,</span> <span class="st">&quot;-t&quot;</span><span class="op">,</span> <span class="st">&quot;html&quot;</span><span class="op">]</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># CustomProcessor: preprocess to Pandoc Native, then run Pandoc once more with</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># processor arguments to produce the final artifact.</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="kw">[[templates]]</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Docx Export&quot;</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="dt">template_type</span> <span class="op">=</span> <span class="st">&quot;CustomProcessor&quot;</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">=</span> <span class="st">&quot;book.docx&quot;</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="dt">processor</span> <span class="op">=</span> <span class="st">&quot;docx-out&quot;</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="kw">[templates.preprocessors]</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  <span class="dt">preprocessors</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;native-parts&quot;</span><span class="op">]</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="dt">combined_output</span> <span class="op">=</span> <span class="st">&quot;output.pandoc_native&quot;</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.preprocessors]]</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;native-parts&quot;</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="dt">cli</span> <span class="op">=</span> <span class="st">&quot;pandoc&quot;</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="dt">cli_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;-t&quot;</span><span class="op">,</span> <span class="st">&quot;native&quot;</span><span class="op">]</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.processors]]</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;docx-out&quot;</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="dt">processor_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;--reference-doc&quot;</span><span class="op">,</span> <span class="st">&quot;resources/reference.docx&quot;</span><span class="op">]</span></span></code></pre></div>
 <h1 id="conversion-folders">Conversion folders</h1>
 <p>The conversion folder is where inputs are collected and processed for
 a run. A new, time-stamped folder is created inside the project whenever
@@ -270,8 +314,10 @@ optional <a href="#metadata-settings">metadata settings</a>.</p></li>
 runs XeLaTeX (twice) or Typst on the template file in the conversion
 folder, optionally passing arguments from a named <a
 href="#custom-processors">processor</a>. EPUB templates invoke Pandoc
-directly; custom pandoc templates copy the combined output to the final
-destination.</p></li>
+directly. <code>CustomPreprocessors</code> templates copy the combined
+output as-is to the final destination. <code>CustomProcessor</code>
+templates run a final Pandoc invocation reading the combined Pandoc
+Native input and passing the configured processor arguments.</p></li>
 <li><p>Finalization: The produced artifact (e.g. a PDF or EPUB) is then
 copied to the markdown project’s configured output path.</p></li>
 </ol>
@@ -295,15 +341,23 @@ files that can be included in a Typst document.</li>
 <li>A legacy templating system, it generates a EPUB document from the
 markdown files. Convoluted and very much custom to basic usage.</li>
 <li>Adds Metadata directly to the EPUB file.</li>
-<li>(!) This template type should be forgone in favour of Custom Pandoc
-Conversion.</li>
+<li>(!) This template type should be forgone in favour of
+CustomPreprocessors conversion.</li>
 </ul></li>
-<li><a href="#custom-pandoc-conversion">Custom pandoc conversion</a>
+<li><a href="#custompreprocessors-conversion">CustomPreprocessors
+conversion</a>
 <ul>
-<li>A more advanced templating system, it runs custom pandoc commands on
-the markdown files. This is the most flexible templating system, but
-also the most complex.</li>
-<li>Supports Metadata insertion into command line arguments.</li>
+<li>A flexible pipeline where you define one or more preprocessors
+(Pandoc or any CLI) and write their combined output to a file your
+template or output references. No final processing step is
+performed.</li>
+<li>Supports metadata insertion into CLI arguments.</li>
+</ul></li>
+<li><a href="#customprocessor-conversion">CustomProcessor conversion</a>
+<ul>
+<li>Preprocesses inputs to a single Pandoc Native document and then runs
+a final Pandoc call with your processor arguments to produce the
+artifact (e.g., HTML, docx, reveal.js, etc.).</li>
 </ul></li>
 </ul>
 <h2 id="latex-templates">LaTeX Templates</h2>
@@ -313,16 +367,16 @@ LaTeX document from markdown, usually output.tex, with <a
 href="#lua-filters">lua-filters</a> applied depending on the template,
 and then converts that template file to a PDF.</p>
 <p>The LaTeX file must include the following:</p>
-<div class="sourceCode" id="cb1"><pre
-class="sourceCode latex"><code class="sourceCode latex"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">\input</span>{./output.tex}</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode latex"><code class="sourceCode latex"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">\input</span>{./output.tex}</span></code></pre></div>
 <p>This imports the converted markdown files into the LaTeX document.
 You may adjust the behaviour by using <a
 href="#custom-processors">custom preprocessors</a> and <a
 href="#custom-processors">custom processors</a>.</p>
 <p>For Metadata, one can also import the metadata file, which is
 generated by TiefDown during the conversion process.</p>
-<div class="sourceCode" id="cb2"><pre
-class="sourceCode latex"><code class="sourceCode latex"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">\input</span>{./metadata.tex}</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode latex"><code class="sourceCode latex"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">\input</span>{./metadata.tex}</span></code></pre></div>
 <p>This file provides a macro to access metadata using the
 <code>\meta{}</code> keyword. This can be adjusted using the <a
 href="#metadata-settings">metadata settings</a>.</p>
@@ -345,25 +399,80 @@ on customization.</p>
 <p>There are also preset templates available in the core library. Again,
 these are just a basic suggestion.</p>
 <h2 id="epub-templates">EPUB Templates</h2>
-<p>EPUB templates are a special version of custom pandoc conversion.
-They are legacy and should be avoided in favour of custom pandoc
+<p>EPUB templates are a special version of custom preprocessing. They
+are legacy and should be avoided in favour of CustomPreprocessors
 conversion. Thus, they are not documented here.</p>
-<h2 id="custom-pandoc-conversion">Custom Pandoc Conversion</h2>
-<p>Custom pandoc conversion is the most advanced templating system in
-TiefDown. It allows specifying the exact pandoc command to run on the
-markdown files, but does not allow any post processing like LaTeX or
-Typst.</p>
-<p>A template requires a <a href="#custom-processors">custom
-preprocessor</a> to be specified. This processor defines the pandoc
-command to run and must include an output file. The output file must
-then also be included in the template for copying to the output
-folder.</p>
-<p>The pandoc conversion runs in the compilation directory of the
-markdown project and receives the project’s input files. The converter
-captures the preprocessor’s stdout and writes it to the
-<code>combined_output</code> file you configure on the template. See <a
-href="#conversion-folders">conversion folders</a> for more
-information.</p>
+<h2 id="custompreprocessors-conversion">CustomPreprocessors
+Conversion</h2>
+<p>CustomPreprocessors replaces the older “Custom Pandoc Conversion”
+naming. It lets you define exactly how inputs are preprocessed (with
+Pandoc or any CLI) and where the combined output is written. There is no
+additional processing step after the combined output is produced.</p>
+<p>Key points</p>
+<ul>
+<li>Define one or more preprocessors under
+<code>[[custom_processors.preprocessors]]</code>.</li>
+<li>In the template, reference them via
+<code>preprocessors.preprocessors</code> and specify
+<code>preprocessors.combined_output</code>.</li>
+<li>The converter runs each preprocessor per extension group, captures
+stdout, and concatenates into the combined output file.</li>
+<li>Your template or output process must copy or reference this file to
+the final destination.</li>
+</ul>
+<p>Example: single-file HTML without a LaTeX/Typst step</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[templates]]</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;HTML Article&quot;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="dt">template_type</span> <span class="op">=</span> <span class="st">&quot;CustomPreprocessors&quot;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">=</span> <span class="st">&quot;article.html&quot;</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">[templates.preprocessors]</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">preprocessors</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;md-to-html&quot;</span><span class="op">]</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">combined_output</span> <span class="op">=</span> <span class="st">&quot;output.html&quot;</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.preprocessors]]</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;md-to-html&quot;</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="dt">cli</span> <span class="op">=</span> <span class="st">&quot;pandoc&quot;</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="dt">cli_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;-f&quot;</span><span class="op">,</span> <span class="st">&quot;gfm&quot;</span><span class="op">,</span> <span class="st">&quot;-t&quot;</span><span class="op">,</span> <span class="st">&quot;html&quot;</span><span class="op">]</span></span></code></pre></div>
+<h2 id="customprocessor-conversion">CustomProcessor Conversion</h2>
+<p>CustomProcessor is a two-phase pipeline:</p>
+<ul>
+<li>Preprocess: Convert all inputs to Pandoc Native (defaults provided)
+and write a single <code>output.pandoc_native</code> file.</li>
+<li>Process: Run Pandoc once more, reading the native file and applying
+your processor’s arguments to produce the final artifact.</li>
+</ul>
+<p>Requirements and behavior</p>
+<ul>
+<li>The template’s <code>processor</code> is required and must reference
+an entry under <code>[[custom_processors.processors]]</code>.</li>
+<li><code>preprocessors.combined_output</code> should be a native file
+(defaults to <code>output.pandoc_native</code>).</li>
+<li>Lua filters configured on the template are applied to Pandoc
+preprocessing steps; the final Pandoc step uses
+<code>processor_args</code> only.</li>
+</ul>
+<p>Example: produce a docx from the combined native document</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[templates]]</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Docx&quot;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="dt">template_type</span> <span class="op">=</span> <span class="st">&quot;CustomProcessor&quot;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">=</span> <span class="st">&quot;book.docx&quot;</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="dt">processor</span> <span class="op">=</span> <span class="st">&quot;docx&quot;</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">[templates.preprocessors]</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">preprocessors</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;native&quot;</span><span class="op">]</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">combined_output</span> <span class="op">=</span> <span class="st">&quot;output.pandoc_native&quot;</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.preprocessors]]</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;native&quot;</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="dt">cli</span> <span class="op">=</span> <span class="st">&quot;pandoc&quot;</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="dt">cli_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;-t&quot;</span><span class="op">,</span> <span class="st">&quot;native&quot;</span><span class="op">]</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.processors]]</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;docx&quot;</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="dt">processor_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;--reference-doc&quot;</span><span class="op">,</span> <span class="st">&quot;resources/ref.docx&quot;</span><span class="op">]</span></span></code></pre></div>
 <h1 id="smart-clean">Smart Clean</h1>
 <p>Smart clean automatically removes old conversion folders. When
 enabled via <code>smart_clean</code> in <code>manifest.toml</code>,
@@ -378,10 +487,10 @@ exceeded.</p>
 together. Defining profiles avoids having to pass a long list of
 template names every time you run the converter.</p>
 <p>Profiles are stored in the project’s <code>manifest.toml</code>:</p>
-<div class="sourceCode" id="cb5"><pre
-class="sourceCode toml"><code class="sourceCode toml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[profiles]]</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Documentation&quot;</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="dt">templates</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;PDF Documentation LaTeX&quot;</span><span class="op">,</span> <span class="st">&quot;PDF Documentation&quot;</span><span class="op">]</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[profiles]]</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Documentation&quot;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="dt">templates</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;PDF Documentation LaTeX&quot;</span><span class="op">,</span> <span class="st">&quot;PDF Documentation&quot;</span><span class="op">]</span></span></code></pre></div>
 <p>Use the <code>--profile</code> option with
 <code>tiefdownconverter convert</code> to select a profile. Markdown
 projects may also specify a <code>default_profile</code>; this profile
@@ -395,12 +504,12 @@ directory containing multiple filter scripts.</p>
 rename headers, insert custom blocks or otherwise transform the document
 before it reaches the template engine.</p>
 <p>Example filter to adjust chapter headings:</p>
-<div class="sourceCode" id="cb6"><pre
-class="sourceCode lua"><code class="sourceCode lua"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> Header<span class="op">(</span><span class="va">el</span><span class="op">)</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="va">el</span><span class="op">.</span><span class="va">level</span> <span class="op">==</span> <span class="dv">1</span> <span class="cf">then</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">pandoc</span><span class="op">.</span>RawBlock<span class="op">(</span><span class="st">&quot;latex&quot;</span><span class="op">,</span> <span class="st">&quot;</span><span class="sc">\\</span><span class="st">chapter{&quot;</span> <span class="op">..</span> <span class="va">pandoc</span><span class="op">.</span><span class="va">utils</span><span class="op">.</span>stringify<span class="op">(</span><span class="va">el</span><span class="op">.</span><span class="va">content</span><span class="op">)</span> <span class="op">..</span> <span class="st">&quot;}&quot;</span><span class="op">)</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode lua"><code class="sourceCode lua"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> Header<span class="op">(</span><span class="va">el</span><span class="op">)</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="va">el</span><span class="op">.</span><span class="va">level</span> <span class="op">==</span> <span class="dv">1</span> <span class="cf">then</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">pandoc</span><span class="op">.</span>RawBlock<span class="op">(</span><span class="st">&quot;latex&quot;</span><span class="op">,</span> <span class="st">&quot;</span><span class="sc">\\</span><span class="st">chapter{&quot;</span> <span class="op">..</span> <span class="va">pandoc</span><span class="op">.</span><span class="va">utils</span><span class="op">.</span>stringify<span class="op">(</span><span class="va">el</span><span class="op">.</span><span class="va">content</span><span class="op">)</span> <span class="op">..</span> <span class="st">&quot;}&quot;</span><span class="op">)</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
 <p>For more details on writing filters see the Pandoc documentation.</p>
 <p>Note: Lua filters apply to the Pandoc preprocessing step(s). If a
 template uses a custom preprocessor whose CLI is not Pandoc, those
@@ -411,11 +520,11 @@ project defines where the source files live and where the converted
 results should be placed. The information is stored in
 <code>[[markdown_projects]]</code> entries in
 <code>manifest.toml</code>.</p>
-<div class="sourceCode" id="cb7"><pre
-class="sourceCode toml"><code class="sourceCode toml"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[markdown_projects]]</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Book One&quot;</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="dt">path</span> <span class="op">=</span> <span class="st">&quot;book_one/markdown&quot;</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">=</span> <span class="st">&quot;book_one/output&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[markdown_projects]]</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Book One&quot;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="dt">path</span> <span class="op">=</span> <span class="st">&quot;book_one/markdown&quot;</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">=</span> <span class="st">&quot;book_one/output&quot;</span></span></code></pre></div>
 <p>A markdown project may define a <code>default_profile</code> used for
 conversion, a list of <code>resources</code> to copy into the conversion
 folder and its own metadata.</p>
@@ -424,8 +533,8 @@ folder and its own metadata.</p>
 project directory to the conversion folder before processing. Typical
 examples are images, CSS files or fonts needed by a template. Specify
 them in the <code>resources</code> array:</p>
-<div class="sourceCode" id="cb8"><pre
-class="sourceCode toml"><code class="sourceCode toml"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="dt">resources</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;resources/cover.png&quot;</span><span class="op">,</span> <span class="st">&quot;resources/styles.css&quot;</span><span class="op">]</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="dt">resources</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;resources/cover.png&quot;</span><span class="op">,</span> <span class="st">&quot;resources/styles.css&quot;</span><span class="op">]</span></span></code></pre></div>
 <h2 id="markdown-project-metadata">Markdown Project Metadata</h2>
 <p>Project specific metadata is stored under the
 <code>metadata_fields</code> table of a markdown project. These values
@@ -444,26 +553,66 @@ Typst).</li>
 </ul>
 <p>A preprocessor is defined under
 <code>[[custom_processors.preprocessors]]</code>:</p>
-<div class="sourceCode" id="cb9"><pre
-class="sourceCode toml"><code class="sourceCode toml"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.preprocessors]]</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Enable Listings&quot;</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="dt">cli_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;-t&quot;</span><span class="op">,</span> <span class="st">&quot;latex&quot;</span><span class="op">,</span> <span class="st">&quot;--listings&quot;</span><span class="op">]</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.preprocessors]]</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Enable Listings&quot;</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="dt">cli_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;-t&quot;</span><span class="op">,</span> <span class="st">&quot;latex&quot;</span><span class="op">,</span> <span class="st">&quot;--listings&quot;</span><span class="op">]</span></span></code></pre></div>
 <p>A preprocessor can also define a command using the <code>cli</code>
 field. This replaces the Pandoc preprocessing step with a custom cli
 command preprocessing step.</p>
-<div class="sourceCode" id="cb10"><pre
-class="sourceCode toml"><code class="sourceCode toml"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.preprocessors]]</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Copy without modification&quot;</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="dt">cli</span> <span class="op">=</span> <span class="st">&quot;cat&quot;</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="dt">cli_args</span> <span class="op">=</span> <span class="op">[]</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="dt">extension_filter</span> <span class="op">=</span> <span class="st">&quot;typ&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.preprocessors]]</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Copy without modification&quot;</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="dt">cli</span> <span class="op">=</span> <span class="st">&quot;cat&quot;</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="dt">cli_args</span> <span class="op">=</span> <span class="op">[]</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="dt">extension_filter</span> <span class="op">=</span> <span class="st">&quot;typ&quot;</span></span></code></pre></div>
 <p>Templates reference one or more preprocessors with their
 <code>preprocessors</code> field, which also has to define a
 <code>combined_output</code> field. The converter captures the stdout of
 each preprocessor run and writes it to this file, which your template
 then includes (<code>\input{./output.tex}</code> or
-<code>#include "./output.typ"</code>).</p>
-<h3 id="defaults">Defaults</h3>
+<code>#include "./output.typ"</code>) or copies to the output location
+for <code>CustomPreprocessors</code> templates.</p>
+<p>Processors are specified similarly and referenced via the
+<code>processor</code> field:</p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.processors]]</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Typst Font Directory&quot;</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="dt">processor_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;--font-path&quot;</span><span class="op">,</span> <span class="st">&quot;fonts/&quot;</span><span class="op">]</span></span></code></pre></div>
+<p>Usage notes and examples</p>
+<ul>
+<li>For <code>CustomPreprocessors</code> templates, there is no
+processor step. You are responsible for ensuring the
+<code>combined_output</code> is the final artifact you want to copy to
+the project’s output.</li>
+<li>For <code>CustomProcessor</code> templates, a processor is required.
+TiefDown combines inputs to Pandoc Native (defaults provided) and then
+runs Pandoc with your <code>processor_args</code> to produce the final
+artifact.</li>
+</ul>
+<p>Example: Reveal.js slide deck via CustomProcessor</p>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[templates]]</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Slides&quot;</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="dt">template_type</span> <span class="op">=</span> <span class="st">&quot;CustomProcessor&quot;</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">=</span> <span class="st">&quot;talk.html&quot;</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="dt">processor</span> <span class="op">=</span> <span class="st">&quot;reveal&quot;</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">[templates.preprocessors]</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">preprocessors</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;native&quot;</span><span class="op">]</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">combined_output</span> <span class="op">=</span> <span class="st">&quot;output.pandoc_native&quot;</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.preprocessors]]</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;native&quot;</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="dt">cli</span> <span class="op">=</span> <span class="st">&quot;pandoc&quot;</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="dt">cli_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;-t&quot;</span><span class="op">,</span> <span class="st">&quot;native&quot;</span><span class="op">]</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.processors]]</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;reveal&quot;</span></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a><span class="dt">processor_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;-t&quot;</span><span class="op">,</span> <span class="st">&quot;revealjs&quot;</span><span class="op">,</span> <span class="st">&quot;-s&quot;</span><span class="op">,</span> <span class="st">&quot;--slide-level&quot;</span><span class="op">,</span> <span class="st">&quot;2&quot;</span><span class="op">]</span></span></code></pre></div>
+<p>These mechanisms allow fine-grained control over the conversion
+pipeline when the defaults are not sufficient.</p>
+<h2 id="defaults">Defaults</h2>
 <p>TiefDown provides reasonable defaults per template type:</p>
 <ul>
 <li>Tex templates preprocess inputs with Pandoc using
@@ -486,14 +635,6 @@ default for that extension but leaves the others intact. Finally,
 <code>cli_args</code> support metadata substitution, so any occurrence
 of <code>{{key}}</code> is replaced with the corresponding metadata
 value at conversion time.</p>
-<p>Processors are specified similarly and referenced via the
-<code>processor</code> field:</p>
-<div class="sourceCode" id="cb11"><pre
-class="sourceCode toml"><code class="sourceCode toml"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.processors]]</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Typst Font Directory&quot;</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="dt">processor_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;--font-path&quot;</span><span class="op">,</span> <span class="st">&quot;fonts/&quot;</span><span class="op">]</span></span></code></pre></div>
-<p>These mechanisms allow fine-grained control over the conversion
-pipeline when the defaults are not sufficient.</p>
 <h1 id="shared-metadata">Shared Metadata</h1>
 <p>Shared metadata is defined once for the whole project and is
 available to every markdown project. It lives under
@@ -509,9 +650,9 @@ list.</p>
 <code>metadata_prefix</code> option. This prefix determines the name of
 the macro or object used to access metadata in templates.</p>
 <p>For example, with</p>
-<div class="sourceCode" id="cb12"><pre
-class="sourceCode toml"><code class="sourceCode toml"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[metadata_settings]</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="dt">metadata_prefix</span> <span class="op">=</span> <span class="st">&quot;book&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[metadata_settings]</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="dt">metadata_prefix</span> <span class="op">=</span> <span class="st">&quot;book&quot;</span></span></code></pre></div>
 <p>the generated LaTeX file defines a <code>\book{}</code> command while
 Typst exposes a <code>book</code> object. In other words, the prefix
 fully replaces the default <code>meta</code> name. If no prefix is set

@@ -7,8 +7,8 @@
 Manage the processors of the project.
 A processor defines additional arguments passed to the conversion command.
 For LaTeX and typst templates, this allows extending the respective conversion parameters.
-For epub templates, this allows adding custom pandoc parameters.
-Processors are incompatible with CustomPandoc conversions. Use preprocessors instead.
+For CustomProcessor templates, this allows adding custom pandoc parameters.
+Processors are incompatible with CustomPreprocessors conversions. Use preprocessors instead.
 
 Usage: tiefdownconverter project processors [OPTIONS] <COMMAND>
 

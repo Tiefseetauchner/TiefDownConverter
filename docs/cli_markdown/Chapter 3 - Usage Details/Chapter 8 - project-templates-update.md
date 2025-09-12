@@ -19,7 +19,7 @@ Options:
           The type of the template. If not provided, the type will be inferred from the template file.
           Changing this is not recommended, as it is highly unlikely the type and only the type has changed. It is recommended to create a new template instead.
           
-          [possible values: tex, typst, epub, custom-pandoc]
+          [possible values: tex, typst, epub, custom-preprocessors, custom-processor]
 
       --output <OUTPUT>
           The output file. If not provided, the template name will be used.
@@ -41,10 +41,9 @@ Options:
           A preprocessor defines the arguments passed to the pandoc conversion from the specified input format.
           Each input format can have at most one preprocessor. Multiple preprocessors for the same input format will lead to an error.
           There can be a preprocessor without an input format, which will be used if no other preprocessor matches the input format. Only one such preprocessor is allowed.
-          If using a CustomPandoc template, a preprocessor is required.
+          If using a CustomPreprocessor template, at least one preprocessor is required.
           Preprocessors replace all arguments. Thus, with preprocessors, you need to define the output file and format.
           For templates, that is the file imported by the template.
-          Preprocessors are incompatible with epub conversion. Use processors instead.
 
       --add-preprocessors <ADD_PREPROCESSORS>...
           The preprocessors to use for this template.
@@ -62,8 +61,7 @@ Options:
           The processor to use for this template.
           A processor defines additional arguments passed to the conversion command.
           For LaTeX and typst templates, this allows extending the respective conversion parameters.
-          For epub templates, this allows adding custom pandoc parameters.
-          Processors are incompatible with CustomPandoc conversions. Use preprocessors instead.
+          Processors are incompatible with CustomPreprocessor conversions. Use preprocessors instead.
 
   -h, --help
           Print help (see a summary with '-h')

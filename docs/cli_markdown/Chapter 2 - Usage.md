@@ -278,7 +278,7 @@ output of the Markdown conversion in your template file. If you're using custom 
 can change the output file of the conversion. See [Preprocessing](#preprocessing) for more
 information. For CustomPreprocessors conversion, this is the output file already, as there is no
 template file. Should you be using CustomProcessor conversion, the combined file is AST and not
-really usable, so don't think about it. See [custom processor conversion](#custom-processor-conversion)
+really usable, so don't think about it. See [custom processor conversion](#custom-processor-converter)
 for more information.
 
 ## Shared Metadata {#shared-metadata}
