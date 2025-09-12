@@ -41,7 +41,7 @@ name = "Typst Font Directory"
 processor_args = ["--font-path", "fonts/"]
 ```
 
-Usage notes and examples
+Usage notes:
 
 - For `CustomPreprocessors` templates, there is no processor step. You are
   responsible for ensuring the `combined_output` is the final artifact you want
@@ -49,29 +49,6 @@ Usage notes and examples
 - For `CustomProcessor` templates, a processor is required. TiefDown combines
   inputs to Pandoc Native (defaults provided) and then runs Pandoc with your
   `processor_args` to produce the final artifact.
-
-Example: Reveal.js slide deck via CustomProcessor
-
-```toml
-[[templates]]
-name = "Slides"
-template_type = "CustomProcessor"
-output = "talk.html"
-processor = "reveal"
-
-  [templates.preprocessors]
-  preprocessors = ["native"]
-  combined_output = "output.pandoc_native"
-
-[[custom_processors.preprocessors]]
-name = "native"
-cli = "pandoc"
-cli_args = ["-t", "native"]
-
-[[custom_processors.processors]]
-name = "reveal"
-processor_args = ["-t", "revealjs", "-s", "--slide-level", "2"]
-```
 
 These mechanisms allow fine-grained control over the conversion pipeline when the
 defaults are not sufficient.

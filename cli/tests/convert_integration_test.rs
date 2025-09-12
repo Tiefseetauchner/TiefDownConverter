@@ -134,7 +134,7 @@ fn add_template(
     assert!(template_dir.exists(), "Template directory should exist");
 }
 
-fn add_custom_pandoc_template(
+fn add_custom_preprocessors_template(
     project_path: &Path,
     template_name: &str,
     preprocessor: &str,
@@ -148,12 +148,14 @@ fn add_custom_pandoc_template(
         .arg("templates")
         .arg(template_name)
         .arg("add")
-        .arg("--preprocessor")
+        .arg("--preprocessors")
         .arg(preprocessor)
+        .arg("--preprocessor-output")
+        .arg(preprocessor_combined_path)
         .arg("--output")
         .arg(output_file)
         .arg("--template-type")
-        .arg("custom-pandoc")
+        .arg("custom-preprocessors")
         .assert()
         .success();
 
@@ -163,7 +165,6 @@ fn add_custom_pandoc_template(
         .arg("pre-processors")
         .arg("add")
         .arg(preprocessor)
-        .arg(preprocessor_combined_path)
         .arg("--")
         .arg(preprocessor_args)
         .assert()
@@ -217,7 +218,7 @@ fn test_convert_with_multiple_templates() {
         "epub_template",
         Some("custom_epub_out.epub"),
     );
-    add_custom_pandoc_template(
+    add_custom_preprocessors_template(
         &project_path,
         "Template 4",
         "RTF Preprocessor",
@@ -321,7 +322,7 @@ fn test_convert_specific_project_folder(#[case] project_path_name: &str) {
         "epub_template",
         Some("custom_epub_out.epub"),
     );
-    add_custom_pandoc_template(
+    add_custom_preprocessors_template(
         &project_path,
         "Template 4",
         "RTF Preprocessor",
@@ -506,7 +507,7 @@ fn test_convert_custom_pandoc_conversion() {
 
     let project_path = create_empty_project(&temp_dir.path(), vec![]);
 
-    add_custom_pandoc_template(
+    add_custom_preprocessors_template(
         &project_path,
         "Template 1",
         "RTF Preprocessor",
@@ -693,7 +694,7 @@ fn test_convert_mixed_input_formats() {
 
     let project_path = create_empty_project(&temp_dir.path(), vec![]);
 
-    add_custom_pandoc_template(
+    add_custom_preprocessors_template(
         &project_path,
         "Template 1",
         "test_preprocessor",
