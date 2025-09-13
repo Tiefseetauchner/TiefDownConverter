@@ -1,0 +1,1 @@
+mod template_type_tests;
