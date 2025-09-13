@@ -65,7 +65,6 @@ title = "TiefDownConverter Documentation"
 [[templates]]
 filters = ["luafilters/chapter_filter.lua"]
 name = "PDF Documentation LaTeX"
-output = "docs_tex.pdf"
 template_file = "docs.tex"
 template_type = "Tex"
 
@@ -75,7 +74,6 @@ preprocessors = ["Enable Listings"]
 
 [[templates]]
 name = "PDF Documentation"
-output = "docs.pdf"
 processor = "Typst Font Directory"
 template_file = "docs.typ"
 template_type = "Typst"

@@ -579,7 +579,7 @@ for <code>CustomPreprocessors</code> templates.</p>
 class="sourceCode toml"><code class="sourceCode toml"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.processors]]</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Typst Font Directory&quot;</span></span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="dt">processor_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;--font-path&quot;</span><span class="op">,</span> <span class="st">&quot;fonts/&quot;</span><span class="op">]</span></span></code></pre></div>
-<p>Usage notes and examples</p>
+<p>Usage notes:</p>
 <ul>
 <li>For <code>CustomPreprocessors</code> templates, there is no
 processor step. You are responsible for ensuring the
@@ -590,26 +590,6 @@ TiefDown combines inputs to Pandoc Native (defaults provided) and then
 runs Pandoc with your <code>processor_args</code> to produce the final
 artifact.</li>
 </ul>
-<p>Example: Reveal.js slide deck via CustomProcessor</p>
-<div class="sourceCode" id="cb15"><pre
-class="sourceCode toml"><code class="sourceCode toml"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[templates]]</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Slides&quot;</span></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="dt">template_type</span> <span class="op">=</span> <span class="st">&quot;CustomProcessor&quot;</span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">=</span> <span class="st">&quot;talk.html&quot;</span></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="dt">processor</span> <span class="op">=</span> <span class="st">&quot;reveal&quot;</span></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">[templates.preprocessors]</span></span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">preprocessors</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;native&quot;</span><span class="op">]</span></span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">combined_output</span> <span class="op">=</span> <span class="st">&quot;output.pandoc_native&quot;</span></span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.preprocessors]]</span></span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;native&quot;</span></span>
-<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="dt">cli</span> <span class="op">=</span> <span class="st">&quot;pandoc&quot;</span></span>
-<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="dt">cli_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;-t&quot;</span><span class="op">,</span> <span class="st">&quot;native&quot;</span><span class="op">]</span></span>
-<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.processors]]</span></span>
-<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;reveal&quot;</span></span>
-<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a><span class="dt">processor_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;-t&quot;</span><span class="op">,</span> <span class="st">&quot;revealjs&quot;</span><span class="op">,</span> <span class="st">&quot;-s&quot;</span><span class="op">,</span> <span class="st">&quot;--slide-level&quot;</span><span class="op">,</span> <span class="st">&quot;2&quot;</span><span class="op">]</span></span></code></pre></div>
 <p>These mechanisms allow fine-grained control over the conversion
 pipeline when the defaults are not sufficient.</p>
 <h2 id="defaults">Defaults</h2>
@@ -650,9 +630,9 @@ list.</p>
 <code>metadata_prefix</code> option. This prefix determines the name of
 the macro or object used to access metadata in templates.</p>
 <p>For example, with</p>
-<div class="sourceCode" id="cb16"><pre
-class="sourceCode toml"><code class="sourceCode toml"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[metadata_settings]</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="dt">metadata_prefix</span> <span class="op">=</span> <span class="st">&quot;book&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[metadata_settings]</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="dt">metadata_prefix</span> <span class="op">=</span> <span class="st">&quot;book&quot;</span></span></code></pre></div>
 <p>the generated LaTeX file defines a <code>\book{}</code> command while
 Typst exposes a <code>book</code> object. In other words, the prefix
 fully replaces the default <code>meta</code> name. If no prefix is set
