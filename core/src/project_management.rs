@@ -41,9 +41,7 @@ pub fn init(
 ) -> Result<()> {
     let project = project.unwrap_or(PathBuf::from("."));
 
-    let project_exists = project.clone().exists();
-
-    if project_exists && force {
+    if project.clone().exists() && force {
         if project == current_dir()? {
             return Err(eyre!(
                 "Cannot force initialization in the current directory."
@@ -52,7 +50,7 @@ pub fn init(
         std::fs::remove_dir_all(project.clone())?;
     }
 
-    if !project_exists {
+    if !project.clone().exists() {
         std::fs::create_dir(project.clone())?;
         debug!("Created project directory at '{}'.", project.display());
     }
@@ -804,10 +802,7 @@ pub fn smart_clean(project: Option<PathBuf>) -> Result<()> {
     Ok(())
 }
 
-pub(crate) fn run_smart_clean(
-    project: &PathBuf,
-    smart_clean_threshold: u32,
-) -> Result<()> {
+pub(crate) fn run_smart_clean(project: &PathBuf, smart_clean_threshold: u32) -> Result<()> {
     debug!(
         "Running smart clean on project {} with threshold of {}.",
         project.display(),
@@ -931,10 +926,7 @@ pub(crate) fn load_and_convert_manifest(manifest_path: &std::path::PathBuf) -> R
     Ok(manifest)
 }
 
-fn create_templates(
-    project: &std::path::Path,
-    templates: &Vec<TemplateMapping>,
-) -> Result<()> {
+fn create_templates(project: &std::path::Path, templates: &Vec<TemplateMapping>) -> Result<()> {
     for template in templates {
         let template_creator = template_management::get_template_creator(template.name.as_str())?;
 
