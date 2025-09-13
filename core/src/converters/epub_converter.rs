@@ -36,6 +36,15 @@ pub(crate) fn convert_epub(
         template.template_type.clone(),
     )?;
 
+    let template_path =
+        get_template_path(Some(project_directory_path.to_path_buf()), &template.name);
+
+    debug!(
+        "Template path: {} | Output path: {}",
+        compiled_directory_path.join(&template_path).display(),
+        output_path.display()
+    );
+
     debug!("Retrieving preprocessors...");
     let default_preprocessors = retrieve_preprocessors(
         &Some(DEFAULT_CUSTOM_PROCESSOR_PREPROCESSORS.0.clone()),
@@ -102,9 +111,6 @@ pub(crate) fn convert_epub(
         .arg("-o")
         .arg(&output_path);
 
-    let template_path =
-        get_template_path(Some(project_directory_path.to_path_buf()), &template.name);
-
     add_meta_args(metadata_fields, &mut pandoc)?;
     debug!("Added metadata fields to pandoc command.");
 
@@ -163,17 +169,19 @@ fn add_css_files(
     template_path: &Path,
     pandoc: &mut Command,
 ) -> Result<()> {
-    let css_files = template_path.read_dir()?;
-    for css_file in css_files {
-        let css_file = css_file?.path();
-        if css_file.is_file() && css_file.extension().unwrap_or_default() == "css" {
+    let files = template_path.read_dir()?;
+    for file in files {
+        let file = file?.path();
+        if file.is_file() && file.extension().unwrap_or_default() == "css" {
+            debug!("Adding CSS file to EPUB: {}", file.display());
+
             pandoc.arg("-c").arg(
                 get_relative_path_from_compiled_dir(
-                    &css_file,
+                    &file,
                     project_directory_path,
                     compiled_directory_path,
                 )
-                .unwrap_or(css_file),
+                .unwrap_or(file),
             );
         }
     }
@@ -201,6 +209,8 @@ fn add_fonts(
             && ["ttf", "otf", "woff"]
                 .contains(&&*font_file.extension().unwrap_or_default().to_string_lossy())
         {
+            debug!("Embedding font in EPUB: {}", font_file.display());
+
             pandoc.arg("--epub-embed-font").arg(
                 get_relative_path_from_compiled_dir(
                     &font_file,
