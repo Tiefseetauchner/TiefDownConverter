@@ -9,10 +9,14 @@ use toml::Table;
 
 use crate::{
     converters::common::{
-        add_lua_filters, get_relative_path_from_compiled_dir, get_sorted_files, run_with_logging,
+        add_lua_filters, combine_pandoc_native, get_relative_path_from_compiled_dir,
+        merge_preprocessors, preprocess_cli_args, retrieve_combined_output, retrieve_preprocessors,
+        run_preprocessors_on_inputs, run_with_logging, write_combined_output,
     },
-    manifest_model::{MetadataSettings, Processors, TemplateMapping},
-    template_management::{get_output_path, get_template_path},
+    manifest_model::{
+        DEFAULT_CUSTOM_PROCESSOR_PREPROCESSORS, MetadataSettings, Processors, TemplateMapping,
+    },
+    template_management::get_template_path,
 };
 
 pub(crate) fn convert_epub(
@@ -21,43 +25,84 @@ pub(crate) fn convert_epub(
     conversion_input_dir: &Path,
     template: &TemplateMapping,
     metadata_fields: &Table,
-    _metadata_settings: &MetadataSettings,
+    metadata_settings: &MetadataSettings,
     custom_processors: &Processors,
 ) -> Result<PathBuf> {
-    debug!(
-        "Starting EPUB conversion for template '{}'...",
-        template.name
+    debug!("Starting EPUB conversion process.");
+
+    let Some(output_path) = template.output.clone() else {
+        return Err(eyre!(
+            "Output Path is required for Custom Pandoc conversions."
+        ));
+    };
+
+    debug!("Retrieving preprocessors...");
+    let default_preprocessors = retrieve_preprocessors(
+        &Some(DEFAULT_CUSTOM_PROCESSOR_PREPROCESSORS.0.clone()),
+        &DEFAULT_CUSTOM_PROCESSOR_PREPROCESSORS.1,
     );
-    let template_path = get_template_path(template.template_file.clone(), &template.name);
-    let output_path = get_output_path(
-        template.output.clone(),
-        &template_path,
-        template.template_type.clone(),
-    )?;
+    let preprocessors =
+        retrieve_preprocessors(&template.preprocessors, &custom_processors.preprocessors);
+    let preprocessors = merge_preprocessors(vec![preprocessors, default_preprocessors]);
     debug!(
-        "Template path: {} | Output path: {}",
-        compiled_directory_path.join(&template_path).display(),
-        output_path.display()
+        "Selected preprocessors: {:?}",
+        preprocessors
+            .iter()
+            .map(|p| p.name.clone())
+            .collect::<Vec<String>>()
     );
 
-    let template_path = compiled_directory_path.join(template_path);
+    let combined_output: PathBuf = retrieve_combined_output(
+        template,
+        &Some(DEFAULT_CUSTOM_PROCESSOR_PREPROCESSORS.0.clone()),
+    )?;
+    debug!("Combined output file: {}", combined_output.display());
+
+    debug!("Running preprocessors on inputs...");
+    let results = run_preprocessors_on_inputs(
+        template,
+        project_directory_path,
+        compiled_directory_path,
+        conversion_input_dir,
+        metadata_fields,
+        metadata_settings,
+        &preprocessors,
+    )?;
+
+    let pandoc_native = combine_pandoc_native(results);
+
+    write_combined_output(
+        compiled_directory_path,
+        &combined_output,
+        &vec![pandoc_native],
+    )?;
+
+    debug!("Preparing pandoc command...");
+
+    let mut processor_args = vec!["-t", "epub3"]
+        .iter()
+        .map(|s| s.to_string())
+        .collect::<Vec<String>>();
+    if let Some(processor) = &template.processor {
+        processor_args.append(&mut preprocess_cli_args(
+            &custom_processors
+                .processors
+                .iter()
+                .find(|p| p.name == *processor)
+                .ok_or_else(|| eyre!("Processor {} not found in custom processors.", processor))?
+                .processor_args,
+            metadata_fields,
+        ));
+    }
 
     let mut pandoc = Command::new("pandoc");
-    pandoc
-        .current_dir(compiled_directory_path)
-        .arg("-f")
-        .arg("markdown")
-        .arg("-t")
-        .arg("epub3")
-        .arg("-o")
-        .arg(&output_path);
-    debug!("Initialized pandoc command for EPUB output.");
+    pandoc.args(&processor_args);
+
+    let template_path =
+        get_template_path(Some(project_directory_path.to_path_buf()), &template.name);
 
     add_meta_args(metadata_fields, &mut pandoc)?;
-    debug!(
-        "Added {} metadata entries to pandoc.",
-        metadata_fields.len()
-    );
+    debug!("Added metadata fields to pandoc command.");
 
     add_css_files(
         project_directory_path,
@@ -66,6 +111,7 @@ pub(crate) fn convert_epub(
         &mut pandoc,
     )?;
     debug!("Added CSS files from template directory if present.");
+
     add_fonts(
         project_directory_path,
         compiled_directory_path,
@@ -82,33 +128,9 @@ pub(crate) fn convert_epub(
     )?;
     debug!("Added lua filters if configured.");
 
-    if let Some(processor) = &template.processor {
-        if let Some(processor_pos) = custom_processors
-            .processors
-            .iter()
-            .position(|p| p.name == *processor)
-        {
-            debug!("Adding processor args from '{}'.", processor);
-            pandoc.args(
-                custom_processors.processors[processor_pos]
-                    .processor_args
-                    .clone(),
-            );
-        } else {
-            return Err(eyre!(
-                "Processor {} not found in custom processors.",
-                processor
-            ));
-        }
-    }
-
-    let sorted_files = get_sorted_files(
-        conversion_input_dir,
-        project_directory_path,
-        compiled_directory_path,
-    )?;
-    debug!("Adding {} input files to pandoc.", sorted_files.len());
-    pandoc.args(sorted_files);
+    let input_path = compiled_directory_path.join(&combined_output);
+    debug!("Pandoc input path: {}", input_path.display());
+    pandoc.arg(&input_path);
 
     run_with_logging(pandoc, "pandoc", false)?;
 

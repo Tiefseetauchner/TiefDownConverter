@@ -292,9 +292,7 @@ pub(crate) fn get_relative_path_from_compiled_dir(
     Some(relative_path)
 }
 
-// TODO: When we solved the issues with custom pandoc conversion and epub conversion, we can
-// make this private again.
-pub(crate) fn get_sorted_files(
+fn get_sorted_files(
     input_dir: &Path,
     project_directory_path: &Path,
     compiled_directory_path: &Path,
@@ -393,6 +391,22 @@ pub(crate) fn write_combined_output(
         results.join("\n\n"),
     )?;
     Ok(())
+}
+
+pub(crate) fn combine_pandoc_native(results: Vec<String>) -> String {
+    let mut combined = String::new();
+
+    combined.push_str(&format!(
+        "[\n{}\n]",
+        results
+            .iter()
+            .map(|r| r.trim()[1..r.trim().len() - 1].trim())
+            .filter(|r| !r.is_empty())
+            .collect::<Vec<&str>>()
+            .join(",\n")
+    ));
+
+    combined
 }
 
 pub(crate) fn run_with_logging(

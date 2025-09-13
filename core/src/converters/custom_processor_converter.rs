@@ -9,8 +9,9 @@ use toml::Table;
 
 use crate::{
     converters::common::{
-        merge_preprocessors, preprocess_cli_args, retrieve_combined_output, retrieve_preprocessors,
-        run_preprocessors_on_inputs, run_with_logging, write_combined_output,
+        combine_pandoc_native, merge_preprocessors, preprocess_cli_args, retrieve_combined_output,
+        retrieve_preprocessors, run_preprocessors_on_inputs, run_with_logging,
+        write_combined_output,
     },
     manifest_model::{
         DEFAULT_CUSTOM_PROCESSOR_PREPROCESSORS, MetadataSettings, Processors, TemplateMapping,
@@ -31,9 +32,7 @@ pub(crate) fn convert_custom_processor(
         template.name
     );
 
-    let output_path: Option<PathBuf> = template.output.clone();
-
-    let Some(output_path) = output_path else {
+    let Some(output_path) = template.output.clone() else {
         return Err(eyre!(
             "Output Path is required for Custom Pandoc conversions."
         ));
@@ -112,20 +111,4 @@ pub(crate) fn convert_custom_processor(
     let output_path = compiled_directory_path.join(&output_path);
 
     Ok(output_path)
-}
-
-fn combine_pandoc_native(results: Vec<String>) -> String {
-    let mut combined = String::new();
-
-    combined.push_str(&format!(
-        "[\n{}\n]",
-        results
-            .iter()
-            .map(|r| r.trim()[1..r.trim().len() - 1].trim())
-            .filter(|r| !r.is_empty())
-            .collect::<Vec<&str>>()
-            .join(",\n")
-    ));
-
-    combined
 }
