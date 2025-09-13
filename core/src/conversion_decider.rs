@@ -22,6 +22,7 @@ type Converter = fn(
     custom_processors: &Processors,
 ) -> Result<PathBuf>;
 
+
 pub(crate) fn get_converter(template_type: &TemplateType) -> Result<Converter> {
     debug!("Selecting converter for template type: {:?}", template_type);
     let converter = match template_type {

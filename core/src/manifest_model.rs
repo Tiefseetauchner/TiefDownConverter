@@ -285,7 +285,7 @@ pub(crate) fn upgrade_manifest(manifest: &mut Table, current_version: u32) -> Re
     Ok(())
 }
 
-fn upgrade_manifest_v0_to_v1(manifest: &mut Table) -> Result<()> {
+pub(crate) fn upgrade_manifest_v0_to_v1(manifest: &mut Table) -> Result<()> {
     debug!("upgrade_manifest_v0_to_v1: Starting...");
     manifest.insert("version".to_string(), toml::Value::Integer(1));
 
@@ -323,7 +323,7 @@ fn upgrade_manifest_v0_to_v1(manifest: &mut Table) -> Result<()> {
     Ok(())
 }
 
-fn upgrade_manifest_v1_to_v2(manifest: &mut Table) -> Result<()> {
+pub(crate) fn upgrade_manifest_v1_to_v2(manifest: &mut Table) -> Result<()> {
     debug!("upgrade_manifest_v1_to_v2: Starting...");
     manifest.insert("version".to_string(), toml::Value::Integer(2));
 
@@ -339,7 +339,7 @@ fn upgrade_manifest_v1_to_v2(manifest: &mut Table) -> Result<()> {
     Ok(())
 }
 
-fn upgrade_manifest_v2_to_v3(manifest: &mut Table) -> Result<()> {
+pub(crate) fn upgrade_manifest_v2_to_v3(manifest: &mut Table) -> Result<()> {
     debug!("upgrade_manifest_v2_to_v3: Starting...");
     manifest.insert("version".to_string(), toml::Value::Integer(3));
 
@@ -359,7 +359,7 @@ fn upgrade_manifest_v2_to_v3(manifest: &mut Table) -> Result<()> {
     Ok(())
 }
 
-fn upgrade_manifest_v3_to_v4(manifest: &mut Table) -> Result<()> {
+pub(crate) fn upgrade_manifest_v3_to_v4(manifest: &mut Table) -> Result<()> {
     debug!("upgrade_manifest_v3_to_v4: Starting...");
     manifest.insert("version".to_string(), toml::Value::Integer(4));
 
@@ -394,7 +394,7 @@ fn upgrade_manifest_v3_to_v4(manifest: &mut Table) -> Result<()> {
     Ok(())
 }
 
-fn upgrade_manifest_v4_to_v5(manifest: &mut Table) -> Result<()> {
+pub(crate) fn upgrade_manifest_v4_to_v5(manifest: &mut Table) -> Result<()> {
     debug!("upgrade_manifest_v4_to_v5: Starting...");
     manifest.insert("version".into(), toml::Value::Integer(5));
 
@@ -437,6 +437,7 @@ fn upgrade_manifest_v4_to_v5(manifest: &mut Table) -> Result<()> {
 
                     if let Some(args) = tbl.get("pandoc_args") {
                         tbl.insert("cli_args".to_string(), args.clone());
+                        tbl.remove("pandoc_args");
                     }
                 }
             }
@@ -482,181 +483,4 @@ fn upgrade_manifest_v4_to_v5(manifest: &mut Table) -> Result<()> {
     }
 
     Ok(())
-}
-
-#[cfg(test)]
-mod tests {
-    use rstest::rstest;
-
-    use super::*;
-
-    #[rstest]
-    fn test_upgrade_manifest_v0_to_v1() {
-        let manifest_content = r#"
-markdown_dir = "Custom Markdown Directory"
-templates = ["template1.tex", "template2.typ"]"#;
-        let mut manifest = toml::from_str(manifest_content).unwrap();
-
-        let result = upgrade_manifest_v0_to_v1(&mut manifest);
-
-        assert!(result.is_ok());
-
-        let expected_manifest = r#"markdown_dir = "Custom Markdown Directory"
-version = 1
-
-[[templates]]
-name = "template1.tex"
-template_type = "Tex"
-
-[[templates]]
-name = "template2.typ"
-template_type = "Typst"
-"#;
-
-        let actual_manifest = toml::to_string(&manifest).unwrap();
-        assert_eq!(expected_manifest, actual_manifest);
-    }
-
-    #[rstest]
-    fn test_upgrade_manifest_v1_to_v2() {
-        let manifest_content = r#"
-markdown_dir = "Custom Markdown Directory"
-version = 1
-
-[[templates]]
-name = "template1.tex"
-template_type = "Tex"
-
-[[templates]]
-name = "template2.typ"
-template_type = "Typst"
-"#;
-
-        let mut manifest = toml::from_str(manifest_content).unwrap();
-        let result = upgrade_manifest_v1_to_v2(&mut manifest);
-        assert!(result.is_ok());
-
-        let expected_manifest = r#"markdown_dir = "Custom Markdown Directory"
-version = 2
-
-[custom_processors]
-preprocessors = []
-
-[[templates]]
-name = "template1.tex"
-template_type = "Tex"
-
-[[templates]]
-name = "template2.typ"
-template_type = "Typst"
-"#;
-
-        let actual_manifest = toml::to_string(&manifest).unwrap();
-        assert_eq!(expected_manifest, actual_manifest);
-    }
-
-    #[rstest]
-    fn test_upgrade_manifest_v2_to_v3() {
-        let manifest_content = r#"markdown_dir = "Custom Markdown Directory"
-version = 2
-
-[custom_processors]
-preprocessors = []
-
-[[templates]]
-name = "template1.tex"
-template_type = "Tex"
-
-[[templates]]
-name = "template2.typ"
-template_type = "Typst"
-"#;
-
-        let mut manifest = toml::from_str(manifest_content).unwrap();
-        let result = upgrade_manifest_v2_to_v3(&mut manifest);
-        assert!(result.is_ok());
-
-        let expected_manifest = r#"markdown_dir = "Custom Markdown Directory"
-version = 3
-
-[custom_processors]
-preprocessors = []
-processors = []
-
-[metadata_fields]
-
-[metadata_settings]
-
-[[templates]]
-name = "template1.tex"
-template_type = "Tex"
-
-[[templates]]
-name = "template2.typ"
-template_type = "Typst"
-"#;
-
-        let actual_manifest = toml::to_string(&manifest).unwrap();
-        assert_eq!(expected_manifest, actual_manifest);
-    }
-
-    #[rstest]
-    fn test_upgrade_manifest_v3_to_v4() {
-        let manifest_content = r#"markdown_dir = "Custom Markdown Directory"
-version = 3
-
-[custom_processors]
-preprocessors = []
-processors = []
-
-[metadata_fields]
-author = "Author Name"
-title = "Document Title"
-
-[metadata_settings]
-metadata_prefix = "supermeta"
-
-[[templates]]
-name = "template1.tex"
-template_type = "Tex"
-
-[[templates]]
-name = "template2.typ"
-template_type = "Typst"
-"#;
-
-        let mut manifest = toml::from_str(manifest_content).unwrap();
-        let result = upgrade_manifest_v3_to_v4(&mut manifest);
-        assert!(result.is_ok());
-
-        let expected_manifest = r#"version = 4
-
-[custom_processors]
-preprocessors = []
-processors = []
-
-[[markdown_projects]]
-name = "Custom Markdown Directory"
-output = "."
-path = "Custom Markdown Directory"
-
-[metadata_settings]
-metadata_prefix = "supermeta"
-
-[shared_metadata]
-author = "Author Name"
-title = "Document Title"
-
-[[templates]]
-name = "template1.tex"
-template_type = "Tex"
-
-[[templates]]
-name = "template2.typ"
-template_type = "Typst"
-"#;
-
-        let actual_manifest = toml::to_string(&manifest).unwrap();
-        assert_eq!(expected_manifest, actual_manifest);
-    }
 }
