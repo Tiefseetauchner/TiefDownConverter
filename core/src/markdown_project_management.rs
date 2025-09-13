@@ -21,7 +21,7 @@ use toml::{Table, Value};
 ///
 /// A Result containing either an error or nothing.
 pub fn add_markdown_project(
-    project: Option<String>,
+    project: Option<PathBuf>,
     name: String,
     path: PathBuf,
     output: PathBuf,
@@ -33,9 +33,8 @@ pub fn add_markdown_project(
         path.display(),
         output.display()
     );
-    let project = project.as_deref().unwrap_or(".");
-    let project_path = std::path::Path::new(&project);
-    let manifest_path = project_path.join("manifest.toml");
+    let project = project.unwrap_or(PathBuf::from("."));
+    let manifest_path = project.join("manifest.toml");
 
     let mut manifest = load_and_convert_manifest(&manifest_path)?;
 
@@ -77,11 +76,10 @@ pub fn add_markdown_project(
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
-pub fn remove_markdown_project(project: Option<String>, name: String) -> Result<()> {
+pub fn remove_markdown_project(project: Option<PathBuf>, name: String) -> Result<()> {
     debug!("Removing markdown project '{}'", name);
-    let project = project.as_deref().unwrap_or(".");
-    let project_path = std::path::Path::new(&project);
-    let manifest_path = project_path.join("manifest.toml");
+    let project = project.unwrap_or(PathBuf::from("."));
+    let manifest_path = project.join("manifest.toml");
 
     let mut manifest = load_and_convert_manifest(&manifest_path)?;
 
@@ -120,7 +118,7 @@ pub fn remove_markdown_project(project: Option<String>, name: String) -> Result<
 ///
 /// A Result containing either an error or nothing.
 pub fn update_markdown_project(
-    project: Option<String>,
+    project: Option<PathBuf>,
     name: String,
     path: Option<PathBuf>,
     output: Option<PathBuf>,
@@ -130,9 +128,8 @@ pub fn update_markdown_project(
         "Updating markdown project '{}' (path={:?}, output={:?}, default_profile={:?})",
         name, path, output, default_profile
     );
-    let project = project.as_deref().unwrap_or(".");
-    let project_path = std::path::Path::new(&project);
-    let manifest_path = project_path.join("manifest.toml");
+    let project = project.unwrap_or(PathBuf::from("."));
+    let manifest_path = project.join("manifest.toml");
 
     let mut manifest = load_and_convert_manifest(&manifest_path)?;
 
@@ -178,15 +175,14 @@ pub fn update_markdown_project(
 ///
 /// A Result containing either an error or nothing.
 pub fn set_metadata(
-    project: Option<String>,
+    project: Option<PathBuf>,
     name: String,
     key: String,
     value: String,
 ) -> Result<()> {
     debug!("markdown.set_metadata: project='{}' key='{}'", name, key);
-    let project = project.as_deref().unwrap_or(".");
-    let project_path = std::path::Path::new(&project);
-    let manifest_path = project_path.join("manifest.toml");
+    let project = project.unwrap_or(PathBuf::from("."));
+    let manifest_path = project.join("manifest.toml");
 
     let mut manifest = load_and_convert_manifest(&manifest_path)?;
 
@@ -223,11 +219,10 @@ pub fn set_metadata(
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
-pub fn remove_metadata(project: Option<String>, name: String, key: String) -> Result<()> {
+pub fn remove_metadata(project: Option<PathBuf>, name: String, key: String) -> Result<()> {
     debug!("markdown.remove_metadata: project='{}' key='{}'", name, key);
-    let project = project.as_deref().unwrap_or(".");
-    let project_path = std::path::Path::new(&project);
-    let manifest_path = project_path.join("manifest.toml");
+    let project = project.unwrap_or(PathBuf::from("."));
+    let manifest_path = project.join("manifest.toml");
 
     let mut manifest = load_and_convert_manifest(&manifest_path)?;
 
@@ -270,10 +265,9 @@ pub fn remove_metadata(project: Option<String>, name: String, key: String) -> Re
 /// # Returns
 ///
 /// A Result containing either an error or a Vec of MetadataField.
-pub fn get_metadata(project: &Option<String>, name: &String) -> Result<Vec<MetadataField>> {
-    let project = project.as_deref().unwrap_or(".");
-    let project_path = std::path::Path::new(&project);
-    let manifest_path = project_path.join("manifest.toml");
+pub fn get_metadata(project: Option<PathBuf>, name: &String) -> Result<Vec<MetadataField>> {
+    let project = project.unwrap_or(PathBuf::from("."));
+    let manifest_path = project.join("manifest.toml");
 
     let manifest = load_and_convert_manifest(&manifest_path)?;
     let markdown_projects = manifest.markdown_projects.unwrap_or(vec![]);
@@ -310,10 +304,9 @@ pub fn get_metadata(project: &Option<String>, name: &String) -> Result<Vec<Metad
 ///
 /// A Result containing either an error or a Vec of MarkdownProject.
 
-pub fn get_markdown_projects(project: &Option<String>) -> Result<Vec<MarkdownProject>> {
-    let project = project.as_deref().unwrap_or(".");
-    let project_path = std::path::Path::new(&project);
-    let manifest_path = project_path.join("manifest.toml");
+pub fn get_markdown_projects(project: Option<PathBuf>) -> Result<Vec<MarkdownProject>> {
+    let project = project.unwrap_or(PathBuf::from("."));
+    let manifest_path = project.join("manifest.toml");
 
     let manifest = load_and_convert_manifest(&manifest_path)?;
 
@@ -337,15 +330,14 @@ pub fn get_markdown_projects(project: &Option<String>) -> Result<Vec<MarkdownPro
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
-pub fn add_resources(project: Option<String>, name: String, resources: Vec<PathBuf>) -> Result<()> {
+pub fn add_resources(project: Option<PathBuf>, name: String, resources: Vec<PathBuf>) -> Result<()> {
     debug!(
         "markdown.add_resources: project='{}' count={}",
         name,
         resources.len()
     );
-    let project = project.as_deref().unwrap_or(".");
-    let project_path = std::path::Path::new(&project);
-    let manifest_path = project_path.join("manifest.toml");
+    let project = project.unwrap_or(PathBuf::from("."));
+    let manifest_path = project.join("manifest.toml");
 
     let mut manifest = load_and_convert_manifest(&manifest_path)?;
 
@@ -385,15 +377,14 @@ pub fn add_resources(project: Option<String>, name: String, resources: Vec<PathB
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
-pub fn remove_resource(project: Option<String>, name: String, resource: PathBuf) -> Result<()> {
+pub fn remove_resource(project: Option<PathBuf>, name: String, resource: PathBuf) -> Result<()> {
     debug!(
         "markdown.remove_resource: project='{}' resource='{}'",
         name,
         resource.display()
     );
-    let project = project.as_deref().unwrap_or(".");
-    let project_path = std::path::Path::new(&project);
-    let manifest_path = project_path.join("manifest.toml");
+    let project = project.unwrap_or(PathBuf::from("."));
+    let manifest_path = project.join("manifest.toml");
 
     let mut manifest = load_and_convert_manifest(&manifest_path)?;
 
@@ -436,10 +427,9 @@ pub fn remove_resource(project: Option<String>, name: String, resource: PathBuf)
 /// # Returns
 ///
 /// A Result containing either an error or a Vec of PathBuf.
-pub fn get_resources(project: &Option<String>, name: &String) -> Result<Vec<PathBuf>> {
-    let project = project.as_deref().unwrap_or(".");
-    let project_path = std::path::Path::new(&project);
-    let manifest_path = project_path.join("manifest.toml");
+pub fn get_resources(project: Option<PathBuf>, name: &String) -> Result<Vec<PathBuf>> {
+    let project = project.unwrap_or(PathBuf::from("."));
+    let manifest_path = project.join("manifest.toml");
 
     let manifest = load_and_convert_manifest(&manifest_path)?;
 

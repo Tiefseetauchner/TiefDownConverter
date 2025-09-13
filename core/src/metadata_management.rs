@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use crate::{manifest_model::MetadataField, project_management::load_and_convert_manifest};
 use color_eyre::eyre::{Result, eyre};
 use log::debug;
@@ -15,11 +17,10 @@ use toml::{Table, Value};
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
-pub fn set_metadata(project: Option<String>, key: String, value: String) -> Result<()> {
+pub fn set_metadata(project: Option<PathBuf>, key: String, value: String) -> Result<()> {
     debug!("metadata.set: key='{}'", key);
-    let project = project.as_deref().unwrap_or(".");
-    let project_path = std::path::Path::new(&project);
-    let manifest_path = project_path.join("manifest.toml");
+    let project = project.unwrap_or(PathBuf::from("."));
+    let manifest_path = project.join("manifest.toml");
 
     let mut manifest = load_and_convert_manifest(&manifest_path)?;
 
@@ -49,11 +50,10 @@ pub fn set_metadata(project: Option<String>, key: String, value: String) -> Resu
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
-pub fn remove_metadata(project: Option<String>, key: String) -> Result<()> {
+pub fn remove_metadata(project: Option<PathBuf>, key: String) -> Result<()> {
     debug!("metadata.remove: key='{}'", key);
-    let project = project.as_deref().unwrap_or(".");
-    let project_path = std::path::Path::new(&project);
-    let manifest_path = project_path.join("manifest.toml");
+    let project = project.unwrap_or(PathBuf::from("."));
+    let manifest_path = project.join("manifest.toml");
 
     let mut manifest = load_and_convert_manifest(&manifest_path)?;
 
@@ -88,10 +88,9 @@ pub fn remove_metadata(project: Option<String>, key: String) -> Result<()> {
 /// # Returns
 ///
 /// A Result containing either an error or a Vec of MetadataField.
-pub fn get_metadata(project: &Option<String>) -> Result<Vec<MetadataField>> {
-    let project = project.as_deref().unwrap_or(".");
-    let project_path = std::path::Path::new(&project);
-    let manifest_path = project_path.join("manifest.toml");
+pub fn get_metadata(project: Option<PathBuf>) -> Result<Vec<MetadataField>> {
+    let project = project.unwrap_or(PathBuf::from("."));
+    let manifest_path = project.join("manifest.toml");
 
     let manifest = load_and_convert_manifest(&manifest_path)?;
 

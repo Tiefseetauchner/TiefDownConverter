@@ -32,7 +32,7 @@ pub(crate) enum Commands {
             long,
             help = "The project to convert. If not provided, the current directory will be used."
         )]
-        project: Option<String>,
+        project: Option<PathBuf>,
         #[arg(
             short,
             long,
@@ -54,7 +54,7 @@ pub(crate) enum Commands {
         #[arg(
             help = "The project to initialize. If not provided, the current directory will be used."
         )]
-        project: Option<String>,
+        project: Option<PathBuf>,
         #[arg(
             short,
             long,
@@ -101,7 +101,7 @@ If the number of conversion folders in the project is above this threshold, old 
     #[command(about = "Update the TiefDown project.")]
     Project {
         #[arg(help = "The project to edit. If not provided, the current directory will be used.")]
-        project: Option<String>,
+        project: Option<PathBuf>,
         #[command(subcommand)]
         command: ProjectCommands,
     },

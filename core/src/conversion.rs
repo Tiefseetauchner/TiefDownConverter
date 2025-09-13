@@ -43,7 +43,7 @@ use toml::Table;
 ///
 /// A Result containing either an error or nothing.
 pub fn convert(
-    project: Option<String>,
+    project: Option<PathBuf>,
     templates: Option<Vec<String>>,
     profile: Option<String>,
 ) -> Result<()> {
@@ -63,24 +63,23 @@ pub fn convert(
         );
     }
 
-    let project = project.unwrap_or_else(|| ".".to_string());
-    let project_path = Path::new(&project);
+    let project = project.unwrap_or(PathBuf::from("."));
 
-    if !project_path.exists() {
+    if !project.exists() {
         return Err(eyre!("Project path does not exist."));
     }
 
-    let manifest_path = project_path.join("manifest.toml");
+    let manifest_path = project.join("manifest.toml");
     let manifest = load_and_convert_manifest(&manifest_path)?;
 
     if let Some(true) = manifest.smart_clean {
         let threshold = manifest.smart_clean_threshold.unwrap_or(5);
-        run_smart_clean(project_path, threshold.saturating_sub(1))?;
+        run_smart_clean(&project, threshold.saturating_sub(1))?;
     }
 
-    info!("Converting project: {}", project);
+    info!("Converting project: {}", project.to_string_lossy());
 
-    let compiled_directory_path = create_build_directory(project_path)?;
+    let compiled_directory_path = create_build_directory(&project)?;
 
     debug!(
         "Converting in directory: {}",
@@ -116,14 +115,14 @@ pub fn convert(
 
         dir::create_all(&markdown_project_compiled_directory_path, false)?;
         dir::copy(
-            project_path.join("template/"),
+            project.join("template/"),
             &markdown_project_compiled_directory_path,
             &dir::CopyOptions::new().overwrite(true).content_only(true),
         )?;
 
         debug!("Copied template directory.");
 
-        let input_dir = project_path.join(markdown_project.path.clone());
+        let input_dir = project.join(markdown_project.path.clone());
 
         copy_resources(
             &markdown_project,
@@ -160,7 +159,7 @@ pub fn convert(
             convert_template(
                 &markdown_project_compiled_directory_path,
                 template,
-                project_path,
+                &project,
                 &conversion_input_dir,
                 &markdown_project.output,
                 &merged_metadata,
