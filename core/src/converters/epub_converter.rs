@@ -36,8 +36,7 @@ pub(crate) fn convert_epub(
         template.template_type.clone(),
     )?;
 
-    let template_path =
-        get_template_path(Some(project_directory_path.to_path_buf()), &template.name);
+    let template_path = get_template_path(template.template_file.clone(), &template.name);
 
     debug!(
         "Template path: {} | Output path: {}",
@@ -117,7 +116,7 @@ pub(crate) fn convert_epub(
     add_css_files(
         project_directory_path,
         compiled_directory_path,
-        &template_path,
+        &compiled_directory_path.join(&template_path),
         &mut pandoc,
     )?;
     debug!("Added CSS files from template directory if present.");
@@ -125,7 +124,7 @@ pub(crate) fn convert_epub(
     add_fonts(
         project_directory_path,
         compiled_directory_path,
-        &template_path,
+        &compiled_directory_path.join(&template_path),
         &mut pandoc,
     )?;
     debug!("Added embedded fonts if present.");
