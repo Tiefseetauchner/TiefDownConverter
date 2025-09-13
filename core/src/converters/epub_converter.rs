@@ -30,11 +30,10 @@ pub(crate) fn convert_epub(
 ) -> Result<PathBuf> {
     debug!("Starting EPUB conversion process.");
 
-    let Some(output_path) = template.output.clone() else {
-        return Err(eyre!(
-            "Output Path is required for Custom Pandoc conversions."
-        ));
-    };
+    let output_path = template
+        .output
+        .clone()
+        .unwrap_or(PathBuf::from(format!("{}.epub", template.name)));
 
     debug!("Retrieving preprocessors...");
     let default_preprocessors = retrieve_preprocessors(
