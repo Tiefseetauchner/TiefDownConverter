@@ -32,10 +32,14 @@ pub(crate) fn convert_typst(
     let template_path = get_template_path(template.template_file.clone(), &template.name);
     let output_path = get_output_path(
         template.output.clone(),
-        &template_path,
+        &template.name,
         template.template_type.clone(),
     )?;
-    debug!("Determined Typst output path: {}", output_path.display());
+    debug!(
+        "Template path: {} | Output path: {}",
+        compiled_directory_path.join(&template_path).display(),
+        output_path.display()
+    );
 
     let preprocessors =
         retrieve_preprocessors(&template.preprocessors, &custom_processors.preprocessors);

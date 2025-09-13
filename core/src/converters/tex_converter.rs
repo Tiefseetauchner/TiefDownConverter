@@ -34,7 +34,7 @@ pub fn convert_latex(
     let template_path = get_template_path(template.template_file.clone(), &template.name);
     let output_path = compiled_directory_path.join(get_output_path(
         template.output.clone(),
-        &template_path,
+        &template.name,
         template.template_type.clone(),
     )?);
     debug!(

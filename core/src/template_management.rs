@@ -248,11 +248,12 @@ pub(crate) fn get_template_path(template_file: Option<PathBuf>, template_name: &
 
 pub(crate) fn get_output_path(
     output_path: Option<PathBuf>,
-    template_path: &Path,
+    template_name: &str,
     template_type: TemplateType,
 ) -> Result<PathBuf> {
-    Ok(output_path
-        .unwrap_or(template_path.with_extension(get_template_output_extension(template_type)?)))
+    Ok(output_path.unwrap_or(
+        PathBuf::from(template_name).with_extension(get_template_output_extension(template_type)?),
+    ))
 }
 
 pub(crate) fn get_template_output_extension(template_type: TemplateType) -> Result<&'static str> {

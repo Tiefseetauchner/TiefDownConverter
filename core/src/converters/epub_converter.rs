@@ -16,7 +16,7 @@ use crate::{
     manifest_model::{
         DEFAULT_CUSTOM_PROCESSOR_PREPROCESSORS, MetadataSettings, Processors, TemplateMapping,
     },
-    template_management::get_template_path,
+    template_management::{get_output_path, get_template_path},
 };
 
 pub(crate) fn convert_epub(
@@ -30,10 +30,11 @@ pub(crate) fn convert_epub(
 ) -> Result<PathBuf> {
     debug!("Starting EPUB conversion process.");
 
-    let output_path = template
-        .output
-        .clone()
-        .unwrap_or(PathBuf::from(format!("{}.epub", template.name)));
+    let output_path = get_output_path(
+        template.output.clone(),
+        &template.name,
+        template.template_type.clone(),
+    )?;
 
     debug!("Retrieving preprocessors...");
     let default_preprocessors = retrieve_preprocessors(
@@ -78,7 +79,7 @@ pub(crate) fn convert_epub(
 
     debug!("Preparing pandoc command...");
 
-    let mut processor_args = vec!["-t", "epub3"]
+    let mut processor_args = vec!["-t", "epub3", "-f", "native"]
         .iter()
         .map(|s| s.to_string())
         .collect::<Vec<String>>();
@@ -95,7 +96,11 @@ pub(crate) fn convert_epub(
     }
 
     let mut pandoc = Command::new("pandoc");
-    pandoc.args(&processor_args);
+    pandoc
+        .current_dir(compiled_directory_path)
+        .args(&processor_args)
+        .arg("-o")
+        .arg(&output_path);
 
     let template_path =
         get_template_path(Some(project_directory_path.to_path_buf()), &template.name);
@@ -127,9 +132,7 @@ pub(crate) fn convert_epub(
     )?;
     debug!("Added lua filters if configured.");
 
-    let input_path = compiled_directory_path.join(&combined_output);
-    debug!("Pandoc input path: {}", input_path.display());
-    pandoc.arg(&input_path);
+    pandoc.arg(&combined_output);
 
     run_with_logging(pandoc, "pandoc", false)?;
 
