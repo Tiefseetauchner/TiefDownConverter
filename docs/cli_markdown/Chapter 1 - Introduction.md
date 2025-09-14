@@ -107,16 +107,13 @@ of how it works internally:
   information needed to actually manage and convert the project.
 - You can then manipulate the project, and so on.
 - When you add your files to the input directory, running
-  `tiefdownconverter convert` will do a few things:
-  - Create a new folder for the current compilation. That way, you have a
-    history.
-  - Combine all the input files into a single file. The resulting path is passed to
-    preprocessors via the `COMBINED_OUTPUT` parameter.
-  - Run Pandoc conversion to TeX, EPUB, or Typst. This uses Lua filters and
-    preprocessors that are defined in the `manifest.toml` file.
-  - Run XeLaTeX on all TeX templates, Typst on all Typst templates, and so on. It even
-    supports EPUB conversion.
-  - Copy the files around so you end up with your output files in the right places.
+  `tiefdownconverter convert` will do a few things. In order to make it easy to understand,
+  here's an explanation I would understand (had I not written it):
+  - Take input files
+  - Convert them
+  - Convert them again (No one knows why)
+  - ???
+  - Profit
 
 Isn't that simple?
 
@@ -134,13 +131,24 @@ So where does TiefDownConverter actually come in handy? Well, anywhere you need 
 to turn into something nice without manually fiddling with formats every time. Here are
 a few scenarios where it saves the day:
 
-- **Writing Books** - Markdown is great for writing, but formatting a 300-page novel? Not so much. TiefDown handles that for you.
-  Well, at least the part where you need to convert stuff, you still need to write out your templates.
-- **Technical Documentation** - Software projects need structured documentation, and TiefDown makes sure it's consistent.
-  Case in point, this documentation is managed as a TiefDown project.
-- **Multi-format Exports** - Need a A4 PDF, a Book PDF, a letter PDF, EPUB, so on? TiefDown can generate them all from the same source.
+- **Writing books** - Really handy if you are already writing in the likes of Markdown,
+  and you really quickly need an a4 copy for printing a proof copy, a 8x5 in copy because
+  you print with a random provider and a weird other format because you're from the US and
+  A4 paper hasn't been invented there yet.
+- **Technical Documentation** - I love looking at pretty documentation, and writing it in
+  Markdown simplifies my workflow greatly. And once I'm done writing my documentation, I
+  want it both as an HTML and as a PDF, so people can print it and put it in the "never
+  read" shelf.\
+  Oh and I guess I could also print a book from it but eh eh eh, don't give me ideas.
+- **Blogging sites** - No.
+- **Blogging sites pretty please?** - Okay, maybe you *could* use TDC to make a dynamic project
+  that automatically creates a blog for you. Maybe you *could* use CustomPreprocessors conversion
+  to create named files. Maybe you *could* set up tooling around this. But you *shouldn't*.\
+  Trust me. I tried. (For fun to be clear)
 
-Basically, if your workflow involves Markdown and you’re sick of manually converting everything, TiefDown is your new best friend.
+Basically, if your workflow involves Markdown and you’re sick 
+of manually converting everything, TiefDown is your new best friend.\
+If you had a best friend in the first place, which, I don't.
 
 ## Support
 

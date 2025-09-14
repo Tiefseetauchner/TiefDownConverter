@@ -134,7 +134,7 @@ fn add_template(
     assert!(template_dir.exists(), "Template directory should exist");
 }
 
-fn add_custom_pandoc_template(
+fn add_custom_preprocessors_template(
     project_path: &Path,
     template_name: &str,
     preprocessor: &str,
@@ -148,12 +148,14 @@ fn add_custom_pandoc_template(
         .arg("templates")
         .arg(template_name)
         .arg("add")
-        .arg("--preprocessor")
+        .arg("--preprocessors")
         .arg(preprocessor)
+        .arg("--preprocessor-output")
+        .arg(preprocessor_combined_path)
         .arg("--output")
         .arg(output_file)
         .arg("--template-type")
-        .arg("custom-pandoc")
+        .arg("custom-preprocessors")
         .assert()
         .success();
 
@@ -163,7 +165,6 @@ fn add_custom_pandoc_template(
         .arg("pre-processors")
         .arg("add")
         .arg(preprocessor)
-        .arg(preprocessor_combined_path)
         .arg("--")
         .arg(preprocessor_args)
         .assert()
@@ -193,7 +194,7 @@ fn test_convert() {
         .assert()
         .success();
 
-    let output_pdf = project_path.join("templ1.pdf");
+    let output_pdf = project_path.join("Template 1.pdf");
     assert!(output_pdf.exists(), "Output PDF should exist");
 }
 
@@ -217,7 +218,7 @@ fn test_convert_with_multiple_templates() {
         "epub_template",
         Some("custom_epub_out.epub"),
     );
-    add_custom_pandoc_template(
+    add_custom_preprocessors_template(
         &project_path,
         "Template 4",
         "RTF Preprocessor",
@@ -235,9 +236,9 @@ fn test_convert_with_multiple_templates() {
         .success();
 
     let output_files = vec![
-        project_path.join("templ1.pdf"),
+        project_path.join("Template 1.pdf"),
         project_path.join("custom_out.pdf"),
-        project_path.join("templ3.pdf"),
+        project_path.join("Template 3.pdf"),
         project_path.join("custom_epub_out.epub"),
         project_path.join("output.rtf"),
     ];
@@ -252,9 +253,9 @@ fn test_convert_with_multiple_templates() {
 }
 
 #[rstest]
-#[case("Template 1", "templ1.pdf", vec!["custom_out.pdf", "templ3.pdf"])]
+#[case("Template 1", "Template 1.pdf", vec!["custom_out.pdf", "templ3.pdf"])]
 #[case("Template 2", "custom_out.pdf", vec!["templ1.pdf", "templ3.pdf"])]
-#[case("Template 3", "templ3.pdf", vec!["templ1.pdf", "custom_out.pdf"])]
+#[case("Template 3", "Template 3.pdf", vec!["templ1.pdf", "custom_out.pdf"])]
 fn test_convert_specific_template(
     #[case] template_name: &str,
     #[case] output_file: &str,
@@ -321,7 +322,7 @@ fn test_convert_specific_project_folder(#[case] project_path_name: &str) {
         "epub_template",
         Some("custom_epub_out.epub"),
     );
-    add_custom_pandoc_template(
+    add_custom_preprocessors_template(
         &project_path,
         "Template 4",
         "RTF Preprocessor",
@@ -341,9 +342,9 @@ fn test_convert_specific_project_folder(#[case] project_path_name: &str) {
         .success();
 
     let output_files = vec![
-        project_path.join("templ1.pdf"),
+        project_path.join("Template 1.pdf"),
         project_path.join("custom_out.pdf"),
-        project_path.join("templ3.pdf"),
+        project_path.join("Template 3.pdf"),
         project_path.join("custom_epub_out.epub"),
         project_path.join("output.rtf"),
     ];
@@ -373,7 +374,7 @@ fn test_convert_epub() {
         .assert()
         .success();
 
-    let output_epub = project_path.join("epub_template.epub");
+    let output_epub = project_path.join("Epub Template.epub");
     assert!(output_epub.exists(), "Output EPUB should exist");
 }
 
@@ -396,7 +397,7 @@ fn test_convert_giant_file() {
         .assert()
         .success();
 
-    let output_pdf = project_path.join("templ1.pdf");
+    let output_pdf = project_path.join("Template 1.pdf");
     assert!(output_pdf.exists(), "Output PDF should exist");
 }
 
@@ -422,7 +423,7 @@ fn test_convert_many_files() {
         .assert()
         .success();
 
-    let output_pdf = project_path.join("templ1.pdf");
+    let output_pdf = project_path.join("Template 1.pdf");
     assert!(output_pdf.exists(), "Output PDF should exist");
 }
 
@@ -450,7 +451,7 @@ fn test_convert_far_nested_markdown_file() {
         .assert()
         .success();
 
-    let output_pdf = project_path.join("templ1.pdf");
+    let output_pdf = project_path.join("Template 1.pdf");
     assert!(output_pdf.exists(), "Output PDF should exist");
 }
 
@@ -476,7 +477,7 @@ fn test_convert_long_markdown_file_name() {
         .assert()
         .success();
 
-    let output_pdf = project_path.join("templ1.pdf");
+    let output_pdf = project_path.join("Template 1.pdf");
     assert!(output_pdf.exists(), "Output PDF should exist");
 }
 
@@ -496,7 +497,7 @@ fn test_convert_no_markdown_files() {
         .assert()
         .success();
 
-    let output_pdf = project_path.join("templ1.pdf");
+    let output_pdf = project_path.join("Template 1.pdf");
     assert!(output_pdf.exists(), "Output PDF should exist");
 }
 
@@ -506,7 +507,7 @@ fn test_convert_custom_pandoc_conversion() {
 
     let project_path = create_empty_project(&temp_dir.path(), vec![]);
 
-    add_custom_pandoc_template(
+    add_custom_preprocessors_template(
         &project_path,
         "Template 1",
         "RTF Preprocessor",
@@ -578,7 +579,7 @@ fn test_convert_smart_clean() {
     let conversion_folders = get_conversion_folders(&project_path);
     assert_eq!(conversion_folders.len(), 2);
 
-    let output_pdf = project_path.join("templ1.pdf");
+    let output_pdf = project_path.join("Template 1.pdf");
     assert!(output_pdf.exists(), "Output PDF should exist");
 }
 
@@ -605,13 +606,13 @@ fn test_convert_profile() {
         .assert()
         .success();
 
-    let output_pdf = project_path.join("templ1.pdf");
+    let output_pdf = project_path.join("Template 1.pdf");
     assert!(output_pdf.exists(), "Output PDF should exist");
 
-    let output_pdf_2 = project_path.join("templ2.pdf");
+    let output_pdf_2 = project_path.join("Template 2.pdf");
     assert!(!output_pdf_2.exists(), "Output PDF should not exist");
 
-    let output_pdf_3 = project_path.join("templ3.pdf");
+    let output_pdf_3 = project_path.join("Template 3.pdf");
     assert!(output_pdf_3.exists(), "Output PDF should exist");
 }
 
@@ -656,16 +657,16 @@ fn test_convert_multiple_markdown_projects() {
         .assert()
         .success();
 
-    let output_pdf_1 = project_path.join("out1").join("templ1.pdf");
+    let output_pdf_1 = project_path.join("out1").join("Template 1.pdf");
     assert!(output_pdf_1.exists(), "Output PDF should exist");
 
-    let output_pdf_2 = project_path.join("out1").join("templ2.pdf");
+    let output_pdf_2 = project_path.join("out1").join("Template 2.pdf");
     assert!(output_pdf_2.exists(), "Output PDF should exist");
 
-    let output_pdf_3 = project_path.join("out2").join("templ1.pdf");
+    let output_pdf_3 = project_path.join("out2").join("Template 1.pdf");
     assert!(output_pdf_3.exists(), "Output PDF should exist");
 
-    let output_pdf_4 = project_path.join("out2").join("templ2.pdf");
+    let output_pdf_4 = project_path.join("out2").join("Template 2.pdf");
     assert!(output_pdf_4.exists(), "Output PDF should exist");
 }
 
@@ -693,7 +694,7 @@ fn test_convert_mixed_input_formats() {
 
     let project_path = create_empty_project(&temp_dir.path(), vec![]);
 
-    add_custom_pandoc_template(
+    add_custom_preprocessors_template(
         &project_path,
         "Template 1",
         "test_preprocessor",

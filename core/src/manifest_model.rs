@@ -3,6 +3,7 @@ use crate::{
     template_type::TemplateType,
 };
 use color_eyre::eyre::{Result, eyre};
+use log::debug;
 use serde::{Deserialize, Serialize};
 use std::{path::PathBuf, sync::LazyLock};
 use toml::Table;
@@ -86,15 +87,30 @@ pub struct Processors {
 /// # Fields
 ///
 /// * `name` - The name of the preprocessor.
+/// * `extension_filter` - The file extension the preprocessor should be applied to.
+///   * If not specified, the preprocessor will be applied to all files.
 /// * `cli` - The program used for the preprocessing.
 ///   * Defaults to "pandoc" if not specified.
 /// * `cli_args` - The arguments passed to the cli conversion process.
-/// * `combined_output` - The name of the combined output file.
 #[derive(Deserialize, Serialize, Clone)]
 pub struct PreProcessor {
     pub name: String,
+    pub extension_filter: Option<String>,
     pub cli: Option<String>,
     pub cli_args: Vec<String>,
+}
+
+/// DTO containing the preprocessors applied to a template.
+///
+/// Preprocessors are applied in the order they are listed.
+///
+/// # Fields
+///
+/// * `preprocessors` - A list of preprocessors.
+/// * `combined_output` - The name of the combined output file.
+#[derive(Deserialize, Serialize, Clone)]
+pub struct PreProcessors {
+    pub preprocessors: Vec<String>,
     pub combined_output: PathBuf,
 }
 
@@ -115,20 +131,65 @@ pub struct Processor {
 }
 
 /// The default pandoc arguments for LaTeX conversion.
-pub static DEFAULT_TEX_PREPROCESSOR: LazyLock<PreProcessor> = LazyLock::new(|| PreProcessor {
-    name: "default_tex_preprocessor".to_string(),
-    cli: Some("pandoc".to_string()),
-    cli_args: vec!["-t", "latex"].iter().map(|s| s.to_string()).collect(),
-    combined_output: PathBuf::from("output.tex"),
-});
+pub static DEFAULT_TEX_PREPROCESSORS: LazyLock<(PreProcessors, Vec<PreProcessor>)> =
+    LazyLock::new(|| {
+        (
+            PreProcessors {
+                preprocessors: vec!["default_tex_preprocessor".to_string()],
+                combined_output: PathBuf::from("output.tex"),
+            },
+            vec![PreProcessor {
+                name: "default_tex_preprocessor".to_string(),
+                extension_filter: None,
+                cli: None,
+                cli_args: vec!["-t", "latex"].iter().map(|s| s.to_string()).collect(),
+            }],
+        )
+    });
 
 /// The default pandoc arguments for Typst conversion.
-pub static DEFAULT_TYPST_PREPROCESSOR: LazyLock<PreProcessor> = LazyLock::new(|| PreProcessor {
-    name: "default_typst_preprocessor".to_string(),
-    cli: Some("pandoc".to_string()),
-    cli_args: vec!["-t", "typst"].iter().map(|s| s.to_string()).collect(),
-    combined_output: PathBuf::from("output.typ"),
-});
+pub static DEFAULT_TYPST_PREPROCESSORS: LazyLock<(PreProcessors, Vec<PreProcessor>)> =
+    LazyLock::new(|| {
+        (
+            PreProcessors {
+                preprocessors: vec![
+                    "default_typst_preprocessor".to_string(),
+                    "default_typst_preprocessor_typst_files".to_string(),
+                ],
+                combined_output: PathBuf::from("output.typ"),
+            },
+            vec![
+                PreProcessor {
+                    name: "default_typst_preprocessor".to_string(),
+                    extension_filter: None,
+                    cli: None,
+                    cli_args: vec!["-t", "typst"].iter().map(|s| s.to_string()).collect(),
+                },
+                PreProcessor {
+                    name: "default_typst_preprocessor_typst_files".to_string(),
+                    extension_filter: Some("typ".to_string()),
+                    cli: Some("cat".to_string()),
+                    cli_args: vec![],
+                },
+            ],
+        )
+    });
+
+pub static DEFAULT_CUSTOM_PROCESSOR_PREPROCESSORS: LazyLock<(PreProcessors, Vec<PreProcessor>)> =
+    LazyLock::new(|| {
+        (
+            PreProcessors {
+                preprocessors: vec!["native_pandoc".to_string()],
+                combined_output: PathBuf::from("output.pandoc_native"),
+            },
+            vec![PreProcessor {
+                name: "native_pandoc".to_string(),
+                extension_filter: None,
+                cli: None,
+                cli_args: vec!["-t", "native"].iter().map(|s| s.to_string()).collect(),
+            }],
+        )
+    });
 
 /// Represents the settings for metadata in the project.
 ///
@@ -182,27 +243,34 @@ pub struct TemplateMapping {
     pub template_file: Option<PathBuf>,
     pub output: Option<PathBuf>,
     pub filters: Option<Vec<String>>,
-    pub preprocessor: Option<String>,
+    pub preprocessors: Option<PreProcessors>,
     pub processor: Option<String>,
 }
 
 pub(crate) fn upgrade_manifest(manifest: &mut Table, current_version: u32) -> Result<()> {
     if current_version != CURRENT_MANIFEST_VERSION {
+        debug!(
+            "Upgrading manifest from version {} to {}...",
+            current_version, CURRENT_MANIFEST_VERSION
+        );
         let mut updated_version = current_version;
 
         while updated_version < CURRENT_MANIFEST_VERSION {
             if updated_version == 0 {
+                debug!("Applying upgrade v0 -> v1...");
                 upgrade_manifest_v0_to_v1(manifest)?
             } else if updated_version == 1 {
+                debug!("Applying upgrade v1 -> v2...");
                 upgrade_manifest_v1_to_v2(manifest)?
             } else if updated_version == 2 {
+                debug!("Applying upgrade v2 -> v3...");
                 upgrade_manifest_v2_to_v3(manifest)?
             } else if updated_version == 3 {
+                debug!("Applying upgrade v3 -> v4...");
                 upgrade_manifest_v3_to_v4(manifest)?
             } else if updated_version == 4 {
+                debug!("Applying upgrade v4 -> v5...");
                 upgrade_manifest_v4_to_v5(manifest)?
-            } else if updated_version == 5 {
-                upgrade_manifest_v5_to_v6(manifest)?
             } else {
                 return Err(eyre!(
                     "Manifest version {} is not supported for upgrades.",
@@ -217,7 +285,8 @@ pub(crate) fn upgrade_manifest(manifest: &mut Table, current_version: u32) -> Re
     Ok(())
 }
 
-fn upgrade_manifest_v0_to_v1(manifest: &mut Table) -> Result<()> {
+pub(crate) fn upgrade_manifest_v0_to_v1(manifest: &mut Table) -> Result<()> {
+    debug!("upgrade_manifest_v0_to_v1: Starting...");
     manifest.insert("version".to_string(), toml::Value::Integer(1));
 
     if let Some(templates) = manifest.get("templates") {
@@ -254,7 +323,8 @@ fn upgrade_manifest_v0_to_v1(manifest: &mut Table) -> Result<()> {
     Ok(())
 }
 
-fn upgrade_manifest_v1_to_v2(manifest: &mut Table) -> Result<()> {
+pub(crate) fn upgrade_manifest_v1_to_v2(manifest: &mut Table) -> Result<()> {
+    debug!("upgrade_manifest_v1_to_v2: Starting...");
     manifest.insert("version".to_string(), toml::Value::Integer(2));
 
     manifest.insert(
@@ -269,7 +339,8 @@ fn upgrade_manifest_v1_to_v2(manifest: &mut Table) -> Result<()> {
     Ok(())
 }
 
-fn upgrade_manifest_v2_to_v3(manifest: &mut Table) -> Result<()> {
+pub(crate) fn upgrade_manifest_v2_to_v3(manifest: &mut Table) -> Result<()> {
+    debug!("upgrade_manifest_v2_to_v3: Starting...");
     manifest.insert("version".to_string(), toml::Value::Integer(3));
 
     manifest.insert(
@@ -288,7 +359,8 @@ fn upgrade_manifest_v2_to_v3(manifest: &mut Table) -> Result<()> {
     Ok(())
 }
 
-fn upgrade_manifest_v3_to_v4(manifest: &mut Table) -> Result<()> {
+pub(crate) fn upgrade_manifest_v3_to_v4(manifest: &mut Table) -> Result<()> {
+    debug!("upgrade_manifest_v3_to_v4: Starting...");
     manifest.insert("version".to_string(), toml::Value::Integer(4));
 
     let metadata_fields = manifest["metadata_fields"].clone();
@@ -322,8 +394,11 @@ fn upgrade_manifest_v3_to_v4(manifest: &mut Table) -> Result<()> {
     Ok(())
 }
 
-fn upgrade_manifest_v4_to_v5(manifest: &mut Table) -> Result<()> {
+pub(crate) fn upgrade_manifest_v4_to_v5(manifest: &mut Table) -> Result<()> {
+    debug!("upgrade_manifest_v4_to_v5: Starting...");
     manifest.insert("version".into(), toml::Value::Integer(5));
+
+    let mut preprocessor_combined_output_mapping = vec![];
 
     if let Some(toml::Value::Table(custom)) = manifest.get_mut("custom_processors") {
         if let Some(toml::Value::Array(preprocessors)) = custom.get_mut("preprocessors") {
@@ -347,203 +422,65 @@ fn upgrade_manifest_v4_to_v5(manifest: &mut Table) -> Result<()> {
                     }
 
                     if let Some(captured) = captured {
-                        tbl.insert("combined_output".into(), captured);
+                        preprocessor_combined_output_mapping.push((
+                            tbl.get("name")
+                                .and_then(|n| n.as_str())
+                                .unwrap_or_default()
+                                .to_string(),
+                            captured.clone(),
+                        ));
                     } else {
                         return Err(eyre!(
                             "The custom preprocessor does not contain the output flag"
                         ));
                     }
-                    
+
                     if let Some(args) = tbl.get("pandoc_args") {
                         tbl.insert("cli_args".to_string(), args.clone());
+                        tbl.remove("pandoc_args");
                     }
                 }
             }
         }
     }
 
+    if let Some(toml::Value::Array(templates)) = manifest.get_mut("templates") {
+        for template in templates {
+            if let toml::Value::Table(tbl) = template {
+                if let Some(toml::Value::String(template_type)) = tbl.get_mut("template_type") {
+                    if template_type == "CustomPandoc" {
+                        *template_type = "CustomPreprocessors".to_string();
+                    }
+                }
+                if let Some(toml::Value::String(preprocessor)) = tbl.get("preprocessor") {
+                    let preprocessor = preprocessor_combined_output_mapping
+                        .iter()
+                        .find(|(name, _)| name == preprocessor);
+
+                    let mut preprocessors_tbl = Table::new();
+
+                    preprocessors_tbl.insert(
+                        "preprocessors".to_string(),
+                        toml::Value::Array(vec![toml::Value::String(
+                            preprocessor
+                                .map(|(name, _)| name.clone())
+                                .unwrap_or_default(),
+                        )]),
+                    );
+
+                    if let Some((_, combined_output)) = preprocessor {
+                        preprocessors_tbl
+                            .insert("combined_output".to_string(), combined_output.clone());
+                    }
+
+                    tbl.insert(
+                        "preprocessors".to_string(),
+                        toml::Value::Table(preprocessors_tbl.clone()),
+                    );
+                }
+            }
+        }
+    }
+
     Ok(())
-}
-
-fn upgrade_manifest_v5_to_v6(manifest: &mut Table) -> Result<()> {
-    manifest.insert("version".into(), toml::Value::Integer(5));
-
-    Ok(())
-}
-
-#[cfg(test)]
-mod tests {
-    use rstest::rstest;
-
-    use super::*;
-
-    #[rstest]
-    fn test_upgrade_manifest_v0_to_v1() {
-        let manifest_content = r#"
-markdown_dir = "Custom Markdown Directory"
-templates = ["template1.tex", "template2.typ"]"#;
-        let mut manifest = toml::from_str(manifest_content).unwrap();
-
-        let result = upgrade_manifest_v0_to_v1(&mut manifest);
-
-        assert!(result.is_ok());
-
-        let expected_manifest = r#"markdown_dir = "Custom Markdown Directory"
-version = 1
-
-[[templates]]
-name = "template1.tex"
-template_type = "Tex"
-
-[[templates]]
-name = "template2.typ"
-template_type = "Typst"
-"#;
-
-        let actual_manifest = toml::to_string(&manifest).unwrap();
-        assert_eq!(expected_manifest, actual_manifest);
-    }
-
-    #[rstest]
-    fn test_upgrade_manifest_v1_to_v2() {
-        let manifest_content = r#"
-markdown_dir = "Custom Markdown Directory"
-version = 1
-
-[[templates]]
-name = "template1.tex"
-template_type = "Tex"
-
-[[templates]]
-name = "template2.typ"
-template_type = "Typst"
-"#;
-
-        let mut manifest = toml::from_str(manifest_content).unwrap();
-        let result = upgrade_manifest_v1_to_v2(&mut manifest);
-        assert!(result.is_ok());
-
-        let expected_manifest = r#"markdown_dir = "Custom Markdown Directory"
-version = 2
-
-[custom_processors]
-preprocessors = []
-
-[[templates]]
-name = "template1.tex"
-template_type = "Tex"
-
-[[templates]]
-name = "template2.typ"
-template_type = "Typst"
-"#;
-
-        let actual_manifest = toml::to_string(&manifest).unwrap();
-        assert_eq!(expected_manifest, actual_manifest);
-    }
-
-    #[rstest]
-    fn test_upgrade_manifest_v2_to_v3() {
-        let manifest_content = r#"markdown_dir = "Custom Markdown Directory"
-version = 2
-
-[custom_processors]
-preprocessors = []
-
-[[templates]]
-name = "template1.tex"
-template_type = "Tex"
-
-[[templates]]
-name = "template2.typ"
-template_type = "Typst"
-"#;
-
-        let mut manifest = toml::from_str(manifest_content).unwrap();
-        let result = upgrade_manifest_v2_to_v3(&mut manifest);
-        assert!(result.is_ok());
-
-        let expected_manifest = r#"markdown_dir = "Custom Markdown Directory"
-version = 3
-
-[custom_processors]
-preprocessors = []
-processors = []
-
-[metadata_fields]
-
-[metadata_settings]
-
-[[templates]]
-name = "template1.tex"
-template_type = "Tex"
-
-[[templates]]
-name = "template2.typ"
-template_type = "Typst"
-"#;
-
-        let actual_manifest = toml::to_string(&manifest).unwrap();
-        assert_eq!(expected_manifest, actual_manifest);
-    }
-
-    #[rstest]
-    fn test_upgrade_manifest_v3_to_v4() {
-        let manifest_content = r#"markdown_dir = "Custom Markdown Directory"
-version = 3
-
-[custom_processors]
-preprocessors = []
-processors = []
-
-[metadata_fields]
-author = "Author Name"
-title = "Document Title"
-
-[metadata_settings]
-metadata_prefix = "supermeta"
-
-[[templates]]
-name = "template1.tex"
-template_type = "Tex"
-
-[[templates]]
-name = "template2.typ"
-template_type = "Typst"
-"#;
-
-        let mut manifest = toml::from_str(manifest_content).unwrap();
-        let result = upgrade_manifest_v3_to_v4(&mut manifest);
-        assert!(result.is_ok());
-
-        let expected_manifest = r#"version = 4
-
-[custom_processors]
-preprocessors = []
-processors = []
-
-[[markdown_projects]]
-name = "Custom Markdown Directory"
-output = "."
-path = "Custom Markdown Directory"
-
-[metadata_settings]
-metadata_prefix = "supermeta"
-
-[shared_metadata]
-author = "Author Name"
-title = "Document Title"
-
-[[templates]]
-name = "template1.tex"
-template_type = "Tex"
-
-[[templates]]
-name = "template2.typ"
-template_type = "Typst"
-"#;
-
-        let actual_manifest = toml::to_string(&manifest).unwrap();
-        assert_eq!(expected_manifest, actual_manifest);
-    }
 }

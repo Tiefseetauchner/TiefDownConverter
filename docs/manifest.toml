@@ -3,19 +3,16 @@ smart_clean_threshold = 3
 version = 5
 
 [[custom_processors.preprocessors]]
-cli_args = ["--to", "html5", "-s", "--metadata", "title={{title}}", "--metadata", "author={{author}}", "--css", "/TiefDownConverter/template/html_template/style.css", "--toc", "-B", "html_template/header.html"]
-combined_output = "index.html"
-name = "HTML Conversion"
-
-[[custom_processors.preprocessors]]
 cli_args = ["-t", "latex", "--listings"]
-combined_output = "output.tex"
 name = "Enable Listings"
 
 [[custom_processors.preprocessors]]
 cli_args = ["-s", "-t", "man", "--metadata-file", "man_metadata.yaml"]
-combined_output = "tiefdownconverter.1"
 name = "Man Page"
+
+[[custom_processors.processors]]
+name = "HTML Conversion"
+processor_args = ["--to", "html5", "-s", "--metadata", "title={{title}}", "--metadata", "author={{author}}", "--css", "/TiefDownConverter/template/html_template/style.css", "--toc", "-B", "html_template/header.html"]
 
 [[custom_processors.processors]]
 name = "Typst Font Directory"
@@ -68,17 +65,22 @@ title = "TiefDownConverter Documentation"
 [[templates]]
 filters = ["luafilters/chapter_filter.lua"]
 name = "PDF Documentation LaTeX"
-output = "docs_tex.pdf"
-preprocessor = "Enable Listings"
 template_file = "docs.tex"
 template_type = "Tex"
 
+[templates.preprocessors]
+combined_output = "output.tex"
+preprocessors = ["Enable Listings"]
+
 [[templates]]
 name = "PDF Documentation"
-output = "docs.pdf"
 processor = "Typst Font Directory"
 template_file = "docs.typ"
 template_type = "Typst"
+
+[templates.preprocessors]
+combined_output = "output.typ"
+preprocessors = ["Typst Font Directory"]
 
 [[templates]]
 name = "Epub Documentation"
@@ -88,11 +90,14 @@ template_type = "Epub"
 [[templates]]
 name = "Man Page"
 output = "tiefdownconverter.1"
-preprocessor = "Man Page"
-template_type = "CustomPandoc"
+template_type = "CustomPreprocessors"
+
+[templates.preprocessors]
+combined_output = "tiefdownconverter.1"
+preprocessors = ["Man Page"]
 
 [[templates]]
 name = "GitHub Page Documentation"
 output = "index.html"
-preprocessor = "HTML Conversion"
-template_type = "CustomPandoc"
+processor = "HTML Conversion"
+template_type = "CustomProcessor"

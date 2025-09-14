@@ -57,7 +57,7 @@ TL;DR: Make a folder, go into it and run `tiefdownconverter init` and
 
 Long anser: First off, you need to create a project using `tiefdownconverter init`. This will
 create a new project **in the current directory**. You can (and maybe should)
-specify a project.
+specify a project, like `tiefdownconverter init your_project`.
 
 This command creates the basic template structure like so:
 
@@ -72,24 +72,25 @@ your_project/
 ```
 
 The Markdown folder contains an example Markdown file. When placing your markdown files
-in this folder, make sure they're named like `Chapter X.md`, with anything following the
+in this folder, make sure they're named like `... XX ... .md`, with anything following the
 number being ignored. _This is important_, as the converter will use this to sort the
 files for conversion, as otherwise it'd have no idea in which order they should be
-converted.
+converted. Essentially, the first number you include must be the number of the file in
+order, so I suggest using a pattern like `Chapter X.md` or `X - ... .md`.
 
 Now you should be able to run `tiefdownconverter convert -p path/to/your_project` (or
 ommitting the -p flag if you're already in the project directory) and it should
-generate a PDF file in the project directory. You can now adjust the template, add
-your own input files (Markdown or otherwise), and so on.
+generate a PDF file in the project directory using the default LaTeX template. 
+You can now adjust the template, add your own input files (Markdown or otherwise), and so on.
 
 ## The input "directory"
 
 Your source files are the main input for the converter, and as such their structure is
 important. The converter will look for files in the `Markdown` directory (or the directory
 specified during project creation) and will sort them by a chapter number. Namely, your files
-should be named `Chapter X Whatever else.ext`, where X is a number (you don't have to name them 01, 02
-etc., as we parse the number as an integer). The converter will then sort them
-by the number and combine them in that order regardless of extension.
+should be named `Whatever X Whatever else.ext`, where X is a number (you don't have to name them 01, 02
+etc., as we parse the number as an integer, leading zeros are removed). The converter will then sort them
+by the first number and combine them in that order regardless of extension.
 
 You can also add subdirectories in the input directory. These will be combined after
 the file with the same number. For example, consider the following directory structure:
@@ -146,13 +147,15 @@ using the default markdown directory and output directory, or it is set to the d
 markdown directory and output directory of the TiefDown project, which are `Markdown` and
 `.` respectively. Importantly, the output directory is relevant for the conversion - it is
 used to seperate the templating for the different projects, as well as the markdown files.
-So don't use the same output directory for multiple projects.
+So don't use the same output directory for multiple projects unless you hacked TDC to change
+the output format to include the template name, in which case, tell me how you did it.
 
 The output directory is also important as the templates are all saved to the same file name per
 default (as in, the template output file name), and if you didn't use a different output
-directory, you'd overwrite the template for the other project.
+directory, you'd overwrite the generated output for the other project. (Unless, as I said,
+you found a workaround that doesn't involve a PR.)
 
-Metadata is interesting as well, as in the end, it is merged with the shared metadata.
+Project specific metadata is interesting as well, as in the end, it is merged with the shared metadata.
 So when you run the conversion, first the shared metadata is loaded and then the markdown
 project specific metadata, overwriting the shared metadata.
 
@@ -167,7 +170,8 @@ tiefdownconverter project markdown meta <PROJECT_NAME> set <KEY> <VALUE>
 to set a metadata value for a markdown project.
 
 You can also assign resources, which are files that are copied to the compile directory from
-the markdown project directory. This is done by using the resource command. For example,
+the markdown project directory *and are ignored during the conversion process*. 
+This is done by using the resource command. For example,
 if you had multiple books as seperate markdown projects, you could have a `cover.png` file
 for each book seperately and then use the resource management to copy it to be able to be
 used in a template, for example an epub or as the cover of a PDF. Check out the
@@ -177,9 +181,10 @@ You can also assign a [profile](#conversion-profiles) to a markdown project whic
 say so myself as the person who needed it, is awesome.
 
 Imagine... Well, don't imagine. Look at this documentation on github. You can see, there's
-a markdown project called `Markdown` and a markdown project called `man_markdown`. They both
-contain different markdown files, but they act quite different. One generates the manpage,
-and one the documentation you are reading right now.
+a markdown project called `cli_markdown` and a markdown project called `man_markdown`. They both
+contain relatively similar but different markdown files but importantly, they act quite different. 
+One generates the manpage, and one the documentation you are reading right now. These are two
+completely different tasks, so the `man_markdown` project uses a differen profile per default.
 
 A default profile is assigned using the `--default-profile` flag. This is the profile that
 will be used to convert the markdown project _by default_. That doesn't mean you can't use
@@ -188,26 +193,19 @@ profile or the `--templates` flag to specify a different set of templates.
 
 ## Input Processing
 
-Input processing is the process of taking the input files and converting them to a format
-usable in templates. Now, this is generically phrased on purpose - input files can be
-anything - markdown files, typst files, so on. Whatever Pandoc supports.
+Input processing converts source files into a format your template includes. This happens
+via preprocessors. Input files are grouped by extension, and each group is processed in one
+shot by the matching preprocessor (default or custom). The converter concatenates the
+stdout of these runs and writes it to the configured combined output file.
 
-And that gives us a hint - input processing is synonymous with preprocessing - the step of
-the conversion that runs pandoc.
+By default, LaTeX templates use `output.tex` and Typst templates use `output.typ`. When you
+assign preprocessors to a template, you also specify the combined output filename.
 
-Previously, this was done by combining markdown files into one file and running pandoc on
-that. That was a simple way to do it. Oh so simple.
-
-Now, all input files are passed to pandoc at once - regardless of input format - and then
-combined _by pandoc_, then the output is saved as the output as specified by the
-preprocessor.
-
-This by default would be `output.tex` or `output.typ`, but when you create a preprocessor,
-that can be anything.
+Preprocessors can be extension-specific. See [Preprocessing](#preprocessing) for details.
 
 ## Customising the template
 
-The key idea behind tiefdownconverter is, that it can handle multiple templates at the
+The key idea behind tiefdownconverter is that it can handle multiple templates at the
 same time. This is done by creating a template file in the template directory and adding
 it to the project's manifest.toml file.
 
@@ -228,15 +226,17 @@ You have a few options for editing template behaviour using `tiefdownconverter`.
 course edit the template files directly, but there are a few more options.
 
 Mainly and most interestingly, lua filters can adjust the behaviour of the markdown conversion.
-These are lua scripts that are run before the markdown is converted to tex or typst. You can
-add lua filters to a template by either editing the manifest or using
+These are lua scripts that are run by pandoc before the markdown is converted to tex or typst. 
+You can add lua filters to a template by either editing the manifest or using
 `tiefdownconverter project templates <TEMPLATE_NAME> update --add-filters <FILTER_NAME>`. This
 can be either the path to a lua filter (relative to the project directory) or a directory
-containing lua filters.
+containing lua filters. Look up [Lua Filters](#using-lua-filters) for more information
 
 You can also change the name of the exported file by setting the `output` option. For example,
 `tiefdownconverter project templates <TEMPLATE_NAME> update --output <NEW_NAME>`. This will
-export the template to `<NEW_NAME>` instead of the default `<TEMPLATE_NAME>.pdf`.
+export the template to `<NEW_NAME>` instead of the default `<TEMPLATE_NAME>.pdf`. This field
+is required where the output extension isn't knowable, so for Custom Preprocessors/Processor
+conversions.
 
 Similarly, you could change the template file and type, though I advice against it, as this
 may break the template. I advice to just add a new template and remove the old one using
@@ -257,7 +257,7 @@ command.
 
 Running a conversion with a profile is as simple as adding the `--profile` flag.
 
-The manifest file can optionally contain a section for this, if you desire to configure them
+The manifest file contains a section for this, if you desire to configure them
 manually:
 
 ```toml
@@ -266,13 +266,20 @@ name = "PDF"
 templates = ["PDF Documentation LaTeX", "PDF Documentation"]
 ```
 
+Conversion profiles can also be set as a default for a Markdown Project, which will by default only convert
+the templates in the profile when converting that project. That means, when running TDC without a
+`--templates` or `--profile` argument, it will use the templates in the assigned profile only.
+
 ## Writing templates
 
 Importantly, when you write your own template, you need to include the content somehow.
 That somehow is done via `\input{output.tex}` or `#include "./output.typ"`. This will include the
 output of the Markdown conversion in your template file. If you're using custom preprocessors, you
 can change the output file of the conversion. See [Preprocessing](#preprocessing) for more
-information.
+information. For CustomPreprocessors conversion, this is the output file already, as there is no
+template file. Should you be using CustomProcessor conversion, the combined file is AST and not
+really usable, so don't think about it. See [custom processor conversion](#custom-processor-converter)
+for more information.
 
 ## Shared Metadata {#shared-metadata}
 
@@ -288,8 +295,8 @@ shared metadata, and then add the author to the metadata of each project.
 To add metadata to a project, use the `tiefdownconverter project shared-meta set` command. This
 writes the metadata to the project's manifest.toml file and when converting the project, the
 metadata will be written to respective metadata files for the template type (e.g. metadata.tex
-for LaTeX and metadata.typ for Typst). You can then import these files in your template and
-access the metadata.
+for LaTeX and metadata.typ for Typst) or be used to replace arguments during the conversion. 
+You can then import these files in your template and access the metadata.
 
 ### Accessing metadata in LaTeX
 
@@ -304,6 +311,15 @@ characters to your document.
 Much nicer than LaTeX, Typst has a type system! Just import `meta` and access the keys on it.
 Though the linter will error out if you do this, so you can write your own `metadata.typ` in
 the template directory with placeholder values.
+
+### Using metadata for custom preprocessors and processors
+
+Now, I mentioned argument replacement. Custom preprocessors or processors may include
+arguments like `{{title}}`, which, during conversion, are replaced with the metadata field
+`title` if available. That means that you can, for example, use `--title {{title}}` as an
+argument to a custom processor for a CustomProcessor template that converts to HTML to set
+the title field of said HTML file. It's more complicated, but if you know Pandoc, you know
+what I mean (I hope).
 
 ## Epub Support
 
@@ -406,7 +422,7 @@ And that’s it. You get a customized EPUB without having to fight with the defa
 
 ## Conversion Engines
 
-There are currently four ways to convert your Markdown files. All of them are based on the same
+There are currently five ways to convert your files. All of them are based on the same
 system. The main difference is the output format and the program it gets converted with.
 
 ### LaTeX
@@ -435,7 +451,7 @@ TiefDownConverter also supports EPUB conversion, making it suitable for e-book g
 process uses Pandoc to transform the Markdown content into EPUB, applying any Lua filters defined in the manifest.
 
 This however does not really support much in the way of templating. Customization should be done primarily via
-Lua filters. Custom preprocessors are currently not supported at all.
+Lua filters.
 
 However, you can still get some customization by including CSS and font files in your template folder. That's
 the reason epub has to have a folder in the first place, so you can place CSS and font files in there.
@@ -444,10 +460,10 @@ Of course you can add multiple epub templates, but I don't know why you would wa
 EPUB output is particularly useful for digital publishing, ensuring compatibility with e-readers
 and mobile devices.
 
-### Custom Pandoc Converter
+### Custom Preprocessors Converter
 
-Okay. Stick with me here. The idea is, you are already converting my Markdown files with Pandoc, why not let
-me convert them to whatever format? Well, this is where Custom Pandoc Conversion comes in. This long
+Okay. Stick with me here. The idea is, you are already converting my input files with Pandoc, why not let
+me convert them to whatever format? Well, this is where Custom Preprocessors Conversion comes in. This long
 fabled feature is the most complicated one, and you need a deep understanding of how TiefDownConverter works
 and at least the ability to read Pandoc's documentation to even use it.
 But if you're willing to put in the effort, you can do some pretty cool things.
@@ -455,11 +471,36 @@ But if you're willing to put in the effort, you can do some pretty cool things.
 The basic idea is, just, let the user decide what pandoc does. The result is chaos.
 
 I'm being facetious, but this is actually the most powerful way to customize the
-output. You add a preprocessor as described in [Preprocessing](#preprocessing) and
+output. You add one or multiple preprocessors as described in [Preprocessing](#preprocessing) and
 set the output path of the preprocessor and template to the same path. Then you can
 do whatever pandoc allows. Want to convert to RTF? No issue. But beware:
 you need to actually understand what's going on, otherwise you'll end up in
 implementation hell.
+
+One important thing to keep in mind is to never, ever, try to generate a non-concatenateable format
+(like docx, pdf, ...) with CustomPreprocessors conversion. It won't work as soon as you have more than
+one input format. Use [custom processor conversion](#custom-processor-converter) instead. 
+
+### Custom Processor Converter
+
+If that wasn't bad enough: We've got more. Custom Processor Conversions are a way to combine multiple
+input files to a file type that isn't just a collection of lines. For example, take a docx file. It
+isn't just multiple simpler files strung together, it is a complicated web of zip files and openxml
+and all that jazz.
+
+Now, why may that be an issue? Simply put: multiple input formats are converted in batches and strung
+together when using a custom preprocessor converter. Instead, we need to convert all output formats
+to a common type and merge them afterwards for the conversion to a docx to work.
+
+That's what custom processor conversion is for. It uses preprocessors to convert all input files
+to a common format (Pandoc native AST) and combines these files to arrive at a single AST file,
+letting pandoc then convert to the required format using a custom processor.
+
+Custom processors require an output file compatible with pandoc. When creating such a template,
+make sure to reference the pandoc guide. You can use custom preprocessors as usual, but you will
+need to set the output format flag (`-t`) to `native`. A custom processor can also be used when
+converting from AST to the output format. Any pandoc parameter is accepted, but the `-o` and
+`-f` flags are set at compile time and mustn't be added.
 
 ## Writing filters
 
@@ -516,31 +557,32 @@ define a preprocessor to add `--listings` to the pandoc command. This is useful 
 to have reasonable code output in your pdf.
 
 If no preprocessor is defined, the converter will use default pandoc parameters, converting
-to the intermediate output file (in case of LaTeX, this is `output.tex`). But if you for example
-are using lua filters, you may want to export to a different path. This can be done by defining
-a preprocessor.
+to the intermediate output file (in case of LaTeX, this is `output.tex`). But if you, and this
+is a purely hypothetical scenareo, want to run a conversion on mixed input md and typ files,
+you can define a typst specific preprocessor that simply uses cat.
 
 If you want to define a preprocessor, you can do so by running
 
 ```bash
-tiefdownconverter project templates <TEMPLATE_NAME> update --preprocessor <PREPROCESSOR_NAME>
+tiefdownconverter project templates <TEMPLATE_NAME> update \
+  --preprocessors <PREPROCESSOR_NAMES,...> \
+  --preprocessor-output <PREPROCESSOR_OUTPUT>
 ```
 
 to assign it to a template and
 
 ```bash
-tiefdownconverter project preprocessors <PREPROCESSOR_NAME> add <OUTPUT_FILE> -- [PANDOC_ARGS]
+tiefdownconverter project pre-processors add <PREPROCESSOR_NAME> -- [CLI_ARGS]
 ```
 
 to create a new preprocessor.
 
 For example, if you want to add `--listings` to the pandoc command, you could do so by adding
 `--listings` to the preprocessor. But importantly, **this overwrites the default preprocessor**.
-So you will have to add the `-o output.tex` argument to the preprocessor as well. The full command
-then would be:
+Defaults from that (as few as they may be) won't get carried over to the conversion.
 
 ```bash
-tiefdownconverter project preprocessor "Enable Listings" add -- -o output.tex --listings
+tiefdownconverter project pre-processors add "Enable Listings" -- --listings
 ```
 
 The manifest would look something like this:
@@ -550,37 +592,55 @@ The manifest would look something like this:
 
 [[custom_processors.preprocessors]]
 name = "Enable Listings"
-pandoc_args = ["-o", "output.tex", "--listings"]
+cli_args = ["--listings"]
 
 [[templates]]
 filters = ["luafilters/chapter_filter.lua"]
 name = "PDF Documentation LaTeX"
 output = "docs_tex.pdf"
-preprocessor = "Enable Listings"
 template_file = "docs.tex"
 template_type = "Tex"
+
+[templates.preprocessors]
+preprocessors = ["Enable Listings"]
+combined_output = "output.tex"
 
 ...
 ```
 
-## Custom Pandoc Conversion
+Now, you may be able to spot a neato featureo: preprocessors are assigned in an array.
+That means, you can have multiple preprocessors per template. With this power however
+comes the responsibility to define extension filters on your preprocessors. This is an
+extension-only glob pattern set via the `--filter` option when creating the preprocessor.
 
-I already hinted at it in [Custom Pandoc Converter](#custom-pandoc-converter),
+```bash
+tiefdownconverter project pre-processors add "No typst conversion" --filter "typ" --cli "cat"
+```
+
+If no filter is provided, the preprocessor applies to all files. In your template, you
+can then define the preprocessor list as well as the combined output of the preprocessor.
+This is important, as this output is then passed to the conversion engine (or copied for
+[Custom Preprocessors Conversion](#custom-preprocessors-conversion)).
+
+## Custom Preprocessors Conversion
+
+I already hinted at it in [Custom Preprocessors Converter](#custom-preprocessors-converter),
 but I'll go into more detail here. The idea is to run a preprocessor
 and just skip any further processing. Straight from pandoc to the output.
 
 You can do this by first defining a preprocessor, for example:
 
 ```bash
-tiefdownconverter project preprocessor "RTF Preprocessor" add -- -o documentation.rtf
+tiefdownconverter project pre-processors add "RTF Preprocessor" -- -t rtf
 ```
 
-As you can see, we're outputting as an RTF file, and the file name is
-`documentation.rtf`. This means we need to add a template that deals with the
+As you can see, we're outputting as an RTF file. This means we need to add a template
+that deals with the
 same output:
 
 ```bash
 tiefdownconverter project template "RTF Template" add -o documentation.rtf -t custompandoc
+tiefdownconverter project template "RTF Template" update --preprocessors "RTF Preprocessor" --preprocessor-output "documentation.rtf"
 ```
 
 And that's it. TiefDownConverter will run the preprocessor, which
@@ -625,6 +685,8 @@ Then append it to a template.
 ```bash
 tiefdownconverter project template "PDF Documentation" update --processor "Typst Font Directory"
 ```
+
+This is especially useful with [custom processor converters](#custom-processor-converter).
 
 ## Smart Cleaning
 

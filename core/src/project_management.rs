@@ -1,8 +1,8 @@
 use crate::{
     consts::CURRENT_MANIFEST_VERSION,
     manifest_model::{
-        Manifest, MarkdownProject, PreProcessor, Processor, Processors, Profile, TemplateMapping,
-        upgrade_manifest,
+        Manifest, MarkdownProject, PreProcessor, PreProcessors, Processor, Processors, Profile,
+        TemplateMapping, upgrade_manifest,
     },
     template_management::{self, add_lix_filters, get_template_path, get_template_type_from_path},
     template_type::TemplateType,
@@ -10,7 +10,7 @@ use crate::{
 use color_eyre::eyre::{Result, eyre};
 use fs_extra::dir;
 use log::{debug, error, info};
-use std::{fs, path::PathBuf, process::Command};
+use std::{env::current_dir, fs, path::PathBuf, process::Command};
 use toml::{Table, Value};
 
 /// Initializes a new TiefDown project.
@@ -31,7 +31,7 @@ use toml::{Table, Value};
 ///
 /// A Result containing either an error or nothing.
 pub fn init(
-    project: Option<String>,
+    project: Option<PathBuf>,
     template_names: Option<Vec<String>>,
     no_templates: bool,
     force: bool,
@@ -39,23 +39,23 @@ pub fn init(
     smart_clean: bool,
     smart_clean_threshold: Option<u32>,
 ) -> Result<()> {
-    let project = project.as_deref().unwrap_or(".");
-    let project_path = std::path::Path::new(&project);
+    let project = project.unwrap_or(PathBuf::from("."));
 
-    if project_path.exists() && force {
-        if project == "." {
+    if project.clone().exists() && force {
+        if project == current_dir()? {
             return Err(eyre!(
                 "Cannot force initialization in the current directory."
             ));
         }
-        std::fs::remove_dir_all(project_path)?;
+        std::fs::remove_dir_all(project.clone())?;
     }
 
-    if !project_path.exists() {
-        std::fs::create_dir(project_path)?;
+    if !project.clone().exists() {
+        std::fs::create_dir(project.clone())?;
+        debug!("Created project directory at '{}'.", project.display());
     }
 
-    let manifest_path = project_path.join("manifest.toml");
+    let manifest_path = project.join("manifest.toml");
     if manifest_path.exists() {
         return Err(eyre!(
             "Manifest file already exists. Please remove it before initializing a new project or use the --force flag."
@@ -76,7 +76,7 @@ pub fn init(
 
     let markdown_dir = markdown_dir.clone().unwrap_or("Markdown".to_string());
 
-    let markdown_dir_path = project_path.join(&markdown_dir);
+    let markdown_dir_path = project.join(&markdown_dir);
     if !markdown_dir_path.exists() {
         std::fs::create_dir(&markdown_dir_path)?;
         std::fs::write(
@@ -84,11 +84,20 @@ pub fn init(
             r#"# Test Document
 This is a simple test document for you to edit or overwrite."#,
         )?;
+        debug!(
+            "Initialized markdown directory at '{}'.",
+            markdown_dir_path.display()
+        );
     }
 
     let smart_clean_value = if smart_clean { Some(true) } else { None };
 
-    create_templates(project_path, &templates)?;
+    debug!(
+        "Initializing templates ({}): {:?}",
+        templates.len(),
+        templates.iter().map(|t| t.name.clone()).collect::<Vec<_>>()
+    );
+    create_templates(&project, &templates)?;
 
     let manifest: Manifest = Manifest {
         version: CURRENT_MANIFEST_VERSION,
@@ -112,7 +121,8 @@ This is a simple test document for you to edit or overwrite."#,
         profiles: None,
     };
 
-    std::fs::write(manifest_path, toml::to_string(&manifest)?)?;
+    std::fs::write(manifest_path.clone(), toml::to_string(&manifest)?)?;
+    debug!("Wrote manifest to '{}'.", manifest_path.display());
 
     Ok(())
 }
@@ -125,7 +135,7 @@ fn get_template_mapping_for_preset(template: &String) -> Result<TemplateMapping>
         output: None,
         template_file: None,
         filters: None,
-        preprocessor: None,
+        preprocessors: None,
         processor: None,
     };
 
@@ -153,18 +163,22 @@ fn get_template_mapping_for_preset(template: &String) -> Result<TemplateMapping>
 ///
 /// A Result containing either an error or nothing.
 pub fn add_template(
-    project: Option<String>,
+    project: Option<PathBuf>,
     template_name: String,
     template_type: Option<TemplateType>,
     template_file: Option<PathBuf>,
     output: Option<PathBuf>,
     filters: Option<Vec<String>>,
-    preprocessor: Option<String>,
+    preprocessors: Option<Vec<String>>,
+    preprocessor_output: Option<PathBuf>,
     processor: Option<String>,
 ) -> Result<()> {
-    let project = project.as_deref().unwrap_or(".");
-    let project_path = std::path::Path::new(&project);
-    let manifest_path = project_path.join("manifest.toml");
+    debug!(
+        "Adding template '{}' (type: {:?})...",
+        template_name, template_type
+    );
+    let project = project.unwrap_or(PathBuf::from("."));
+    let manifest_path = project.join("manifest.toml");
 
     let mut manifest = load_and_convert_manifest(&manifest_path)?;
 
@@ -182,23 +196,38 @@ pub fn add_template(
         }
     };
 
+    if preprocessors.is_some() && preprocessor_output.is_none() {
+        return Err(eyre!(
+            "Cannot set preprocessors without setting a combined output."
+        ));
+    }
+
+    let mut template_preprocessors = None;
+    if preprocessor_output.is_some() {
+        template_preprocessors = Some(PreProcessors {
+            preprocessors: preprocessors.unwrap_or(vec![]),
+            combined_output: PathBuf::from(preprocessor_output.unwrap()),
+        });
+    }
+
     let mut template = TemplateMapping {
         name: template_name.clone(),
         template_type,
         output,
         template_file,
         filters,
-        preprocessor,
+        preprocessors: template_preprocessors,
         processor,
     };
 
-    create_templates(project_path, &vec![template.clone()])?;
+    create_templates(&project, &vec![template.clone()])?;
     add_lix_filters(&mut template);
 
     manifest.templates.extend([template.clone()]);
 
     let manifest_content = toml::to_string(&manifest)?;
     std::fs::write(&manifest_path, manifest_content)?;
+    debug!("Template '{}' added and manifest updated.", template_name);
 
     Ok(())
 }
@@ -214,10 +243,10 @@ pub fn add_template(
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
-pub fn remove_template(project: Option<String>, template_name: String) -> Result<()> {
-    let project = project.as_deref().unwrap_or(".");
-    let project_path = std::path::Path::new(&project);
-    let manifest_path = project_path.join("manifest.toml");
+pub fn remove_template(project: Option<PathBuf>, template_name: String) -> Result<()> {
+    debug!("Removing template '{}'...", template_name);
+    let project = project.unwrap_or(PathBuf::from("."));
+    let manifest_path = project.join("manifest.toml");
 
     let mut manifest = load_and_convert_manifest(&manifest_path)?;
 
@@ -231,7 +260,7 @@ pub fn remove_template(project: Option<String>, template_name: String) -> Result
         let manifest_content = toml::to_string(&manifest)?;
         std::fs::write(&manifest_path, manifest_content)?;
 
-        let template_dir = project_path.join("template");
+        let template_dir = project.join("template");
         let template_path = template_dir.join(
             removed_template
                 .template_file
@@ -244,6 +273,7 @@ pub fn remove_template(project: Option<String>, template_name: String) -> Result
         } else {
             fs::remove_file(template_path)?;
         }
+        debug!("Removed template resources for '{}'.", template_name);
     } else {
         return Err(eyre!(
             "Template {} could not be found in the project.",
@@ -279,7 +309,7 @@ pub fn remove_template(project: Option<String>, template_name: String) -> Result
 ///
 /// A Result containing either an error or nothing.
 pub fn update_template(
-    project: Option<String>,
+    project: Option<PathBuf>,
     template_name: String,
     template_type: Option<TemplateType>,
     template_file: Option<PathBuf>,
@@ -287,12 +317,18 @@ pub fn update_template(
     filters: Option<Vec<String>>,
     add_filters: Option<Vec<String>>,
     remove_filters: Option<Vec<String>>,
-    preprocessor: Option<String>,
+    preprocessors: Option<Vec<String>>,
+    add_preprocessors: Option<Vec<String>>,
+    remove_preprocessors: Option<Vec<String>>,
+    preprocessor_output: Option<PathBuf>,
     processor: Option<String>,
 ) -> Result<()> {
-    let project = project.as_deref().unwrap_or(".");
-    let project_path = std::path::Path::new(&project);
-    let manifest_path = project_path.join("manifest.toml");
+    debug!(
+        "Updating template '{}' (fields provided: type={:?}, file={:?}, output={:?})",
+        template_name, template_type, template_file, output
+    );
+    let project = project.unwrap_or(PathBuf::from("."));
+    let manifest_path = project.join("manifest.toml");
 
     let mut manifest = load_and_convert_manifest(&manifest_path)?;
 
@@ -333,7 +369,64 @@ pub fn update_template(
                 filters.retain(|filter| !remove_filters.contains(filter));
             }
         }
-        template.preprocessor = preprocessor.or(template.preprocessor.clone());
+
+        if let Some(preprocessor_output) = preprocessor_output {
+            if let Some(preprocessors) = &mut template.preprocessors {
+                preprocessors.combined_output = PathBuf::from(preprocessor_output);
+            } else {
+                template.preprocessors = Some(PreProcessors {
+                    preprocessors: vec![],
+                    combined_output: PathBuf::from(preprocessor_output),
+                });
+            }
+        }
+
+        if let Some(preprocessors) = preprocessors {
+            if let Some(template_preprocessors) = &mut template.preprocessors {
+                template_preprocessors.preprocessors = preprocessors;
+            } else {
+                return Err(eyre!(
+                    "Preprocessor cannot be set as no combined output is set for the template '{}'. Please set a combined output first.",
+                    template_name
+                ));
+            }
+        } else if let Some(add_preprocessors) = add_preprocessors {
+            if add_preprocessors.iter().any(|filter| {
+                manifest
+                    .custom_processors
+                    .preprocessors
+                    .iter()
+                    .all(|p| p.name != *filter)
+            }) {
+                return Err(eyre!(
+                    "Preprocessor '{}' cannot be added as it does not exist or is invalid.",
+                    template_name
+                ));
+            }
+
+            if let Some(preprocessors) = &mut template.preprocessors {
+                preprocessors.preprocessors.extend(add_preprocessors);
+            } else {
+                return Err(eyre!(
+                    "Preprocessor cannot be set as no combined output is set for the template '{}'. Please set a combined output first.",
+                    template_name
+                ));
+            }
+        } else if let Some(remove_preprocessors) = remove_preprocessors {
+            if remove_preprocessors.iter().any(|filter| filter.is_empty()) {
+                return Err(eyre!(
+                    "Cannot remove an empty preprocessor from the template '{}'.",
+                    template_name
+                ));
+            }
+
+            if let Some(preprocessors) = &mut template.preprocessors {
+                preprocessors
+                    .preprocessors
+                    .retain(|filter| !remove_preprocessors.contains(filter));
+            }
+        }
+
         template.processor = processor.or(template.processor.clone());
     } else {
         return Err(eyre!(
@@ -344,6 +437,7 @@ pub fn update_template(
 
     let manifest_content = toml::to_string(&manifest)?;
     std::fs::write(&manifest_path, manifest_content)?;
+    debug!("Template '{}' updated and manifest saved.", template_name);
 
     Ok(())
 }
@@ -361,13 +455,12 @@ pub fn update_template(
 ///
 /// A Result containing either an error or nothing.
 pub fn update_manifest(
-    project: Option<String>,
+    project: Option<PathBuf>,
     smart_clean: Option<bool>,
     smart_clean_threshold: Option<u32>,
 ) -> Result<()> {
-    let project = project.as_deref().unwrap_or(".");
-    let project_path = std::path::Path::new(&project);
-    let manifest_path = project_path.join("manifest.toml");
+    let project = project.unwrap_or(PathBuf::from("."));
+    let manifest_path = project.join("manifest.toml");
 
     let mut manifest = load_and_convert_manifest(&manifest_path)?;
 
@@ -393,6 +486,8 @@ pub fn update_manifest(
 /// * `project` - The path to the project directory (relative or absolute).
 ///   * Defaults to the current directory if not provided.
 /// * `name` - The name of the preprocessor.
+/// * `combined_output` - The output file for the preprocessor.
+/// * `extension_filter` - The file extension the preprocessor should be applied to.
 /// * `cli` - The program to call as the preprocessor.
 /// * `cli_args` - The arguments for the preprocessor.
 ///
@@ -400,23 +495,22 @@ pub fn update_manifest(
 ///
 /// A Result containing either an error or nothing.
 pub fn add_preprocessor(
-    project: Option<String>,
+    project: Option<PathBuf>,
     name: String,
-    combined_output: PathBuf,
+    extension_filter: Option<String>,
     cli: Option<String>,
     cli_args: Vec<String>,
 ) -> Result<()> {
-    let project = project.as_deref().unwrap_or(".");
-    let project_path = std::path::Path::new(&project);
-    let manifest_path = project_path.join("manifest.toml");
+    let project = project.unwrap_or(PathBuf::from("."));
+    let manifest_path = project.join("manifest.toml");
 
     let mut manifest = load_and_convert_manifest(&manifest_path)?;
 
     let preprocessor = PreProcessor {
         name,
+        extension_filter,
         cli,
         cli_args,
-        combined_output,
     };
     manifest.custom_processors.preprocessors.push(preprocessor);
 
@@ -437,10 +531,9 @@ pub fn add_preprocessor(
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
-pub fn remove_preprocessor(project: Option<String>, name: String) -> Result<()> {
-    let project = project.as_deref().unwrap_or(".");
-    let project_path = std::path::Path::new(&project);
-    let manifest_path = project_path.join("manifest.toml");
+pub fn remove_preprocessor(project: Option<PathBuf>, name: String) -> Result<()> {
+    let project = project.unwrap_or(PathBuf::from("."));
+    let manifest_path = project.join("manifest.toml");
 
     let mut manifest = load_and_convert_manifest(&manifest_path)?;
 
@@ -474,13 +567,12 @@ pub fn remove_preprocessor(project: Option<String>, name: String) -> Result<()> 
 ///
 /// A Result containing either an error or nothing.
 pub fn add_processor(
-    project: Option<String>,
+    project: Option<PathBuf>,
     name: String,
     processor_args: Vec<String>,
 ) -> Result<()> {
-    let project = project.as_deref().unwrap_or(".");
-    let project_path = std::path::Path::new(&project);
-    let manifest_path = project_path.join("manifest.toml");
+    let project = project.unwrap_or(PathBuf::from("."));
+    let manifest_path = project.join("manifest.toml");
 
     let mut manifest = load_and_convert_manifest(&manifest_path)?;
 
@@ -507,10 +599,9 @@ pub fn add_processor(
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
-pub fn remove_processor(project: Option<String>, name: String) -> Result<()> {
-    let project = project.as_deref().unwrap_or(".");
-    let project_path = std::path::Path::new(&project);
-    let manifest_path = project_path.join("manifest.toml");
+pub fn remove_processor(project: Option<PathBuf>, name: String) -> Result<()> {
+    let project = project.unwrap_or(PathBuf::from("."));
+    let manifest_path = project.join("manifest.toml");
 
     let mut manifest = load_and_convert_manifest(&manifest_path)?;
 
@@ -541,10 +632,9 @@ pub fn remove_processor(project: Option<String>, name: String) -> Result<()> {
 /// # Returns
 ///
 /// A Result containing either an error or a vector of Processor objects.
-pub fn get_processors(project: &Option<String>) -> Result<Vec<Processor>> {
-    let project = project.as_deref().unwrap_or(".");
-    let project_path = std::path::Path::new(&project);
-    let manifest_path = project_path.join("manifest.toml");
+pub fn get_processors(project: Option<PathBuf>) -> Result<Vec<Processor>> {
+    let project = project.unwrap_or(PathBuf::from("."));
+    let manifest_path = project.join("manifest.toml");
 
     let manifest = load_and_convert_manifest(&manifest_path)?;
 
@@ -563,10 +653,9 @@ pub fn get_processors(project: &Option<String>) -> Result<Vec<Processor>> {
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
-pub fn add_profile(project: Option<String>, name: String, templates: Vec<String>) -> Result<()> {
-    let project = project.as_deref().unwrap_or(".");
-    let project_path = std::path::Path::new(&project);
-    let manifest_path = project_path.join("manifest.toml");
+pub fn add_profile(project: Option<PathBuf>, name: String, templates: Vec<String>) -> Result<()> {
+    let project = project.unwrap_or(PathBuf::from("."));
+    let manifest_path = project.join("manifest.toml");
 
     let mut manifest = load_and_convert_manifest(&manifest_path)?;
 
@@ -595,10 +684,9 @@ pub fn add_profile(project: Option<String>, name: String, templates: Vec<String>
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
-pub fn remove_profile(project: Option<String>, name: String) -> Result<()> {
-    let project = project.as_deref().unwrap_or(".");
-    let project_path = std::path::Path::new(&project);
-    let manifest_path = project_path.join("manifest.toml");
+pub fn remove_profile(project: Option<PathBuf>, name: String) -> Result<()> {
+    let project = project.unwrap_or(PathBuf::from("."));
+    let manifest_path = project.join("manifest.toml");
 
     let mut manifest = load_and_convert_manifest(&manifest_path)?;
 
@@ -628,10 +716,9 @@ pub fn remove_profile(project: Option<String>, name: String) -> Result<()> {
 /// # Returns
 ///
 /// A Result containing either an error or a vector of TemplateMapping objects.
-pub fn get_templates(project: &Option<String>) -> Result<Vec<TemplateMapping>> {
-    let project = project.as_deref().unwrap_or(".");
-    let project_path = std::path::Path::new(&project);
-    let manifest_path = project_path.join("manifest.toml");
+pub fn get_templates(project: Option<PathBuf>) -> Result<Vec<TemplateMapping>> {
+    let project = project.unwrap_or(PathBuf::from("."));
+    let manifest_path = project.join("manifest.toml");
 
     let manifest = load_and_convert_manifest(&manifest_path)?;
 
@@ -648,10 +735,9 @@ pub fn get_templates(project: &Option<String>) -> Result<Vec<TemplateMapping>> {
 /// # Returns
 ///
 /// A Result containing either an error or a vector of Profile objects.
-pub fn get_profiles(project: &Option<String>) -> Result<Vec<Profile>> {
-    let project = project.as_deref().unwrap_or(".");
-    let project_path = std::path::Path::new(&project);
-    let manifest_path = project_path.join("manifest.toml");
+pub fn get_profiles(project: Option<PathBuf>) -> Result<Vec<Profile>> {
+    let project = project.unwrap_or(PathBuf::from("."));
+    let manifest_path = project.join("manifest.toml");
 
     let manifest = load_and_convert_manifest(&manifest_path)?;
 
@@ -670,118 +756,13 @@ pub fn get_profiles(project: &Option<String>) -> Result<Vec<Profile>> {
 /// # Returns
 ///
 /// A Result containing either an error or a vector of PreProcessor objects.
-pub fn get_preprocessors(project: &Option<String>) -> Result<Vec<PreProcessor>> {
-    let project = project.as_deref().unwrap_or(".");
-    let project_path = std::path::Path::new(&project);
-    let manifest_path = project_path.join("manifest.toml");
+pub fn get_preprocessors(project: Option<PathBuf>) -> Result<Vec<PreProcessor>> {
+    let project = project.unwrap_or(PathBuf::from("."));
+    let manifest_path = project.join("manifest.toml");
 
     let manifest = load_and_convert_manifest(&manifest_path)?;
 
     Ok(manifest.custom_processors.preprocessors)
-}
-
-/// Validates a project's manifest.
-///
-/// # Arguments
-///
-/// * `project` - The path to the project directory (relative or absolute).
-///   * Defaults to the current directory if not provided.
-///
-/// # Returns
-///
-/// A Result containing either an error or nothing.
-#[deprecated(
-    note = "This function is deprecated and will be removed in a future release. It's pointless and a maintenance nightmare."
-)]
-pub fn validate(project: Option<String>) -> Result<()> {
-    let project = project.as_deref().unwrap_or(".");
-    let project_path = std::path::Path::new(&project);
-    let manifest_path = project_path.join("manifest.toml");
-
-    let manifest = load_and_convert_manifest(&manifest_path)?;
-
-    let mut errors: Vec<Result<()>> = Vec::new();
-
-    let templates = manifest.templates;
-
-    for template in templates {
-        if template.template_type != TemplateType::CustomPandoc {
-            let template_path = project_path
-                .join("template")
-                .join(get_template_path(template.template_file, &template.name));
-            if template_path.exists() {
-                let template_should_be_dir = match template.template_type {
-                    TemplateType::Tex => false,
-                    TemplateType::Typst => false,
-                    TemplateType::Epub => true,
-                    TemplateType::CustomPandoc => false,
-                };
-                if template_should_be_dir && !template_path.is_dir() {
-                    errors.push(Err(eyre!(
-                        "Template '{}' is of type 'Epub' but not a directory.",
-                        template.name
-                    )));
-                }
-
-                let template_should_be_file = !template_should_be_dir;
-                if template_should_be_file && !template_path.is_file() {
-                    errors.push(Err(eyre!(
-                        "Template '{}' is of type '{}' but is a directory.",
-                        template.name,
-                        template.template_type
-                    )));
-                }
-            } else {
-                errors.push(Err(eyre!(
-                    "Template file '{}' does not exist.",
-                    template.name
-                )));
-            }
-        }
-
-        if let Some(filters) = &template.filters {
-            for filter in filters {
-                if !project_path.join(filter).exists() {
-                    errors.push(Err(eyre!("Filter(s) '{}' do not exist.", filter)));
-                }
-            }
-        }
-    }
-
-    let markdown_projects = manifest.markdown_projects.unwrap_or(vec![MarkdownProject {
-        name: "Default".to_string(),
-        path: PathBuf::from("Markdown"),
-        output: PathBuf::from("."),
-        metadata_fields: None,
-        default_profile: None,
-        resources: None,
-    }]);
-
-    for markdown_project in markdown_projects {
-        let markdown_project_path = project_path.join(&markdown_project.path);
-
-        if !markdown_project_path.exists() || !markdown_project_path.is_dir() {
-            errors.push(Err(eyre!(
-                "Markdown project directory '{}' for project '{}' does not exist.",
-                markdown_project.path.display(),
-                markdown_project.name
-            )));
-        }
-    }
-
-    debug!("We have {} errors.", errors.len());
-
-    if errors.is_empty() {
-        info!("Manifest is valid.");
-    } else {
-        for error in errors {
-            error!("{}", error.unwrap_err());
-        }
-
-        return Err(eyre!("Manifest is invalid."));
-    }
-
-    Ok(())
 }
 
 /// Cleans the project's output directories.
@@ -794,13 +775,12 @@ pub fn validate(project: Option<String>) -> Result<()> {
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
-pub fn clean(project: Option<String>) -> Result<()> {
-    let project = project.as_deref().unwrap_or(".");
-    let project_path = std::path::Path::new(&project);
-    let manifest_path = project_path.join("manifest.toml");
+pub fn clean(project: Option<PathBuf>) -> Result<()> {
+    let project = project.unwrap_or(PathBuf::from("."));
+    let manifest_path = project.join("manifest.toml");
     let _ = load_and_convert_manifest(&manifest_path)?;
 
-    run_smart_clean(project_path, 0)?;
+    run_smart_clean(&project, 0)?;
 
     Ok(())
 }
@@ -811,31 +791,27 @@ pub fn clean(project: Option<String>) -> Result<()> {
 ///
 /// * `project` - The path to the project directory (relative or absolute).
 ///   * Defaults to the current directory if not provided.
-pub fn smart_clean(project: Option<String>) -> Result<()> {
-    let project = project.as_deref().unwrap_or(".");
-    let project_path = std::path::Path::new(&project);
-    let manifest_path = project_path.join("manifest.toml");
+pub fn smart_clean(project: Option<PathBuf>) -> Result<()> {
+    let project = project.unwrap_or(PathBuf::from("."));
+    let manifest_path = project.join("manifest.toml");
     let manifest = load_and_convert_manifest(&manifest_path)?;
     let smart_clean_threshold = manifest.smart_clean_threshold.unwrap_or(5);
 
-    run_smart_clean(project_path, smart_clean_threshold)?;
+    run_smart_clean(&project, smart_clean_threshold)?;
 
     Ok(())
 }
 
-pub(crate) fn run_smart_clean(
-    project_path: &std::path::Path,
-    smart_clean_threshold: u32,
-) -> Result<()> {
+pub(crate) fn run_smart_clean(project: &PathBuf, smart_clean_threshold: u32) -> Result<()> {
     debug!(
         "Running smart clean on project {} with threshold of {}.",
-        project_path.display(),
+        project.display(),
         smart_clean_threshold
     );
 
     let regex = regex::Regex::new(r"^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}$")?;
 
-    let mut dirs_to_delete: Vec<_> = fs::read_dir(project_path)?
+    let mut dirs_to_delete: Vec<_> = fs::read_dir(project)?
         .filter_map(Result::ok)
         .map(|entry| entry.path())
         .filter(|path| {
@@ -873,6 +849,7 @@ pub(crate) fn run_smart_clean(
 ///
 /// A Result containing either an error or nothing.
 pub fn check_dependencies(dependencies: Vec<&str>) -> Result<()> {
+    debug!("Checking dependencies: {:?}", dependencies);
     let errors = get_missing_dependencies(dependencies)?;
 
     if !errors.is_empty() {
@@ -890,6 +867,7 @@ pub(crate) fn get_missing_dependencies(dependencies: Vec<&str>) -> Result<Vec<St
     let mut errors = Vec::new();
 
     for dependency in dependencies {
+        debug!("Probing dependency: '{}' --version", dependency);
         let output = Command::new(dependency).arg("--version").output();
 
         if !output.is_ok() {
@@ -912,6 +890,11 @@ pub(crate) fn load_and_convert_manifest(manifest_path: &std::path::PathBuf) -> R
     }
 
     let manifest_content = fs::read_to_string(manifest_path)?;
+    debug!(
+        "Loading manifest from '{}' ({} bytes).",
+        manifest_path.display(),
+        manifest_content.len()
+    );
 
     let mut manifest: Table = toml::from_str(&manifest_content)?;
 
@@ -933,40 +916,26 @@ pub(crate) fn load_and_convert_manifest(manifest_path: &std::path::PathBuf) -> R
 
     let manifest = &toml::to_string(&manifest)?;
     fs::write(manifest_path, manifest)?;
+    debug!(
+        "Manifest written back after potential upgrade ({} bytes).",
+        manifest.len()
+    );
 
     let manifest: Manifest = toml::from_str(manifest)?;
 
     Ok(manifest)
 }
 
-fn create_templates(
-    project_path: &std::path::Path,
-    templates: &Vec<TemplateMapping>,
-) -> Result<()> {
+fn create_templates(project: &std::path::Path, templates: &Vec<TemplateMapping>) -> Result<()> {
     for template in templates {
         let template_creator = template_management::get_template_creator(template.name.as_str())?;
 
-        template_creator(project_path, template)?;
+        debug!(
+            "Creating template '{}' of type {}...",
+            template.name, template.template_type
+        );
+        template_creator(project, template)?;
     }
 
     Ok(())
-}
-
-#[cfg(test)]
-mod tests {
-    use rstest::rstest;
-
-    use super::*;
-
-    #[rstest]
-    fn check_dependencies_valid() {
-        let dependencies = vec!["ls", "echo"];
-        assert!(check_dependencies(dependencies).is_ok());
-    }
-
-    #[rstest]
-    fn check_dependencies_invalid() {
-        let dependencies = vec!["ls", "invalid_command_that_no_sane_person_would_have"];
-        assert!(check_dependencies(dependencies).is_err());
-    }
 }

@@ -8,3 +8,6 @@ pub mod metadata_management;
 pub mod project_management;
 mod template_management;
 pub mod template_type;
+
+#[cfg(test)]
+mod _tests;

@@ -14,7 +14,8 @@ pub(crate) enum CliTemplateType {
     Tex = 0,
     Typst = 1,
     Epub = 2,
-    CustomPandoc = 3,
+    CustomPreprocessors = 3,
+    CustomProcessor = 4,
 }
 
 impl From<&str> for CliTemplateType {
@@ -23,7 +24,8 @@ impl From<&str> for CliTemplateType {
             "tex" => CliTemplateType::Tex,
             "typst" => CliTemplateType::Typst,
             "epub" => CliTemplateType::Epub,
-            "custompandoc" => CliTemplateType::CustomPandoc,
+            "custompreprocessors" => CliTemplateType::CustomPreprocessors,
+            "customprocessor" => CliTemplateType::CustomProcessor,
             _ => panic!("Invalid template type: {}", s),
         }
     }
@@ -37,7 +39,8 @@ impl FromStr for CliTemplateType {
             "tex" => Ok(CliTemplateType::Tex),
             "typst" => Ok(CliTemplateType::Typst),
             "epub" => Ok(CliTemplateType::Epub),
-            "custompandoc" => Ok(CliTemplateType::CustomPandoc),
+            "custompreprocessors" => Ok(CliTemplateType::CustomPreprocessors),
+            "customprocessor" => Ok(CliTemplateType::CustomProcessor),
             _ => Err(eyre!("Invalid template type: {}", s)),
         }
     }
@@ -49,7 +52,8 @@ impl From<usize> for CliTemplateType {
             0 => CliTemplateType::Tex,
             1 => CliTemplateType::Typst,
             2 => CliTemplateType::Epub,
-            3 => CliTemplateType::CustomPandoc,
+            3 => CliTemplateType::CustomPreprocessors,
+            4 => CliTemplateType::CustomProcessor,
             _ => panic!("Invalid template type index: {}", value),
         }
     }
@@ -61,7 +65,8 @@ impl From<CliTemplateType> for TemplateType {
             CliTemplateType::Tex => TemplateType::Tex,
             CliTemplateType::Typst => TemplateType::Typst,
             CliTemplateType::Epub => TemplateType::Epub,
-            CliTemplateType::CustomPandoc => TemplateType::CustomPandoc,
+            CliTemplateType::CustomPreprocessors => TemplateType::CustomPreprocessors,
+            CliTemplateType::CustomProcessor => TemplateType::CustomProcessor,
         }
     }
 }
@@ -72,7 +77,8 @@ impl From<TemplateType> for CliTemplateType {
             TemplateType::Tex => CliTemplateType::Tex,
             TemplateType::Typst => CliTemplateType::Typst,
             TemplateType::Epub => CliTemplateType::Epub,
-            TemplateType::CustomPandoc => CliTemplateType::CustomPandoc,
+            TemplateType::CustomPreprocessors => CliTemplateType::CustomPreprocessors,
+            TemplateType::CustomProcessor => CliTemplateType::CustomProcessor,
         }
     }
 }
@@ -83,7 +89,8 @@ impl CliTemplateType {
             CliTemplateType::Tex => "Tex",
             CliTemplateType::Typst => "Typst",
             CliTemplateType::Epub => "Epub",
-            CliTemplateType::CustomPandoc => "CustomPandoc",
+            CliTemplateType::CustomPreprocessors => "CustomPreprocessors",
+            CliTemplateType::CustomProcessor => "CustomProcessor",
         }
     }
 }

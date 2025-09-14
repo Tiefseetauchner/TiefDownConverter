@@ -35,7 +35,6 @@ fn test_add_preprocessor() {
         .arg("pre-processors")
         .arg("add")
         .arg("My funny preprocessor")
-        .arg("mega.html")
         .arg("--")
         .arg("-t html")
         .assert()
@@ -49,8 +48,7 @@ fn test_add_preprocessor() {
         manifest_content,
         r#"[[custom_processors.preprocessors]]
 name = "My funny preprocessor"
-cli_args = ["-t", "html"]
-combined_output = "mega.html""#
+cli_args = ["-t", "html"]"#
     );
 }
 
@@ -66,7 +64,6 @@ fn test_add_preprocessor_custom_cli() {
         .arg("pre-processors")
         .arg("add")
         .arg("My funny preprocessor")
-        .arg("mega.html")
         .arg("--cli")
         .arg("cat")
         .assert()
@@ -81,8 +78,7 @@ fn test_add_preprocessor_custom_cli() {
         r#"[[custom_processors.preprocessors]]
 name = "My funny preprocessor"
 cli = "cat"
-cli_args = []
-combined_output = "mega.html""#
+cli_args = []"#
     );
 }
 
@@ -98,7 +94,6 @@ fn test_add_preprocessor_no_args() {
         .arg("pre-processors")
         .arg("add")
         .arg("My funny preprocessor")
-        .arg("output.tex")
         .assert()
         .success();
 
@@ -110,7 +105,6 @@ fn test_add_preprocessor_no_args() {
         manifest_content,
         r#"[[custom_processors.preprocessors]]
 name = "My funny preprocessor"
-cli_args = []
-combined_output = "output.tex""#
+cli_args = []"#
     );
 }

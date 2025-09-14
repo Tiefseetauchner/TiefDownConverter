@@ -1,0 +1,3 @@
+mod manifest_model_tests;
+mod template_type_tests;
+mod project_management_tests;

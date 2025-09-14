@@ -1,9 +1,11 @@
+use std::path::PathBuf;
+
 use color_eyre::eyre::Result;
 use log::info;
 use tiefdownlib::{markdown_project_management, metadata_management, project_management};
 
-pub(crate) fn list_preprocessors(project: Option<String>) -> Result<()> {
-    let preprocessors = project_management::get_preprocessors(&project)?;
+pub(crate) fn list_preprocessors(project: Option<PathBuf>) -> Result<()> {
+    let preprocessors = project_management::get_preprocessors(project)?;
 
     if preprocessors.is_empty() {
         info!("No preprocessors found.");
@@ -21,8 +23,8 @@ pub(crate) fn list_preprocessors(project: Option<String>) -> Result<()> {
 
     Ok(())
 }
-pub(crate) fn list_processors(project: Option<String>) -> Result<()> {
-    let processors = project_management::get_processors(&project)?;
+pub(crate) fn list_processors(project: Option<PathBuf>) -> Result<()> {
+    let processors = project_management::get_processors(project)?;
 
     if processors.is_empty() {
         info!("No processors found.");
@@ -35,8 +37,8 @@ pub(crate) fn list_processors(project: Option<String>) -> Result<()> {
 
     Ok(())
 }
-pub(crate) fn list_profiles(project: Option<String>) -> Result<()> {
-    let profiles = project_management::get_profiles(&project)?;
+pub(crate) fn list_profiles(project: Option<PathBuf>) -> Result<()> {
+    let profiles = project_management::get_profiles(project)?;
 
     if profiles.is_empty() {
         info!("No profiles found.");
@@ -53,8 +55,8 @@ pub(crate) fn list_profiles(project: Option<String>) -> Result<()> {
 
     Ok(())
 }
-pub(crate) fn list_shared_metadata(project: Option<String>) -> Result<()> {
-    let metadata = metadata_management::get_metadata(&project)?;
+pub(crate) fn list_shared_metadata(project: Option<PathBuf>) -> Result<()> {
+    let metadata = metadata_management::get_metadata(project)?;
 
     if metadata.is_empty() {
         info!("No shared metadata fields found.");
@@ -68,10 +70,10 @@ pub(crate) fn list_shared_metadata(project: Option<String>) -> Result<()> {
     Ok(())
 }
 pub(crate) fn list_markdown_project_metadata(
-    project: Option<String>,
+    project: Option<PathBuf>,
     markdown_project_name: String,
 ) -> Result<()> {
-    let metadata = markdown_project_management::get_metadata(&project, &markdown_project_name)?;
+    let metadata = markdown_project_management::get_metadata(project, &markdown_project_name)?;
 
     if metadata.is_empty() {
         info!("No metadata found for project {}.", markdown_project_name);
@@ -84,8 +86,8 @@ pub(crate) fn list_markdown_project_metadata(
 
     Ok(())
 }
-pub(crate) fn list_resources(project: Option<String>, markdown_project_name: String) -> Result<()> {
-    let resources = markdown_project_management::get_resources(&project, &markdown_project_name)?;
+pub(crate) fn list_resources(project: Option<PathBuf>, markdown_project_name: String) -> Result<()> {
+    let resources = markdown_project_management::get_resources(project, &markdown_project_name)?;
 
     if resources.is_empty() {
         info!("No resources found for project {}.", markdown_project_name);
@@ -98,8 +100,8 @@ pub(crate) fn list_resources(project: Option<String>, markdown_project_name: Str
 
     Ok(())
 }
-pub(crate) fn list_markdown_projects(project: Option<String>) -> Result<()> {
-    let markdown_projects = markdown_project_management::get_markdown_projects(&project)?;
+pub(crate) fn list_markdown_projects(project: Option<PathBuf>) -> Result<()> {
+    let markdown_projects = markdown_project_management::get_markdown_projects(project)?;
 
     if markdown_projects.is_empty() {
         info!("No markdown projects found.");
@@ -126,8 +128,8 @@ pub(crate) fn list_markdown_projects(project: Option<String>) -> Result<()> {
 
     Ok(())
 }
-pub(crate) fn list_templates(project: Option<String>) -> Result<()> {
-    let templates = project_management::get_templates(&project)?;
+pub(crate) fn list_templates(project: Option<PathBuf>) -> Result<()> {
+    let templates = project_management::get_templates(project)?;
 
     if templates.is_empty() {
         info!("No templates found.");

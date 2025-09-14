@@ -1,34 +1,42 @@
 # Conversion folders
 
-The conversion folder is the folder where the template and markdown files are
-located during conversion.
+The conversion folder is where inputs are collected and processed for a run. A
+new, time-stamped folder is created inside the project whenever a conversion
+starts. If a [markdown project](#markdown-projects) specifies an `output`
+directory, TiefDown uses that as the base for that project’s conversion folder.
+Old conversion folders can be removed manually with the clean command or
+automatically with [smart clean](#smart-clean).
 
-Before the conversion process begins, a new folder is created in the project
-directory. This is the conversion folder, named after the current date and
-time. This folder can be deleted using the `clean` function, or automatically
-removed when converting using [smart clean](#smart-clean).
-
-If a [markdown project](#markdown-projects) has an output folder defined, this
-is used as the conversion folder for that markdown project.
-
-To explain more thuroughly, we need to explain the workflow of TiefDown
-conversion. Helpfully, there's a diagram:
+To understand what goes into the folder, it helps to look at the conversion
+pipeline (see the overview diagram):
 
 ![Workflow](./resources/architecture.jpg)
 
-As you can see, the first step of any conversion is combining the markdown
-files to a single Markdown file. This is done before conversion, sorting the
-files by chapter number. This chapter number is retrieved from the filename.
-The file must thus be named `Chapter X.md` where X is the chapter number. This
-does not need to include leading zeros. This combined file is then saved as
-`combined.md` in the conversion folder.
+1) Input discovery and ordering: TiefDown scans the markdown project directory,
+   orders files by the first number in the filename (e.g. `Chapter 10 - …`),
+   and recurses into similarly numbered subfolders, preserving their order.
 
-After combination, pandoc is run on the combined file to derive LaTeX, typst,
-epub or custom outputs in case of [custom pandoc conversion](#custom-pandoc-conversion).
+2) Preprocessing by extension: Inputs are grouped by file extension. For each
+   group, TiefDown selects the matching preprocessor for the active template
+   (either a default or a custom one filtered by extension) and runs it in the
+   conversion folder. The stdout from each run is captured.
 
-For LaTeX and Typst templates, the output file is imported into the template
-file as described in the [templates](#templates) section. The conversion
-process converts the template file and stores the output in the conversion
-folder.
+3) Combined output: The captured outputs are concatenated and written to the
+   template’s configured `preprocessors.combined_output` file (typically
+   `output.tex` for LaTeX or `output.typ` for Typst). Your template includes
+   this file.
 
-The output file is then copied to the output folder.
+4) Metadata files: TiefDown generates `metadata.tex` or `metadata.typ` (only if
+   they don’t already exist) based on `[shared_metadata]`, any project-specific
+   metadata, and your optional [metadata settings](#metadata-settings).
+
+5) Template processing: Depending on the template type, TiefDown runs XeLaTeX
+   (twice) or Typst on the template file in the conversion folder, optionally
+   passing arguments from a named [processor](#custom-processors). EPUB templates
+   invoke Pandoc directly. `CustomPreprocessors` templates copy the combined
+   output as-is to the final destination. `CustomProcessor` templates run a
+   final Pandoc invocation reading the combined Pandoc Native input and passing
+   the configured processor arguments.
+
+6) Finalization: The produced artifact (e.g. a PDF or EPUB) is then copied to
+   the markdown project’s configured output path.

@@ -20,3 +20,7 @@ end
 ```
 
 For more details on writing filters see the Pandoc documentation.
+
+Note: Lua filters apply to the Pandoc preprocessing step(s). If a template
+uses a custom preprocessor whose CLI is not Pandoc, those filters have no
+effect on that preprocessor’s output.

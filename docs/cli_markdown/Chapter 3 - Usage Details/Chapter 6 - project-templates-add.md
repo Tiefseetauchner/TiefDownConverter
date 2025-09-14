@@ -21,7 +21,7 @@ Options:
   -t, --template-type <TEMPLATE_TYPE>
           The type of the template. If not provided, the type will be inferred from the template file.
           
-          [possible values: tex, typst, epub, custom-pandoc]
+          [possible values: tex, typst, epub, custom-preprocessors, custom-processor]
 
   -o, --output <OUTPUT>
           The output file. If not provided, the template name will be used.
@@ -32,20 +32,24 @@ Options:
           You can add a folder or a filename. If adding a folder, it will be traversed recursively, and any .lua file will be added.
           See the pandoc documentation and 'Writing filters' of the TiefDownConverter documentation for more details.
 
-      --preprocessor <PREPROCESSOR>
-          The preprocessor to use for this template.
-          A preprocessor defines the arguments passed to the pandoc conversion from markdown.
-          If using a CustomPandoc template, a preprocessor is required.
+      --preprocessors <PREPROCESSORS>
+          The preprocessors to use for this template.
+          A preprocessor defines the arguments passed to the pandoc conversion from the specified input format.
+          Each input format can have at most one preprocessor. Multiple preprocessors for the same input format will lead to an error.
+          There can be a preprocessor without an input format, which will be used if no other preprocessor matches the input format. Only one such preprocessor is allowed.
+          If using a CustomPreprocessors template, at least one preprocessor is required.
           Preprocessors replace all arguments. Thus, with preprocessors, you need to define the output file and format.
           For templates, that is the file imported by the template.
-          Preprocessors are incompatible with epub conversion. Use processors instead.
+
+      --preprocessor-output <PREPROCESSOR_OUTPUT>
+          The output file of the preprocessor. If not provided, the template name with the appropriate ending will be used.
+          This is the file the input gets converted to. When preprocessing the input files, the files will get converted, combined and written to this filename.
 
       --processor <PROCESSOR>
           The processor to use for this template.
           A processor defines additional arguments passed to the conversion command.
           For LaTeX and typst templates, this allows extending the respective conversion parameters.
-          For epub templates, this allows adding custom pandoc parameters.
-          Processors are incompatible with CustomPandoc conversions. Use preprocessors instead.
+          Processors are incompatible with CustomPreprocessors conversions. Use preprocessors instead.
 
   -h, --help
           Print help (see a summary with '-h')
