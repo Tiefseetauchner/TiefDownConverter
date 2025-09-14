@@ -1,4 +1,7 @@
-use crate::manifest_model::{MetadataSettings, PreProcessor, PreProcessors, TemplateMapping};
+use crate::{
+    manifest_model::{MetadataSettings, PreProcessor, PreProcessors, TemplateMapping},
+    template_type::TemplateType,
+};
 use color_eyre::eyre::{Ok, Result, eyre};
 use fast_glob::glob_match;
 use log::{debug, error};
@@ -115,12 +118,17 @@ pub(crate) fn run_preprocessors_on_inputs(
             let mut cli = Command::new(&cli_name);
             cli.args(&cli_args);
             cli.current_dir(compiled_directory_path);
-            add_lua_filters(
-                template,
-                project_directory_path,
-                compiled_directory_path,
-                &mut cli,
-            )?;
+
+            if template.template_type != TemplateType::CustomProcessor
+                && template.template_type != TemplateType::Epub
+            {
+                add_lua_filters(
+                    template,
+                    project_directory_path,
+                    compiled_directory_path,
+                    &mut cli,
+                )?;
+            }
             cli.args(chunk.0.clone());
             debug!(
                 "Running preprocessor '{}' with args: \"{}\"",

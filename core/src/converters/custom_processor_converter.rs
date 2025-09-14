@@ -9,12 +9,10 @@ use toml::Table;
 
 use crate::{
     converters::common::{
-        combine_pandoc_native, merge_preprocessors, preprocess_cli_args, retrieve_combined_output,
-        retrieve_preprocessors, run_preprocessors_on_inputs, run_with_logging,
-        write_combined_output,
+        add_lua_filters, combine_pandoc_native, merge_preprocessors, preprocess_cli_args, retrieve_combined_output, retrieve_preprocessors, run_preprocessors_on_inputs, run_with_logging, write_combined_output
     },
     manifest_model::{
-        DEFAULT_CUSTOM_PROCESSOR_PREPROCESSORS, MetadataSettings, Processors, TemplateMapping,
+        MetadataSettings, Processors, TemplateMapping, DEFAULT_CUSTOM_PROCESSOR_PREPROCESSORS
     },
 };
 
@@ -98,13 +96,20 @@ pub(crate) fn convert_custom_processor(
 
     let mut pandoc_command = Command::new("pandoc");
 
+    add_lua_filters(
+        template,
+        project_directory_path,
+        compiled_directory_path,
+        &mut pandoc_command,
+    )?;
+
     pandoc_command
         .current_dir(compiled_directory_path)
         .args(vec!["-f", "native"])
         .arg("-o")
         .arg(&output_path)
-        .arg(&combined_output)
-        .args(processor_args);
+        .args(processor_args)
+        .arg(&combined_output);
 
     run_with_logging(pandoc_command, "pandoc", false)?;
 
