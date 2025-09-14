@@ -399,9 +399,19 @@ on customization.</p>
 <p>There are also preset templates available in the core library. Again,
 these are just a basic suggestion.</p>
 <h2 id="epub-templates">EPUB Templates</h2>
-<p>EPUB templates are a special version of custom preprocessing. They
-are legacy and should be avoided in favour of CustomPreprocessors
-conversion. Thus, they are not documented here.</p>
+<p>Epub templates are a custom version of CustomProcessing templates.
+They add the ability to add CSS and embed fonts through the templating
+system without defining the files in the processor.</p>
+<p>When adding a css file to the template directory of an epub template,
+it gets added to the pandoc conversion process with the <code>-c</code>
+flag.</p>
+<p>Additionally, you can add a <code>fonts/</code> directory in the epub
+folder. Every file in this directory gets added to the conversion
+process using the <code>--epub-embed-font</code> flag.</p>
+<p><strong>NOTE:</strong> this template type is somewhat deprecated and
+will likely not be gaining features. It has some shortcuts to
+CustomProcessor conversion but for full control, use said template type
+instead.</p>
 <h2 id="custompreprocessors-conversion">CustomPreprocessors
 Conversion</h2>
 <p>CustomPreprocessors replaces the older “Custom Pandoc Conversion”
