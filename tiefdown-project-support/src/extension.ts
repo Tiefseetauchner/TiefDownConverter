@@ -64,13 +64,95 @@ async function pickProject(projects: TiefdownProject[]): Promise<TiefdownProject
 	return selection?.project;
 }
 
-async function runConvert(project: TiefdownProject): Promise<void> {
+async function listTemplates(project: TiefdownProject): Promise<string[]> {
+	return new Promise((resolve, reject) => {
+		const child = spawn('tiefdownconverter', ['project', 'list-templates'], {
+			cwd: project.folder.uri.fsPath,
+		});
+
+		let stdout = '';
+		let stderr = '';
+
+		child.stdout?.on('data', (chunk: Buffer) => {
+			stdout += chunk.toString();
+		});
+
+		child.stderr?.on('data', (chunk: Buffer) => {
+			stderr += chunk.toString();
+		});
+
+		child.on('error', (err: NodeJS.ErrnoException) => {
+			if (err.code === 'ENOENT') {
+				vscode.window.showErrorMessage('tiefdownconverter CLI not found in PATH. Install it to convert Tiefdown projects.');
+			}
+			reject(err);
+		});
+
+		child.on('close', (code) => {
+			if (code !== 0) {
+				const message = stderr || stdout || 'Failed to list templates for this project.';
+				reject(new Error(message));
+				return;
+			}
+
+			const lines = stdout.split(/\r?\n/);
+			const templates = lines
+				.map((line) => line.trimEnd())
+				.filter((line) => line.length > 0 && !line.startsWith(' ') && line.endsWith(':'))
+				.map((line) => line.slice(0, -1));
+			resolve(templates);
+		});
+	});
+}
+
+async function pickTemplates(project: TiefdownProject): Promise<string[] | undefined> {
+	try {
+		const templates = await listTemplates(project);
+		if (templates.length === 0) {
+			return [];
+		}
+
+		const selection = await vscode.window.showQuickPick(
+			templates.map((template) => ({
+				label: template,
+			})),
+			{
+				canPickMany: true,
+				placeHolder: 'Select templates to convert (leave empty to convert all templates)',
+			}
+		);
+
+		if (selection === undefined) {
+			return undefined;
+		}
+
+		return selection.map((item) => item.label);
+	} catch (error) {
+		const message =
+			error instanceof Error ? error.message : 'Failed to list Tiefdown templates.';
+		const channel = getOutputChannel();
+		channel.appendLine(`Template discovery failed for ${project.folder.name}: ${message}`);
+		if (error instanceof Error && error.stack) {
+			channel.appendLine(error.stack);
+		}
+		vscode.window.showErrorMessage(message);
+		return undefined;
+	}
+}
+
+async function runConvert(project: TiefdownProject, templates?: string[]): Promise<void> {
 	const channel = getOutputChannel();
 	channel.show(true);
-	channel.appendLine(`Running "tiefdownconverter convert" in ${project.folder.uri.fsPath}`);
+	const args = ['convert'];
+	let commandSummary = 'tiefdownconverter convert';
+	if (templates && templates.length > 0) {
+		args.push('--templates', ...templates);
+		commandSummary = `tiefdownconverter convert --templates ${templates.join(', ')}`;
+	}
+	channel.appendLine(`Running "${commandSummary}" in ${project.folder.uri.fsPath}`);
 
 	await new Promise<void>((resolve, reject) => {
-		const child = spawn('tiefdownconverter', ['convert'], {
+		const child = spawn('tiefdownconverter', args, {
 			cwd: project.folder.uri.fsPath,
 		});
 
@@ -140,7 +222,14 @@ export async function activate(context: vscode.ExtensionContext) {
 			return;
 		}
 
-		await runConvert(project).catch((error) => {
+		const selectedTemplates = await pickTemplates(project);
+		if (selectedTemplates === undefined) {
+			return;
+		}
+
+		const templatesToConvert = selectedTemplates.length > 0 ? selectedTemplates : undefined;
+
+		await runConvert(project, templatesToConvert).catch((error) => {
 			console.error('tiefdownconverter convert failed', error);
 		});
 	});
