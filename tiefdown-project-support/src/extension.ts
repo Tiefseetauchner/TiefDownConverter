@@ -2,7 +2,7 @@ import { spawn } from 'node:child_process';
 import * as vscode from 'vscode';
 
 type TiefdownProject = {
-	folder: vscode.WorkspaceFolder;
+	projectUri: vscode.Uri;
 	manifestUri: vscode.Uri;
 };
 
@@ -12,6 +12,19 @@ interface ProjectQuickPickItem extends vscode.QuickPickItem {
 
 let outputChannel: vscode.OutputChannel | undefined;
 
+function describeProject(project: TiefdownProject): string {
+	const workspaceFolder = vscode.workspace.getWorkspaceFolder(project.projectUri);
+	if (!workspaceFolder) {
+		return project.projectUri.fsPath;
+	}
+	const relativePath = vscode.workspace.asRelativePath(project.projectUri, false);
+	return relativePath.length > 0 ? `${workspaceFolder.name}/${relativePath}` : workspaceFolder.name;
+}
+
+function isUri(value: unknown): value is vscode.Uri {
+	return value instanceof vscode.Uri;
+}
+
 function getOutputChannel(): vscode.OutputChannel {
 	if (!outputChannel) {
 		outputChannel = vscode.window.createOutputChannel('Tiefdown Converter');
@@ -20,26 +33,38 @@ function getOutputChannel(): vscode.OutputChannel {
 }
 
 async function findProjectsWithManifest(): Promise<TiefdownProject[]> {
-	const folders = vscode.workspace.workspaceFolders;
-	if (!folders) {
-		return [];
-	}
+	const manifestUris = await vscode.workspace.findFiles('**/manifest.toml');
+	return manifestUris.map((manifestUri) => ({
+		manifestUri,
+		projectUri: vscode.Uri.joinPath(manifestUri, '..'),
+	}));
+}
 
-	const projects: TiefdownProject[] = [];
-	for (const folder of folders) {
-		const manifestUri = vscode.Uri.joinPath(folder.uri, 'manifest.toml');
-		try {
-			await vscode.workspace.fs.stat(manifestUri);
-			projects.push({ folder, manifestUri });
-		} catch (error) {
-			if (error instanceof vscode.FileSystemError && error.code === 'FileNotFound') {
-				continue;
-			}
-			console.error(`Failed to access ${manifestUri.fsPath}`, error);
+async function getProjectFromFolderUri(
+	folderUri: vscode.Uri
+): Promise<TiefdownProject | undefined> {
+	try {
+		const folderStat = await vscode.workspace.fs.stat(folderUri);
+		if ((folderStat.type & vscode.FileType.Directory) === 0) {
+			return undefined;
 		}
+	} catch (error) {
+		if (error instanceof vscode.FileSystemError && error.code === 'FileNotFound') {
+			return undefined;
+		}
+		throw error;
 	}
 
-	return projects;
+	const manifestUri = vscode.Uri.joinPath(folderUri, 'manifest.toml');
+	try {
+		await vscode.workspace.fs.stat(manifestUri);
+		return { manifestUri, projectUri: folderUri };
+	} catch (error) {
+		if (error instanceof vscode.FileSystemError && error.code === 'FileNotFound') {
+			return undefined;
+		}
+		throw error;
+	}
 }
 
 async function pickProject(projects: TiefdownProject[]): Promise<TiefdownProject | undefined> {
@@ -51,11 +76,18 @@ async function pickProject(projects: TiefdownProject[]): Promise<TiefdownProject
 		return projects[0];
 	}
 
-	const items: ProjectQuickPickItem[] = projects.map((project) => ({
-		label: project.folder.name,
-		description: vscode.workspace.asRelativePath(project.manifestUri, false),
-		project,
-	}));
+	const items: ProjectQuickPickItem[] = projects.map((project) => {
+		const workspaceFolder = vscode.workspace.getWorkspaceFolder(project.projectUri);
+		const relativePath = vscode.workspace.asRelativePath(project.projectUri, false);
+		const fallbackLabel = project.projectUri.path.split('/').filter(Boolean).pop() ?? project.projectUri.toString();
+		const label = workspaceFolder?.name ?? (relativePath.length > 0 ? relativePath : fallbackLabel);
+		const description = relativePath.length > 0 ? relativePath : undefined;
+		return {
+			label,
+			description,
+			project,
+		};
+	});
 
 	const selection = await vscode.window.showQuickPick(items, {
 		placeHolder: 'Select a Tiefdown project to convert',
@@ -67,7 +99,7 @@ async function pickProject(projects: TiefdownProject[]): Promise<TiefdownProject
 async function listTemplates(project: TiefdownProject): Promise<string[]> {
 	return new Promise((resolve, reject) => {
 		const child = spawn('tiefdownconverter', ['project', 'list-templates'], {
-			cwd: project.folder.uri.fsPath,
+			cwd: project.projectUri.fsPath,
 		});
 
 		let stdout = '';
@@ -131,7 +163,7 @@ async function pickTemplates(project: TiefdownProject): Promise<string[] | undef
 		const message =
 			error instanceof Error ? error.message : 'Failed to list Tiefdown templates.';
 		const channel = getOutputChannel();
-		channel.appendLine(`Template discovery failed for ${project.folder.name}: ${message}`);
+		channel.appendLine(`Template discovery failed for ${describeProject(project)}: ${message}`);
 		if (error instanceof Error && error.stack) {
 			channel.appendLine(error.stack);
 		}
@@ -149,11 +181,13 @@ async function runConvert(project: TiefdownProject, templates?: string[]): Promi
 		args.push('--templates', ...templates);
 		commandSummary = `tiefdownconverter convert --templates ${templates.join(', ')}`;
 	}
-	channel.appendLine(`Running "${commandSummary}" in ${project.folder.uri.fsPath}`);
+	channel.appendLine(
+		`Running "${commandSummary}" in ${project.projectUri.fsPath}`
+	);
 
 	await new Promise<void>((resolve, reject) => {
 		const child = spawn('tiefdownconverter', args, {
-			cwd: project.folder.uri.fsPath,
+			cwd: project.projectUri.fsPath,
 		});
 
 		child.stdout?.on('data', (chunk: Buffer) => {
@@ -175,7 +209,9 @@ async function runConvert(project: TiefdownProject, templates?: string[]): Promi
 
 		child.on('close', (code) => {
 			if (code === 0) {
-				vscode.window.showInformationMessage(`Tiefdown conversion finished for ${project.folder.name}.`);
+				vscode.window.showInformationMessage(
+					`Tiefdown conversion finished for ${describeProject(project)}.`
+				);
 				resolve();
 				return;
 			}
@@ -210,29 +246,43 @@ export async function activate(context: vscode.ExtensionContext) {
 		})
 	);
 
-	const disposable = vscode.commands.registerCommand('tiefdown-project-support.convertProject', async () => {
-		const projects = await findProjectsWithManifest();
-		if (projects.length === 0) {
-			vscode.window.showErrorMessage('No manifest.toml found in the current workspace.');
-			return;
+	const disposable = vscode.commands.registerCommand(
+		'tiefdown-project-support.convertProject',
+		async (resourceUri?: vscode.Uri) => {
+			let project: TiefdownProject | undefined;
+			if (resourceUri && isUri(resourceUri)) {
+				project = await getProjectFromFolderUri(resourceUri);
+				if (!project) {
+					vscode.window.showErrorMessage('No manifest.toml found in the selected folder.');
+					return;
+				}
+			} else {
+				const projects = await findProjectsWithManifest();
+				if (projects.length === 0) {
+					vscode.window.showErrorMessage(
+						'No manifest.toml found in the current workspace.'
+					);
+					return;
+				}
+
+				project = await pickProject(projects);
+				if (!project) {
+					return;
+				}
+			}
+
+			const selectedTemplates = await pickTemplates(project);
+			if (selectedTemplates === undefined) {
+				return;
+			}
+
+			const templatesToConvert = selectedTemplates.length > 0 ? selectedTemplates : undefined;
+
+			await runConvert(project, templatesToConvert).catch((error) => {
+				console.error('tiefdownconverter convert failed', error);
+			});
 		}
-
-		const project = await pickProject(projects);
-		if (!project) {
-			return;
-		}
-
-		const selectedTemplates = await pickTemplates(project);
-		if (selectedTemplates === undefined) {
-			return;
-		}
-
-		const templatesToConvert = selectedTemplates.length > 0 ? selectedTemplates : undefined;
-
-		await runConvert(project, templatesToConvert).catch((error) => {
-			console.error('tiefdownconverter convert failed', error);
-		});
-	});
+	);
 
 	context.subscriptions.push(disposable);
 

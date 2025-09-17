@@ -14,7 +14,7 @@
     "Other"
   ],
   "activationEvents": [
-    "workspaceContains:manifest.toml"
+    "workspaceContains:**/manifest.toml"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -23,7 +23,16 @@
         "command": "tiefdown-project-support.convertProject",
         "title": "Tiefdown: Convert Project"
       }
-    ]
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "tiefdown-project-support.convertProject",
+          "group": "navigation",
+          "when": "resourceScheme == file && explorerResourceIsFolder && tiefdownProjectSupport.hasManifest"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "bun run package",
