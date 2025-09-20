@@ -33,11 +33,24 @@ fn add_template(project_path: &Path, template_name: &str) {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
+        .arg("processors")
+        .arg("add")
+        .arg("tmp")
+        .assert()
+        .success();
+
+    let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
+    cmd.current_dir(&project_path)
+        .arg("project")
         .arg("templates")
         .arg(template_name)
         .arg("add")
-        .arg("--template-file")
-        .arg(format!("{}.tex", template_name))
+        .arg("--template-type")
+        .arg("custom-processor")
+        .arg("--output")
+        .arg("test.docx")
+        .arg("--processor")
+        .arg("tmp")
         .assert()
         .success();
 
@@ -55,7 +68,7 @@ fn convert(project_path: &Path) {
     cmd.current_dir(&project_path)
         .arg("convert")
         .arg("-t")
-        .arg("")
+        .arg("tmp")
         .assert()
         .success();
 

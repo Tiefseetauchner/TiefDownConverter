@@ -9,6 +9,7 @@ use crate::project_management::load_and_convert_manifest;
 use crate::project_management::run_smart_clean;
 use chrono::prelude::DateTime;
 use chrono::prelude::Utc;
+use color_eyre::eyre::OptionExt;
 use color_eyre::eyre::Result;
 use color_eyre::eyre::eyre;
 use fs_extra::dir;
@@ -21,15 +22,14 @@ use std::path::Path;
 use std::path::PathBuf;
 use toml::Table;
 
-/// Converts a TiefDown project to specified templates.
-///
-/// Runs the conversion process for all markdown projects in the project.
-///
-/// If no templates are specified, all templates are converted, a profile will be tried.
-///
-/// If no profile is specified, the default profile for the corresponding markdown project is used.
-///
-/// If no profile is specified and no default profile is available, all templates are converted.
+/// A task representing the conversion of a markdown project using a specific template.
+/// Contains the markdown project and the template name.
+pub struct ConversionTask {
+    pub markdown_project: MarkdownProject,
+    pub template: String,
+}
+
+/// Prepares the conversion queue based on the provided arguments.
 ///
 /// # Arguments
 ///
@@ -38,15 +38,92 @@ use toml::Table;
 /// * `templates` - A list of template names to convert to.
 ///   * Defaults to all templates if not provided.
 /// * `profile` - The name of the profile to use for conversion.
+/// * `selected_markdown_projects` - A list of markdown project names to convert.
+///   * Defaults to all markdown projects if not provided.
+///
+/// # Returns
+///
+/// A Result containing either an error or a vector of ConversionTask.
+pub fn get_conversion_queue(
+    project: Option<PathBuf>,
+    templates: Option<Vec<String>>,
+    profile: Option<String>,
+    selected_markdown_projects: Option<Vec<String>>,
+) -> Result<Vec<ConversionTask>> {
+    if profile.is_some() && templates.is_some() {
+        return Err(eyre!("Cannot specify both templates and a profile."));
+    }
+
+    let project = project.unwrap_or(PathBuf::from("."));
+
+    if !project.exists() {
+        return Err(eyre!("Project path does not exist."));
+    }
+
+    let manifest_path = project.join("manifest.toml");
+    let manifest = load_and_convert_manifest(&manifest_path)?;
+
+    let mut queue = vec![];
+
+    let markdown_projects = manifest
+        .markdown_projects
+        .clone()
+        .unwrap_or(vec![MarkdownProject {
+            name: "Default".to_string(),
+            path: PathBuf::from("Markdown"),
+            output: PathBuf::from("."),
+            metadata_fields: None,
+            default_profile: None,
+            resources: None,
+        }]);
+
+    let markdown_projects = if let Some(selected_markdown_projects) = selected_markdown_projects {
+        markdown_projects
+            .into_iter()
+            .filter(|mp| selected_markdown_projects.contains(&mp.name))
+            .collect()
+    } else {
+        markdown_projects
+    };
+
+    for markdown_project in markdown_projects {
+        let profile = if let Some(profile) = profile.clone() {
+            Some(profile)
+        } else {
+            markdown_project.clone().default_profile
+        };
+
+        let templates = get_template_names(&templates, &profile, &manifest)?;
+
+        for template in templates {
+            queue.push(ConversionTask {
+                markdown_project: markdown_project.clone(),
+                template,
+            });
+        }
+    }
+
+    Ok(queue)
+}
+
+/// Converts a TiefDown project to specified templates.
+///
+/// Runs the conversion process for all conversion tasks specified in the conversion queue.
+///
+/// # Arguments
+///
+/// * `project` - The path to the project directory (relative or absolute).
+///   * Defaults to the current directory if not provided.
+/// * `conversion_queue` - A vector of ConversionTask specifying which markdown projects to convert and which templates to use.
+///   * Each ConversionTask contains a markdown project and a template name.
+///   * A markdown project may be converted to multiple templates.
+///   * A template may be used for multiple markdown projects.
+///   * If empty, no conversion will be performed.
 ///
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
-pub fn convert(
-    project: Option<PathBuf>,
-    templates: Option<Vec<String>>,
-    profile: Option<String>,
-) -> Result<()> {
+pub fn convert(project: Option<PathBuf>, conversion_queue: Vec<ConversionTask>) -> Result<()> {
     let pandoc_errors = get_missing_dependencies(vec!["pandoc"])?;
 
     if !pandoc_errors.is_empty() {
@@ -86,30 +163,17 @@ pub fn convert(
         compiled_directory_path.display()
     );
 
-    for markdown_project in manifest
-        .markdown_projects
-        .clone()
-        .unwrap_or(vec![MarkdownProject {
-            name: "Default".to_string(),
-            path: PathBuf::from("Markdown"),
-            output: PathBuf::from("."),
-            metadata_fields: None,
-            default_profile: None,
-            resources: None,
-        }])
-    {
-        info!("Converting markdown project: {}", markdown_project.name);
+    for conversion_task in conversion_queue {
+        let markdown_project = conversion_task.markdown_project;
+        let template = conversion_task.template;
 
-        let profile = profile.clone().or(markdown_project.default_profile.clone());
+        info!(
+            "Converting markdown project '{}' with template '{}'.",
+            markdown_project.name, template
+        );
 
-        if let Some(ref profile) = profile {
-            debug!("Using profile: {}", profile);
-        }
-
-        let templates = get_template_names(&templates, profile, &manifest)?;
-        debug!("Templates selected ({}): {:?}", templates.len(), templates);
-        let templates = get_template_mappings_from_names(&templates, &manifest)?;
-        debug!("Resolved {} template mappings.", templates.len());
+        let template = get_template_mapping_from_name(&template, &manifest)?;
+        debug!("Resolved template mapping for {}.", template.name);
         let markdown_project_compiled_directory_path =
             compiled_directory_path.join(markdown_project.output.clone());
 
@@ -142,31 +206,29 @@ pub fn convert(
             project_metadata.len()
         );
 
-        for template in &templates {
-            let conversion_input_dir =
-                &markdown_project_compiled_directory_path.join(template.name.clone() + "_convdir/");
-            debug!(
-                "Prepared conversion input directory: {}",
-                conversion_input_dir.display()
-            );
+        let conversion_input_dir =
+            &markdown_project_compiled_directory_path.join(template.name.clone() + "_convdir/");
+        debug!(
+            "Prepared conversion input directory: {}",
+            conversion_input_dir.display()
+        );
 
-            copy_markdown_directory(
-                &input_dir,
-                &conversion_input_dir,
-                &markdown_project.resources,
-            )?;
+        copy_markdown_directory(
+            &input_dir,
+            &conversion_input_dir,
+            &markdown_project.resources,
+        )?;
 
-            convert_template(
-                &markdown_project_compiled_directory_path,
-                template,
-                &project,
-                &conversion_input_dir,
-                &markdown_project.output,
-                &merged_metadata,
-                &manifest.metadata_settings,
-                &manifest.custom_processors,
-            )?;
-        }
+        convert_template(
+            &markdown_project_compiled_directory_path,
+            &template,
+            &project,
+            &conversion_input_dir,
+            &markdown_project.output,
+            &merged_metadata,
+            &manifest.metadata_settings,
+            &manifest.custom_processors,
+        )?;
     }
 
     Ok(())
@@ -220,7 +282,7 @@ fn merge_metadata(shared_metadata: &Table, project_metadata: &Table) -> Table {
 
 fn get_template_names(
     templates: &Option<Vec<String>>,
-    profile: Option<String>,
+    profile: &Option<String>,
     manifest: &Manifest,
 ) -> Result<Vec<String>> {
     if let Some(templates) = templates {
@@ -233,7 +295,7 @@ fn get_template_names(
 
     if let Some(profile) = profile {
         if let Some(available_profiles) = &manifest.profiles {
-            if let Some(profile_pos) = available_profiles.iter().position(|p| p.name == profile) {
+            if let Some(profile_pos) = available_profiles.iter().position(|p| p.name == *profile) {
                 let resolved: Vec<String> = available_profiles[profile_pos]
                     .templates
                     .iter()
@@ -260,21 +322,20 @@ fn get_template_names(
     Ok(all)
 }
 
-fn get_template_mappings_from_names(
-    templates: &Vec<String>,
+fn get_template_mapping_from_name(
+    template: &String,
     manifest: &Manifest,
-) -> Result<Vec<TemplateMapping>> {
-    let templates = templates
+) -> Result<TemplateMapping> {
+    let template = manifest
+        .templates
         .iter()
-        .map(|t| manifest.templates.iter().find(|mapping| mapping.name == *t))
-        .filter_map(|t| t.cloned())
-        .collect::<Vec<_>>();
-    debug!(
-        "get_template_mappings_from_names: resolved {} mappings from {} names.",
-        templates.len(),
-        templates.len()
-    );
-    Ok(templates)
+        .find(|mapping| mapping.name == *template)
+        .ok_or_eyre(eyre!(
+            "Template '{}' could not be found in the manifest.",
+            template
+        ))?;
+
+    Ok(template.clone())
 }
 
 fn create_build_directory(project_path: &Path) -> Result<std::path::PathBuf> {
@@ -373,6 +434,6 @@ fn convert_template(
 
     debug!("Copying finished.");
 
-    info!("Converted template: {}", template.name);
+    info!("Conversion successful.");
     Ok(())
 }

@@ -61,12 +61,20 @@ fn main() -> Result<()> {
             project,
             templates,
             profile,
+            markdown_projects,
         } => {
             if profile.is_some() && templates.is_some() {
                 return Err(eyre!("Cannot specify both templates and a profile."));
             }
 
-            conversion::convert(project, templates, profile)?
+            let conversion_queue = conversion::get_conversion_queue(
+                project.clone(),
+                templates,
+                profile,
+                markdown_projects,
+            )?;
+
+            conversion::convert(project, conversion_queue)?
         }
         Commands::Init {
             project,
