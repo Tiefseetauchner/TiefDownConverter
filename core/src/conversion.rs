@@ -168,7 +168,7 @@ pub fn convert(project: Option<PathBuf>, conversion_queue: Vec<ConversionTask>) 
         let template = conversion_task.template;
 
         info!(
-            "Converting markdown project '{}' with template '{}'",
+            "Converting markdown project '{}' with template '{}'.",
             markdown_project.name, template
         );
 
@@ -434,6 +434,6 @@ fn convert_template(
 
     debug!("Copying finished.");
 
-    info!("Converted template: {}", template.name);
+    info!("Conversion successful.");
     Ok(())
 }
