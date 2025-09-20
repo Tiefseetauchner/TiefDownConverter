@@ -3,7 +3,7 @@ resolver = "3"
 members = ["core", "cli"]
 
 [workspace.package]
-version = "0.9.0"
+version = "0.9.1-ALPHA.1"
 authors = ["Lena Tauchner <tiefseetauchner@lukechriswalker.at>"]
 edition = "2024"
 repository = "https://github.com/Tiefseetauchner/tiefdownconverter"
