@@ -22,11 +22,28 @@ use std::path::Path;
 use std::path::PathBuf;
 use toml::Table;
 
+/// A task representing the conversion of a markdown project using a specific template.
+/// Contains the markdown project and the template name.
 pub struct ConversionTask {
     pub markdown_project: MarkdownProject,
     pub template: String,
 }
 
+/// Prepares the conversion queue based on the provided arguments.
+///
+/// # Arguments
+///
+/// * `project` - The path to the project directory (relative or absolute).
+///   * Defaults to the current directory if not provided.
+/// * `templates` - A list of template names to convert to.
+///   * Defaults to all templates if not provided.
+/// * `profile` - The name of the profile to use for conversion.
+/// * `selected_markdown_projects` - A list of markdown project names to convert.
+///   * Defaults to all markdown projects if not provided.
+///
+/// # Returns
+///
+/// A Result containing either an error or a vector of ConversionTask.
 pub fn get_conversion_queue(
     project: Option<PathBuf>,
     templates: Option<Vec<String>>,
@@ -91,21 +108,17 @@ pub fn get_conversion_queue(
 
 /// Converts a TiefDown project to specified templates.
 ///
-/// Runs the conversion process for all markdown projects in the project.
-///
-/// If no templates are specified, all templates are converted, a profile will be tried.
-///
-/// If no profile is specified, the default profile for the corresponding markdown project is used.
-///
-/// If no profile is specified and no default profile is available, all templates are converted.
+/// Runs the conversion process for all conversion tasks specified in the conversion queue.
 ///
 /// # Arguments
 ///
 /// * `project` - The path to the project directory (relative or absolute).
 ///   * Defaults to the current directory if not provided.
-/// * `templates` - A list of template names to convert to.
-///   * Defaults to all templates if not provided.
-/// * `profile` - The name of the profile to use for conversion.
+/// * `conversion_queue` - A vector of ConversionTask specifying which markdown projects to convert and which templates to use.
+///   * Each ConversionTask contains a markdown project and a template name.
+///   * A markdown project may be converted to multiple templates.
+///   * A template may be used for multiple markdown projects.
+///   * If empty, no conversion will be performed.
 ///
 /// # Returns
 ///
