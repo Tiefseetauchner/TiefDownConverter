@@ -191,6 +191,9 @@ will be used to convert the markdown project _by default_. That doesn't mean you
 all templates as you wish, you can always use the `--profile` flag to specify a different
 profile or the `--templates` flag to specify a different set of templates.
 
+The convert command also accepts a list of markdown projects using the -m flag. The provided
+templates or profile are then only converted for the specified markdown projects.
+
 ## Input Processing
 
 Input processing converts source files into a format your template includes. This happens
