@@ -48,6 +48,15 @@ pub(crate) enum Commands {
             help = "The conversion profile to use. Cannot be used with --templates."
         )]
         profile: Option<String>,
+        #[arg(
+            short,
+            long,
+            help = "The markdown projects to convert. If not provided, all markdown projects will be converted.",
+            use_value_delimiter = true,
+            value_delimiter = ',',
+            num_args = 1..,
+        )]
+        markdown_projects: Option<Vec<String>>,
     },
     #[command(about = "Initialize a new TiefDown project.")]
     Init {
