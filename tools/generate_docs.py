@@ -101,6 +101,16 @@ def generate_markdown(command, subcommand_chain=""):
     for subcmd in subcommands:
         generate_markdown(command + [subcmd], f"{subcommand_chain} {subcmd}".strip())
 
+def run_cargo_build():
+    """Runs cargo build with LOCAL_BUILD env var to ensure man docs are up to date."""
+    try:
+        subprocess.run(["cargo", "build", "--release"], check=True, env={**os.environ, "LOCAL_BUILD": "1"})
+        print("Cargo build completed successfully.")
+    except subprocess.CalledProcessError:
+        print("Error: Cargo build failed.")
+        exit(1)
+
 if __name__ == "__main__":
     generate_markdown([CLI_EXEC])
+    run_cargo_build()
     print(f"Markdown documentation generated in `{DOCS_DIR}`!")

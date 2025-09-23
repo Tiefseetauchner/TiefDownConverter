@@ -3,6 +3,10 @@ use std::io::Write;
 use std::path::Path;
 
 fn main() {
+    if std::env::var("LOCAL_BUILD").is_err() {
+        return;
+    }
+
     let version = std::env::var("CARGO_PKG_VERSION").unwrap();
     let raw_authors = std::env::var("CARGO_PKG_AUTHORS").unwrap();
     let authors_cleaned = raw_authors
