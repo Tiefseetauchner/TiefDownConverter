@@ -3,13 +3,13 @@ name: Create Release
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 jobs:
   build:
     name: Build for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-    
+
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -61,19 +61,10 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Print stuff
-        run: |
-          echo "${{ github.event.workflow_run.id }}"
-          echo "${{github.event.pull_request.head.sha}}"
-
       - name: Download artifact
-        id: download-artifact
-        uses: dawidd6/action-download-artifact@v11
+        uses: actions/download-artifact@v4
         with:
-          name: .*
-          name_is_regexp: true
           path: artifacts/
-          run_id: ${{ github.event.workflow_run.id }}
 
       - name: Determine Pre-release Status
         id: prerelease_check
