@@ -18,6 +18,10 @@ processor_args = ["--to", "html5", "-s", "--metadata", "title={{title}}", "--met
 name = "Typst Font Directory"
 processor_args = ["--font-path", "fonts/"]
 
+[[injections]]
+files = ["javascript_injection.html"]
+name = "HTML JS"
+
 [[markdown_projects]]
 default_profile = "Documentation"
 name = "CLI Docs"
@@ -97,6 +101,7 @@ combined_output = "tiefdownconverter.1"
 preprocessors = ["Man Page"]
 
 [[templates]]
+footer_injections = ["HTML JS"]
 name = "GitHub Page Documentation"
 output = "index.html"
 processor = "HTML Conversion"
