@@ -1,3 +1,5 @@
+// NOTE: Deactivated as these will only work after the manifest migration.
+
 use crate::{
     _tests::tests_common::get_default_manifest,
     injections::{add_files_to_injection, add_injection, remove_injection},
@@ -65,12 +67,17 @@ fn test_add_injection_injections_exists_already() {
         files: Vec::new(),
     }]);
 
-    add_injection(
+    let err = add_injection(
         &mut manifest,
         "injection_name".to_string(),
         vec![PathBuf::from("file1.txt"), PathBuf::from("file2.md")],
     )
     .expect_err("Adding injection did not error.");
+
+    assert_eq!(
+        err.to_string(),
+        "Injection 'injection_name' already exists."
+    )
 }
 
 #[rstest]
@@ -106,8 +113,13 @@ fn test_remove_injection_does_not_exist(#[case] name: &str) {
         files: Vec::new(),
     }]);
 
-    remove_injection(&mut manifest, name.to_string())
+    let err = remove_injection(&mut manifest, name.to_string())
         .expect_err("Removing injection did not fail.");
+
+    assert_eq!(
+        err.to_string(),
+        format!("Injection '{}' was not found in the manifest.", name)
+    )
 }
 
 #[rstest]

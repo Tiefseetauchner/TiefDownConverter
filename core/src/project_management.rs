@@ -119,6 +119,7 @@ This is a simple test document for you to edit or overwrite."#,
         shared_metadata: None,
         metadata_settings: None,
         profiles: None,
+        injections: None,
     };
 
     std::fs::write(manifest_path.clone(), toml::to_string(&manifest)?)?;
@@ -137,6 +138,9 @@ fn get_template_mapping_for_preset(template: &String) -> Result<Template> {
         filters: None,
         preprocessors: None,
         processor: None,
+        header_injections: None,
+        body_injections: None,
+        footer_injections: None,
     };
 
     add_lix_filters(&mut template);
@@ -172,6 +176,9 @@ pub fn add_template(
     preprocessors: Option<Vec<String>>,
     preprocessor_output: Option<PathBuf>,
     processor: Option<String>,
+    header_injections: Option<Vec<String>>,
+    body_injections: Option<Vec<String>>,
+    footer_injections: Option<Vec<String>>,
 ) -> Result<()> {
     debug!(
         "Adding template '{}' (type: {:?})...",
@@ -218,6 +225,9 @@ pub fn add_template(
         filters,
         preprocessors: template_preprocessors,
         processor,
+        header_injections,
+        body_injections,
+        footer_injections,
     };
 
     create_templates(&project, &vec![template.clone()])?;
@@ -322,6 +332,9 @@ pub fn update_template(
     remove_preprocessors: Option<Vec<String>>,
     preprocessor_output: Option<PathBuf>,
     processor: Option<String>,
+    header_injections: Option<Vec<String>>,
+    body_injections: Option<Vec<String>>,
+    footer_injections: Option<Vec<String>>,
 ) -> Result<()> {
     debug!(
         "Updating template '{}' (fields provided: type={:?}, file={:?}, output={:?})",
@@ -428,6 +441,10 @@ pub fn update_template(
         }
 
         template.processor = processor.or(template.processor.clone());
+
+        template.header_injections = header_injections.or(template.header_injections.clone());
+        template.body_injections = body_injections.or(template.body_injections.clone());
+        template.footer_injections = footer_injections.or(template.footer_injections.clone());
     } else {
         return Err(eyre!(
             "Template with name '{}' does not exist.",
@@ -454,7 +471,7 @@ pub fn update_template(
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
-pub fn update_manifest(
+pub fn update_settings(
     project: Option<PathBuf>,
     smart_clean: Option<bool>,
     smart_clean_threshold: Option<u32>,
@@ -882,7 +899,7 @@ pub(crate) fn get_missing_dependencies(dependencies: Vec<&str>) -> Result<Vec<St
     Ok(errors)
 }
 
-pub(crate) fn load_and_convert_manifest(manifest_path: &std::path::PathBuf) -> Result<Manifest> {
+pub fn load_and_convert_manifest(manifest_path: &std::path::PathBuf) -> Result<Manifest> {
     if !manifest_path.exists() {
         return Err(eyre!(
             "Manifest file does not exist. Please initialize a project before editing it."
@@ -924,16 +941,6 @@ pub(crate) fn load_and_convert_manifest(manifest_path: &std::path::PathBuf) -> R
     let manifest: Manifest = toml::from_str(manifest)?;
 
     Ok(manifest)
-}
-
-pub(crate) fn get_project_path(project: Option<PathBuf>) -> Result<PathBuf> {
-    let project = project.unwrap_or(PathBuf::from("."));
-
-    if !project.exists() {
-        return Err(eyre!("Project path does not exist."));
-    }
-
-    Ok(project)
 }
 
 fn create_templates(project: &std::path::Path, templates: &Vec<Template>) -> Result<()> {

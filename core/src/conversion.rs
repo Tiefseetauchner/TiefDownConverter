@@ -1,4 +1,5 @@
 use crate::conversion_decider;
+use crate::manifest_model::Injection;
 use crate::manifest_model::Manifest;
 use crate::manifest_model::MarkdownProject;
 use crate::manifest_model::MetadataSettings;
@@ -228,6 +229,7 @@ pub fn convert(project: Option<PathBuf>, conversion_queue: Vec<ConversionTask>) 
             &merged_metadata,
             &manifest.metadata_settings,
             &manifest.custom_processors,
+            &manifest.injections.clone().unwrap_or(vec![]),
         )?;
     }
 
@@ -393,6 +395,7 @@ fn convert_template(
     metadata_fields: &Table,
     metadata_settings: &Option<MetadataSettings>,
     custom_processors: &Processors,
+    injections: &Vec<Injection>,
 ) -> Result<()> {
     debug!("Starting template conversion for '{}'.", template.name);
     debug!("  Template type: '{}'.", template.template_type);
@@ -413,6 +416,7 @@ fn convert_template(
         metadata_fields,
         &metadata_settings,
         custom_processors,
+        injections,
     )?;
 
     debug!("Converter finished.");

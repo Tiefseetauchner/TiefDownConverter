@@ -1,5 +1,5 @@
 use crate::{
-    manifest_model::{MetadataSettings, PreProcessor, PreProcessors, Template},
+    manifest_model::{Injection, MetadataSettings, PreProcessor, PreProcessors, Template},
     template_type::TemplateType,
 };
 use color_eyre::eyre::{Ok, Result, eyre};
@@ -86,12 +86,20 @@ pub(crate) fn run_preprocessors_on_inputs(
     metadata_fields: &Table,
     _metadata_settings: &MetadataSettings,
     preprocessors: &Vec<PreProcessor>,
+    injections: &Vec<Injection>,
 ) -> Result<Vec<String>> {
     debug!("Collecting input files for preprocessing...");
+
+    let (header_injections, body_injections, footer_injections) =
+        get_injections(template, injections)?;
+
     let input_files = get_sorted_files(
         conversion_input_dir,
         project_directory_path,
         compiled_directory_path,
+        &header_injections,
+        &body_injections,
+        &footer_injections,
     )?;
     debug!("Found {} input files.", input_files.len());
 
@@ -300,10 +308,63 @@ pub(crate) fn get_relative_path_from_compiled_dir(
     Some(relative_path)
 }
 
+fn get_injections(
+    template: &Template,
+    injections: &Vec<Injection>,
+) -> Result<(Vec<PathBuf>, Vec<PathBuf>, Vec<PathBuf>)> {
+    let header_injections = resolve_injections(
+        &injections,
+        template.header_injections.clone().unwrap_or(vec![]),
+        &template.name,
+    )?;
+    let body_injections = resolve_injections(
+        &injections,
+        template.body_injections.clone().unwrap_or(vec![]),
+        &template.name,
+    )?;
+    let footer_injections = resolve_injections(
+        &injections,
+        template.footer_injections.clone().unwrap_or(vec![]),
+        &template.name,
+    )?;
+
+    Ok((header_injections, body_injections, footer_injections))
+}
+
+fn resolve_injections<'a>(
+    injections: &Vec<Injection>,
+    template_injections: Vec<String>,
+    template_name: &String,
+) -> Result<Vec<PathBuf>> {
+    let injections = template_injections
+        .iter()
+        .map(|n| {
+            injections
+                .iter()
+                .find(|i| i.name == *n)
+                .ok_or(eyre!(
+                    "Injection '{}' referenced in template '{}' was not found in manifest.",
+                    n,
+                    template_name
+                ))
+                .and_then(|i| Ok(i.files.clone()))
+        })
+        .collect::<Result<Vec<_>>>()?
+        .iter()
+        .flatten()
+        .map(|p| p.clone())
+        .collect::<Vec<_>>();
+
+    Ok(injections)
+}
+
 fn get_sorted_files(
     input_dir: &Path,
     project_directory_path: &Path,
     compiled_directory_path: &Path,
+    header_injections: &Vec<PathBuf>,
+    body_injections: &Vec<PathBuf>,
+    footer_injections: &Vec<PathBuf>,
 ) -> Result<Vec<PathBuf>> {
     let dir_content = fs::read_dir(input_dir)?;
 
@@ -314,6 +375,8 @@ fn get_sorted_files(
             Some(entry.path())
         })
         .collect::<Vec<_>>();
+
+    dir_content.append(&mut body_injections.clone());
 
     dir_content.sort_by(|a, b| {
         let a_num = retrieve_file_order_number(a);
@@ -333,14 +396,25 @@ fn get_sorted_files(
         }
     });
 
-    let input_files = dir_content
+    let injected_content = &mut header_injections.clone();
+    injected_content.append(&mut dir_content);
+    injected_content.append(&mut footer_injections.clone());
+
+    let input_files = injected_content
         .iter()
         .map(|f| {
             if f.is_file() {
                 return Ok(vec![f.clone()]);
             }
 
-            get_sorted_files(f, project_directory_path, compiled_directory_path)
+            get_sorted_files(
+                f,
+                project_directory_path,
+                compiled_directory_path,
+                &vec![],
+                &vec![],
+                &vec![],
+            )
         })
         .collect::<Vec<_>>();
 

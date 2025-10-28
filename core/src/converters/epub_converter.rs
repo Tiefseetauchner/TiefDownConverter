@@ -14,7 +14,7 @@ use crate::{
         run_preprocessors_on_inputs, run_with_logging, write_combined_output,
     },
     manifest_model::{
-        DEFAULT_CUSTOM_PROCESSOR_PREPROCESSORS, MetadataSettings, Processors, Template,
+        DEFAULT_CUSTOM_PROCESSOR_PREPROCESSORS, Injection, MetadataSettings, Processors, Template,
     },
     template_management::{get_output_path, get_template_path},
 };
@@ -27,6 +27,7 @@ pub(crate) fn convert_epub(
     metadata_fields: &Table,
     metadata_settings: &MetadataSettings,
     custom_processors: &Processors,
+    injections: &Vec<Injection>,
 ) -> Result<PathBuf> {
     debug!("Starting EPUB conversion process.");
 
@@ -75,6 +76,7 @@ pub(crate) fn convert_epub(
         metadata_fields,
         metadata_settings,
         &preprocessors,
+        injections,
     )?;
 
     let pandoc_native = combine_pandoc_native(results);

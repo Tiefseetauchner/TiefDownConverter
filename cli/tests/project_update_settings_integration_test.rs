@@ -34,7 +34,7 @@ fn test_update_manifest_enable_smart_clean_with_arg() {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("update-manifest")
+        .arg("update-settings")
         .arg("--smart-clean")
         .arg("true")
         .assert()
@@ -56,7 +56,7 @@ fn test_update_manifest_disable_smart_clean() {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("update-manifest")
+        .arg("update-settings")
         .arg("--smart-clean")
         .arg("false")
         .assert()
@@ -85,7 +85,7 @@ fn test_update_manifest_change_smart_clean_threshold(#[case] threshold: &str) {
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
         .arg("project")
-        .arg("update-manifest")
+        .arg("update-settings")
         .arg("--smart-clean-threshold")
         .arg(threshold)
         .assert()

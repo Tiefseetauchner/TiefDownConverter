@@ -14,7 +14,9 @@ use crate::{
         merge_preprocessors, retrieve_combined_output, retrieve_preprocessors,
         run_preprocessors_on_inputs, run_with_logging, write_combined_output,
     },
-    manifest_model::{DEFAULT_TEX_PREPROCESSORS, MetadataSettings, Processors, Template},
+    manifest_model::{
+        DEFAULT_TEX_PREPROCESSORS, Injection, MetadataSettings, Processors, Template,
+    },
     template_management::{get_output_path, get_template_path},
 };
 
@@ -26,6 +28,7 @@ pub fn convert_latex(
     metadata_fields: &Table,
     metadata_settings: &MetadataSettings,
     custom_processors: &Processors,
+    injections: &Vec<Injection>,
 ) -> Result<PathBuf> {
     debug!(
         "Starting LaTeX conversion for template '{}'...",
@@ -71,6 +74,7 @@ pub fn convert_latex(
         metadata_fields,
         metadata_settings,
         &preprocessors,
+        injections,
     )?;
 
     write_combined_output(compiled_directory_path, &combined_output, &results)?;

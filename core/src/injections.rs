@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use crate::manifest_model::{Injection, Manifest};
+use crate::{manifest_model::Injection, project_management::load_and_convert_manifest};
 use color_eyre::eyre::{Result, eyre};
 use log::debug;
 
@@ -15,7 +15,12 @@ use log::debug;
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
-pub fn add_injection(manifest: &mut Manifest, name: String, files: Vec<PathBuf>) -> Result<()> {
+pub fn add_injection(project: Option<PathBuf>, name: String, files: Vec<PathBuf>) -> Result<()> {
+    let project = project.unwrap_or(PathBuf::from("."));
+    let manifest_path = project.join("manifest.toml");
+
+    let mut manifest = load_and_convert_manifest(&manifest_path)?;
+
     let injection = Injection {
         name: name.clone(),
         files: files.clone(),
@@ -31,6 +36,8 @@ pub fn add_injection(manifest: &mut Manifest, name: String, files: Vec<PathBuf>)
         manifest.injections = Some(vec![injection]);
     }
 
+    let manifest_content = toml::to_string(&manifest)?;
+    std::fs::write(&manifest_path, manifest_content)?;
     debug!("Injection '{}' added.", name);
 
     Ok(())
@@ -46,7 +53,12 @@ pub fn add_injection(manifest: &mut Manifest, name: String, files: Vec<PathBuf>)
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
-pub fn remove_injection(manifest: &mut Manifest, name: String) -> Result<()> {
+pub fn remove_injection(project: Option<PathBuf>, name: String) -> Result<()> {
+    let project = project.unwrap_or(PathBuf::from("."));
+    let manifest_path = project.join("manifest.toml");
+
+    let mut manifest = load_and_convert_manifest(&manifest_path)?;
+
     if let Some(injections) = manifest.injections.as_mut() {
         if let Some(pos) = injections.iter().position(|i| i.name == name) {
             injections.remove(pos);
@@ -56,6 +68,10 @@ pub fn remove_injection(manifest: &mut Manifest, name: String) -> Result<()> {
     } else {
         return Err(eyre!("No injections defined in the manifest."));
     }
+
+    let manifest_content = toml::to_string(&manifest)?;
+    std::fs::write(&manifest_path, manifest_content)?;
+    debug!("Removed injection '{}'", name);
 
     Ok(())
 }
@@ -69,7 +85,12 @@ pub fn remove_injection(manifest: &mut Manifest, name: String) -> Result<()> {
 /// # Returns
 ///
 /// A Result containing either an error or a vector of Injection objects.
-pub fn get_injections(manifest: Manifest) -> Result<Vec<Injection>> {
+pub fn get_injections(project: Option<PathBuf>) -> Result<Vec<Injection>> {
+    let project = project.unwrap_or(PathBuf::from("."));
+    let manifest_path = project.join("manifest.toml");
+
+    let manifest = load_and_convert_manifest(&manifest_path)?;
+
     if let Some(injections) = manifest.injections {
         Ok(injections)
     } else {
@@ -89,10 +110,15 @@ pub fn get_injections(manifest: Manifest) -> Result<Vec<Injection>> {
 ///
 /// A Result containing either an error or nothing.
 pub fn add_files_to_injection(
-    manifest: &mut Manifest,
+    project: Option<PathBuf>,
     name: String,
     files: Vec<PathBuf>,
 ) -> Result<()> {
+    let project = project.unwrap_or(PathBuf::from("."));
+    let manifest_path = project.join("manifest.toml");
+
+    let mut manifest = load_and_convert_manifest(&manifest_path)?;
+
     let mut new_files = files.clone();
 
     manifest
@@ -107,6 +133,8 @@ pub fn add_files_to_injection(
         .files
         .append(&mut new_files);
 
+    let manifest_content = toml::to_string(&manifest)?;
+    std::fs::write(&manifest_path, manifest_content)?;
     debug!("Added {} files to the injection '{}'.", files.len(), name);
 
     Ok(())
