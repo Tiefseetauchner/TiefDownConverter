@@ -231,8 +231,8 @@ id="toc-projecttemplatesupdate"><code>tiefdownconverter project templates update
 <ul>
 <li><a href="#usage-8" id="toc-usage-8">Usage:</a></li>
 </ul></li>
-<li><a href="#projectupdate-manifest"
-id="toc-projectupdate-manifest"><code>tiefdownconverter project update-manifest</code></a>
+<li><a href="#projectupdate-settings"
+id="toc-projectupdate-settings"><code>tiefdownconverter project update-settings</code></a>
 <ul>
 <li><a href="#usage-9" id="toc-usage-9">Usage:</a></li>
 </ul></li>
@@ -395,25 +395,47 @@ id="toc-projectmarkdownlist"><code>tiefdownconverter project markdown list</code
 <ul>
 <li><a href="#usage-38" id="toc-usage-38">Usage:</a></li>
 </ul></li>
+<li><a href="#projectinjections"
+id="toc-projectinjections"><code>tiefdownconverter project injections</code></a>
+<ul>
+<li><a href="#usage-39" id="toc-usage-39">Usage:</a></li>
+<li><a href="#subcommands-10"
+id="toc-subcommands-10">Subcommands:</a></li>
+</ul></li>
+<li><a href="#projectinjectionscreate"
+id="toc-projectinjectionscreate"><code>tiefdownconverter project injections create</code></a>
+<ul>
+<li><a href="#usage-40" id="toc-usage-40">Usage:</a></li>
+</ul></li>
+<li><a href="#projectinjectionsremove"
+id="toc-projectinjectionsremove"><code>tiefdownconverter project injections remove</code></a>
+<ul>
+<li><a href="#usage-41" id="toc-usage-41">Usage:</a></li>
+</ul></li>
+<li><a href="#projectinjectionsadd-files"
+id="toc-projectinjectionsadd-files"><code>tiefdownconverter project injections add-files</code></a>
+<ul>
+<li><a href="#usage-42" id="toc-usage-42">Usage:</a></li>
+</ul></li>
 <li><a href="#projectlist-templates"
 id="toc-projectlist-templates"><code>tiefdownconverter project list-templates</code></a>
 <ul>
-<li><a href="#usage-39" id="toc-usage-39">Usage:</a></li>
+<li><a href="#usage-43" id="toc-usage-43">Usage:</a></li>
 </ul></li>
 <li><a href="#projectclean"
 id="toc-projectclean"><code>tiefdownconverter project clean</code></a>
 <ul>
-<li><a href="#usage-40" id="toc-usage-40">Usage:</a></li>
+<li><a href="#usage-44" id="toc-usage-44">Usage:</a></li>
 </ul></li>
 <li><a href="#projectsmart-clean"
 id="toc-projectsmart-clean"><code>tiefdownconverter project smart-clean</code></a>
 <ul>
-<li><a href="#usage-41" id="toc-usage-41">Usage:</a></li>
+<li><a href="#usage-45" id="toc-usage-45">Usage:</a></li>
 </ul></li>
 <li><a href="#check-dependencies"
 id="toc-check-dependencies"><code>tiefdownconverter check-dependencies</code></a>
 <ul>
-<li><a href="#usage-42" id="toc-usage-42">Usage:</a></li>
+<li><a href="#usage-46" id="toc-usage-46">Usage:</a></li>
 </ul></li>
 </ul></li>
 <li><a href="#contributing" id="toc-contributing">Contributing</a>
@@ -1244,7 +1266,7 @@ ones that are older than the threshold.</p>
 documentation, please see the <a href="#usage">Usage</a> section.</p>
 <h2 id="main"><code>tiefdownconverter</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-1">Usage:</h3>
 <pre><code>TiefDownConverter manages TiefDown projects.
 TiefDown is a project structure meant to simplify the conversion process from Markdown to PDFs.
@@ -1278,7 +1300,7 @@ Options:
 </ul>
 <h2 id="convert"><code>tiefdownconverter convert</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-2">Usage:</h3>
 <pre><code>Convert a TiefDown project. By default, it will convert the current directory.
 
@@ -1299,7 +1321,7 @@ Options:
           Print help</code></pre>
 <h2 id="init"><code>tiefdownconverter init</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-3">Usage:</h3>
 <pre><code>Initialize a new TiefDown project.
 
@@ -1342,7 +1364,7 @@ Options:
           Print help (see a summary with &#39;-h&#39;)</code></pre>
 <h2 id="project"><code>tiefdownconverter project</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-4">Usage:</h3>
 <pre><code>Update the TiefDown project.
 
@@ -1350,12 +1372,13 @@ Usage: tiefdownconverter project [OPTIONS] [PROJECT] &lt;COMMAND&gt;
 
 Commands:
   templates        Add or modify templates in the project.
-  update-manifest  Update the project manifest.
+  update-settings  Update the project manifest settings.
   pre-processors   Manage the preprocessors of the project.
   processors       Manage the processors of the project.
   profiles         Manage the conversion profiles of the project.
   shared-meta      Manage the shared metadata of the project.
   markdown         Manage the markdown projects of the project.
+  injections       Manage the injections of the project.
   list-templates   List the templates in the project.
   clean            Clean temporary files from the TiefDown project.
   smart-clean      Clean temporary files from the TiefDown project, leaving only the threshold amount of folders.
@@ -1370,12 +1393,13 @@ Options:
 <h3 id="subcommands-1">Subcommands:</h3>
 <ul>
 <li><a href="#projecttemplates">templates</a></li>
-<li><a href="#projectupdate-manifest">update-manifest</a></li>
+<li><a href="#projectupdate-settings">update-settings</a></li>
 <li><a href="#projectpre-processors">pre-processors</a></li>
 <li><a href="#projectprocessors">processors</a></li>
 <li><a href="#projectprofiles">profiles</a></li>
 <li><a href="#projectshared-meta">shared-meta</a></li>
 <li><a href="#projectmarkdown">markdown</a></li>
+<li><a href="#projectinjections">injections</a></li>
 <li><a href="#projectlist-templates">list-templates</a></li>
 <li><a href="#projectclean">clean</a></li>
 <li><a href="#projectsmart-clean">smart-clean</a></li>
@@ -1383,7 +1407,7 @@ Options:
 <h2
 id="projecttemplates"><code>tiefdownconverter project templates</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-5">Usage:</h3>
 <pre><code>Add or modify templates in the project.
 
@@ -1410,7 +1434,7 @@ Options:
 <h2
 id="projecttemplatesadd"><code>tiefdownconverter project templates add</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-6">Usage:</h3>
 <pre><code>Add a new template to the project.
 If using a preset template name, the preset will be copied to the template folder.
@@ -1459,12 +1483,33 @@ Options:
           For LaTeX and typst templates, this allows extending the respective conversion parameters.
           Processors are incompatible with CustomPreprocessors conversions. Use preprocessors instead.
 
+      --header-injections &lt;HEADER_INJECTIONS&gt;...
+          The injection to use for prepending to the preprocessing step.
+          A header injection can define one or more files that will be prepended to the preprocessing step.
+          Files in header injections get prepended in the order that they are defined in in the manifest.
+          Duplicate files will be added twice.
+          Injections have to be defined in the manifest.
+
+      --body-injections &lt;BODY_INJECTIONS&gt;...
+          The injection to use for inserting into the preprocessing step.
+          A body injection can define one or more files that will be inserted into the preprocessing step.
+          Files in body injections get inserted in accordance with the sorting algorithm.
+          Duplicate files will be added twice.
+          Injections have to be defined in the manifest.
+
+      --footer-injections &lt;FOOTER_INJECTIONS&gt;...
+          The injection to use for appending to the preprocessing step.
+          A footer injection can define one or more files that will be appended to the preprocessing step.
+          Files in header injections get appended in the order that they are defined in in the manifest.
+          Duplicate files will be added twice.
+          Injections have to be defined in the manifest.
+
   -h, --help
           Print help (see a summary with &#39;-h&#39;)</code></pre>
 <h2
 id="projecttemplatesremove"><code>tiefdownconverter project templates remove</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-7">Usage:</h3>
 <pre><code>Remove a template from the project.
 
@@ -1476,7 +1521,7 @@ Options:
 <h2
 id="projecttemplatesupdate"><code>tiefdownconverter project templates update</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-8">Usage:</h3>
 <pre><code>Update a template in the project.
 
@@ -1537,16 +1582,37 @@ Options:
           For LaTeX and typst templates, this allows extending the respective conversion parameters.
           Processors are incompatible with CustomPreprocessor conversions. Use preprocessors instead.
 
+      --header-injections &lt;HEADER_INJECTIONS&gt;...
+          The injection to use for prepending to the preprocessing step.
+          A header injection can define one or more files that will be prepended to the preprocessing step.
+          Files in header injections get prepended in the order that they are defined in in the manifest.
+          Duplicate files will be added twice.
+          Injections have to be defined in the manifest.
+
+      --body-injections &lt;BODY_INJECTIONS&gt;...
+          The injection to use for inserting into the preprocessing step.
+          A body injection can define one or more files that will be inserted into the preprocessing step.
+          Files in body injections get inserted in accordance with the sorting algorithm.
+          Duplicate files will be added twice.
+          Injections have to be defined in the manifest.
+
+      --footer-injections &lt;FOOTER_INJECTIONS&gt;...
+          The injection to use for appending to the preprocessing step.
+          A footer injection can define one or more files that will be appended to the preprocessing step.
+          Files in header injections get appended in the order that they are defined in in the manifest.
+          Duplicate files will be added twice.
+          Injections have to be defined in the manifest.
+
   -h, --help
           Print help (see a summary with &#39;-h&#39;)</code></pre>
 <h2
-id="projectupdate-manifest"><code>tiefdownconverter project update-manifest</code></h2>
+id="projectupdate-settings"><code>tiefdownconverter project update-settings</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-9">Usage:</h3>
-<pre><code>Update the project manifest.
+<pre><code>Update the project manifest settings.
 
-Usage: tiefdownconverter project update-manifest [OPTIONS]
+Usage: tiefdownconverter project update-settings [OPTIONS]
 
 Options:
       --smart-clean &lt;SMART_CLEAN&gt;
@@ -1567,7 +1633,7 @@ Options:
 <h2
 id="projectpre-processors"><code>tiefdownconverter project pre-processors</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-10">Usage:</h3>
 <pre><code>Manage the preprocessors of the project.
 A preprocessor defines the arguments passed to the pandoc conversion from markdown.
@@ -1599,7 +1665,7 @@ Options:
 <h2
 id="projectpre-processorsadd"><code>tiefdownconverter project pre-processors add</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-11">Usage:</h3>
 <pre><code>Add a new preprocessor to the project.
 
@@ -1631,7 +1697,7 @@ Options:
 <h2
 id="projectpre-processorsremove"><code>tiefdownconverter project pre-processors remove</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-12">Usage:</h3>
 <pre><code>Remove a preprocessor from the project.
 
@@ -1646,7 +1712,7 @@ Options:
 <h2
 id="projectpre-processorslist"><code>tiefdownconverter project pre-processors list</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-13">Usage:</h3>
 <pre><code>List the preprocessors in the project.
 
@@ -1658,7 +1724,7 @@ Options:
 <h2
 id="projectprocessors"><code>tiefdownconverter project processors</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-14">Usage:</h3>
 <pre><code>Manage the processors of the project.
 A processor defines additional arguments passed to the conversion command.
@@ -1689,7 +1755,7 @@ Options:
 <h2
 id="projectprocessorsadd"><code>tiefdownconverter project processors add</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-15">Usage:</h3>
 <pre><code>Add a new processor to the project.
 
@@ -1705,7 +1771,7 @@ Options:
 <h2
 id="projectprocessorsremove"><code>tiefdownconverter project processors remove</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-16">Usage:</h3>
 <pre><code>Remove a processor from the project.
 
@@ -1720,7 +1786,7 @@ Options:
 <h2
 id="projectprocessorslist"><code>tiefdownconverter project processors list</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-17">Usage:</h3>
 <pre><code>List the processors in the project.
 
@@ -1732,7 +1798,7 @@ Options:
 <h2
 id="projectprofiles"><code>tiefdownconverter project profiles</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-18">Usage:</h3>
 <pre><code>Manage the conversion profiles of the project.
 A conversion profile defines a collection of templates to be converted at the same time.
@@ -1762,7 +1828,7 @@ Options:
 <h2
 id="projectprofilesadd"><code>tiefdownconverter project profiles add</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-19">Usage:</h3>
 <pre><code>Add a new conversion profile to the project.
 
@@ -1778,7 +1844,7 @@ Options:
 <h2
 id="projectprofilesremove"><code>tiefdownconverter project profiles remove</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-20">Usage:</h3>
 <pre><code>Remove a conversion profile from the project.
 
@@ -1793,7 +1859,7 @@ Options:
 <h2
 id="projectprofileslist"><code>tiefdownconverter project profiles list</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-21">Usage:</h3>
 <pre><code>List the conversion profiles in the project.
 
@@ -1805,7 +1871,7 @@ Options:
 <h2
 id="projectshared-meta"><code>tiefdownconverter project shared-meta</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-22">Usage:</h3>
 <pre><code>Manage the shared metadata of the project.
 This Metadata is shared between all markdown projects.
@@ -1835,7 +1901,7 @@ Options:
 <h2
 id="projectshared-metaset"><code>tiefdownconverter project shared-meta set</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-23">Usage:</h3>
 <pre><code>Add or change the metadata. Overrides previous keys.
 
@@ -1851,7 +1917,7 @@ Options:
 <h2
 id="projectshared-metaremove"><code>tiefdownconverter project shared-meta remove</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-24">Usage:</h3>
 <pre><code>Remove metadata.
 
@@ -1866,7 +1932,7 @@ Options:
 <h2
 id="projectshared-metalist"><code>tiefdownconverter project shared-meta list</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-25">Usage:</h3>
 <pre><code>List the metadata.
 
@@ -1878,7 +1944,7 @@ Options:
 <h2
 id="projectmarkdown"><code>tiefdownconverter project markdown</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-26">Usage:</h3>
 <pre><code>Manage the markdown projects of the project.
 A markdown project defines the markdown conversion process for a project.
@@ -1916,7 +1982,7 @@ Options:
 <h2
 id="projectmarkdownadd"><code>tiefdownconverter project markdown add</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-27">Usage:</h3>
 <pre><code>Add a new markdown project to the project.
 
@@ -1934,7 +2000,7 @@ Options:
 <h2
 id="projectmarkdownupdate"><code>tiefdownconverter project markdown update</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-28">Usage:</h3>
 <pre><code>Update a markdown project in the project.
 
@@ -1952,7 +2018,7 @@ Options:
 <h2
 id="projectmarkdownmeta"><code>tiefdownconverter project markdown meta</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-29">Usage:</h3>
 <pre><code>Manage the metadata of a markdown project.
 This metadata is markdown project specific and is not shared between projects.
@@ -1985,7 +2051,7 @@ Options:
 <h2
 id="projectmarkdownmetaset"><code>tiefdownconverter project markdown meta set</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-30">Usage:</h3>
 <pre><code>Add or change the metadata. Overrides previous keys.
 
@@ -2001,7 +2067,7 @@ Options:
 <h2
 id="projectmarkdownmetaremove"><code>tiefdownconverter project markdown meta remove</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-31">Usage:</h3>
 <pre><code>Remove metadata.
 
@@ -2016,7 +2082,7 @@ Options:
 <h2
 id="projectmarkdownmetalist"><code>tiefdownconverter project markdown meta list</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-32">Usage:</h3>
 <pre><code>List the metadata.
 
@@ -2028,7 +2094,7 @@ Options:
 <h2
 id="projectmarkdownresources"><code>tiefdownconverter project markdown resources</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-33">Usage:</h3>
 <pre><code>Manage the resources of a markdown project.
 Resources are a way to include meta information and resources on a per project basis.
@@ -2062,7 +2128,7 @@ Options:
 <h2
 id="projectmarkdownresourcesadd"><code>tiefdownconverter project markdown resources add</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-34">Usage:</h3>
 <pre><code>Add a new resource to the project.
 
@@ -2077,7 +2143,7 @@ Options:
 <h2
 id="projectmarkdownresourcesremove"><code>tiefdownconverter project markdown resources remove</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-35">Usage:</h3>
 <pre><code>Remove a resource from the project.
 
@@ -2092,7 +2158,7 @@ Options:
 <h2
 id="projectmarkdownresourceslist"><code>tiefdownconverter project markdown resources list</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-36">Usage:</h3>
 <pre><code>List the resources in the project.
 
@@ -2104,7 +2170,7 @@ Options:
 <h2
 id="projectmarkdownremove"><code>tiefdownconverter project markdown remove</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-37">Usage:</h3>
 <pre><code>Remove a markdown project from the project.
 
@@ -2119,7 +2185,7 @@ Options:
 <h2
 id="projectmarkdownlist"><code>tiefdownconverter project markdown list</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
 <h3 id="usage-38">Usage:</h3>
 <pre><code>List the markdown projects in the project.
 
@@ -2129,10 +2195,110 @@ Options:
   -v, --verbose  Enable verbose output.
   -h, --help     Print help</code></pre>
 <h2
+id="projectinjections"><code>tiefdownconverter project injections</code></h2>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
+<h3 id="usage-39">Usage:</h3>
+<pre><code>Manage the injections of the project.
+An injection defines an additional, template scoped mechanism for adding files to the combined output of the preprocessors.
+Each injection can have multiple files or directories associated with it.
+An injection can be used in three ways:
+- Header injections: Get preprended to the document in the order in which they are listed in the manifest.
+- Body injections: Get inserted and sorted in the primary document.
+- Footer injections: Get appended to the document in the order in which they are listed in the manifest.
+
+Usage: tiefdownconverter project injections [OPTIONS] &lt;COMMAND&gt;
+
+Commands:
+  create     Creates a new injection.
+  remove     Removes an injection.
+  add-files  Adds files to an injection.
+  help       Print this message or the help of the given subcommand(s)
+
+Options:
+  -v, --verbose
+          Enable verbose output.
+
+  -h, --help
+          Print help (see a summary with &#39;-h&#39;)</code></pre>
+<h3 id="subcommands-10">Subcommands:</h3>
+<ul>
+<li><a href="#projectinjectionscreate">create</a></li>
+<li><a href="#projectinjectionsremove">remove</a></li>
+<li><a href="#projectinjectionsadd-files">add-files</a></li>
+</ul>
+<h2
+id="projectinjectionscreate"><code>tiefdownconverter project injections create</code></h2>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
+<h3 id="usage-40">Usage:</h3>
+<pre><code>Creates a new injection.
+Fails if an injection with that name already exists.
+
+Usage: tiefdownconverter project injections create [OPTIONS] --name &lt;NAME&gt;
+
+Options:
+  -n, --name &lt;NAME&gt;
+          The name of the injection to create.
+          Must be unique per project.
+
+  -v, --verbose
+          Enable verbose output.
+
+  -f, --files &lt;FILES&gt;...
+          The files to be used for the injections.
+          Can be a directory.
+          The order of the files here defines the order for header and footer injections.
+          For body injections, the files are ordered as per the default algorithm.
+          Files in directories are ordered as per the default algorithm.
+          Duplicate files will be added twice.
+
+  -h, --help
+          Print help (see a summary with &#39;-h&#39;)</code></pre>
+<h2
+id="projectinjectionsremove"><code>tiefdownconverter project injections remove</code></h2>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
+<h3 id="usage-41">Usage:</h3>
+<pre><code>Removes an injection.
+
+Usage: tiefdownconverter project injections remove [OPTIONS] --name &lt;NAME&gt;
+
+Options:
+  -n, --name &lt;NAME&gt;  The name of the injection to remove.
+  -v, --verbose      Enable verbose output.
+  -h, --help         Print help</code></pre>
+<h2
+id="projectinjectionsadd-files"><code>tiefdownconverter project injections add-files</code></h2>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
+<h3 id="usage-42">Usage:</h3>
+<pre><code>Adds files to an injection.
+
+Usage: tiefdownconverter project injections add-files [OPTIONS] --name &lt;NAME&gt;
+
+Options:
+  -n, --name &lt;NAME&gt;
+          The name of the injection to modify.
+
+  -v, --verbose
+          Enable verbose output.
+
+  -f, --files &lt;FILES&gt;...
+          The files to be added to the injection.
+          Can be a directory.
+          The order of the files here defines the order for header and footer injections.
+          For body injections, the files are ordered as per the default algorithm.
+          Files in directories are ordered as per the default algorithm.
+          Duplicate files will be added twice.
+
+  -h, --help
+          Print help (see a summary with &#39;-h&#39;)</code></pre>
+<h2
 id="projectlist-templates"><code>tiefdownconverter project list-templates</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
-<h3 id="usage-39">Usage:</h3>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
+<h3 id="usage-43">Usage:</h3>
 <pre><code>List the templates in the project.
 
 Usage: tiefdownconverter project list-templates [OPTIONS]
@@ -2142,8 +2308,8 @@ Options:
   -h, --help     Print help</code></pre>
 <h2 id="projectclean"><code>tiefdownconverter project clean</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
-<h3 id="usage-40">Usage:</h3>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
+<h3 id="usage-44">Usage:</h3>
 <pre><code>Clean temporary files from the TiefDown project.
 
 Usage: tiefdownconverter project clean [OPTIONS]
@@ -2154,8 +2320,8 @@ Options:
 <h2
 id="projectsmart-clean"><code>tiefdownconverter project smart-clean</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
-<h3 id="usage-41">Usage:</h3>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
+<h3 id="usage-45">Usage:</h3>
 <pre><code>Clean temporary files from the TiefDown project.
 If the number of conversion folders in the project is above this threshold, old folders will be cleaned, leaving only the threshold amount of folders.
 The threshold is set to 5 by default, and is overwritten by the threshold in the manifest.
@@ -2171,8 +2337,8 @@ Options:
 <h2
 id="check-dependencies"><code>tiefdownconverter check-dependencies</code></h2>
 <p><strong>Version:</strong>
-<code>tiefdownconverter 0.9.1-ALPHA.1</code></p>
-<h3 id="usage-42">Usage:</h3>
+<code>tiefdownconverter 0.9.2-ALPHA.1</code></p>
+<h3 id="usage-46">Usage:</h3>
 <pre><code>Validate dependencies are installed.
 
 Usage: tiefdownconverter check-dependencies [OPTIONS]

@@ -1,6 +1,6 @@
 ## `tiefdownconverter project shared-meta` {#projectshared-meta}
 
-**Version:** `tiefdownconverter 0.9.1-ALPHA.1`
+**Version:** `tiefdownconverter 0.9.2-ALPHA.1`
 
 ### Usage:
 ```

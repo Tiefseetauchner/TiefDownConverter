@@ -1,9 +1,12 @@
-## tiefdownconverter project update-manifest
+## `tiefdownconverter project update-settings` {#projectupdate-settings}
 
+**Version:** `tiefdownconverter 0.9.2-ALPHA.1`
+
+### Usage:
 ```
-Update the project manifest.
+Update the project manifest settings.
 
-Usage: tiefdownconverter project update-manifest [OPTIONS]
+Usage: tiefdownconverter project update-settings [OPTIONS]
 
 Options:
       --smart-clean <SMART_CLEAN>
