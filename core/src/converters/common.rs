@@ -91,7 +91,7 @@ pub(crate) fn run_preprocessors_on_inputs(
     debug!("Collecting input files for preprocessing...");
 
     let (header_injections, body_injections, footer_injections) =
-        get_injections(template, injections)?;
+        get_injections(template, injections, conversion_input_dir)?;
 
     let input_files = get_sorted_files(
         conversion_input_dir,
@@ -311,30 +311,35 @@ pub(crate) fn get_relative_path_from_compiled_dir(
 fn get_injections(
     template: &Template,
     injections: &Vec<Injection>,
+    conversion_input_dir: &Path,
 ) -> Result<(Vec<PathBuf>, Vec<PathBuf>, Vec<PathBuf>)> {
     let header_injections = resolve_injections(
         &injections,
         template.header_injections.clone().unwrap_or(vec![]),
         &template.name,
+        conversion_input_dir,
     )?;
     let body_injections = resolve_injections(
         &injections,
         template.body_injections.clone().unwrap_or(vec![]),
         &template.name,
+        conversion_input_dir,
     )?;
     let footer_injections = resolve_injections(
         &injections,
         template.footer_injections.clone().unwrap_or(vec![]),
         &template.name,
+        conversion_input_dir,
     )?;
 
     Ok((header_injections, body_injections, footer_injections))
 }
 
-fn resolve_injections<'a>(
+fn resolve_injections(
     injections: &Vec<Injection>,
     template_injections: Vec<String>,
     template_name: &String,
+    conversion_input_dir: &Path,
 ) -> Result<Vec<PathBuf>> {
     let injections = template_injections
         .iter()
@@ -352,7 +357,7 @@ fn resolve_injections<'a>(
         .collect::<Result<Vec<_>>>()?
         .iter()
         .flatten()
-        .map(|p| p.clone())
+        .map(|p| conversion_input_dir.join("..").join(p.clone()))
         .collect::<Vec<_>>();
 
     Ok(injections)
@@ -405,16 +410,21 @@ fn get_sorted_files(
         .map(|f| {
             if f.is_file() {
                 return Ok(vec![f.clone()]);
+            } else if f.is_dir() {
+                get_sorted_files(
+                    f,
+                    project_directory_path,
+                    compiled_directory_path,
+                    &vec![],
+                    &vec![],
+                    &vec![],
+                )
+            } else {
+                Err(eyre!(
+                    "Input file '{}' was not found or does not exist.",
+                    f.to_string_lossy()
+                ))
             }
-
-            get_sorted_files(
-                f,
-                project_directory_path,
-                compiled_directory_path,
-                &vec![],
-                &vec![],
-                &vec![],
-            )
         })
         .collect::<Vec<_>>();
 
