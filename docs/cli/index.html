@@ -182,6 +182,7 @@ id="toc-custom-preprocessors-conversion">Custom Preprocessors
 Conversion</a></li>
 <li><a href="#custom-processor-arguments"
 id="toc-custom-processor-arguments">Custom Processor Arguments</a></li>
+<li><a href="#injections" id="toc-injections">Injections</a></li>
 <li><a href="#smart-cleaning" id="toc-smart-cleaning">Smart
 Cleaning</a></li>
 </ul></li>
@@ -1248,6 +1249,31 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href=
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project template <span class="st">&quot;PDF Documentation&quot;</span> update <span class="at">--processor</span> <span class="st">&quot;Typst Font Directory&quot;</span></span></code></pre></div>
 <p>This is especially useful with <a
 href="#custom-processor-converter">custom processor converters</a>.</p>
+<h2 id="injections">Injections</h2>
+<p>Injections are a simple way to manipulate a preprocessing step on a
+per template basis without having to mess with preprocessors. An
+injection contains files, which are inserted before the preprocessing
+step. As such, the rules of the preprocessor apply, including file name
+scoped rules.</p>
+<p>Injections are defined once in a project and then reused per
+template. The template also decides where in the document the injection
+is placed. There are three ways a file can be injected into the
+document:</p>
+<ul>
+<li>Header injections get applied at the top of the document and are
+rendered as the first files in a conversion.</li>
+<li>Body injections are inserted in the document in accordance with the
+default sorting rule, and are thus mixed in.</li>
+<li>Footer injections are treated equivalently to header injections, but
+are instead placed at the end of the conversion list.</li>
+</ul>
+<p>For example, setting a different chapter 3 per template is made
+possible by making a file like <code>3 - injection_pdf.md</code> and
+<code>3 - injection_epub.md</code> and add the injections to the
+corresponding documents.</p>
+<p>A header could be used for a seperate index conversion, allowing you
+to define a different header for different output formats. Footers
+function similarly.</p>
 <h2 id="smart-cleaning">Smart Cleaning</h2>
 <p>Smart cleaning is a feature that is relatively simple. If you enable
 it in your manifest, it will automatically remove stale or old
@@ -2235,23 +2261,24 @@ id="projectinjectionscreate"><code>tiefdownconverter project injections create</
 <pre><code>Creates a new injection.
 Fails if an injection with that name already exists.
 
-Usage: tiefdownconverter project injections create [OPTIONS] --name &lt;NAME&gt;
+Usage: tiefdownconverter project injections create [OPTIONS] &lt;NAME&gt; [FILES]...
 
-Options:
-  -n, --name &lt;NAME&gt;
+Arguments:
+  &lt;NAME&gt;
           The name of the injection to create.
           Must be unique per project.
 
-  -v, --verbose
-          Enable verbose output.
-
-  -f, --files &lt;FILES&gt;...
+  [FILES]...
           The files to be used for the injections.
           Can be a directory.
           The order of the files here defines the order for header and footer injections.
           For body injections, the files are ordered as per the default algorithm.
           Files in directories are ordered as per the default algorithm.
           Duplicate files will be added twice.
+
+Options:
+  -v, --verbose
+          Enable verbose output.
 
   -h, --help
           Print help (see a summary with &#39;-h&#39;)</code></pre>
@@ -2262,12 +2289,14 @@ id="projectinjectionsremove"><code>tiefdownconverter project injections remove</
 <h3 id="usage-41">Usage:</h3>
 <pre><code>Removes an injection.
 
-Usage: tiefdownconverter project injections remove [OPTIONS] --name &lt;NAME&gt;
+Usage: tiefdownconverter project injections remove [OPTIONS] &lt;NAME&gt;
+
+Arguments:
+  &lt;NAME&gt;  The name of the injection to remove.
 
 Options:
-  -n, --name &lt;NAME&gt;  The name of the injection to remove.
-  -v, --verbose      Enable verbose output.
-  -h, --help         Print help</code></pre>
+  -v, --verbose  Enable verbose output.
+  -h, --help     Print help</code></pre>
 <h2
 id="projectinjectionsadd-files"><code>tiefdownconverter project injections add-files</code></h2>
 <p><strong>Version:</strong>
@@ -2275,22 +2304,23 @@ id="projectinjectionsadd-files"><code>tiefdownconverter project injections add-f
 <h3 id="usage-42">Usage:</h3>
 <pre><code>Adds files to an injection.
 
-Usage: tiefdownconverter project injections add-files [OPTIONS] --name &lt;NAME&gt;
+Usage: tiefdownconverter project injections add-files [OPTIONS] &lt;NAME&gt; [FILES]...
 
-Options:
-  -n, --name &lt;NAME&gt;
+Arguments:
+  &lt;NAME&gt;
           The name of the injection to modify.
 
-  -v, --verbose
-          Enable verbose output.
-
-  -f, --files &lt;FILES&gt;...
+  [FILES]...
           The files to be added to the injection.
           Can be a directory.
           The order of the files here defines the order for header and footer injections.
           For body injections, the files are ordered as per the default algorithm.
           Files in directories are ordered as per the default algorithm.
           Duplicate files will be added twice.
+
+Options:
+  -v, --verbose
+          Enable verbose output.
 
   -h, --help
           Print help (see a summary with &#39;-h&#39;)</code></pre>
