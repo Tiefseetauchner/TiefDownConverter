@@ -608,16 +608,12 @@ Fails if an injection with that name already exists."#
     )]
     Create {
         #[arg(
-            short,
-            long,
             help = "The name of the injection to create.",
             long_help = r#"The name of the injection to create.
 Must be unique per project."#
         )]
         name: String,
         #[arg(
-            short,
-            long,
             help = "The files to be used for the injection.",
             long_help = r#"The files to be used for the injections.
 Can be a directory.
@@ -633,8 +629,6 @@ Duplicate files will be added twice."#,
     #[command(about = "Removes an injection.")]
     Remove {
         #[arg(
-            short,
-            long,
             help = "The name of the injection to remove.",
         )]
         name: String,
@@ -644,14 +638,10 @@ Duplicate files will be added twice."#,
     )]
     AddFiles {
         #[arg(
-            short,
-            long,
             help = "The name of the injection to modify.",
         )]
         name: String,
         #[arg(
-            short,
-            long,
             help = "The files to be added to the injection.",
             long_help = r#"The files to be added to the injection.
 Can be a directory.
