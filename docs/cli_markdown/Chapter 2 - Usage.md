@@ -691,6 +691,31 @@ tiefdownconverter project template "PDF Documentation" update --processor "Typst
 
 This is especially useful with [custom processor converters](#custom-processor-converter).
 
+## Injections
+
+Injections are a simple way to manipulate a preprocessing step on a per
+template basis without having to mess with preprocessors. An injection contains
+files, which are inserted before the preprocessing step. As such, the rules
+of the preprocessor apply, including file name scoped rules.
+
+Injections are defined once in a project and then reused per template. The
+template also decides where in the document the injection is placed. There are
+three ways a file can be injected into the document:
+
+- Header injections get applied at the top of the document and are rendered as
+  the first files in a conversion.
+- Body injections are inserted in the document in accordance with the default
+  sorting rule, and are thus mixed in.
+- Footer injections are treated equivalently to header injections, but are
+  instead placed at the end of the conversion list.
+  
+For example, setting a different chapter 3 per template is made possible by 
+making a file like `3 - injection_pdf.md` and `3 - injection_epub.md` and
+add the injections to the corresponding documents.
+
+A header could be used for a seperate index conversion, allowing you to define
+a different header for different output formats. Footers function similarly.
+
 ## Smart Cleaning
 
 Smart cleaning is a feature that is relatively simple. If you
