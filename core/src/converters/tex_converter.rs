@@ -14,7 +14,7 @@ use crate::{
         merge_preprocessors, retrieve_combined_output, retrieve_preprocessors,
         run_preprocessors_on_inputs, run_with_logging, write_combined_output,
     },
-    manifest_model::{DEFAULT_TEX_PREPROCESSORS, MetadataSettings, Processors, TemplateMapping},
+    manifest_model::{DEFAULT_TEX_PREPROCESSORS, MetadataSettings, Processors, Template},
     template_management::{get_output_path, get_template_path},
 };
 
@@ -22,7 +22,7 @@ pub fn convert_latex(
     project_directory_path: &Path,
     compiled_directory_path: &Path,
     conversion_input_dir: &Path,
-    template: &TemplateMapping,
+    template: &Template,
     metadata_fields: &Table,
     metadata_settings: &MetadataSettings,
     custom_processors: &Processors,

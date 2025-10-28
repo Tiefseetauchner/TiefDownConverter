@@ -3,7 +3,7 @@ use crate::manifest_model::Manifest;
 use crate::manifest_model::MarkdownProject;
 use crate::manifest_model::MetadataSettings;
 use crate::manifest_model::Processors;
-use crate::manifest_model::TemplateMapping;
+use crate::manifest_model::Template;
 use crate::project_management::get_missing_dependencies;
 use crate::project_management::load_and_convert_manifest;
 use crate::project_management::run_smart_clean;
@@ -322,10 +322,7 @@ fn get_template_names(
     Ok(all)
 }
 
-fn get_template_mapping_from_name(
-    template: &String,
-    manifest: &Manifest,
-) -> Result<TemplateMapping> {
+fn get_template_mapping_from_name(template: &String, manifest: &Manifest) -> Result<Template> {
     let template = manifest
         .templates
         .iter()
@@ -389,7 +386,7 @@ fn copy_markdown_directory(
 
 fn convert_template(
     compiled_directory_path: &Path,
-    template: &TemplateMapping,
+    template: &Template,
     project_path: &Path,
     conversion_input_dir: &Path,
     output_dir: &Path,

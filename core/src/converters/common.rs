@@ -1,5 +1,5 @@
 use crate::{
-    manifest_model::{MetadataSettings, PreProcessor, PreProcessors, TemplateMapping},
+    manifest_model::{MetadataSettings, PreProcessor, PreProcessors, Template},
     template_type::TemplateType,
 };
 use color_eyre::eyre::{Ok, Result, eyre};
@@ -61,7 +61,7 @@ pub(crate) fn merge_preprocessors(preprocessor_lists: Vec<Vec<PreProcessor>>) ->
 }
 
 pub(crate) fn retrieve_combined_output(
-    template: &TemplateMapping,
+    template: &Template,
     default_processors: &Option<PreProcessors>,
 ) -> Result<PathBuf> {
     let from_template = template
@@ -79,7 +79,7 @@ pub(crate) fn retrieve_combined_output(
 }
 
 pub(crate) fn run_preprocessors_on_inputs(
-    template: &TemplateMapping,
+    template: &Template,
     project_directory_path: &Path,
     compiled_directory_path: &Path,
     conversion_input_dir: &Path,
@@ -215,7 +215,7 @@ pub(crate) fn preprocess_cli_args(cli_args: &[String], metadata_fields: &Table) 
 }
 
 pub(crate) fn add_lua_filters(
-    template: &TemplateMapping,
+    template: &Template,
     project_directory_path: &Path,
     compiled_directory_path: &Path,
     pandoc: &mut Command,

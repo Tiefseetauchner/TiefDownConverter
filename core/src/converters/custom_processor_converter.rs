@@ -12,7 +12,7 @@ use crate::{
         add_lua_filters, combine_pandoc_native, merge_preprocessors, preprocess_cli_args, retrieve_combined_output, retrieve_preprocessors, run_preprocessors_on_inputs, run_with_logging, write_combined_output
     },
     manifest_model::{
-        MetadataSettings, Processors, TemplateMapping, DEFAULT_CUSTOM_PROCESSOR_PREPROCESSORS
+        MetadataSettings, Processors, Template, DEFAULT_CUSTOM_PROCESSOR_PREPROCESSORS
     },
 };
 
@@ -20,7 +20,7 @@ pub(crate) fn convert_custom_processor(
     project_directory_path: &Path,
     compiled_directory_path: &Path,
     conversion_input_dir: &Path,
-    template: &TemplateMapping,
+    template: &Template,
     metadata_fields: &Table,
     metadata_settings: &MetadataSettings,
     custom_processors: &Processors,

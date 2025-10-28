@@ -2,7 +2,7 @@ use crate::{
     consts::CURRENT_MANIFEST_VERSION,
     manifest_model::{
         Manifest, MarkdownProject, PreProcessor, PreProcessors, Processor, Processors, Profile,
-        TemplateMapping, upgrade_manifest,
+        Template, upgrade_manifest,
     },
     template_management::{self, add_lix_filters, get_template_path, get_template_type_from_path},
     template_type::TemplateType,
@@ -62,7 +62,7 @@ pub fn init(
         ));
     }
 
-    let mut templates: Vec<TemplateMapping> = Vec::new();
+    let mut templates: Vec<Template> = Vec::new();
 
     if !no_templates {
         templates.extend(
@@ -127,9 +127,9 @@ This is a simple test document for you to edit or overwrite."#,
     Ok(())
 }
 
-fn get_template_mapping_for_preset(template: &String) -> Result<TemplateMapping> {
+fn get_template_mapping_for_preset(template: &String) -> Result<Template> {
     // NOTE: As this is just the preset templates, we set the minimal implementation.
-    let mut template = TemplateMapping {
+    let mut template = Template {
         name: template.clone(),
         template_type: get_template_type_from_path(template)?,
         output: None,
@@ -210,7 +210,7 @@ pub fn add_template(
         });
     }
 
-    let mut template = TemplateMapping {
+    let mut template = Template {
         name: template_name.clone(),
         template_type,
         output,
@@ -716,7 +716,7 @@ pub fn remove_profile(project: Option<PathBuf>, name: String) -> Result<()> {
 /// # Returns
 ///
 /// A Result containing either an error or a vector of TemplateMapping objects.
-pub fn get_templates(project: Option<PathBuf>) -> Result<Vec<TemplateMapping>> {
+pub fn get_templates(project: Option<PathBuf>) -> Result<Vec<Template>> {
     let project = project.unwrap_or(PathBuf::from("."));
     let manifest_path = project.join("manifest.toml");
 
@@ -926,7 +926,17 @@ pub(crate) fn load_and_convert_manifest(manifest_path: &std::path::PathBuf) -> R
     Ok(manifest)
 }
 
-fn create_templates(project: &std::path::Path, templates: &Vec<TemplateMapping>) -> Result<()> {
+pub(crate) fn get_project_path(project: Option<PathBuf>) -> Result<PathBuf> {
+    let project = project.unwrap_or(PathBuf::from("."));
+
+    if !project.exists() {
+        return Err(eyre!("Project path does not exist."));
+    }
+
+    Ok(project)
+}
+
+fn create_templates(project: &std::path::Path, templates: &Vec<Template>) -> Result<()> {
     for template in templates {
         let template_creator = template_management::get_template_creator(template.name.as_str())?;
 

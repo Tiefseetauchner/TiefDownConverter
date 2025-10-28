@@ -21,17 +21,19 @@ use toml::Table;
 /// * `shared_metadata` - Metadata for the project shared across markdown projects.
 /// * `metadata_settings` - Metadata settings for the project.
 /// * `profiles` - A list of profiles for the project.
+/// * `injections` - A list of injections available to the conversion process that may be injected into a template.
 #[derive(Deserialize, Serialize)]
 pub struct Manifest {
     pub version: u32,
     pub markdown_projects: Option<Vec<MarkdownProject>>,
-    pub templates: Vec<TemplateMapping>,
+    pub templates: Vec<Template>,
     pub custom_processors: Processors,
     pub smart_clean: Option<bool>,
     pub smart_clean_threshold: Option<u32>,
     pub shared_metadata: Option<Table>,
     pub metadata_settings: Option<MetadataSettings>,
     pub profiles: Option<Vec<Profile>>,
+    pub injections: Option<Vec<Injection>>,
 }
 
 /// Represents a markdown project in a TiefDown project.
@@ -237,7 +239,7 @@ pub struct Profile {
 /// * `preprocessor` - The name of the preprocessor to use for the template.
 /// * `processor` - The name of the processor to use for the template.
 #[derive(Deserialize, Serialize, Clone)]
-pub struct TemplateMapping {
+pub struct Template {
     pub name: String,
     pub template_type: TemplateType,
     pub template_file: Option<PathBuf>,
@@ -245,6 +247,22 @@ pub struct TemplateMapping {
     pub filters: Option<Vec<String>>,
     pub preprocessors: Option<PreProcessors>,
     pub processor: Option<String>,
+    pub header_injections: Option<Vec<String>>,
+    pub body_injections: Option<Vec<String>>,
+    pub footer_injections: Option<Vec<String>>,
+}
+
+/// Represents an injection into the document.
+///
+/// # Fields
+///
+/// * `name`: Name of the injection to be referenced by the `Template`.
+/// * `files`: Files to be injected by the injection.
+///   The files get injected into the template using order numbers in the name of the template, equivalent to the input file order.
+#[derive(Deserialize, Serialize, Clone)]
+pub struct Injection {
+    pub name: String,
+    pub files: Vec<PathBuf>,
 }
 
 pub(crate) fn upgrade_manifest(manifest: &mut Table, current_version: u32) -> Result<()> {
