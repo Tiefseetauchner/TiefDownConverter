@@ -716,6 +716,22 @@ add the injections to the corresponding documents.
 A header could be used for a seperate index conversion, allowing you to define
 a different header for different output formats. Footers function similarly.
 
+An injection can be added using the `project injections` command:
+
+```bash
+tiefdownconverter project injections create "HTML Footer" html_footer.html
+```
+
+You can then add an injection to an existing template using the
+`--header-injections`, `--body-injections` and `--footer-injections`
+flags respectively.
+
+```bash
+tiefdownconverter project template "HTML Documentation" update --footer-injections "HTML Footer"
+```
+
+Keep in mind each category can contain multiple injections.
+
 ## Smart Cleaning
 
 Smart cleaning is a feature that is relatively simple. If you

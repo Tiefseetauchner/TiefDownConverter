@@ -1274,6 +1274,16 @@ corresponding documents.</p>
 <p>A header could be used for a seperate index conversion, allowing you
 to define a different header for different output formats. Footers
 function similarly.</p>
+<p>An injection can be added using the <code>project injections</code>
+command:</p>
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project injections create <span class="st">&quot;HTML Footer&quot;</span> html_footer.html</span></code></pre></div>
+<p>You can then add an injection to an existing template using the
+<code>--header-injections</code>, <code>--body-injections</code> and
+<code>--footer-injections</code> flags respectively.</p>
+<div class="sourceCode" id="cb26"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="ex">tiefdownconverter</span> project template <span class="st">&quot;HTML Documentation&quot;</span> update <span class="at">--footer-injections</span> <span class="st">&quot;HTML Footer&quot;</span></span></code></pre></div>
+<p>Keep in mind each category can contain multiple injections.</p>
 <h2 id="smart-cleaning">Smart Cleaning</h2>
 <p>Smart cleaning is a feature that is relatively simple. If you enable
 it in your manifest, it will automatically remove stale or old

@@ -19,8 +19,8 @@ name = "Typst Font Directory"
 processor_args = ["--font-path", "fonts/"]
 
 [[injections]]
-files = ["javascript_injection.html"]
-name = "HTML JS"
+files = ["footer.html"]
+name = "HTML footer"
 
 [[markdown_projects]]
 default_profile = "Documentation"
@@ -101,7 +101,7 @@ combined_output = "tiefdownconverter.1"
 preprocessors = ["Man Page"]
 
 [[templates]]
-footer_injections = ["HTML JS"]
+footer_injections = ["HTML footer"]
 name = "GitHub Page Documentation"
 output = "index.html"
 processor = "HTML Conversion"
