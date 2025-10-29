@@ -15,6 +15,12 @@ use std::{
 };
 use toml::Table;
 
+struct RenderingInjections {
+    header_injections: Vec<PathBuf>,
+    body_injections: Vec<PathBuf>,
+    footer_injections: Vec<PathBuf>,
+}
+
 pub(crate) fn retrieve_preprocessors(
     preprocessors: &Option<PreProcessors>,
     custom_preprocessors: &Vec<PreProcessor>,
@@ -90,16 +96,13 @@ pub(crate) fn run_preprocessors_on_inputs(
 ) -> Result<Vec<String>> {
     debug!("Collecting input files for preprocessing...");
 
-    let (header_injections, body_injections, footer_injections) =
-        get_injections(template, injections, conversion_input_dir)?;
+    let injections = retrieve_injections(template, injections, conversion_input_dir)?;
 
     let input_files = get_sorted_files(
         conversion_input_dir,
         project_directory_path,
         compiled_directory_path,
-        &header_injections,
-        &body_injections,
-        &footer_injections,
+        injections,
     )?;
     debug!("Found {} input files.", input_files.len());
 
@@ -308,34 +311,38 @@ pub(crate) fn get_relative_path_from_compiled_dir(
     Some(relative_path)
 }
 
-fn get_injections(
+fn retrieve_injections(
     template: &Template,
     injections: &Vec<Injection>,
     conversion_input_dir: &Path,
-) -> Result<(Vec<PathBuf>, Vec<PathBuf>, Vec<PathBuf>)> {
-    let header_injections = resolve_injections(
+) -> Result<RenderingInjections> {
+    let header_injections = retrieve_injections_from_manifest(
         &injections,
         template.header_injections.clone().unwrap_or(vec![]),
         &template.name,
         conversion_input_dir,
     )?;
-    let body_injections = resolve_injections(
+    let body_injections = retrieve_injections_from_manifest(
         &injections,
         template.body_injections.clone().unwrap_or(vec![]),
         &template.name,
         conversion_input_dir,
     )?;
-    let footer_injections = resolve_injections(
+    let footer_injections = retrieve_injections_from_manifest(
         &injections,
         template.footer_injections.clone().unwrap_or(vec![]),
         &template.name,
         conversion_input_dir,
     )?;
 
-    Ok((header_injections, body_injections, footer_injections))
+    Ok(RenderingInjections {
+        header_injections,
+        body_injections,
+        footer_injections,
+    })
 }
 
-fn resolve_injections(
+fn retrieve_injections_from_manifest(
     injections: &Vec<Injection>,
     template_injections: Vec<String>,
     template_name: &String,
@@ -367,9 +374,7 @@ fn get_sorted_files(
     input_dir: &Path,
     project_directory_path: &Path,
     compiled_directory_path: &Path,
-    header_injections: &Vec<PathBuf>,
-    body_injections: &Vec<PathBuf>,
-    footer_injections: &Vec<PathBuf>,
+    injections: RenderingInjections,
 ) -> Result<Vec<PathBuf>> {
     let dir_content = fs::read_dir(input_dir)?;
 
@@ -381,7 +386,7 @@ fn get_sorted_files(
         })
         .collect::<Vec<_>>();
 
-    dir_content.append(&mut body_injections.clone());
+    dir_content.append(&mut injections.body_injections.clone());
 
     dir_content.sort_by(|a, b| {
         let a_num = retrieve_file_order_number(a);
@@ -401,9 +406,9 @@ fn get_sorted_files(
         }
     });
 
-    let injected_content = &mut header_injections.clone();
+    let injected_content = &mut injections.header_injections.clone();
     injected_content.append(&mut dir_content);
-    injected_content.append(&mut footer_injections.clone());
+    injected_content.append(&mut injections.footer_injections.clone());
 
     let input_files = injected_content
         .iter()
@@ -415,9 +420,11 @@ fn get_sorted_files(
                     f,
                     project_directory_path,
                     compiled_directory_path,
-                    &vec![],
-                    &vec![],
-                    &vec![],
+                    RenderingInjections {
+                        header_injections: vec![],
+                        body_injections: vec![],
+                        footer_injections: vec![],
+                    },
                 )
             } else {
                 Err(eyre!(

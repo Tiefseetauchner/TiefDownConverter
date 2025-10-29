@@ -606,7 +606,7 @@ pub(crate) enum ManageInjectionsCommand {
         long_about = r#"Creates a new injection.
 Fails if an injection with that name already exists."#
     )]
-    Create {
+    Add {
         #[arg(
             help = "The name of the injection to create.",
             long_help = r#"The name of the injection to create.
@@ -654,6 +654,8 @@ Duplicate files will be added twice."#,
         )]
         files: Vec<PathBuf>,
     },
+    #[command(about = "List the injections in the project.")]
+    List,
 }
 
 #[derive(Subcommand)]

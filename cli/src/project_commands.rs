@@ -2,7 +2,9 @@ use std::path::PathBuf;
 
 use color_eyre::eyre::Result;
 use log::info;
-use tiefdownlib::{markdown_project_management, metadata_management, project_management};
+use tiefdownlib::{
+    injections, markdown_project_management, metadata_management, project_management,
+};
 
 pub(crate) fn list_preprocessors(project: Option<PathBuf>) -> Result<()> {
     let preprocessors = project_management::get_preprocessors(project)?;
@@ -86,7 +88,10 @@ pub(crate) fn list_markdown_project_metadata(
 
     Ok(())
 }
-pub(crate) fn list_resources(project: Option<PathBuf>, markdown_project_name: String) -> Result<()> {
+pub(crate) fn list_resources(
+    project: Option<PathBuf>,
+    markdown_project_name: String,
+) -> Result<()> {
     let resources = markdown_project_management::get_resources(project, &markdown_project_name)?;
 
     if resources.is_empty() {
@@ -147,6 +152,25 @@ pub(crate) fn list_templates(project: Option<PathBuf>) -> Result<()> {
         }
         if let Some(filters) = &template.filters {
             info!("  Filters: {}", filters.join(", "));
+        }
+    }
+
+    Ok(())
+}
+
+pub(crate) fn list_injections(project: Option<PathBuf>) -> Result<()> {
+    let injections = injections::get_injections(project)?;
+
+    if injections.is_empty() {
+        info!("No templates found.");
+        return Ok(());
+    }
+
+    for injection in injections {
+        info!("{}:", injection.name);
+        info!("  Files:");
+        for file in injection.files {
+            info!("    {}", file.display());
         }
     }
 

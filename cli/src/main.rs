@@ -208,7 +208,7 @@ fn main() -> Result<()> {
                 ProfilesCommands::List => project_commands::list_profiles(project)?,
             },
             ProjectCommands::Injections { command } => match command {
-                ManageInjectionsCommand::Create { name, files } => {
+                ManageInjectionsCommand::Add { name, files } => {
                     injections::add_injection(project, name, files)?
                 }
                 ManageInjectionsCommand::Remove { name } => {
@@ -216,6 +216,9 @@ fn main() -> Result<()> {
                 }
                 ManageInjectionsCommand::AddFiles { name, files } => {
                     injections::add_files_to_injection(project, name, files)?
+                }
+                ManageInjectionsCommand::List {} => {
+                    project_commands::list_injections(project)?;
                 }
             },
             ProjectCommands::SharedMeta { command } => match command {
