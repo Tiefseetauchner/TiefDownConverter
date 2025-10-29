@@ -12,9 +12,10 @@ An injection can be used in three ways:
 Usage: tiefdownconverter project injections [OPTIONS] <COMMAND>
 
 Commands:
-  create     Creates a new injection.
+  add        Creates a new injection.
   remove     Removes an injection.
   add-files  Adds files to an injection.
+  list       List the injections in the project.
   help       Print this message or the help of the given subcommand(s)
 
 Options:
@@ -26,7 +27,8 @@ Options:
 ```
 
 ### Subcommands:
-- create
+- add
 - remove
 - add-files
+- list
 

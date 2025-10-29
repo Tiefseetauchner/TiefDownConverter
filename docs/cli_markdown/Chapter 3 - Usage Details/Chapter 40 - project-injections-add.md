@@ -1,4 +1,4 @@
-## `tiefdownconverter project injections create` {#projectinjectionscreate}
+## `tiefdownconverter project injections add` {#projectinjectionsadd}
 
 **Version:** `tiefdownconverter 0.9.2-ALPHA.2`
 
@@ -7,7 +7,7 @@
 Creates a new injection.
 Fails if an injection with that name already exists.
 
-Usage: tiefdownconverter project injections create [OPTIONS] <NAME> [FILES]...
+Usage: tiefdownconverter project injections add [OPTIONS] <NAME> [FILES]...
 
 Arguments:
   <NAME>
