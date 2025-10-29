@@ -6,7 +6,8 @@ use env_logger::fmt::Formatter;
 use log::Level;
 use std::io::Write;
 use tiefdownlib::{
-    consts, conversion, markdown_project_management, metadata_management, project_management,
+    consts, conversion, injections, markdown_project_management, metadata_management,
+    project_management,
 };
 
 mod cli;
@@ -103,6 +104,9 @@ fn main() -> Result<()> {
                     preprocessors,
                     preprocessor_output,
                     processor,
+                    header_injections,
+                    body_injections,
+                    footer_injections,
                 } => project_management::add_template(
                     project,
                     template,
@@ -113,6 +117,9 @@ fn main() -> Result<()> {
                     preprocessors,
                     preprocessor_output,
                     processor,
+                    header_injections,
+                    body_injections,
+                    footer_injections,
                 )?,
                 TemplatesCommands::Remove => {
                     project_management::remove_template(project, template)?
@@ -129,6 +136,9 @@ fn main() -> Result<()> {
                     remove_preprocessors,
                     preprocessor_output,
                     processor,
+                    header_injections,
+                    body_injections,
+                    footer_injections,
                 } => {
                     if filters.is_some() && (add_filters.is_some() || remove_filters.is_some()) {
                         return Err(eyre!("Cannot specify both filters or add/remove filters."));
@@ -156,13 +166,16 @@ fn main() -> Result<()> {
                         remove_preprocessors,
                         preprocessor_output,
                         processor,
+                        header_injections,
+                        body_injections,
+                        footer_injections,
                     )?
                 }
             },
-            ProjectCommands::UpdateManifest {
+            ProjectCommands::UpdateSettings {
                 smart_clean,
                 smart_clean_threshold,
-            } => project_management::update_manifest(project, smart_clean, smart_clean_threshold)?,
+            } => project_management::update_settings(project, smart_clean, smart_clean_threshold)?,
             ProjectCommands::PreProcessors { command } => match command {
                 PreProcessorsCommands::Add {
                     name,
@@ -193,6 +206,20 @@ fn main() -> Result<()> {
                     project_management::remove_profile(project, name)?
                 }
                 ProfilesCommands::List => project_commands::list_profiles(project)?,
+            },
+            ProjectCommands::Injections { command } => match command {
+                ManageInjectionsCommand::Add { name, files } => {
+                    injections::add_injection(project, name, files)?
+                }
+                ManageInjectionsCommand::Remove { name } => {
+                    injections::remove_injection(project, name)?
+                }
+                ManageInjectionsCommand::AddFiles { name, files } => {
+                    injections::add_files_to_injection(project, name, files)?
+                }
+                ManageInjectionsCommand::List {} => {
+                    project_commands::list_injections(project)?;
+                }
             },
             ProjectCommands::SharedMeta { command } => match command {
                 ManageMetadataCommand::Set { key, value } => {

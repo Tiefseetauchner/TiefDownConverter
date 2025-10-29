@@ -1,9 +1,10 @@
 use crate::conversion_decider;
+use crate::manifest_model::Injection;
 use crate::manifest_model::Manifest;
 use crate::manifest_model::MarkdownProject;
 use crate::manifest_model::MetadataSettings;
 use crate::manifest_model::Processors;
-use crate::manifest_model::TemplateMapping;
+use crate::manifest_model::Template;
 use crate::project_management::get_missing_dependencies;
 use crate::project_management::load_and_convert_manifest;
 use crate::project_management::run_smart_clean;
@@ -228,6 +229,7 @@ pub fn convert(project: Option<PathBuf>, conversion_queue: Vec<ConversionTask>) 
             &merged_metadata,
             &manifest.metadata_settings,
             &manifest.custom_processors,
+            &manifest.injections.clone().unwrap_or(vec![]),
         )?;
     }
 
@@ -322,10 +324,7 @@ fn get_template_names(
     Ok(all)
 }
 
-fn get_template_mapping_from_name(
-    template: &String,
-    manifest: &Manifest,
-) -> Result<TemplateMapping> {
+fn get_template_mapping_from_name(template: &String, manifest: &Manifest) -> Result<Template> {
     let template = manifest
         .templates
         .iter()
@@ -389,13 +388,14 @@ fn copy_markdown_directory(
 
 fn convert_template(
     compiled_directory_path: &Path,
-    template: &TemplateMapping,
+    template: &Template,
     project_path: &Path,
     conversion_input_dir: &Path,
     output_dir: &Path,
     metadata_fields: &Table,
     metadata_settings: &Option<MetadataSettings>,
     custom_processors: &Processors,
+    injections: &Vec<Injection>,
 ) -> Result<()> {
     debug!("Starting template conversion for '{}'.", template.name);
     debug!("  Template type: '{}'.", template.template_type);
@@ -416,6 +416,7 @@ fn convert_template(
         metadata_fields,
         &metadata_settings,
         custom_processors,
+        injections,
     )?;
 
     debug!("Converter finished.");

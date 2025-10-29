@@ -127,8 +127,8 @@ pub(crate) enum ProjectCommands {
         #[command(subcommand)]
         command: TemplatesCommands,
     },
-    #[command(about = "Update the project manifest.")]
-    UpdateManifest {
+    #[command(about = "Update the project manifest settings.")]
+    UpdateSettings {
         #[arg(
             long,
             help = r#"Enables smart clean for the project with a default threshold of 5."#,
@@ -203,6 +203,20 @@ A markdown project can have resources that are copied to the respective conversi
     Markdown {
         #[command(subcommand)]
         command: ManageMarkdownProjectsCommand,
+    },
+    #[command(
+        about = "Manage the injections of the project.",
+        long_about = r#"Manage the injections of the project.
+An injection defines an additional, template scoped mechanism for adding files to the combined output of the preprocessors.
+Each injection can have multiple files or directories associated with it.
+An injection can be used in three ways:
+- Header injections: Get preprended to the document in the order in which they are listed in the manifest.
+- Body injections: Get inserted and sorted in the primary document.
+- Footer injections: Get appended to the document in the order in which they are listed in the manifest."#
+    )]
+    Injections {
+        #[command(subcommand)]
+        command: ManageInjectionsCommand,
     },
     #[command(about = "List the templates in the project.")]
     ListTemplates,
@@ -284,6 +298,42 @@ For LaTeX and typst templates, this allows extending the respective conversion p
 Processors are incompatible with CustomPreprocessors conversions. Use preprocessors instead."#
         )]
         processor: Option<String>,
+        #[arg(
+            long, 
+            help = "The injection to use for prepending to the preprocessing step.", 
+            long_help = r#"The injection to use for prepending to the preprocessing step.
+A header injection can define one or more files that will be prepended to the preprocessing step.
+Files in header injections get prepended in the order that they are defined in in the manifest.
+Duplicate files will be added twice.
+Injections have to be defined in the manifest."#,
+            num_args = 1..,
+            value_delimiter = ',',
+        )]
+        header_injections: Option<Vec<String>>,
+        #[arg(
+            long, 
+            help = "The injection to use for inserting into the preprocessing step.", 
+            long_help = r#"The injection to use for inserting into the preprocessing step.
+A body injection can define one or more files that will be inserted into the preprocessing step.
+Files in body injections get inserted in accordance with the sorting algorithm.
+Duplicate files will be added twice.
+Injections have to be defined in the manifest."#,
+            num_args = 1..,
+            value_delimiter = ',',
+        )]
+        body_injections: Option<Vec<String>>,
+        #[arg(
+            long, 
+            help = "The injection to use for appending to the preprocessing step.", 
+            long_help = r#"The injection to use for appending to the preprocessing step.
+A footer injection can define one or more files that will be appended to the preprocessing step.
+Files in header injections get appended in the order that they are defined in in the manifest.
+Duplicate files will be added twice.
+Injections have to be defined in the manifest."#,
+            num_args = 1..,
+            value_delimiter = ',',
+        )]
+        footer_injections: Option<Vec<String>>,
     },
     #[command(about = "Remove a template from the project.")]
     Remove,
@@ -378,6 +428,42 @@ For LaTeX and typst templates, this allows extending the respective conversion p
 Processors are incompatible with CustomPreprocessor conversions. Use preprocessors instead."#
         )]
         processor: Option<String>,
+        #[arg(
+            long, 
+            help = "The injection to use for prepending to the preprocessing step.", 
+            long_help = r#"The injection to use for prepending to the preprocessing step.
+A header injection can define one or more files that will be prepended to the preprocessing step.
+Files in header injections get prepended in the order that they are defined in in the manifest.
+Duplicate files will be added twice.
+Injections have to be defined in the manifest."#,
+            num_args = 1..,
+            value_delimiter = ',',
+        )]
+        header_injections: Option<Vec<String>>,
+        #[arg(
+            long, 
+            help = "The injection to use for inserting into the preprocessing step.", 
+            long_help = r#"The injection to use for inserting into the preprocessing step.
+A body injection can define one or more files that will be inserted into the preprocessing step.
+Files in body injections get inserted in accordance with the sorting algorithm.
+Duplicate files will be added twice.
+Injections have to be defined in the manifest."#,
+            num_args = 1..,
+            value_delimiter = ',',
+        )]
+        body_injections: Option<Vec<String>>,
+        #[arg(
+            long, 
+            help = "The injection to use for appending to the preprocessing step.", 
+            long_help = r#"The injection to use for appending to the preprocessing step.
+A footer injection can define one or more files that will be appended to the preprocessing step.
+Files in header injections get appended in the order that they are defined in in the manifest.
+Duplicate files will be added twice.
+Injections have to be defined in the manifest."#,
+            num_args = 1..,
+            value_delimiter = ',',
+        )]
+        footer_injections: Option<Vec<String>>,
     },
 }
 
@@ -510,6 +596,65 @@ Resources are stored in the markdown folder and copied to the conversion directo
         name: String,
     },
     #[command(about = "List the markdown projects in the project.")]
+    List,
+}
+
+#[derive(Subcommand)]
+pub(crate) enum ManageInjectionsCommand {
+    #[command(
+        about = "Creates a new injection.",
+        long_about = r#"Creates a new injection.
+Fails if an injection with that name already exists."#
+    )]
+    Add {
+        #[arg(
+            help = "The name of the injection to create.",
+            long_help = r#"The name of the injection to create.
+Must be unique per project."#
+        )]
+        name: String,
+        #[arg(
+            help = "The files to be used for the injection.",
+            long_help = r#"The files to be used for the injections.
+Can be a directory.
+The order of the files here defines the order for header and footer injections.
+For body injections, the files are ordered as per the default algorithm.
+Files in directories are ordered as per the default algorithm.
+Duplicate files will be added twice."#,
+            num_args = 1.., 
+            value_delimiter = ',',
+        )]
+        files: Vec<PathBuf>,
+    },
+    #[command(about = "Removes an injection.")]
+    Remove {
+        #[arg(
+            help = "The name of the injection to remove.",
+        )]
+        name: String,
+    },
+    #[command(
+        about = "Adds files to an injection.",
+    )]
+    AddFiles {
+        #[arg(
+            help = "The name of the injection to modify.",
+        )]
+        name: String,
+        #[arg(
+            help = "The files to be added to the injection.",
+            long_help = r#"The files to be added to the injection.
+Can be a directory.
+The order of the files here defines the order for header and footer injections.
+For body injections, the files are ordered as per the default algorithm.
+Files in directories are ordered as per the default algorithm.
+Duplicate files will be added twice."#,
+            num_args = 1.., 
+            value_delimiter = ',',
+        )]
+        files: Vec<PathBuf>,
+    },
+    #[command(about = "List the injections in the project.")]
     List,
 }
 

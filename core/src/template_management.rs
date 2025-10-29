@@ -1,5 +1,5 @@
 use crate::{
-    consts::POSSIBLE_TEMPLATES, manifest_model::TemplateMapping, template_type::TemplateType,
+    consts::POSSIBLE_TEMPLATES, manifest_model::Template, template_type::TemplateType,
 };
 use color_eyre::eyre::{Result, eyre};
 use log::{debug, info, warn};
@@ -12,7 +12,7 @@ use std::{
 
 pub(crate) fn get_template_creator(
     template: &str,
-) -> Result<fn(project_path: &Path, template: &TemplateMapping) -> Result<()>> {
+) -> Result<fn(project_path: &Path, template: &Template) -> Result<()>> {
     debug!("get_template_creator -> template: '{}'", template);
     if is_preset_template(template) {
         let template_type = get_template_type_from_path(template)?;
@@ -49,7 +49,7 @@ pub(crate) fn get_template_creator(
     }
 }
 
-pub(crate) fn add_lix_filters(template: &mut TemplateMapping) {
+pub(crate) fn add_lix_filters(template: &mut Template) {
     if is_preset_template(&template.name)
         && ["lix_novel_a4.tex", "lix_novel_book.tex"].contains(&template.name.as_str())
     {
@@ -65,7 +65,7 @@ fn is_preset_template(template: &str) -> bool {
     POSSIBLE_TEMPLATES.contains(&template)
 }
 
-fn create_tex_presets(project_path: &Path, template: &TemplateMapping) -> Result<()> {
+fn create_tex_presets(project_path: &Path, template: &Template) -> Result<()> {
     let template_dir = project_path.join("template");
     fs::create_dir_all(&template_dir)?;
 
@@ -197,7 +197,7 @@ pub(crate) fn download_lix_files(template_dir: &Path) -> Result<()> {
     Ok(())
 }
 
-fn create_epub_presets(project_path: &Path, template: &TemplateMapping) -> Result<()> {
+fn create_epub_presets(project_path: &Path, template: &Template) -> Result<()> {
     let template_dir = project_path.join("template");
     fs::create_dir_all(&template_dir)?;
 
@@ -209,7 +209,7 @@ fn create_epub_presets(project_path: &Path, template: &TemplateMapping) -> Resul
     Ok(())
 }
 
-fn create_typst_presets(project_path: &Path, template: &TemplateMapping) -> Result<()> {
+fn create_typst_presets(project_path: &Path, template: &Template) -> Result<()> {
     let template_dir = project_path.join("template");
     fs::create_dir_all(&template_dir)?;
 

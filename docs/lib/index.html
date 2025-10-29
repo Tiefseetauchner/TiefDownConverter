@@ -153,6 +153,14 @@ Processors</a>
 Metadata</a></li>
 <li><a href="#metadata-settings" id="toc-metadata-settings">Metadata
 Settings</a></li>
+<li><a href="#injections" id="toc-injections">Injections</a>
+<ul>
+<li><a href="#header-and-footer-injections"
+id="toc-header-and-footer-injections">Header and footer
+injections</a></li>
+<li><a href="#body-injections" id="toc-body-injections">Body
+injections</a></li>
+</ul></li>
 </ul>
 </nav>
 <h1 id="introduction">Introduction</h1>
@@ -647,5 +655,25 @@ class="sourceCode toml"><code class="sourceCode toml"><span id="cb15-1"><a href=
 Typst exposes a <code>book</code> object. In other words, the prefix
 fully replaces the default <code>meta</code> name. If no prefix is set
 the command and object are called <code>meta</code>.</p>
+<h1 id="injections">Injections</h1>
+<p>Injections are a project-driven way to insert input files at either
+the top, inside, or bottom of a document, correspondingly named header,
+body and footer injections.</p>
+<p>Injections serve as a template scoped way to add content to a
+conversion. An injection is defined once in the manifest and then
+assigned to a template as any of the aforementioned methods.</p>
+<p>During conversion, the injected files are resolved and placed in the
+list of input files to be converted to the intermediary format.</p>
+<h2 id="header-and-footer-injections">Header and footer injections</h2>
+<p>Header injections are inserted at the top of the document, while
+footer injections are inserted at the bottom, both in the order as
+defined in the manifest. The first file defined in the first referenced
+injection is placed first, the last file of the last referenced
+injection last.</p>
+<h2 id="body-injections">Body injections</h2>
+<p>Body injections are injected before the main sorting algorithm as any
+file in the input directory would be. That means they get sorted in
+accordance with the primary sorting algorithm.</p>
+<p>Tiefseetauchner © 2025</p>
 </body>
 </html>

@@ -1,29 +1,30 @@
+use crate::{
+    converters::common::{
+        add_lua_filters, combine_pandoc_native, merge_preprocessors, preprocess_cli_args,
+        retrieve_combined_output, retrieve_preprocessors, run_preprocessors_on_inputs,
+        run_with_logging, write_combined_output,
+    },
+    manifest_model::{
+        DEFAULT_CUSTOM_PROCESSOR_PREPROCESSORS, Injection, MetadataSettings, Processors, Template,
+    },
+};
+use color_eyre::eyre::{Result, eyre};
+use log::debug;
 use std::{
     path::{Path, PathBuf},
     process::Command,
 };
-
-use color_eyre::eyre::{Result, eyre};
-use log::debug;
 use toml::Table;
-
-use crate::{
-    converters::common::{
-        add_lua_filters, combine_pandoc_native, merge_preprocessors, preprocess_cli_args, retrieve_combined_output, retrieve_preprocessors, run_preprocessors_on_inputs, run_with_logging, write_combined_output
-    },
-    manifest_model::{
-        MetadataSettings, Processors, TemplateMapping, DEFAULT_CUSTOM_PROCESSOR_PREPROCESSORS
-    },
-};
 
 pub(crate) fn convert_custom_processor(
     project_directory_path: &Path,
     compiled_directory_path: &Path,
     conversion_input_dir: &Path,
-    template: &TemplateMapping,
+    template: &Template,
     metadata_fields: &Table,
     metadata_settings: &MetadataSettings,
     custom_processors: &Processors,
+    injections: &Vec<Injection>,
 ) -> Result<PathBuf> {
     debug!(
         "Starting Processor conversion for template '{}'...",
@@ -67,6 +68,7 @@ pub(crate) fn convert_custom_processor(
         metadata_fields,
         metadata_settings,
         &preprocessors,
+        injections,
     )?;
 
     let pandoc_native = combine_pandoc_native(results);

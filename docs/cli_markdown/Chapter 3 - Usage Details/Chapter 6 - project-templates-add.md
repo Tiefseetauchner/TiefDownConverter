@@ -1,6 +1,6 @@
 ## `tiefdownconverter project templates add` {#projecttemplatesadd}
 
-**Version:** `tiefdownconverter 0.9.1-ALPHA.1`
+**Version:** `tiefdownconverter 0.9.2-ALPHA.2`
 
 ### Usage:
 ```
@@ -50,6 +50,27 @@ Options:
           A processor defines additional arguments passed to the conversion command.
           For LaTeX and typst templates, this allows extending the respective conversion parameters.
           Processors are incompatible with CustomPreprocessors conversions. Use preprocessors instead.
+
+      --header-injections <HEADER_INJECTIONS>...
+          The injection to use for prepending to the preprocessing step.
+          A header injection can define one or more files that will be prepended to the preprocessing step.
+          Files in header injections get prepended in the order that they are defined in in the manifest.
+          Duplicate files will be added twice.
+          Injections have to be defined in the manifest.
+
+      --body-injections <BODY_INJECTIONS>...
+          The injection to use for inserting into the preprocessing step.
+          A body injection can define one or more files that will be inserted into the preprocessing step.
+          Files in body injections get inserted in accordance with the sorting algorithm.
+          Duplicate files will be added twice.
+          Injections have to be defined in the manifest.
+
+      --footer-injections <FOOTER_INJECTIONS>...
+          The injection to use for appending to the preprocessing step.
+          A footer injection can define one or more files that will be appended to the preprocessing step.
+          Files in header injections get appended in the order that they are defined in in the manifest.
+          Duplicate files will be added twice.
+          Injections have to be defined in the manifest.
 
   -h, --help
           Print help (see a summary with '-h')

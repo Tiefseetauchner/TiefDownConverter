@@ -1,6 +1,6 @@
 ## `tiefdownconverter project markdown meta remove` {#projectmarkdownmetaremove}
 
-**Version:** `tiefdownconverter 0.9.1-ALPHA.1`
+**Version:** `tiefdownconverter 0.9.2-ALPHA.2`
 
 ### Usage:
 ```

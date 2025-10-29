@@ -9,7 +9,7 @@ use crate::{
         retrieve_combined_output, retrieve_preprocessors, run_preprocessors_on_inputs,
         write_combined_output,
     },
-    manifest_model::{MetadataSettings, Processors, TemplateMapping},
+    manifest_model::{Injection, MetadataSettings, Processors, Template},
     template_type::TemplateType,
 };
 
@@ -17,10 +17,11 @@ pub(crate) fn convert_custom_preprocessors(
     project_directory_path: &Path,
     compiled_directory_path: &Path,
     conversion_input_dir: &Path,
-    template: &TemplateMapping,
+    template: &Template,
     metadata_fields: &Table,
     metadata_settings: &MetadataSettings,
     custom_processors: &Processors,
+    injections: &Vec<Injection>,
 ) -> Result<PathBuf> {
     debug!(
         "Starting CustomPandoc conversion for template '{}'...",
@@ -70,6 +71,7 @@ pub(crate) fn convert_custom_preprocessors(
         metadata_fields,
         metadata_settings,
         &preprocessors,
+        injections,
     )?;
 
     write_combined_output(compiled_directory_path, &combined_output, &results)?;

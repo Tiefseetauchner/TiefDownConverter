@@ -1,6 +1,6 @@
 ## `tiefdownconverter project` {#project}
 
-**Version:** `tiefdownconverter 0.9.1-ALPHA.1`
+**Version:** `tiefdownconverter 0.9.2-ALPHA.2`
 
 ### Usage:
 ```
@@ -10,12 +10,13 @@ Usage: tiefdownconverter project [OPTIONS] [PROJECT] <COMMAND>
 
 Commands:
   templates        Add or modify templates in the project.
-  update-manifest  Update the project manifest.
+  update-settings  Update the project manifest settings.
   pre-processors   Manage the preprocessors of the project.
   processors       Manage the processors of the project.
   profiles         Manage the conversion profiles of the project.
   shared-meta      Manage the shared metadata of the project.
   markdown         Manage the markdown projects of the project.
+  injections       Manage the injections of the project.
   list-templates   List the templates in the project.
   clean            Clean temporary files from the TiefDown project.
   smart-clean      Clean temporary files from the TiefDown project, leaving only the threshold amount of folders.
@@ -31,12 +32,13 @@ Options:
 
 ### Subcommands:
 - [templates](#projecttemplates)
-- [update-manifest](#projectupdate-manifest)
+- [update-settings](#projectupdate-settings)
 - [pre-processors](#projectpre-processors)
 - [processors](#projectprocessors)
 - [profiles](#projectprofiles)
 - [shared-meta](#projectshared-meta)
 - [markdown](#projectmarkdown)
+- [injections](#projectinjections)
 - [list-templates](#projectlist-templates)
 - [clean](#projectclean)
 - [smart-clean](#projectsmart-clean)
