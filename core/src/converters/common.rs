@@ -140,17 +140,63 @@ pub(crate) fn run_preprocessors_on_inputs(
     input_files: &Vec<PathBuf>,
     injections: &RenderingInjections,
 ) -> Result<Vec<String>> {
-    let processing_chunks = if template.multi_file_output.unwrap_or(false) {
-        get_single_file_preprocessing_chunks(
-            &input_files,
-            &project_directory_path,
-            &compiled_directory_path,
-            injections,
+    let processing_chunks =
+        get_preprocessing_chunks(&input_files, template.multi_file_output.unwrap_or(false))?;
+    debug!("Created {} preprocessing chunks.", processing_chunks.len());
+
+    debug!("Processing injections.");
+
+    let header_injection_output = if injections.header_injections.len() > 0 {
+        run_preprocessors_on_inputs(
+            template,
+            project_directory_path,
+            compiled_directory_path,
+            metadata_fields,
+            _metadata_settings,
+            preprocessors,
+            &injections
+                .header_injections
+                .iter()
+                .map(|i| {
+                    get_relative_path_from_compiled_dir(
+                        i,
+                        project_directory_path,
+                        compiled_directory_path,
+                    )
+                    .unwrap_or(i.clone())
+                })
+                .collect(),
+            &RenderingInjections::new(),
         )?
     } else {
-        get_preprocessing_chunks(&input_files)?
+        vec![]
     };
-    debug!("Created {} preprocessing chunks.", processing_chunks.len());
+
+    let footer_injection_output = if injections.footer_injections.len() > 0 {
+        run_preprocessors_on_inputs(
+            template,
+            project_directory_path,
+            compiled_directory_path,
+            metadata_fields,
+            _metadata_settings,
+            preprocessors,
+            &injections
+                .footer_injections
+                .iter()
+                .map(|i| {
+                    get_relative_path_from_compiled_dir(
+                        i,
+                        project_directory_path,
+                        compiled_directory_path,
+                    )
+                    .unwrap_or(i.clone())
+                })
+                .collect(),
+            &RenderingInjections::new(),
+        )?
+    } else {
+        vec![]
+    };
 
     let results = processing_chunks
         .par_iter()
@@ -169,6 +215,22 @@ pub(crate) fn run_preprocessors_on_inputs(
             )
         })
         .collect::<Result<Vec<_>>>()?;
+
+    let results = if template.multi_file_output.unwrap_or(false) {
+        results
+            .iter()
+            .map(|f| {
+                vec![
+                    header_injection_output.clone().join("\n\n"),
+                    f.to_string(),
+                    footer_injection_output.clone().join("\n\n"),
+                ]
+                .join("\n\n")
+            })
+            .collect::<Vec<_>>()
+    } else {
+        results
+    };
 
     Ok(results)
 }
@@ -231,59 +293,25 @@ fn run_preprocessor(
     run_with_logging(cli, &cli_name, true)
 }
 
-fn get_single_file_preprocessing_chunks(
+fn get_preprocessing_chunks(
     input_files: &Vec<PathBuf>,
-    project_directory_path: &Path,
-    compiled_directory_path: &Path,
-    injections: &RenderingInjections,
+    create_single_file_chunks: bool,
 ) -> Result<Vec<(Vec<PathBuf>, String)>> {
-    let mut chunks = Vec::new();
+    debug!("Chunking {} input files.", input_files.len());
 
-    for file in input_files {
-        let current_extension = file
-            .extension()
-            .ok_or(eyre!("Input file {} has no extension", file.display()))?
-            .to_owned();
-
-        let mut injected_files = injections
-            .header_injections
+    if create_single_file_chunks {
+        return Ok(input_files
             .iter()
             .map(|f| {
-                get_relative_path_from_compiled_dir(
-                    &f,
-                    &project_directory_path,
-                    &compiled_directory_path,
+                (
+                    vec![f.clone()],
+                    f.extension()
+                        .and_then(|e| Some(e.to_string_lossy().to_string()))
+                        .unwrap_or(String::new()),
                 )
-                .unwrap_or(f.clone())
             })
-            .collect::<Vec<_>>();
-        injected_files.push(file.clone());
-        injected_files.extend(
-            injections
-                .footer_injections
-                .iter()
-                .map(|f| {
-                    get_relative_path_from_compiled_dir(
-                        &f,
-                        &project_directory_path,
-                        &compiled_directory_path,
-                    )
-                    .unwrap_or(f.clone())
-                })
-                .collect::<Vec<_>>(),
-        );
-
-        chunks.push((
-            injected_files,
-            current_extension.to_string_lossy().to_string(),
-        ))
+            .collect::<Vec<_>>());
     }
-
-    Ok(chunks)
-}
-
-fn get_preprocessing_chunks(input_files: &Vec<PathBuf>) -> Result<Vec<(Vec<PathBuf>, String)>> {
-    debug!("Chunking {} input files.", input_files.len());
 
     let mut chunks = Vec::new();
     let mut current_chunk = Vec::new();
