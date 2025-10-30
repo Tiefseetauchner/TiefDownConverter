@@ -21,6 +21,16 @@ pub(crate) struct RenderingInjections {
     footer_injections: Vec<PathBuf>,
 }
 
+impl RenderingInjections {
+    pub fn new() -> RenderingInjections {
+        RenderingInjections {
+            header_injections: vec![],
+            body_injections: vec![],
+            footer_injections: vec![],
+        }
+    }
+}
+
 pub(crate) fn retrieve_preprocessors(
     preprocessors: &Option<PreProcessors>,
     custom_preprocessors: &Vec<PreProcessor>,
@@ -128,9 +138,15 @@ pub(crate) fn run_preprocessors_on_inputs(
     _metadata_settings: &MetadataSettings,
     preprocessors: &Vec<PreProcessor>,
     input_files: &Vec<PathBuf>,
+    injections: &RenderingInjections,
 ) -> Result<Vec<String>> {
     let processing_chunks = if template.multi_file_output.unwrap_or(false) {
-        get_single_file_preprocessing_chunks(&input_files)?
+        get_single_file_preprocessing_chunks(
+            &input_files,
+            &project_directory_path,
+            &compiled_directory_path,
+            injections,
+        )?
     } else {
         get_preprocessing_chunks(&input_files)?
     };
@@ -217,6 +233,9 @@ fn run_preprocessor(
 
 fn get_single_file_preprocessing_chunks(
     input_files: &Vec<PathBuf>,
+    project_directory_path: &Path,
+    compiled_directory_path: &Path,
+    injections: &RenderingInjections,
 ) -> Result<Vec<(Vec<PathBuf>, String)>> {
     let mut chunks = Vec::new();
 
@@ -226,8 +245,36 @@ fn get_single_file_preprocessing_chunks(
             .ok_or(eyre!("Input file {} has no extension", file.display()))?
             .to_owned();
 
+        let mut injected_files = injections
+            .header_injections
+            .iter()
+            .map(|f| {
+                get_relative_path_from_compiled_dir(
+                    &f,
+                    &project_directory_path,
+                    &compiled_directory_path,
+                )
+                .unwrap_or(f.clone())
+            })
+            .collect::<Vec<_>>();
+        injected_files.push(file.clone());
+        injected_files.extend(
+            injections
+                .footer_injections
+                .iter()
+                .map(|f| {
+                    get_relative_path_from_compiled_dir(
+                        &f,
+                        &project_directory_path,
+                        &compiled_directory_path,
+                    )
+                    .unwrap_or(f.clone())
+                })
+                .collect::<Vec<_>>(),
+        );
+
         chunks.push((
-            vec![file.clone()],
+            injected_files,
             current_extension.to_string_lossy().to_string(),
         ))
     }
@@ -236,6 +283,8 @@ fn get_single_file_preprocessing_chunks(
 }
 
 fn get_preprocessing_chunks(input_files: &Vec<PathBuf>) -> Result<Vec<(Vec<PathBuf>, String)>> {
+    debug!("Chunking {} input files.", input_files.len());
+
     let mut chunks = Vec::new();
     let mut current_chunk = Vec::new();
     let mut chunk_extension: Option<std::ffi::OsString> = None;
@@ -391,26 +440,30 @@ pub(crate) fn get_relative_path_from_compiled_dir(
 
 pub(crate) fn retrieve_injections(
     template: &Template,
+    project_directory_path: &Path,
+    compiled_directory_path: &Path,
     injections: &Vec<Injection>,
-    conversion_input_dir: &Path,
 ) -> Result<RenderingInjections> {
     let header_injections = retrieve_injections_from_manifest(
         &injections,
+        project_directory_path,
+        compiled_directory_path,
         template.header_injections.clone().unwrap_or(vec![]),
         &template.name,
-        conversion_input_dir,
     )?;
     let body_injections = retrieve_injections_from_manifest(
         &injections,
+        project_directory_path,
+        compiled_directory_path,
         template.body_injections.clone().unwrap_or(vec![]),
         &template.name,
-        conversion_input_dir,
     )?;
     let footer_injections = retrieve_injections_from_manifest(
         &injections,
+        project_directory_path,
+        compiled_directory_path,
         template.footer_injections.clone().unwrap_or(vec![]),
         &template.name,
-        conversion_input_dir,
     )?;
 
     Ok(RenderingInjections {
@@ -422,10 +475,16 @@ pub(crate) fn retrieve_injections(
 
 fn retrieve_injections_from_manifest(
     injections: &Vec<Injection>,
+    project_directory_path: &Path,
+    compiled_directory_path: &Path,
     template_injections: Vec<String>,
     template_name: &String,
-    conversion_input_dir: &Path,
 ) -> Result<Vec<PathBuf>> {
+    debug!(
+        "Retrieving injections '{}' from Manifest.",
+        template_injections.join(",")
+    );
+
     let injections = template_injections
         .iter()
         .map(|n| {
@@ -442,8 +501,31 @@ fn retrieve_injections_from_manifest(
         .collect::<Result<Vec<_>>>()?
         .iter()
         .flatten()
-        .map(|p| conversion_input_dir.join("..").join(p.clone()))
-        .collect::<Vec<_>>();
+        .map(|f| {
+            let template_injection_path = compiled_directory_path.join(f);
+            debug!(
+                "Found injection file '{}'.",
+                template_injection_path.display()
+            );
+            if !template_injection_path.exists() {
+                return Err(eyre!(
+                    "Injection file '{}' is not a file or directory.",
+                    f.display(),
+                ));
+            }
+
+            Ok(template_injection_path)
+
+            // Ok(get_relative_path_from_compiled_dir(
+            //     &template_injection_path,
+            //     project_directory_path,
+            //     compiled_directory_path,
+            // )
+            // .unwrap_or(f.to_path_buf()))
+        })
+        .collect::<Result<Vec<_>>>()?;
+
+    debug!("Retrieved {} injections.", injections.len());
 
     Ok(injections)
 }
@@ -452,7 +534,8 @@ pub(crate) fn get_sorted_files(
     input_dir: &Path,
     project_directory_path: &Path,
     compiled_directory_path: &Path,
-    injections: RenderingInjections,
+    injections: &RenderingInjections,
+    multi_file_output: bool,
 ) -> Result<Vec<PathBuf>> {
     let dir_content = fs::read_dir(input_dir)?;
 
@@ -484,9 +567,18 @@ pub(crate) fn get_sorted_files(
         }
     });
 
-    let injected_content = &mut injections.header_injections.clone();
-    injected_content.append(&mut dir_content);
-    injected_content.append(&mut injections.footer_injections.clone());
+    let injected_content: Vec<PathBuf>;
+
+    if multi_file_output {
+        injected_content = dir_content
+    } else {
+        let temp_injected_vec: &mut Vec<PathBuf> = &mut vec![];
+        temp_injected_vec.append(&mut injections.header_injections.clone());
+        temp_injected_vec.append(&mut dir_content);
+        temp_injected_vec.append(&mut injections.footer_injections.clone());
+
+        injected_content = temp_injected_vec.clone();
+    };
 
     let input_files = injected_content
         .iter()
@@ -498,16 +590,13 @@ pub(crate) fn get_sorted_files(
                     f,
                     project_directory_path,
                     compiled_directory_path,
-                    RenderingInjections {
-                        header_injections: vec![],
-                        body_injections: vec![],
-                        footer_injections: vec![],
-                    },
+                    &RenderingInjections::new(),
+                    multi_file_output,
                 )
             } else {
                 Err(eyre!(
                     "Input file '{}' was not found or does not exist.",
-                    f.to_string_lossy()
+                    f.display()
                 ))
             }
         })

@@ -229,7 +229,7 @@ pub fn add_template(
     }
 
     let mut template_preprocessors = None;
-    if preprocessor_output.is_some() {
+    if preprocessor_output.is_some() || multi_file_output {
         template_preprocessors = Some(PreProcessors {
             preprocessors: preprocessors.unwrap_or(vec![]),
             combined_output: if multi_file_output {
@@ -436,10 +436,10 @@ pub fn update_template(
             if let Some(template_preprocessors) = &mut template.preprocessors {
                 template_preprocessors.preprocessors = preprocessors;
             } else {
-                return Err(eyre!(
-                    "Preprocessor cannot be set as no combined output is set for the template '{}'. Please set a combined output first.",
-                    template_name
-                ));
+                // return Err(eyre!(
+                //     "Preprocessor cannot be set as no combined output is set for the template '{}'. Please set a combined output first.",
+                //     template_name
+                // ));
             }
         } else if let Some(add_preprocessors) = add_preprocessors {
             if add_preprocessors.iter().any(|filter| {
@@ -458,10 +458,16 @@ pub fn update_template(
             if let Some(preprocessors) = &mut template.preprocessors {
                 preprocessors.preprocessors.extend(add_preprocessors);
             } else {
-                return Err(eyre!(
-                    "Preprocessor cannot be set as no combined output is set for the template '{}'. Please set a combined output first.",
-                    template_name
-                ));
+                template.preprocessors = Some(PreProcessors {
+                    preprocessors: add_preprocessors,
+                    combined_output: None,
+                    output_extension: None,
+                });
+
+                // return Err(eyre!(
+                //     "Preprocessor cannot be set as no combined output is set for the template '{}'. Please set a combined output first.",
+                //     template_name
+                // ));
             }
         } else if let Some(remove_preprocessors) = remove_preprocessors {
             if remove_preprocessors.iter().any(|filter| filter.is_empty()) {

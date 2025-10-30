@@ -78,13 +78,19 @@ pub fn convert_latex(
 
     debug!("Collecting input files for preprocessing...");
 
-    let injections = retrieve_injections(template, injections, conversion_input_dir)?;
+    let injections = retrieve_injections(
+        template,
+        project_directory_path,
+        compiled_directory_path,
+        injections,
+    )?;
 
     let input_files = get_sorted_files(
         conversion_input_dir,
         project_directory_path,
         compiled_directory_path,
-        injections,
+        &injections,
+        template.multi_file_output.unwrap_or(false),
     )?;
     debug!("Found {} input files.", input_files.len());
 
@@ -97,6 +103,7 @@ pub fn convert_latex(
         metadata_settings,
         &preprocessors,
         &input_files,
+        &injections,
     )?;
 
     write_combined_output(compiled_directory_path, &combined_output, &results)?;
