@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Tiefseetauchner et al." />
+  <title>TiefDownConverter Documentation</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="/TiefDownConverter/template/html_template/style.css" />
+</head>
+<body>
+<header>
+    <em>Available at <a
+            href="https://github.com/Tiefseetauchner/TiefDownConverter">https://github.com/Tiefseetauchner/TiefDownConverter</a></em><br />
+    <nav class="nav-container">
+        <a href="/TiefDownConverter/">Home</a>
+        <a href="/TiefDownConverter/cli/">CLI Docs</a>
+        <a href="/TiefDownConverter/lib/">Library Docs</a>
+    </nav>
+</header>
+<header id="title-block-header">
+<h1 class="title">TiefDownConverter Documentation</h1>
+<p class="author">Tiefseetauchner et al.</p>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#projectupdate-settings"
+id="toc-projectupdate-settings"><code>tiefdownconverter project update-settings</code></a>
+<ul>
+<li><a href="#usage" id="toc-usage">Usage:</a></li>
+</ul></li>
+</ul>
+</nav>
+<h2
+id="projectupdate-settings"><code>tiefdownconverter project update-settings</code></h2>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.9.2-ALPHA.2</code></p>
+<h3 id="usage">Usage:</h3>
+<pre><code>Update the project manifest settings.
+
+Usage: tiefdownconverter project update-settings [OPTIONS]
+
+Options:
+      --smart-clean &lt;SMART_CLEAN&gt;
+          Enables smart clean for the project with a default threshold of 5.
+          If the number of conversion folders in the project is above the smart_clean_threshold, old folders will be cleaned, leaving only the threshold amount of folders.
+          
+          [possible values: true, false]
+
+  -v, --verbose
+          Enable verbose output.
+
+      --smart-clean-threshold &lt;SMART_CLEAN_THRESHOLD&gt;
+          The threshold for smart clean. If not provided, the default threshold of 5 will be used.
+          If the number of conversion folders in the project is above this threshold, old folders will be cleaned, leaving only the threshold amount of folders.
+
+  -h, --help
+          Print help (see a summary with &#39;-h&#39;)</code></pre>
+</body>
+</html>

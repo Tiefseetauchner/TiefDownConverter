@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Tiefseetauchner et al." />
+  <title>TiefDownConverter Documentation</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="/TiefDownConverter/template/html_template/style.css" />
+</head>
+<body>
+<header>
+    <em>Available at <a
+            href="https://github.com/Tiefseetauchner/TiefDownConverter">https://github.com/Tiefseetauchner/TiefDownConverter</a></em><br />
+    <nav class="nav-container">
+        <a href="/TiefDownConverter/">Home</a>
+        <a href="/TiefDownConverter/cli/">CLI Docs</a>
+        <a href="/TiefDownConverter/lib/">Library Docs</a>
+    </nav>
+</header>
+<header id="title-block-header">
+<h1 class="title">TiefDownConverter Documentation</h1>
+<p class="author">Tiefseetauchner et al.</p>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#custom-processors" id="toc-custom-processors">Custom
+Processors</a>
+<ul>
+<li><a href="#defaults" id="toc-defaults">Defaults</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="custom-processors">Custom Processors</h1>
+<p>Custom processors let you change the commands used during conversion.
+They come in two forms:</p>
+<ul>
+<li><strong>Preprocessors</strong> replace the default pandoc invocation
+that generates the intermediate file.</li>
+<li><strong>Processors</strong> provide additional arguments to the
+program that handles the template itself (for example XeLaTeX or
+Typst).</li>
+</ul>
+<p>A preprocessor is defined under
+<code>[[custom_processors.preprocessors]]</code>:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.preprocessors]]</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Enable Listings&quot;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="dt">cli_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;-t&quot;</span><span class="op">,</span> <span class="st">&quot;latex&quot;</span><span class="op">,</span> <span class="st">&quot;--listings&quot;</span><span class="op">]</span></span></code></pre></div>
+<p>A preprocessor can also define a command using the <code>cli</code>
+field. This replaces the Pandoc preprocessing step with a custom cli
+command preprocessing step.</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.preprocessors]]</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Copy without modification&quot;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="dt">cli</span> <span class="op">=</span> <span class="st">&quot;cat&quot;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="dt">cli_args</span> <span class="op">=</span> <span class="op">[]</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="dt">extension_filter</span> <span class="op">=</span> <span class="st">&quot;typ&quot;</span></span></code></pre></div>
+<p>Templates reference one or more preprocessors with their
+<code>preprocessors</code> field, which also has to define a
+<code>combined_output</code> field. The converter captures the stdout of
+each preprocessor run and writes it to this file, which your template
+then includes (<code>\input{./output.tex}</code> or
+<code>#include "./output.typ"</code>) or copies to the output location
+for <code>CustomPreprocessors</code> templates.</p>
+<p>Processors are specified similarly and referenced via the
+<code>processor</code> field:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.processors]]</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Typst Font Directory&quot;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="dt">processor_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;--font-path&quot;</span><span class="op">,</span> <span class="st">&quot;fonts/&quot;</span><span class="op">]</span></span></code></pre></div>
+<p>Usage notes:</p>
+<ul>
+<li>For <code>CustomPreprocessors</code> templates, there is no
+processor step. You are responsible for ensuring the
+<code>combined_output</code> is the final artifact you want to copy to
+the project’s output.</li>
+<li>For <code>CustomProcessor</code> templates, a processor is required.
+TiefDown combines inputs to Pandoc Native (defaults provided) and then
+runs Pandoc with your <code>processor_args</code> to produce the final
+artifact.</li>
+</ul>
+<p>These mechanisms allow fine-grained control over the conversion
+pipeline when the defaults are not sufficient.</p>
+<h2 id="defaults">Defaults</h2>
+<p>TiefDown provides reasonable defaults per template type:</p>
+<ul>
+<li>Tex templates preprocess inputs with Pandoc using
+<code>-t latex</code>, writing <code>output.tex</code>.</li>
+<li>Typst templates use two preprocessors: Pandoc with
+<code>-t typst</code> for non-<code>.typ</code> inputs, and a
+pass-through step for <code>.typ</code> inputs so existing Typst files
+are concatenated. The combined output is <code>output.typ</code>.</li>
+</ul>
+<p>You can override a default for a particular extension by defining a
+preprocessor with a matching <code>extension_filter</code>; defaults for
+other extensions remain.</p>
+<p>Preprocessors can be scoped by extension via
+<code>extension_filter</code>, which matches only the file extension
+(glob patterns such as <code>t*</code> are supported). If you omit the
+filter, the preprocessor acts as a fallback when no more specific filter
+matches. Defaults exist per template type and are merged by extension;
+defining your own preprocessor for a particular extension replaces the
+default for that extension but leaves the others intact. Finally,
+<code>cli_args</code> support metadata substitution, so any occurrence
+of <code>{{key}}</code> is replaced with the corresponding metadata
+value at conversion time.</p>
+</body>
+</html>

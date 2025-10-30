@@ -10,6 +10,10 @@ name = "Enable Listings"
 cli_args = ["-s", "-t", "man", "--metadata-file", "man_metadata.yaml"]
 name = "Man Page"
 
+[[custom_processors.preprocessors]]
+cli_args = ["--to", "html5", "-s", "--metadata", "title={{title}}", "--metadata", "author={{author}}", "--css", "/TiefDownConverter/template/html_template/style.css", "--toc", "-B", "html_template/header.html"]
+name = "HTML Conversion"
+
 [[custom_processors.processors]]
 name = "HTML Conversion"
 processor_args = ["--to", "html5", "-s", "--metadata", "title={{title}}", "--metadata", "author={{author}}", "--css", "/TiefDownConverter/template/html_template/style.css", "--toc", "-B", "html_template/header.html"]
@@ -52,7 +56,7 @@ path = "index_markdown"
 
 [[profiles]]
 name = "Documentation"
-templates = ["PDF Documentation LaTeX", "PDF Documentation", "Epub Documentation", "GitHub Page Documentation"]
+templates = ["PDF Documentation LaTeX", "PDF Documentation", "Epub Documentation", "GitHub Page Documentation", "Wiki Pages"]
 
 [[profiles]]
 name = "Man"
@@ -106,3 +110,13 @@ name = "GitHub Page Documentation"
 output = "index.html"
 processor = "HTML Conversion"
 template_type = "CustomProcessor"
+
+[[templates]]
+multi_file_output = true
+name = "Wiki Pages"
+output = "wiki"
+template_type = "CustomPreprocessors"
+
+[templates.preprocessors]
+output_extension = "html"
+preprocessors = ["HTML Conversion"]

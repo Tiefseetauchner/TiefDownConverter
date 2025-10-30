@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Tiefseetauchner et al." />
+  <title>TiefDownConverter Documentation</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="/TiefDownConverter/template/html_template/style.css" />
+</head>
+<body>
+<header>
+    <em>Available at <a
+            href="https://github.com/Tiefseetauchner/TiefDownConverter">https://github.com/Tiefseetauchner/TiefDownConverter</a></em><br />
+    <nav class="nav-container">
+        <a href="/TiefDownConverter/">Home</a>
+        <a href="/TiefDownConverter/cli/">CLI Docs</a>
+        <a href="/TiefDownConverter/lib/">Library Docs</a>
+    </nav>
+</header>
+<header id="title-block-header">
+<h1 class="title">TiefDownConverter Documentation</h1>
+<p class="author">Tiefseetauchner et al.</p>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#project"
+id="toc-project"><code>tiefdownconverter project</code></a>
+<ul>
+<li><a href="#usage" id="toc-usage">Usage:</a></li>
+<li><a href="#subcommands" id="toc-subcommands">Subcommands:</a></li>
+</ul></li>
+</ul>
+</nav>
+<h2 id="project"><code>tiefdownconverter project</code></h2>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.9.2-ALPHA.2</code></p>
+<h3 id="usage">Usage:</h3>
+<pre><code>Update the TiefDown project.
+
+Usage: tiefdownconverter project [OPTIONS] [PROJECT] &lt;COMMAND&gt;
+
+Commands:
+  templates        Add or modify templates in the project.
+  update-settings  Update the project manifest settings.
+  pre-processors   Manage the preprocessors of the project.
+  processors       Manage the processors of the project.
+  profiles         Manage the conversion profiles of the project.
+  shared-meta      Manage the shared metadata of the project.
+  markdown         Manage the markdown projects of the project.
+  injections       Manage the injections of the project.
+  list-templates   List the templates in the project.
+  clean            Clean temporary files from the TiefDown project.
+  smart-clean      Clean temporary files from the TiefDown project, leaving only the threshold amount of folders.
+  help             Print this message or the help of the given subcommand(s)
+
+Arguments:
+  [PROJECT]  The project to edit. If not provided, the current directory will be used.
+
+Options:
+  -v, --verbose  Enable verbose output.
+  -h, --help     Print help</code></pre>
+<h3 id="subcommands">Subcommands:</h3>
+<ul>
+<li><a href="#projecttemplates">templates</a></li>
+<li><a href="#projectupdate-settings">update-settings</a></li>
+<li><a href="#projectpre-processors">pre-processors</a></li>
+<li><a href="#projectprocessors">processors</a></li>
+<li><a href="#projectprofiles">profiles</a></li>
+<li><a href="#projectshared-meta">shared-meta</a></li>
+<li><a href="#projectmarkdown">markdown</a></li>
+<li><a href="#projectinjections">injections</a></li>
+<li><a href="#projectlist-templates">list-templates</a></li>
+<li><a href="#projectclean">clean</a></li>
+<li><a href="#projectsmart-clean">smart-clean</a></li>
+</ul>
+</body>
+</html>

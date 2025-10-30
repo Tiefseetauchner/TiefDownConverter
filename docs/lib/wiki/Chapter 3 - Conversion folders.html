@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Tiefseetauchner et al." />
+  <title>TiefDownConverter Documentation</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="/TiefDownConverter/template/html_template/style.css" />
+</head>
+<body>
+<header>
+    <em>Available at <a
+            href="https://github.com/Tiefseetauchner/TiefDownConverter">https://github.com/Tiefseetauchner/TiefDownConverter</a></em><br />
+    <nav class="nav-container">
+        <a href="/TiefDownConverter/">Home</a>
+        <a href="/TiefDownConverter/cli/">CLI Docs</a>
+        <a href="/TiefDownConverter/lib/">Library Docs</a>
+    </nav>
+</header>
+<header id="title-block-header">
+<h1 class="title">TiefDownConverter Documentation</h1>
+<p class="author">Tiefseetauchner et al.</p>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#conversion-folders" id="toc-conversion-folders">Conversion
+folders</a></li>
+</ul>
+</nav>
+<h1 id="conversion-folders">Conversion folders</h1>
+<p>The conversion folder is where inputs are collected and processed for
+a run. A new, time-stamped folder is created inside the project whenever
+a conversion starts. If a <a href="#markdown-projects">markdown
+project</a> specifies an <code>output</code> directory, TiefDown uses
+that as the base for that project’s conversion folder. Old conversion
+folders can be removed manually with the clean command or automatically
+with <a href="#smart-clean">smart clean</a>.</p>
+<p>To understand what goes into the folder, it helps to look at the
+conversion pipeline (see the overview diagram):</p>
+<figure>
+<img src="./resources/architecture.jpg" alt="Workflow" />
+<figcaption aria-hidden="true">Workflow</figcaption>
+</figure>
+<ol type="1">
+<li><p>Input discovery and ordering: TiefDown scans the markdown project
+directory, orders files by the first number in the filename
+(e.g. <code>Chapter 10 - …</code>), and recurses into similarly numbered
+subfolders, preserving their order.</p></li>
+<li><p>Preprocessing by extension: Inputs are grouped by file extension.
+For each group, TiefDown selects the matching preprocessor for the
+active template (either a default or a custom one filtered by extension)
+and runs it in the conversion folder. The stdout from each run is
+captured.</p></li>
+<li><p>Combined output: The captured outputs are concatenated and
+written to the template’s configured
+<code>preprocessors.combined_output</code> file (typically
+<code>output.tex</code> for LaTeX or <code>output.typ</code> for Typst).
+Your template includes this file.</p></li>
+<li><p>Metadata files: TiefDown generates <code>metadata.tex</code> or
+<code>metadata.typ</code> (only if they don’t already exist) based on
+<code>[shared_metadata]</code>, any project-specific metadata, and your
+optional <a href="#metadata-settings">metadata settings</a>.</p></li>
+<li><p>Template processing: Depending on the template type, TiefDown
+runs XeLaTeX (twice) or Typst on the template file in the conversion
+folder, optionally passing arguments from a named <a
+href="#custom-processors">processor</a>. EPUB templates invoke Pandoc
+directly. <code>CustomPreprocessors</code> templates copy the combined
+output as-is to the final destination. <code>CustomProcessor</code>
+templates run a final Pandoc invocation reading the combined Pandoc
+Native input and passing the configured processor arguments.</p></li>
+<li><p>Finalization: The produced artifact (e.g. a PDF or EPUB) is then
+copied to the markdown project’s configured output path.</p></li>
+</ol>
+</body>
+</html>

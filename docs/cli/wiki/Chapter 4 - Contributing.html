@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Tiefseetauchner et al." />
+  <title>TiefDownConverter Documentation</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="/TiefDownConverter/template/html_template/style.css" />
+</head>
+<body>
+<header>
+    <em>Available at <a
+            href="https://github.com/Tiefseetauchner/TiefDownConverter">https://github.com/Tiefseetauchner/TiefDownConverter</a></em><br />
+    <nav class="nav-container">
+        <a href="/TiefDownConverter/">Home</a>
+        <a href="/TiefDownConverter/cli/">CLI Docs</a>
+        <a href="/TiefDownConverter/lib/">Library Docs</a>
+    </nav>
+</header>
+<header id="title-block-header">
+<h1 class="title">TiefDownConverter Documentation</h1>
+<p class="author">Tiefseetauchner et al.</p>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#contributing" id="toc-contributing">Contributing</a>
+<ul>
+<li><a href="#the-architecture" id="toc-the-architecture">The
+architecture</a></li>
+<li><a href="#pull-requests" id="toc-pull-requests">Pull
+Requests</a></li>
+<li><a href="#conversion" id="toc-conversion">Conversion</a></li>
+<li><a href="#presets" id="toc-presets">Presets</a></li>
+<li><a href="#manifest" id="toc-manifest">Manifest</a></li>
+<li><a href="#tests" id="toc-tests">Tests</a></li>
+<li><a href="#documentation"
+id="toc-documentation">Documentation</a></li>
+<li><a href="#code-style" id="toc-code-style">Code Style</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="contributing">Contributing</h1>
+<p>This project is open source, and I’d love for you to contribute!
+There’s a few things you should know before you start.</p>
+<blockquote>
+<p><strong>NOTE:</strong> When raising the version, don’t forget to
+change the version in the documentation as well!!!</p>
+</blockquote>
+<h2 id="the-architecture">The architecture</h2>
+<p>The project has a relatively straight forward conversion process, as
+shown in the diagram below.</p>
+<figure>
+<img src="./resources/architecture.jpg" style="width:135mm;height:90mm"
+alt="Conversion Process" />
+<figcaption aria-hidden="true">Conversion Process</figcaption>
+</figure>
+<h2 id="pull-requests">Pull Requests</h2>
+<p>Pull Requests should be made with either a link to an issue or an
+explanation of</p>
+<ol type="1">
+<li>What was the problem</li>
+<li>How is it solved now</li>
+<li>How did it affect the documentation</li>
+</ol>
+<p>It takes a lot of work to understand the intention of code you didn’t
+write and then judging whether this was indeed the intended outcome.
+That’s why it’s helpful for everyone if there’s an explanation on what
+was changed and why.</p>
+<h2 id="conversion">Conversion</h2>
+<p>Conversion is split in a few different steps:</p>
+<ol type="1">
+<li>Combine all the markdown files into one megafile called
+<code>combined.md</code>.</li>
+<li>Run Pandoc conversion to TeX, EPUB, or Typst. This uses Lua filters
+that are defined in the <code>manifest.toml</code> file.</li>
+<li>Run XeLaTeX on all TeX templates, Typst on all Typst templates, and
+so on.</li>
+</ol>
+<p>Say you were to add a new conversion type. In
+<code>converters.rs</code>, you’d need to add a new function that
+handles the full conversion. Including handling lua filters, markdown
+conversion, so on. This converter function has to then be included in
+our conversion decision logic in <code>conversion_decider.rs</code>. And
+for that you need to add a new TemplateType, which includes editing the
+implementations. Then you need to add the new template type decision
+logic to <code>get_template_type_from_path</code>.</p>
+<h2 id="presets">Presets</h2>
+<blockquote>
+<p><strong>NOTE:</strong> This is a bit of a niche usecase, so
+documentation is lacking. You can always ask for help on this in a
+GitHub issue.</p>
+</blockquote>
+<p>You can also add new presets, but that’s a bit more involved. You
+should check the implementation for the existing presets, I don’t think
+it’s useful to document this nieche usecase for now.</p>
+<h2 id="manifest">Manifest</h2>
+<p>Hope you don’t have to change the manifest.toml file. If you do,
+change the manifest model, increase the version number in
+<code>consts.rs</code> and add a upgrade logic to
+<code>manifest_model.rs</code>.</p>
+<h2 id="tests">Tests</h2>
+<p>Currently primarily integration tests. See the <code>tests</code>
+folder for examples. Any pull request to main will automatically run
+tests, and the expectation is that at least the existing tests work. If
+they break, fix your code or, if you changed behavior on purpose, the
+tests.</p>
+<p>I appreciate it if you add test coverage for your changes. I
+especially would appreciate more unit tests, but the tests I have are
+sufficient for now. Integration tests take priority over unit tests for
+me, as the overall behavior is more important to me than the individual
+functions, and I only have so much time that I want to spend on this
+project.</p>
+<h2 id="documentation">Documentation</h2>
+<p>When changing the documentation, it is of utmost importance that the
+documentation outputs are correctly generated. <em>These are not
+automatically generated on release</em> but rather held in git to more
+easily track changes during a pull request.</p>
+<p>To make sure this documentation is up to date, consider whether your
+changes significantly affect the workflow of using TiefDownConverter. If
+you add a command or flag, make sure to run
+<code>tools/generate_docs.py</code>. Either way, when changing the
+documentation, always run <code>tiefdownconverter convert -p docs</code>
+before committing the changes.</p>
+<p>Praise be you don’t need to have any fonts installed anymore - they
+are packaged in the fonts directory. But if you happen to change the
+fonts, you will need to replace them in fonts/ and add your own fonts to
+the templates.</p>
+<h2 id="code-style">Code Style</h2>
+<p>I don’t have one. I’m sorry.</p>
+</body>
+</html>

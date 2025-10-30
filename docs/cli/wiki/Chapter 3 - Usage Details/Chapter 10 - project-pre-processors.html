@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Tiefseetauchner et al." />
+  <title>TiefDownConverter Documentation</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="/TiefDownConverter/template/html_template/style.css" />
+</head>
+<body>
+<header>
+    <em>Available at <a
+            href="https://github.com/Tiefseetauchner/TiefDownConverter">https://github.com/Tiefseetauchner/TiefDownConverter</a></em><br />
+    <nav class="nav-container">
+        <a href="/TiefDownConverter/">Home</a>
+        <a href="/TiefDownConverter/cli/">CLI Docs</a>
+        <a href="/TiefDownConverter/lib/">Library Docs</a>
+    </nav>
+</header>
+<header id="title-block-header">
+<h1 class="title">TiefDownConverter Documentation</h1>
+<p class="author">Tiefseetauchner et al.</p>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#projectpre-processors"
+id="toc-projectpre-processors"><code>tiefdownconverter project pre-processors</code></a>
+<ul>
+<li><a href="#usage" id="toc-usage">Usage:</a></li>
+<li><a href="#subcommands" id="toc-subcommands">Subcommands:</a></li>
+</ul></li>
+</ul>
+</nav>
+<h2
+id="projectpre-processors"><code>tiefdownconverter project pre-processors</code></h2>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.9.2-ALPHA.2</code></p>
+<h3 id="usage">Usage:</h3>
+<pre><code>Manage the preprocessors of the project.
+A preprocessor defines the arguments passed to the pandoc conversion from markdown.
+If using a CustomPreprocessor template, a preprocessor is required.
+Preprocessors replace all arguments. Thus, with preprocessors, you need to define the output file and format.
+For templates, that is the file imported by the template.
+Preprocessors are incompatible with epub conversion. Use processors instead.
+
+Usage: tiefdownconverter project pre-processors [OPTIONS] &lt;COMMAND&gt;
+
+Commands:
+  add     Add a new preprocessor to the project.
+  remove  Remove a preprocessor from the project.
+  list    List the preprocessors in the project.
+  help    Print this message or the help of the given subcommand(s)
+
+Options:
+  -v, --verbose
+          Enable verbose output.
+
+  -h, --help
+          Print help (see a summary with &#39;-h&#39;)</code></pre>
+<h3 id="subcommands">Subcommands:</h3>
+<ul>
+<li><a href="#projectpre-processorsadd">add</a></li>
+<li><a href="#projectpre-processorsremove">remove</a></li>
+<li><a href="#projectpre-processorslist">list</a></li>
+</ul>
+</body>
+</html>

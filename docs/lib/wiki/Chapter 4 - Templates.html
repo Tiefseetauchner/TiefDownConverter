@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Tiefseetauchner et al." />
+  <title>TiefDownConverter Documentation</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="/TiefDownConverter/template/html_template/style.css" />
+</head>
+<body>
+<header>
+    <em>Available at <a
+            href="https://github.com/Tiefseetauchner/TiefDownConverter">https://github.com/Tiefseetauchner/TiefDownConverter</a></em><br />
+    <nav class="nav-container">
+        <a href="/TiefDownConverter/">Home</a>
+        <a href="/TiefDownConverter/cli/">CLI Docs</a>
+        <a href="/TiefDownConverter/lib/">Library Docs</a>
+    </nav>
+</header>
+<header id="title-block-header">
+<h1 class="title">TiefDownConverter Documentation</h1>
+<p class="author">Tiefseetauchner et al.</p>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#templates" id="toc-templates">Templates</a>
+<ul>
+<li><a href="#latex-templates" id="toc-latex-templates">LaTeX
+Templates</a></li>
+<li><a href="#typst-templates" id="toc-typst-templates">Typst
+Templates</a></li>
+<li><a href="#epub-templates" id="toc-epub-templates">EPUB
+Templates</a></li>
+<li><a href="#custompreprocessors-conversion"
+id="toc-custompreprocessors-conversion">CustomPreprocessors
+Conversion</a></li>
+<li><a href="#customprocessor-conversion"
+id="toc-customprocessor-conversion">CustomProcessor Conversion</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="templates">Templates</h1>
+<p>Templating in TiefDown is done in several ways:</p>
+<ul>
+<li><a href="#latex-templates">LaTeX templates</a>
+<ul>
+<li>The most basic form of templating, it generates a LaTeX document
+from the markdown files that can be included in a LaTeX document.</li>
+<li>Supports Metadata file generation.</li>
+</ul></li>
+<li><a href="#typst-templates">Typst templates</a>
+<ul>
+<li>Similar to LaTeX, it generates a Typst document from the markdown
+files that can be included in a Typst document.</li>
+<li>Supports Metadata file generation.</li>
+</ul></li>
+<li><a href="#epub-templates">EPUB templates</a>
+<ul>
+<li>A legacy templating system, it generates a EPUB document from the
+markdown files. Convoluted and very much custom to basic usage.</li>
+<li>Adds Metadata directly to the EPUB file.</li>
+<li>(!) This template type should be forgone in favour of
+CustomPreprocessors conversion.</li>
+</ul></li>
+<li><a href="#custompreprocessors-conversion">CustomPreprocessors
+conversion</a>
+<ul>
+<li>A flexible pipeline where you define one or more preprocessors
+(Pandoc or any CLI) and write their combined output to a file your
+template or output references. No final processing step is
+performed.</li>
+<li>Supports metadata insertion into CLI arguments.</li>
+</ul></li>
+<li><a href="#customprocessor-conversion">CustomProcessor conversion</a>
+<ul>
+<li>Preprocesses inputs to a single Pandoc Native document and then runs
+a final Pandoc call with your processor arguments to produce the
+artifact (e.g., HTML, docx, reveal.js, etc.).</li>
+</ul></li>
+</ul>
+<h2 id="latex-templates">LaTeX Templates</h2>
+<p>LaTeX templates are the most intuitive form of templating in
+TiefDown, but also the most fleshed out. The basic usage generates a
+LaTeX document from markdown, usually output.tex, with <a
+href="#lua-filters">lua-filters</a> applied depending on the template,
+and then converts that template file to a PDF.</p>
+<p>The LaTeX file must include the following:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode latex"><code class="sourceCode latex"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">\input</span>{./output.tex}</span></code></pre></div>
+<p>This imports the converted markdown files into the LaTeX document.
+You may adjust the behaviour by using <a
+href="#custom-processors">custom preprocessors</a> and <a
+href="#custom-processors">custom processors</a>.</p>
+<p>For Metadata, one can also import the metadata file, which is
+generated by TiefDown during the conversion process.</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode latex"><code class="sourceCode latex"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">\input</span>{./metadata.tex}</span></code></pre></div>
+<p>This file provides a macro to access metadata using the
+<code>\meta{}</code> keyword. This can be adjusted using the <a
+href="#metadata-settings">metadata settings</a>.</p>
+<p>There are preset templates available in the core library. These give
+a basic framework for extension and shouldn’t be taken as the only way
+to use LaTeX templates.</p>
+<h2 id="typst-templates">Typst Templates</h2>
+<p>Typst templates are, in concept, identical to LaTeX templates. They
+generate a Typst document from markdown, usually output.typ, with <a
+href="#lua-filters">lua-filters</a> applied depending on the template,
+and then converts that template file to a PDF.</p>
+<p>Importing the typst file works similar:</p>
+<pre class="typst"><code>#include &quot;output.typ&quot;</code></pre>
+<p>Again, see <a href="#custom-processors">custom preprocessors</a> and
+<a href="#custom-processors">custom processors</a> for more information
+on customization.</p>
+<p>Metadata importing is easier as typst has an object system.</p>
+<pre class="typst"><code>#import &quot;./metadata.typ&quot;: meta</code></pre>
+<p>One can then access metadata using the <code>meta</code> object.</p>
+<p>There are also preset templates available in the core library. Again,
+these are just a basic suggestion.</p>
+<h2 id="epub-templates">EPUB Templates</h2>
+<p>Epub templates are a custom version of CustomProcessing templates.
+They add the ability to add CSS and embed fonts through the templating
+system without defining the files in the processor.</p>
+<p>When adding a css file to the template directory of an epub template,
+it gets added to the pandoc conversion process with the <code>-c</code>
+flag.</p>
+<p>Additionally, you can add a <code>fonts/</code> directory in the epub
+folder. Every file in this directory gets added to the conversion
+process using the <code>--epub-embed-font</code> flag.</p>
+<p><strong>NOTE:</strong> this template type is somewhat deprecated and
+will likely not be gaining features. It has some shortcuts to
+CustomProcessor conversion but for full control, use said template type
+instead.</p>
+<h2 id="custompreprocessors-conversion">CustomPreprocessors
+Conversion</h2>
+<p>CustomPreprocessors replaces the older “Custom Pandoc Conversion”
+naming. It lets you define exactly how inputs are preprocessed (with
+Pandoc or any CLI) and where the combined output is written. There is no
+additional processing step after the combined output is produced.</p>
+<p>Key points</p>
+<ul>
+<li>Define one or more preprocessors under
+<code>[[custom_processors.preprocessors]]</code>.</li>
+<li>In the template, reference them via
+<code>preprocessors.preprocessors</code> and specify
+<code>preprocessors.combined_output</code>.</li>
+<li>The converter runs each preprocessor per extension group, captures
+stdout, and concatenates into the combined output file.</li>
+<li>Your template or output process must copy or reference this file to
+the final destination.</li>
+</ul>
+<p>Example: single-file HTML without a LaTeX/Typst step</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[templates]]</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;HTML Article&quot;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="dt">template_type</span> <span class="op">=</span> <span class="st">&quot;CustomPreprocessors&quot;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">=</span> <span class="st">&quot;article.html&quot;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">[templates.preprocessors]</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">preprocessors</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;md-to-html&quot;</span><span class="op">]</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">combined_output</span> <span class="op">=</span> <span class="st">&quot;output.html&quot;</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.preprocessors]]</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;md-to-html&quot;</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="dt">cli</span> <span class="op">=</span> <span class="st">&quot;pandoc&quot;</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="dt">cli_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;-f&quot;</span><span class="op">,</span> <span class="st">&quot;gfm&quot;</span><span class="op">,</span> <span class="st">&quot;-t&quot;</span><span class="op">,</span> <span class="st">&quot;html&quot;</span><span class="op">]</span></span></code></pre></div>
+<h2 id="customprocessor-conversion">CustomProcessor Conversion</h2>
+<p>CustomProcessor is a two-phase pipeline:</p>
+<ul>
+<li>Preprocess: Convert all inputs to Pandoc Native (defaults provided)
+and write a single <code>output.pandoc_native</code> file.</li>
+<li>Process: Run Pandoc once more, reading the native file and applying
+your processor’s arguments to produce the final artifact.</li>
+</ul>
+<p>Requirements and behavior</p>
+<ul>
+<li>The template’s <code>processor</code> is required and must reference
+an entry under <code>[[custom_processors.processors]]</code>.</li>
+<li><code>preprocessors.combined_output</code> should be a native file
+(defaults to <code>output.pandoc_native</code>).</li>
+<li>Lua filters configured on the template are applied to Pandoc
+preprocessing steps; the final Pandoc step uses
+<code>processor_args</code> only.</li>
+</ul>
+<p>Example: produce a docx from the combined native document</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[templates]]</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Docx&quot;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="dt">template_type</span> <span class="op">=</span> <span class="st">&quot;CustomProcessor&quot;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">=</span> <span class="st">&quot;book.docx&quot;</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="dt">processor</span> <span class="op">=</span> <span class="st">&quot;docx&quot;</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">[templates.preprocessors]</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">preprocessors</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;native&quot;</span><span class="op">]</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">combined_output</span> <span class="op">=</span> <span class="st">&quot;output.pandoc_native&quot;</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.preprocessors]]</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;native&quot;</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="dt">cli</span> <span class="op">=</span> <span class="st">&quot;pandoc&quot;</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="dt">cli_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;-t&quot;</span><span class="op">,</span> <span class="st">&quot;native&quot;</span><span class="op">]</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.processors]]</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;docx&quot;</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="dt">processor_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;--reference-doc&quot;</span><span class="op">,</span> <span class="st">&quot;resources/ref.docx&quot;</span><span class="op">]</span></span></code></pre></div>
+</body>
+</html>
