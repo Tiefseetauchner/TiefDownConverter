@@ -15,7 +15,7 @@ use std::{
 };
 use toml::Table;
 
-struct RenderingInjections {
+pub(crate) struct RenderingInjections {
     header_injections: Vec<PathBuf>,
     body_injections: Vec<PathBuf>,
     footer_injections: Vec<PathBuf>,
@@ -69,18 +69,54 @@ pub(crate) fn merge_preprocessors(preprocessor_lists: Vec<Vec<PreProcessor>>) ->
 pub(crate) fn retrieve_combined_output(
     template: &Template,
     default_processors: &Option<PreProcessors>,
-) -> Result<PathBuf> {
+) -> Result<Option<PathBuf>> {
     let from_template = template
         .preprocessors
         .clone()
-        .and_then(|p| Some(p.combined_output));
+        .and_then(|p| p.combined_output);
+
+    if template.multi_file_output.unwrap_or(false) {
+        if from_template.is_some() {
+            return Err(eyre!(
+                "A template with multi-file output cannot have a preprocessor combined output defined."
+            ));
+        }
+
+        return Ok(None);
+    }
+
     let from_defaults = default_processors
         .as_ref()
-        .and_then(|p| Some(p.clone().combined_output));
+        .and_then(|p| p.clone().combined_output);
+
     let chosen = from_template.or(from_defaults).ok_or(eyre!(
         "No combined output defined for this template's preprocessor."
     ))?;
+
     debug!("retrieve_combined_output -> {}", chosen.display());
+
+    Ok(Some(chosen))
+}
+
+pub(crate) fn retrieve_output_extension(
+    template: &Template,
+    default_processors: &Option<PreProcessors>,
+) -> Result<String> {
+    let from_template = template
+        .preprocessors
+        .clone()
+        .and_then(|p| p.output_extension);
+
+    let from_defaults = default_processors
+        .as_ref()
+        .and_then(|p| p.clone().output_extension);
+
+    let chosen = from_template.or(from_defaults).ok_or(eyre!(
+        "No output extension defined for this template's preprocessor."
+    ))?;
+
+    debug!("retrieve_output_extension -> {}", chosen);
+
     Ok(chosen)
 }
 
@@ -88,39 +124,32 @@ pub(crate) fn run_preprocessors_on_inputs(
     template: &Template,
     project_directory_path: &Path,
     compiled_directory_path: &Path,
-    conversion_input_dir: &Path,
     metadata_fields: &Table,
     _metadata_settings: &MetadataSettings,
     preprocessors: &Vec<PreProcessor>,
-    injections: &Vec<Injection>,
+    input_files: &Vec<PathBuf>,
 ) -> Result<Vec<String>> {
-    debug!("Collecting input files for preprocessing...");
+    let processing_chunks = if template.multi_file_output.unwrap_or(false) {
+        get_single_file_preprocessing_chunks(&input_files)?
+    } else {
+        get_preprocessing_chunks(&input_files)?
+    };
+    debug!("Created {} preprocessing chunks.", processing_chunks.len());
 
-    let injections = retrieve_injections(template, injections, conversion_input_dir)?;
-
-    let input_files = get_sorted_files(
-        conversion_input_dir,
-        project_directory_path,
-        compiled_directory_path,
-        injections,
-    )?;
-    debug!("Found {} input files.", input_files.len());
-
-    let chunks = get_preprocessing_chunks(&input_files)?;
-    debug!("Created {} preprocessing chunks.", chunks.len());
-
-    let results = chunks
+    let results = processing_chunks
         .par_iter()
         .map(|chunk| {
             debug!("Processing chunk with extension {}: {:?}", chunk.1, chunk.0);
+
+            let preprocessor = choose_preprocessor(preprocessors, &chunk.1)?;
+
             run_preprocessor(
                 template,
                 project_directory_path,
                 compiled_directory_path,
                 metadata_fields,
-                preprocessors,
+                &preprocessor,
                 &chunk.0,
-                &chunk.1,
             )
         })
         .collect::<Result<Vec<_>>>()?;
@@ -128,15 +157,7 @@ pub(crate) fn run_preprocessors_on_inputs(
     Ok(results)
 }
 
-fn run_preprocessor(
-    template: &Template,
-    project_directory_path: &Path,
-    compiled_directory_path: &Path,
-    metadata_fields: &toml::map::Map<String, toml::Value>,
-    preprocessors: &Vec<PreProcessor>,
-    files: &Vec<PathBuf>,
-    extension: &str,
-) -> std::result::Result<String, color_eyre::eyre::Error> {
+fn choose_preprocessor(preprocessors: &Vec<PreProcessor>, extension: &str) -> Result<PreProcessor> {
     let preprocessor = preprocessors
         .iter()
         .filter(|p| p.extension_filter.is_some())
@@ -147,6 +168,17 @@ fn run_preprocessor(
             extension
         ))?;
 
+    Ok(preprocessor.clone())
+}
+
+fn run_preprocessor(
+    template: &Template,
+    project_directory_path: &Path,
+    compiled_directory_path: &Path,
+    metadata_fields: &toml::map::Map<String, toml::Value>,
+    preprocessor: &PreProcessor,
+    files: &Vec<PathBuf>,
+) -> std::result::Result<String, color_eyre::eyre::Error> {
     debug!(
         "Running preprocessor '{}' on {} files.",
         preprocessor.name,
@@ -181,6 +213,26 @@ fn run_preprocessor(
             .join("\" \"")
     );
     run_with_logging(cli, &cli_name, true)
+}
+
+fn get_single_file_preprocessing_chunks(
+    input_files: &Vec<PathBuf>,
+) -> Result<Vec<(Vec<PathBuf>, String)>> {
+    let mut chunks = Vec::new();
+
+    for file in input_files {
+        let current_extension = file
+            .extension()
+            .ok_or(eyre!("Input file {} has no extension", file.display()))?
+            .to_owned();
+
+        chunks.push((
+            vec![file.clone()],
+            current_extension.to_string_lossy().to_string(),
+        ))
+    }
+
+    Ok(chunks)
 }
 
 fn get_preprocessing_chunks(input_files: &Vec<PathBuf>) -> Result<Vec<(Vec<PathBuf>, String)>> {
@@ -337,7 +389,7 @@ pub(crate) fn get_relative_path_from_compiled_dir(
     Some(relative_path)
 }
 
-fn retrieve_injections(
+pub(crate) fn retrieve_injections(
     template: &Template,
     injections: &Vec<Injection>,
     conversion_input_dir: &Path,
@@ -396,7 +448,7 @@ fn retrieve_injections_from_manifest(
     Ok(injections)
 }
 
-fn get_sorted_files(
+pub(crate) fn get_sorted_files(
     input_dir: &Path,
     project_directory_path: &Path,
     compiled_directory_path: &Path,
@@ -515,6 +567,58 @@ pub(crate) fn write_combined_output(
         compiled_directory_path.join(&combined_output),
         results.join("\n\n"),
     )?;
+    Ok(())
+}
+
+pub(crate) fn write_single_file_outputs(
+    project_root: &Path,
+    compiled_directory_path: &Path,
+    conversion_input_dir: &Path,
+    output_path: &Path,
+    output_extension: String,
+    input_files: &Vec<PathBuf>,
+    results: &Vec<String>,
+) -> Result<()> {
+    debug!(
+        "Writing {} files to directory: {}",
+        results.len(),
+        output_path.display()
+    );
+
+    if compiled_directory_path.join(output_path).exists()
+        && !compiled_directory_path.join(output_path).is_dir()
+    {
+        return Err(eyre!(
+            "The output path for a multi-file export must be a directory."
+        ));
+    }
+
+    if !compiled_directory_path.join(output_path).exists() {
+        std::fs::create_dir_all(compiled_directory_path.join(output_path))?;
+    }
+
+    let results = results.iter().zip(input_files).collect::<Vec<_>>();
+
+    for res in results {
+        let relative_conversion_input_dir = get_relative_path_from_compiled_dir(
+            conversion_input_dir,
+            project_root,
+            compiled_directory_path,
+        )
+        .unwrap();
+        let relative_file_name = res.1.clone().with_extension(&output_extension);
+        let file_name = relative_file_name.strip_prefix(relative_conversion_input_dir)?;
+
+        if let Some(parent) = file_name.parent() {
+            std::fs::create_dir_all(compiled_directory_path.join(output_path).join(parent))?;
+        }
+
+        std::fs::write(
+            compiled_directory_path.join(output_path).join(file_name),
+            res.0,
+        )?;
+    }
+
     Ok(())
 }
 

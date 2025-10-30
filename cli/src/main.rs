@@ -107,6 +107,8 @@ fn main() -> Result<()> {
                     header_injections,
                     body_injections,
                     footer_injections,
+                    multi_file_output,
+                    output_extension,
                 } => project_management::add_template(
                     project,
                     template,
@@ -120,6 +122,8 @@ fn main() -> Result<()> {
                     header_injections,
                     body_injections,
                     footer_injections,
+                    multi_file_output,
+                    output_extension,
                 )?,
                 TemplatesCommands::Remove => {
                     project_management::remove_template(project, template)?
@@ -139,6 +143,8 @@ fn main() -> Result<()> {
                     header_injections,
                     body_injections,
                     footer_injections,
+                    multi_file_output,
+                    output_extension,
                 } => {
                     if filters.is_some() && (add_filters.is_some() || remove_filters.is_some()) {
                         return Err(eyre!("Cannot specify both filters or add/remove filters."));
@@ -169,6 +175,8 @@ fn main() -> Result<()> {
                         header_injections,
                         body_injections,
                         footer_injections,
+                        multi_file_output,
+                        output_extension,
                     )?
                 }
             },

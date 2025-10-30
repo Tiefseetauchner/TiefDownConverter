@@ -141,6 +141,7 @@ fn get_template_mapping_for_preset(template: &String) -> Result<Template> {
         header_injections: None,
         body_injections: None,
         footer_injections: None,
+        multi_file_output: None,
     };
 
     add_lix_filters(&mut template);
@@ -162,6 +163,10 @@ fn get_template_mapping_for_preset(template: &String) -> Result<Template> {
 ///   * Can be either a file or directory.
 /// * `preprocessor` - The name of the preprocessor to use.
 /// * `processor` - The name of the processor to use.
+/// * `header_injections` - The list of injections to be preprended to the document.
+/// * `body_injections` - The list of injections to be inserted into the document.
+/// * `body_injections` - The list of injections to be appended to the document.
+/// * `multi_file_output` - Whether the created template will be using multi file output.
 ///
 /// # Returns
 ///
@@ -179,6 +184,8 @@ pub fn add_template(
     header_injections: Option<Vec<String>>,
     body_injections: Option<Vec<String>>,
     footer_injections: Option<Vec<String>>,
+    multi_file_output: bool,
+    output_extension: Option<String>,
 ) -> Result<()> {
     debug!(
         "Adding template '{}' (type: {:?})...",
@@ -203,9 +210,21 @@ pub fn add_template(
         }
     };
 
-    if preprocessors.is_some() && preprocessor_output.is_none() {
+    if preprocessors.is_some() && preprocessor_output.is_none() && !multi_file_output {
         return Err(eyre!(
-            "Cannot set preprocessors without setting a combined output."
+            "Cannot set preprocessors without setting a combined output for non-multi-file templates."
+        ));
+    }
+
+    if preprocessor_output.is_some() && multi_file_output {
+        return Err(eyre!(
+            "Cannot set multi-file-output while also setting a preprocessor output."
+        ));
+    }
+
+    if multi_file_output != output_extension.is_some() {
+        return Err(eyre!(
+            "Multi-file output requires an output extension to be set."
         ));
     }
 
@@ -213,7 +232,12 @@ pub fn add_template(
     if preprocessor_output.is_some() {
         template_preprocessors = Some(PreProcessors {
             preprocessors: preprocessors.unwrap_or(vec![]),
-            combined_output: PathBuf::from(preprocessor_output.unwrap()),
+            combined_output: if multi_file_output {
+                None
+            } else {
+                Some(PathBuf::from(preprocessor_output.unwrap()))
+            },
+            output_extension,
         });
     }
 
@@ -228,6 +252,7 @@ pub fn add_template(
         header_injections,
         body_injections,
         footer_injections,
+        multi_file_output: if multi_file_output { Some(true) } else { None },
     };
 
     create_templates(&project, &vec![template.clone()])?;
@@ -314,6 +339,10 @@ pub fn remove_template(project: Option<PathBuf>, template_name: String) -> Resul
 ///   * Can be either a file or directory.
 /// * `preprocessor` - The name of the preprocessor to use.
 /// * `processor` - The name of the processor to use.
+/// * `header_injections` - The list of injections to be preprended to the document.
+/// * `body_injections` - The list of injections to be inserted into the document.
+/// * `body_injections` - The list of injections to be appended to the document.
+/// * `multi_file_output` - Whether the created template will be using multi file output.
 ///
 /// # Returns
 ///
@@ -335,6 +364,8 @@ pub fn update_template(
     header_injections: Option<Vec<String>>,
     body_injections: Option<Vec<String>>,
     footer_injections: Option<Vec<String>>,
+    multi_file_output: Option<bool>,
+    output_extension: Option<String>,
 ) -> Result<()> {
     debug!(
         "Updating template '{}' (fields provided: type={:?}, file={:?}, output={:?})",
@@ -384,12 +415,19 @@ pub fn update_template(
         }
 
         if let Some(preprocessor_output) = preprocessor_output {
+            if template.multi_file_output.unwrap_or(false) || multi_file_output.unwrap_or(false) {
+                return Err(eyre!(
+                    "Cannot set the preprocessor output for a template with multi-file-output enabled."
+                ));
+            }
+
             if let Some(preprocessors) = &mut template.preprocessors {
-                preprocessors.combined_output = PathBuf::from(preprocessor_output);
+                preprocessors.combined_output = Some(PathBuf::from(preprocessor_output));
             } else {
                 template.preprocessors = Some(PreProcessors {
                     preprocessors: vec![],
-                    combined_output: PathBuf::from(preprocessor_output),
+                    combined_output: Some(PathBuf::from(preprocessor_output)),
+                    output_extension: None,
                 });
             }
         }
@@ -445,6 +483,32 @@ pub fn update_template(
         template.header_injections = header_injections.or(template.header_injections.clone());
         template.body_injections = body_injections.or(template.body_injections.clone());
         template.footer_injections = footer_injections.or(template.footer_injections.clone());
+
+        if let Some(preprocessors) = &mut template.preprocessors {
+            if preprocessors.combined_output.is_some() && multi_file_output.unwrap_or(false) {
+                return Err(eyre!(
+                    "Cannot set multi file output on a template which has a combined output."
+                ));
+            }
+
+            if multi_file_output
+                .or(template.multi_file_output)
+                .unwrap_or(false)
+                != output_extension
+                    .clone()
+                    .or(preprocessors.output_extension.clone())
+                    .is_some()
+            {
+                return Err(eyre!(
+                    "Multi-File output requires an output extension to be set."
+                ));
+            }
+
+            preprocessors.output_extension =
+                output_extension.or(preprocessors.output_extension.clone());
+        }
+
+        template.multi_file_output = multi_file_output.or(template.multi_file_output);
     } else {
         return Err(eyre!(
             "Template with name '{}' does not exist.",

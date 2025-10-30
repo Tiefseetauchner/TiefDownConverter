@@ -330,7 +330,11 @@ pub fn get_markdown_projects(project: Option<PathBuf>) -> Result<Vec<MarkdownPro
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
-pub fn add_resources(project: Option<PathBuf>, name: String, resources: Vec<PathBuf>) -> Result<()> {
+pub fn add_resources(
+    project: Option<PathBuf>,
+    name: String,
+    resources: Vec<PathBuf>,
+) -> Result<()> {
     debug!(
         "markdown.add_resources: project='{}' count={}",
         name,

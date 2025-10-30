@@ -11,8 +11,9 @@ use toml::Table;
 
 use crate::{
     converters::common::{
-        merge_preprocessors, retrieve_combined_output, retrieve_preprocessors,
-        run_preprocessors_on_inputs, run_with_logging, write_combined_output,
+        get_sorted_files, merge_preprocessors, retrieve_combined_output, retrieve_injections,
+        retrieve_preprocessors, run_preprocessors_on_inputs, run_with_logging,
+        write_combined_output,
     },
     manifest_model::{
         DEFAULT_TYPST_PREPROCESSORS, Injection, MetadataSettings, Processors, Template,
@@ -63,15 +64,35 @@ pub(crate) fn convert_typst(
     let combined_output =
         retrieve_combined_output(template, &Some(DEFAULT_TYPST_PREPROCESSORS.0.clone()))?;
 
+    if template.multi_file_output.unwrap_or(false) || combined_output.is_none() {
+        return Err(eyre!(
+            "Multi-file outputs are currently not supported for templatetype '{}'.",
+            template.template_type
+        ));
+    }
+
+    let combined_output = combined_output.unwrap();
+
+    debug!("Collecting input files for preprocessing...");
+
+    let injections = retrieve_injections(template, injections, conversion_input_dir)?;
+
+    let input_files = get_sorted_files(
+        conversion_input_dir,
+        project_directory_path,
+        compiled_directory_path,
+        injections,
+    )?;
+    debug!("Found {} input files.", input_files.len());
+
     let results = run_preprocessors_on_inputs(
         template,
         project_directory_path,
         compiled_directory_path,
-        conversion_input_dir,
         metadata_fields,
         metadata_settings,
         &preprocessors,
-        injections,
+        &input_files,
     )?;
 
     write_combined_output(compiled_directory_path, &combined_output, &results)?;

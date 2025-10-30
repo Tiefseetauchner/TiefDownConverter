@@ -109,11 +109,13 @@ pub struct PreProcessor {
 /// # Fields
 ///
 /// * `preprocessors` - A list of preprocessors.
-/// * `combined_output` - The name of the combined output file.
+/// * `combined_output` - The name of the combined output file.\
+///   Can be none if template is multi-file output
 #[derive(Deserialize, Serialize, Clone)]
 pub struct PreProcessors {
     pub preprocessors: Vec<String>,
-    pub combined_output: PathBuf,
+    pub combined_output: Option<PathBuf>,
+    pub output_extension: Option<String>,
 }
 
 /// Represents processors available to the project.
@@ -138,7 +140,8 @@ pub static DEFAULT_TEX_PREPROCESSORS: LazyLock<(PreProcessors, Vec<PreProcessor>
         (
             PreProcessors {
                 preprocessors: vec!["default_tex_preprocessor".to_string()],
-                combined_output: PathBuf::from("output.tex"),
+                combined_output: Some(PathBuf::from("output.tex")),
+                output_extension: None,
             },
             vec![PreProcessor {
                 name: "default_tex_preprocessor".to_string(),
@@ -158,7 +161,8 @@ pub static DEFAULT_TYPST_PREPROCESSORS: LazyLock<(PreProcessors, Vec<PreProcesso
                     "default_typst_preprocessor".to_string(),
                     "default_typst_preprocessor_typst_files".to_string(),
                 ],
-                combined_output: PathBuf::from("output.typ"),
+                combined_output: Some(PathBuf::from("output.typ")),
+                output_extension: None,
             },
             vec![
                 PreProcessor {
@@ -182,7 +186,8 @@ pub static DEFAULT_CUSTOM_PROCESSOR_PREPROCESSORS: LazyLock<(PreProcessors, Vec<
         (
             PreProcessors {
                 preprocessors: vec!["native_pandoc".to_string()],
-                combined_output: PathBuf::from("output.pandoc_native"),
+                combined_output: Some(PathBuf::from("output.pandoc_native")),
+                output_extension: None,
             },
             vec![PreProcessor {
                 name: "native_pandoc".to_string(),
@@ -250,6 +255,7 @@ pub struct Template {
     pub header_injections: Option<Vec<String>>,
     pub body_injections: Option<Vec<String>>,
     pub footer_injections: Option<Vec<String>>,
+    pub multi_file_output: Option<bool>,
 }
 
 /// Represents an injection into the document.
@@ -289,6 +295,9 @@ pub(crate) fn upgrade_manifest(manifest: &mut Table, current_version: u32) -> Re
             } else if updated_version == 4 {
                 debug!("Applying upgrade v4 -> v5...");
                 upgrade_manifest_v4_to_v5(manifest)?
+            } else if updated_version == 5 {
+                debug!("Applying upgrade v5 -> v6...");
+                upgrade_manifest_v5_to_v6(manifest)?
             } else {
                 return Err(eyre!(
                     "Manifest version {} is not supported for upgrades.",
@@ -500,5 +509,9 @@ pub(crate) fn upgrade_manifest_v4_to_v5(manifest: &mut Table) -> Result<()> {
         }
     }
 
+    Ok(())
+}
+
+fn upgrade_manifest_v5_to_v6(_manifest: &mut Table) -> Result<()> {
     Ok(())
 }

@@ -299,7 +299,7 @@ Processors are incompatible with CustomPreprocessors conversions. Use preprocess
         )]
         processor: Option<String>,
         #[arg(
-            long, 
+            long,
             help = "The injection to use for prepending to the preprocessing step.", 
             long_help = r#"The injection to use for prepending to the preprocessing step.
 A header injection can define one or more files that will be prepended to the preprocessing step.
@@ -311,7 +311,7 @@ Injections have to be defined in the manifest."#,
         )]
         header_injections: Option<Vec<String>>,
         #[arg(
-            long, 
+            long,
             help = "The injection to use for inserting into the preprocessing step.", 
             long_help = r#"The injection to use for inserting into the preprocessing step.
 A body injection can define one or more files that will be inserted into the preprocessing step.
@@ -323,7 +323,7 @@ Injections have to be defined in the manifest."#,
         )]
         body_injections: Option<Vec<String>>,
         #[arg(
-            long, 
+            long,
             help = "The injection to use for appending to the preprocessing step.", 
             long_help = r#"The injection to use for appending to the preprocessing step.
 A footer injection can define one or more files that will be appended to the preprocessing step.
@@ -334,6 +334,20 @@ Injections have to be defined in the manifest."#,
             value_delimiter = ',',
         )]
         footer_injections: Option<Vec<String>>,
+        #[arg(
+            long,
+            help = "Enables multi-file output conversion for the template.",
+            long_help = r#"Enables multi-file output conversion for the template.
+When enabling multi-file output, every input file will be converted to a corresponding output file."#
+        )]
+        multi_file_output: bool,
+        #[arg(
+            long,
+            help = "The extension used for multi-file output conversion.",
+            long_help = r#"The extension used for multi-file output conversion.
+This is required for multi-file outputs."#
+        )]
+        output_extension: Option<String>,
     },
     #[command(about = "Remove a template from the project.")]
     Remove,
@@ -429,7 +443,7 @@ Processors are incompatible with CustomPreprocessor conversions. Use preprocesso
         )]
         processor: Option<String>,
         #[arg(
-            long, 
+            long,
             help = "The injection to use for prepending to the preprocessing step.", 
             long_help = r#"The injection to use for prepending to the preprocessing step.
 A header injection can define one or more files that will be prepended to the preprocessing step.
@@ -441,7 +455,7 @@ Injections have to be defined in the manifest."#,
         )]
         header_injections: Option<Vec<String>>,
         #[arg(
-            long, 
+            long,
             help = "The injection to use for inserting into the preprocessing step.", 
             long_help = r#"The injection to use for inserting into the preprocessing step.
 A body injection can define one or more files that will be inserted into the preprocessing step.
@@ -453,7 +467,7 @@ Injections have to be defined in the manifest."#,
         )]
         body_injections: Option<Vec<String>>,
         #[arg(
-            long, 
+            long,
             help = "The injection to use for appending to the preprocessing step.", 
             long_help = r#"The injection to use for appending to the preprocessing step.
 A footer injection can define one or more files that will be appended to the preprocessing step.
@@ -464,6 +478,20 @@ Injections have to be defined in the manifest."#,
             value_delimiter = ',',
         )]
         footer_injections: Option<Vec<String>>,
+        #[arg(
+            long,
+            help = "Enables multi-file output conversion for the template.",
+            long_help = r#"Enables multi-file output conversion for the template.
+When enabling multi-file output, every input file will be converted to a corresponding output file."#
+        )]
+        multi_file_output: Option<bool>,
+        #[arg(
+            long,
+            help = "The extension used for multi-file output conversion.",
+            long_help = r#"The extension used for multi-file output conversion.
+This is required for multi-file outputs."#
+        )]
+        output_extension: Option<String>,
     },
 }
 
@@ -621,25 +649,19 @@ The order of the files here defines the order for header and footer injections.
 For body injections, the files are ordered as per the default algorithm.
 Files in directories are ordered as per the default algorithm.
 Duplicate files will be added twice."#,
-            num_args = 1.., 
+            num_args = 1..,
             value_delimiter = ',',
         )]
         files: Vec<PathBuf>,
     },
     #[command(about = "Removes an injection.")]
     Remove {
-        #[arg(
-            help = "The name of the injection to remove.",
-        )]
+        #[arg(help = "The name of the injection to remove.")]
         name: String,
     },
-    #[command(
-        about = "Adds files to an injection.",
-    )]
+    #[command(about = "Adds files to an injection.")]
     AddFiles {
-        #[arg(
-            help = "The name of the injection to modify.",
-        )]
+        #[arg(help = "The name of the injection to modify.")]
         name: String,
         #[arg(
             help = "The files to be added to the injection.",
@@ -649,7 +671,7 @@ The order of the files here defines the order for header and footer injections.
 For body injections, the files are ordered as per the default algorithm.
 Files in directories are ordered as per the default algorithm.
 Duplicate files will be added twice."#,
-            num_args = 1.., 
+            num_args = 1..,
             value_delimiter = ',',
         )]
         files: Vec<PathBuf>,
