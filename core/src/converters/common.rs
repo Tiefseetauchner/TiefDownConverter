@@ -113,48 +113,74 @@ pub(crate) fn run_preprocessors_on_inputs(
         .par_iter()
         .map(|chunk| {
             debug!("Processing chunk with extension {}: {:?}", chunk.1, chunk.0);
-            let preprocessor = preprocessors
-                .iter()
-                .filter(|p| p.extension_filter.is_some())
-                .find(|p| glob_match(p.extension_filter.as_ref().unwrap(), chunk.1.clone()))
-                .or(preprocessors.iter().find(|p| p.extension_filter.is_none()))
-                .ok_or(eyre!(
-                    "No preprocessor found for files with extension {}",
-                    chunk.1
-                ))?;
-
-            let cli_name = preprocessor.cli.clone().unwrap_or("pandoc".to_string());
-            let cli_args = preprocess_cli_args(&preprocessor.cli_args, &metadata_fields);
-
-            let mut cli = Command::new(&cli_name);
-            cli.args(&cli_args);
-            cli.current_dir(compiled_directory_path);
-
-            if template.template_type != TemplateType::CustomProcessor
-                && template.template_type != TemplateType::Epub
-            {
-                add_lua_filters(
-                    template,
-                    project_directory_path,
-                    compiled_directory_path,
-                    &mut cli,
-                )?;
-            }
-            cli.args(chunk.0.clone());
-            debug!(
-                "Running preprocessor '{}' with args: \"{}\"",
-                cli.get_program().to_string_lossy(),
-                cli.get_args()
-                    .into_iter()
-                    .map(|a| a.to_string_lossy())
-                    .collect::<Vec<_>>()
-                    .join("\" \"")
-            );
-            run_with_logging(cli, &cli_name, true)
+            run_preprocessor(
+                template,
+                project_directory_path,
+                compiled_directory_path,
+                metadata_fields,
+                preprocessors,
+                &chunk.0,
+                &chunk.1,
+            )
         })
         .collect::<Result<Vec<_>>>()?;
 
     Ok(results)
+}
+
+fn run_preprocessor(
+    template: &Template,
+    project_directory_path: &Path,
+    compiled_directory_path: &Path,
+    metadata_fields: &toml::map::Map<String, toml::Value>,
+    preprocessors: &Vec<PreProcessor>,
+    files: &Vec<PathBuf>,
+    extension: &str,
+) -> std::result::Result<String, color_eyre::eyre::Error> {
+    let preprocessor = preprocessors
+        .iter()
+        .filter(|p| p.extension_filter.is_some())
+        .find(|p| glob_match(p.extension_filter.as_ref().unwrap(), extension))
+        .or(preprocessors.iter().find(|p| p.extension_filter.is_none()))
+        .ok_or(eyre!(
+            "No preprocessor found for files with extension {}",
+            extension
+        ))?;
+
+    debug!(
+        "Running preprocessor '{}' on {} files.",
+        preprocessor.name,
+        files.len()
+    );
+
+    let cli_name = preprocessor.cli.clone().unwrap_or("pandoc".to_string());
+    let cli_args = preprocess_cli_args(&preprocessor.cli_args, &metadata_fields);
+
+    let mut cli = Command::new(&cli_name);
+    cli.args(&cli_args);
+    cli.current_dir(compiled_directory_path);
+
+    if template.template_type != TemplateType::CustomProcessor
+        && template.template_type != TemplateType::Epub
+    {
+        add_lua_filters(
+            template,
+            project_directory_path,
+            compiled_directory_path,
+            &mut cli,
+        )?;
+    }
+    cli.args(files.clone());
+    debug!(
+        "Running preprocessor '{}' with args: \"{}\"",
+        cli.get_program().to_string_lossy(),
+        cli.get_args()
+            .into_iter()
+            .map(|a| a.to_string_lossy())
+            .collect::<Vec<_>>()
+            .join("\" \"")
+    );
+    run_with_logging(cli, &cli_name, true)
 }
 
 fn get_preprocessing_chunks(input_files: &Vec<PathBuf>) -> Result<Vec<(Vec<PathBuf>, String)>> {

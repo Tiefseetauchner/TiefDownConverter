@@ -79,7 +79,7 @@ pub(crate) fn convert_custom_preprocessors(
     debug!("Preprocessing complete.");
 
     let output_path = compiled_directory_path.join(&output_path);
-    debug!("CustomPandoc result path: {}", output_path.display());
+    debug!("CustomPreprocessor result path: {}", output_path.display());
 
     Ok(output_path)
 }
