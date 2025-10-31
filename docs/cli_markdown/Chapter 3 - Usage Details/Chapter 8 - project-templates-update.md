@@ -1,6 +1,6 @@
 ## `tiefdownconverter project templates update` {#projecttemplatesupdate}
 
-**Version:** `tiefdownconverter 0.9.2-ALPHA.2`
+**Version:** `tiefdownconverter 0.11.0-ALPHA.1`
 
 ### Usage:
 ```
@@ -83,6 +83,16 @@ Options:
           Files in header injections get appended in the order that they are defined in in the manifest.
           Duplicate files will be added twice.
           Injections have to be defined in the manifest.
+
+      --multi-file-output <MULTI_FILE_OUTPUT>
+          Enables multi-file output conversion for the template.
+          When enabling multi-file output, every input file will be converted to a corresponding output file.
+          
+          [possible values: true, false]
+
+      --output-extension <OUTPUT_EXTENSION>
+          The extension used for multi-file output conversion.
+          This is required for multi-file outputs.
 
   -h, --help
           Print help (see a summary with '-h')

@@ -56,7 +56,7 @@ path = "index_markdown"
 
 [[profiles]]
 name = "Documentation"
-templates = ["PDF Documentation LaTeX", "PDF Documentation", "Epub Documentation", "GitHub Page Documentation", "Wiki Pages"]
+templates = ["PDF Documentation LaTeX", "PDF Documentation", "Epub Documentation", "GitHub Page Documentation"]
 
 [[profiles]]
 name = "Man"
@@ -110,13 +110,3 @@ name = "GitHub Page Documentation"
 output = "index.html"
 processor = "HTML Conversion"
 template_type = "CustomProcessor"
-
-[[templates]]
-multi_file_output = true
-name = "Wiki Pages"
-output = "wiki"
-template_type = "CustomPreprocessors"
-
-[templates.preprocessors]
-output_extension = "html"
-preprocessors = ["HTML Conversion"]
