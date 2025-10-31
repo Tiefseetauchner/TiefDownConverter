@@ -7,8 +7,8 @@ use toml::Table;
 use crate::{
     converters::common::{
         get_sorted_files, retrieve_combined_output, retrieve_injections, retrieve_output_extension,
-        retrieve_preprocessors, run_preprocessors_on_inputs, write_combined_output,
-        write_single_file_outputs,
+        retrieve_preprocessors, run_preprocessors_on_injections, run_preprocessors_on_inputs,
+        write_combined_output, write_single_file_outputs,
     },
     manifest_model::{Injection, MetadataSettings, Processors, Template},
     template_type::TemplateType,
@@ -74,6 +74,28 @@ pub(crate) fn convert_custom_preprocessors(
 
     debug!("Found {} input files.", input_files.len());
 
+    debug!("Processing injections.");
+
+    let header_injection_output = run_preprocessors_on_injections(
+        template,
+        project_directory_path,
+        compiled_directory_path,
+        metadata_fields,
+        metadata_settings,
+        &preprocessors,
+        &injections.header_injections,
+    )?;
+
+    let footer_injection_output = run_preprocessors_on_injections(
+        template,
+        project_directory_path,
+        compiled_directory_path,
+        metadata_fields,
+        metadata_settings,
+        &preprocessors,
+        &injections.footer_injections,
+    )?;
+
     debug!("Running preprocessors on inputs...");
     let results = run_preprocessors_on_inputs(
         template,
@@ -83,7 +105,6 @@ pub(crate) fn convert_custom_preprocessors(
         metadata_settings,
         &preprocessors,
         &input_files,
-        &injections,
     )?;
 
     let combined_output = retrieve_combined_output(template, &None)?;
@@ -99,10 +120,18 @@ pub(crate) fn convert_custom_preprocessors(
             output_extension,
             &input_files,
             &results,
+            &header_injection_output,
+            &footer_injection_output,
         )?;
     } else if let Some(combined_output) = combined_output {
         debug!("Combined output file: {}", combined_output.display());
-        write_combined_output(compiled_directory_path, &combined_output, &results)?;
+        write_combined_output(
+            compiled_directory_path,
+            &combined_output,
+            &results,
+            &header_injection_output,
+            &footer_injection_output,
+        )?;
     } else {
         return Err(eyre!(
             "Either multi-file output must be enabled or a combined output be set."

@@ -16,9 +16,9 @@ use std::{
 use toml::Table;
 
 pub(crate) struct RenderingInjections {
-    header_injections: Vec<PathBuf>,
-    body_injections: Vec<PathBuf>,
-    footer_injections: Vec<PathBuf>,
+    pub header_injections: Vec<PathBuf>,
+    pub body_injections: Vec<PathBuf>,
+    pub footer_injections: Vec<PathBuf>,
 }
 
 impl RenderingInjections {
@@ -138,65 +138,10 @@ pub(crate) fn run_preprocessors_on_inputs(
     _metadata_settings: &MetadataSettings,
     preprocessors: &Vec<PreProcessor>,
     input_files: &Vec<PathBuf>,
-    injections: &RenderingInjections,
 ) -> Result<Vec<String>> {
     let processing_chunks =
         get_preprocessing_chunks(&input_files, template.multi_file_output.unwrap_or(false))?;
     debug!("Created {} preprocessing chunks.", processing_chunks.len());
-
-    debug!("Processing injections.");
-
-    let header_injection_output = if injections.header_injections.len() > 0 {
-        run_preprocessors_on_inputs(
-            template,
-            project_directory_path,
-            compiled_directory_path,
-            metadata_fields,
-            _metadata_settings,
-            preprocessors,
-            &injections
-                .header_injections
-                .iter()
-                .map(|i| {
-                    get_relative_path_from_compiled_dir(
-                        i,
-                        project_directory_path,
-                        compiled_directory_path,
-                    )
-                    .unwrap_or(i.clone())
-                })
-                .collect(),
-            &RenderingInjections::new(),
-        )?
-    } else {
-        vec![]
-    };
-
-    let footer_injection_output = if injections.footer_injections.len() > 0 {
-        run_preprocessors_on_inputs(
-            template,
-            project_directory_path,
-            compiled_directory_path,
-            metadata_fields,
-            _metadata_settings,
-            preprocessors,
-            &injections
-                .footer_injections
-                .iter()
-                .map(|i| {
-                    get_relative_path_from_compiled_dir(
-                        i,
-                        project_directory_path,
-                        compiled_directory_path,
-                    )
-                    .unwrap_or(i.clone())
-                })
-                .collect(),
-            &RenderingInjections::new(),
-        )?
-    } else {
-        vec![]
-    };
 
     let results = processing_chunks
         .par_iter()
@@ -216,23 +161,41 @@ pub(crate) fn run_preprocessors_on_inputs(
         })
         .collect::<Result<Vec<_>>>()?;
 
-    let results = if template.multi_file_output.unwrap_or(false) {
-        results
-            .iter()
-            .map(|f| {
-                vec![
-                    header_injection_output.clone().join("\n\n"),
-                    f.to_string(),
-                    footer_injection_output.clone().join("\n\n"),
-                ]
-                .join("\n\n")
-            })
-            .collect::<Vec<_>>()
-    } else {
-        results
-    };
-
     Ok(results)
+}
+
+pub(crate) fn run_preprocessors_on_injections(
+    template: &Template,
+    project_directory_path: &Path,
+    compiled_directory_path: &Path,
+    metadata_fields: &Table,
+    _metadata_settings: &MetadataSettings,
+    preprocessors: &Vec<PreProcessor>,
+    input_files: &Vec<PathBuf>,
+) -> Result<Vec<String>> {
+    if input_files.len() > 0 {
+        run_preprocessors_on_inputs(
+            template,
+            project_directory_path,
+            compiled_directory_path,
+            metadata_fields,
+            _metadata_settings,
+            &preprocessors,
+            &input_files
+                .iter()
+                .map(|i| {
+                    get_relative_path_from_compiled_dir(
+                        i,
+                        project_directory_path,
+                        compiled_directory_path,
+                    )
+                    .unwrap_or(i.clone())
+                })
+                .collect(),
+        )
+    } else {
+        Ok(vec![])
+    }
 }
 
 fn choose_preprocessor(preprocessors: &Vec<PreProcessor>, extension: &str) -> Result<PreProcessor> {
@@ -649,6 +612,8 @@ pub(crate) fn write_combined_output(
     compiled_directory_path: &Path,
     combined_output: &Path,
     results: &Vec<String>,
+    header_injection: &Vec<String>,
+    footer_injection: &Vec<String>,
 ) -> Result<()> {
     debug!(
         "Writing combined output to file: {}",
@@ -657,7 +622,12 @@ pub(crate) fn write_combined_output(
 
     std::fs::write(
         compiled_directory_path.join(&combined_output),
-        results.join("\n\n"),
+        vec![
+            header_injection.join("\n\n"),
+            results.join("\n\n"),
+            footer_injection.join("\n\n"),
+        ]
+        .join("\n\n"),
     )?;
     Ok(())
 }
@@ -670,6 +640,8 @@ pub(crate) fn write_single_file_outputs(
     output_extension: String,
     input_files: &Vec<PathBuf>,
     results: &Vec<String>,
+    header_injection: &Vec<String>,
+    footer_injection: &Vec<String>,
 ) -> Result<()> {
     debug!(
         "Writing {} files to directory: {}",
@@ -707,7 +679,12 @@ pub(crate) fn write_single_file_outputs(
 
         std::fs::write(
             compiled_directory_path.join(output_path).join(file_name),
-            res.0,
+            vec![
+                header_injection.join("\n\n"),
+                res.0.clone(),
+                footer_injection.join("\n\n"),
+            ]
+            .join("\n\n"),
         )?;
     }
 
@@ -728,6 +705,18 @@ pub(crate) fn combine_pandoc_native(results: Vec<String>) -> String {
     ));
 
     combined
+}
+
+pub(crate) fn write_output(
+    compiled_directory_path: &Path,
+    combined_output: &PathBuf,
+    content: &str,
+) -> Result<()> {
+    debug!("Writing raw output to file: {}", combined_output.display());
+
+    std::fs::write(compiled_directory_path.join(&combined_output), content)?;
+
+    Ok(())
 }
 
 pub(crate) fn run_with_logging(

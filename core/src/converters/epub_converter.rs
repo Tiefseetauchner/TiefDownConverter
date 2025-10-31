@@ -11,8 +11,8 @@ use crate::{
     converters::common::{
         add_lua_filters, combine_pandoc_native, get_relative_path_from_compiled_dir,
         get_sorted_files, merge_preprocessors, preprocess_cli_args, retrieve_combined_output,
-        retrieve_injections, retrieve_preprocessors, run_preprocessors_on_inputs, run_with_logging,
-        write_combined_output,
+        retrieve_injections, retrieve_preprocessors, run_preprocessors_on_injections,
+        run_preprocessors_on_inputs, run_with_logging, write_output,
     },
     manifest_model::{
         DEFAULT_CUSTOM_PROCESSOR_PREPROCESSORS, Injection, MetadataSettings, Processors, Template,
@@ -80,11 +80,7 @@ pub(crate) fn convert_epub(
 
     debug!("Collecting input files for preprocessing...");
 
-    let injections = retrieve_injections(
-        template,
-        compiled_directory_path,
-        injections,
-    )?;
+    let injections = retrieve_injections(template, compiled_directory_path, injections)?;
 
     let input_files = get_sorted_files(
         conversion_input_dir,
@@ -95,8 +91,30 @@ pub(crate) fn convert_epub(
     )?;
     debug!("Found {} input files.", input_files.len());
 
+    debug!("Processing injections.");
+
+    let header_injection_output = run_preprocessors_on_injections(
+        template,
+        project_directory_path,
+        compiled_directory_path,
+        metadata_fields,
+        metadata_settings,
+        &preprocessors,
+        &injections.header_injections,
+    )?;
+
+    let footer_injection_output = run_preprocessors_on_injections(
+        template,
+        project_directory_path,
+        compiled_directory_path,
+        metadata_fields,
+        metadata_settings,
+        &preprocessors,
+        &injections.footer_injections,
+    )?;
+
     debug!("Running preprocessors on inputs...");
-    let results = run_preprocessors_on_inputs(
+    let body_results = run_preprocessors_on_inputs(
         template,
         project_directory_path,
         compiled_directory_path,
@@ -104,16 +122,15 @@ pub(crate) fn convert_epub(
         metadata_settings,
         &preprocessors,
         &input_files,
-        &injections,
     )?;
+
+    let mut results = header_injection_output.clone();
+    results.extend(body_results);
+    results.extend(footer_injection_output);
 
     let pandoc_native = combine_pandoc_native(results);
 
-    write_combined_output(
-        compiled_directory_path,
-        &combined_output,
-        &vec![pandoc_native],
-    )?;
+    write_output(compiled_directory_path, &combined_output, &pandoc_native)?;
 
     debug!("Preparing pandoc command...");
 
