@@ -82,7 +82,6 @@ pub(crate) fn convert_epub(
 
     let injections = retrieve_injections(
         template,
-        project_directory_path,
         compiled_directory_path,
         injections,
     )?;

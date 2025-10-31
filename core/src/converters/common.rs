@@ -468,27 +468,23 @@ pub(crate) fn get_relative_path_from_compiled_dir(
 
 pub(crate) fn retrieve_injections(
     template: &Template,
-    project_directory_path: &Path,
     compiled_directory_path: &Path,
     injections: &Vec<Injection>,
 ) -> Result<RenderingInjections> {
     let header_injections = retrieve_injections_from_manifest(
         &injections,
-        project_directory_path,
         compiled_directory_path,
         template.header_injections.clone().unwrap_or(vec![]),
         &template.name,
     )?;
     let body_injections = retrieve_injections_from_manifest(
         &injections,
-        project_directory_path,
         compiled_directory_path,
         template.body_injections.clone().unwrap_or(vec![]),
         &template.name,
     )?;
     let footer_injections = retrieve_injections_from_manifest(
         &injections,
-        project_directory_path,
         compiled_directory_path,
         template.footer_injections.clone().unwrap_or(vec![]),
         &template.name,
@@ -503,7 +499,6 @@ pub(crate) fn retrieve_injections(
 
 fn retrieve_injections_from_manifest(
     injections: &Vec<Injection>,
-    project_directory_path: &Path,
     compiled_directory_path: &Path,
     template_injections: Vec<String>,
     template_name: &String,
@@ -543,13 +538,6 @@ fn retrieve_injections_from_manifest(
             }
 
             Ok(template_injection_path)
-
-            // Ok(get_relative_path_from_compiled_dir(
-            //     &template_injection_path,
-            //     project_directory_path,
-            //     compiled_directory_path,
-            // )
-            // .unwrap_or(f.to_path_buf()))
         })
         .collect::<Result<Vec<_>>>()?;
 
@@ -595,20 +583,7 @@ pub(crate) fn get_sorted_files(
         }
     });
 
-    let injected_content: Vec<PathBuf>;
-
-    if multi_file_output {
-        injected_content = dir_content
-    } else {
-        let temp_injected_vec: &mut Vec<PathBuf> = &mut vec![];
-        temp_injected_vec.append(&mut injections.header_injections.clone());
-        temp_injected_vec.append(&mut dir_content);
-        temp_injected_vec.append(&mut injections.footer_injections.clone());
-
-        injected_content = temp_injected_vec.clone();
-    };
-
-    let input_files = injected_content
+    let input_files = dir_content
         .iter()
         .map(|f| {
             if f.is_file() {

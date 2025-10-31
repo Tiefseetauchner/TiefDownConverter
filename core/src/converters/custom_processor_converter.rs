@@ -73,7 +73,6 @@ pub(crate) fn convert_custom_processor(
 
     let injections = retrieve_injections(
         template,
-        project_directory_path,
         compiled_directory_path,
         injections,
     )?;
