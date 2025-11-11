@@ -122,7 +122,7 @@ pub struct PreProcessors {
 ///
 /// A processor defines custom conversion arguments passed to the primary conversion process, supplementing the default arguments.
 ///
-/// The primary conversion process is the process that processes the template. This could be XeLaTeX or Typst.
+/// The primary conversion process is the process that processes the template. This could be XeLaTeX, Typst, or pandoc for CustomProcessor conversion.
 ///
 /// # Fields
 ///
