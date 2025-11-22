@@ -11,7 +11,7 @@ cli_args = ["-s", "-t", "man", "--metadata-file", "man_metadata.yaml"]
 name = "Man Page"
 
 [[custom_processors.preprocessors]]
-cli_args = ["--to", "html5", "-s", "--metadata", "title={{title}}", "--metadata", "author={{author}}", "--css", "/TiefDownConverter/template/html_template/style.css", "--toc", "-B", "html_template/header.html"]
+cli_args = ["--to", "html5", "--metadata", "title={{title}}", "--metadata", "author={{author}}", "--css", "/TiefDownConverter/template/html_template/style.css"]
 name = "HTML Conversion"
 
 [[custom_processors.processors]]
@@ -110,3 +110,14 @@ name = "GitHub Page Documentation"
 output = "index.html"
 processor = "HTML Conversion"
 template_type = "CustomProcessor"
+
+[[templates]]
+footer_injections = ["HTML footer"]
+multi_file_output = true
+name = "GitHub Multi Page Documentation"
+output = "documentation"
+template_type = "CustomPreprocessors"
+
+[templates.preprocessors]
+output_extension = "html"
+preprocessors = ["HTML Conversion"]

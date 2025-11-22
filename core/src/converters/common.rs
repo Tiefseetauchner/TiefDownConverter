@@ -146,7 +146,7 @@ pub(crate) fn run_preprocessors_on_inputs(
     let results = processing_chunks
         .par_iter()
         .map(|chunk| {
-            debug!("Processing chunk with extension {}: {:?}", chunk.1, chunk.0);
+            debug!("Processing chunk with extension {}", chunk.1);
 
             let preprocessor = choose_preprocessor(preprocessors, &chunk.1)?;
 
@@ -233,7 +233,8 @@ fn run_preprocessor(
     cli.args(&cli_args);
     cli.current_dir(compiled_directory_path);
 
-    if template.template_type != TemplateType::CustomProcessor
+    if cli_name == "pandoc"
+        && template.template_type != TemplateType::CustomProcessor
         && template.template_type != TemplateType::Epub
     {
         add_lua_filters(
