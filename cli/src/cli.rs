@@ -1,7 +1,10 @@
 use clap::{Parser, Subcommand, builder::PossibleValuesParser, command};
 use std::path::PathBuf;
 
-use crate::{cli_template_type::CliTemplateType, consts::POSSIBLE_TEMPLATES};
+use crate::{
+    cli_nav_meta_generation_feature::CliNavMetaGenerationFeature,
+    cli_template_type::CliTemplateType, consts::POSSIBLE_TEMPLATES,
+};
 
 #[derive(Parser)]
 #[command(
@@ -348,6 +351,22 @@ When enabling multi-file output, every input file will be converted to a corresp
 This is required for multi-file outputs."#
         )]
         output_extension: Option<String>,
+        #[arg(
+            long,
+            help = "Defines the feature level of and whether navigation metadata should be generated.",
+            long_help = r#"Defines the feature level of and whether navigation metadata should be generated.
+None disables navigation metadata generation.
+Basic enables the basic navigation metadata generation helpers.
+Full enables full navigation metadata generation and injection."#
+        )]
+        nav_meta_gen_feature: Option<CliNavMetaGenerationFeature>,
+        #[arg(
+            long,
+            help = "The path to generate the navigation metadata to.",
+            long_help = r#"The path to generate the navigation metadata to.
+Gets saved in the temporary compilation directory."#
+        )]
+        nav_meta_gen_output: Option<PathBuf>,
     },
     #[command(about = "Remove a template from the project.")]
     Remove,
@@ -492,6 +511,22 @@ When enabling multi-file output, every input file will be converted to a corresp
 This is required for multi-file outputs."#
         )]
         output_extension: Option<String>,
+        #[arg(
+            long,
+            help = "Defines the feature level of and whether navigation metadata should be generated.",
+            long_help = r#"Defines the feature level of and whether navigation metadata should be generated.
+None disables navigation metadata generation.
+Basic enables the basic navigation metadata generation helpers.
+Full enables full navigation metadata generation and injection."#
+        )]
+        nav_meta_gen_feature: Option<CliNavMetaGenerationFeature>,
+        #[arg(
+            long,
+            help = "The path to generate the navigation metadata to.",
+            long_help = r#"The path to generate the navigation metadata to.
+Gets saved in the temporary compilation directory."#
+        )]
+        nav_meta_gen_output: Option<PathBuf>,
     },
 }
 

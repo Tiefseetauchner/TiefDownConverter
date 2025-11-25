@@ -6,11 +6,14 @@ use toml::Table;
 
 use crate::{
     converters::common::{
-        get_sorted_files, retrieve_combined_output, retrieve_injections, retrieve_output_extension,
-        retrieve_preprocessors, run_preprocessors_on_injections, run_preprocessors_on_inputs,
-        write_combined_output, write_single_file_outputs,
+        retrieve_combined_output, retrieve_output_extension, retrieve_preprocessors,
+        run_preprocessors_on_injections, run_preprocessors_on_inputs, write_combined_output,
+        write_single_file_outputs,
     },
+    file_retrieval::get_sorted_files,
+    injections::retrieve_injections,
     manifest_model::{Injection, MetadataSettings, Processors, Template},
+    nav_meta_generation::retrieve_nav_meta,
     template_type::TemplateType,
 };
 
@@ -73,6 +76,16 @@ pub(crate) fn convert_custom_preprocessors(
     )?;
 
     debug!("Found {} input files.", input_files.len());
+
+    debug!("Retrieving navigation metadata.");
+
+    let nav_meta = retrieve_nav_meta(
+        &input_files,
+        project_directory_path,
+        compiled_directory_path,
+        conversion_input_dir,
+    )?;
+    // let nav_meta_file = generate_nav_meta_file(template.nav_meta_gen, nav_meta);
 
     debug!("Processing injections.");
 

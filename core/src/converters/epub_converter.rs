@@ -9,11 +9,12 @@ use toml::Table;
 
 use crate::{
     converters::common::{
-        add_lua_filters, combine_pandoc_native, get_relative_path_from_compiled_dir,
-        get_sorted_files, merge_preprocessors, preprocess_cli_args, retrieve_combined_output,
-        retrieve_injections, retrieve_preprocessors, run_preprocessors_on_injections,
+        add_lua_filters, combine_pandoc_native, merge_preprocessors, preprocess_cli_args,
+        retrieve_combined_output, retrieve_preprocessors, run_preprocessors_on_injections,
         run_preprocessors_on_inputs, run_with_logging, write_output,
     },
+    file_retrieval::{get_relative_path_from_compiled_dir, get_sorted_files},
+    injections::retrieve_injections,
     manifest_model::{
         DEFAULT_CUSTOM_PROCESSOR_PREPROCESSORS, Injection, MetadataSettings, Processors, Template,
     },

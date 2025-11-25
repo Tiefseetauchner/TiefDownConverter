@@ -1,6 +1,6 @@
 use crate::{
-    consts::CURRENT_MANIFEST_VERSION, template_management::get_template_type_from_path,
-    template_type::TemplateType,
+    consts::CURRENT_MANIFEST_VERSION, nav_meta_generation_feature::NavMetaGenerationFeature,
+    template_management::get_template_type_from_path, template_type::TemplateType,
 };
 use color_eyre::eyre::{Result, eyre};
 use log::debug;
@@ -111,6 +111,7 @@ pub struct PreProcessor {
 /// * `preprocessors` - A list of preprocessors.
 /// * `combined_output` - The name of the combined output file.\
 ///   Can be none if template is multi-file output
+/// * `output_extension` - The extension used for files of multi file output.
 #[derive(Deserialize, Serialize, Clone)]
 pub struct PreProcessors {
     pub preprocessors: Vec<String>,
@@ -181,6 +182,7 @@ pub static DEFAULT_TYPST_PREPROCESSORS: LazyLock<(PreProcessors, Vec<PreProcesso
         )
     });
 
+// The default pandoc arguments for Custom Processor conversion.
 pub static DEFAULT_CUSTOM_PROCESSOR_PREPROCESSORS: LazyLock<(PreProcessors, Vec<PreProcessor>)> =
     LazyLock::new(|| {
         (
@@ -243,6 +245,10 @@ pub struct Profile {
 ///   * Can be a file or a directory.
 /// * `preprocessor` - The name of the preprocessor to use for the template.
 /// * `processor` - The name of the processor to use for the template.
+/// * `header_injections` - Link to the header injections of the template
+/// * `body_injections` - Link to the body injections of the template
+/// * `footer_injections` - Link to the footer injections of the template
+/// * `multi_file_output` - Enables multi-file generation
 #[derive(Deserialize, Serialize, Clone)]
 pub struct Template {
     pub name: String,
@@ -256,6 +262,19 @@ pub struct Template {
     pub body_injections: Option<Vec<String>>,
     pub footer_injections: Option<Vec<String>>,
     pub multi_file_output: Option<bool>,
+    pub nav_meta_gen: Option<NavMetaGenerationSettings>,
+}
+
+/// The settings to use for navigation metadata generation
+///
+/// # Fields
+///
+/// * `feature` - The navigation metadata complexity
+///
+#[derive(Deserialize, Serialize, Clone)]
+pub struct NavMetaGenerationSettings {
+    pub feature: NavMetaGenerationFeature,
+    pub output: Option<PathBuf>,
 }
 
 /// Represents an injection into the document.
@@ -263,7 +282,7 @@ pub struct Template {
 /// # Fields
 ///
 /// * `name`: Name of the injection to be referenced by the `Template`.
-/// * `files`: Files to be injected by the injection.
+/// * `files`: Files to be injected by the injection.\
 ///   The files get injected into the template using order numbers in the name of the template, equivalent to the input file order.
 #[derive(Deserialize, Serialize, Clone)]
 pub struct Injection {

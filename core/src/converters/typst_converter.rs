@@ -11,10 +11,12 @@ use toml::Table;
 
 use crate::{
     converters::common::{
-        get_sorted_files, merge_preprocessors, retrieve_combined_output, retrieve_injections,
-        retrieve_preprocessors, run_preprocessors_on_injections, run_preprocessors_on_inputs,
-        run_with_logging, write_combined_output,
+        merge_preprocessors, retrieve_combined_output, retrieve_preprocessors,
+        run_preprocessors_on_injections, run_preprocessors_on_inputs, run_with_logging,
+        write_combined_output,
     },
+    file_retrieval::get_sorted_files,
+    injections::retrieve_injections,
     manifest_model::{
         DEFAULT_TYPST_PREPROCESSORS, Injection, MetadataSettings, Processors, Template,
     },

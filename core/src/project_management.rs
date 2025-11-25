@@ -1,9 +1,10 @@
 use crate::{
     consts::CURRENT_MANIFEST_VERSION,
     manifest_model::{
-        Manifest, MarkdownProject, PreProcessor, PreProcessors, Processor, Processors, Profile,
-        Template, upgrade_manifest,
+        Manifest, MarkdownProject, NavMetaGenerationSettings, PreProcessor, PreProcessors,
+        Processor, Processors, Profile, Template, upgrade_manifest,
     },
+    nav_meta_generation_feature::NavMetaGenerationFeature,
     template_management::{self, add_lix_filters, get_template_path, get_template_type_from_path},
     template_type::TemplateType,
 };
@@ -142,6 +143,7 @@ fn get_template_mapping_for_preset(template: &String) -> Result<Template> {
         body_injections: None,
         footer_injections: None,
         multi_file_output: None,
+        nav_meta_gen: None,
     };
 
     add_lix_filters(&mut template);
@@ -167,6 +169,9 @@ fn get_template_mapping_for_preset(template: &String) -> Result<Template> {
 /// * `body_injections` - The list of injections to be inserted into the document.
 /// * `body_injections` - The list of injections to be appended to the document.
 /// * `multi_file_output` - Whether the created template will be using multi file output.
+/// * `output_extension` - Extension to use for multi file outputs.
+/// * `nav_meta_gen_feature` - Featureset of nav meta generation
+/// * `nav_meta_gen_output` - Output path of IR for nav meta generation
 ///
 /// # Returns
 ///
@@ -186,6 +191,8 @@ pub fn add_template(
     footer_injections: Option<Vec<String>>,
     multi_file_output: bool,
     output_extension: Option<String>,
+    nav_meta_gen_feature: Option<NavMetaGenerationFeature>,
+    nav_meta_gen_output: Option<PathBuf>,
 ) -> Result<()> {
     debug!(
         "Adding template '{}' (type: {:?})...",
@@ -241,6 +248,17 @@ pub fn add_template(
         });
     }
 
+    let nav_meta_gen = if let Some(nav_meta_gen_feature) = nav_meta_gen_feature
+        && nav_meta_gen_feature != NavMetaGenerationFeature::None
+    {
+        Some(NavMetaGenerationSettings {
+            feature: nav_meta_gen_feature,
+            output: nav_meta_gen_output,
+        })
+    } else {
+        None
+    };
+
     let mut template = Template {
         name: template_name.clone(),
         template_type,
@@ -253,6 +271,7 @@ pub fn add_template(
         body_injections,
         footer_injections,
         multi_file_output: if multi_file_output { Some(true) } else { None },
+        nav_meta_gen,
     };
 
     create_templates(&project, &vec![template.clone()])?;
@@ -343,6 +362,8 @@ pub fn remove_template(project: Option<PathBuf>, template_name: String) -> Resul
 /// * `body_injections` - The list of injections to be inserted into the document.
 /// * `body_injections` - The list of injections to be appended to the document.
 /// * `multi_file_output` - Whether the created template will be using multi file output.
+/// * `nav_meta_gen_feature` - Featureset of nav meta generation
+/// * `nav_meta_gen_output` - Output path of IR for nav meta generation
 ///
 /// # Returns
 ///
@@ -366,6 +387,8 @@ pub fn update_template(
     footer_injections: Option<Vec<String>>,
     multi_file_output: Option<bool>,
     output_extension: Option<String>,
+    nav_meta_gen_feature: Option<NavMetaGenerationFeature>,
+    nav_meta_gen_output: Option<PathBuf>,
 ) -> Result<()> {
     debug!(
         "Updating template '{}' (fields provided: type={:?}, file={:?}, output={:?})",
@@ -515,6 +538,24 @@ pub fn update_template(
         }
 
         template.multi_file_output = multi_file_output.or(template.multi_file_output);
+
+        if nav_meta_gen_feature.is_some() || nav_meta_gen_output.is_some() {
+            if let Some(nav_meta_gen) = &mut template.nav_meta_gen {
+                nav_meta_gen.feature = nav_meta_gen_feature.unwrap_or(nav_meta_gen.feature);
+                nav_meta_gen.output = nav_meta_gen_output.or(nav_meta_gen.output.clone());
+            } else {
+                if let Some(nav_meta_gen_feature) = nav_meta_gen_feature {
+                    template.nav_meta_gen = Some(NavMetaGenerationSettings {
+                        feature: nav_meta_gen_feature,
+                        output: nav_meta_gen_output,
+                    })
+                } else {
+                    return Err(eyre!(
+                        "Navigation metadata generation requires a navigation metadata generation feature to be set"
+                    ));
+                }
+            }
+        }
     } else {
         return Err(eyre!(
             "Template with name '{}' does not exist.",

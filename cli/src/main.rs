@@ -11,6 +11,7 @@ use tiefdownlib::{
 };
 
 mod cli;
+mod cli_nav_meta_generation_feature;
 mod cli_template_type;
 mod project_commands;
 
@@ -109,6 +110,8 @@ fn main() -> Result<()> {
                     footer_injections,
                     multi_file_output,
                     output_extension,
+                    nav_meta_gen_feature,
+                    nav_meta_gen_output,
                 } => project_management::add_template(
                     project,
                     template,
@@ -124,6 +127,8 @@ fn main() -> Result<()> {
                     footer_injections,
                     multi_file_output,
                     output_extension,
+                    nav_meta_gen_feature.map(|t| t.into()),
+                    nav_meta_gen_output,
                 )?,
                 TemplatesCommands::Remove => {
                     project_management::remove_template(project, template)?
@@ -145,6 +150,8 @@ fn main() -> Result<()> {
                     footer_injections,
                     multi_file_output,
                     output_extension,
+                    nav_meta_gen_feature,
+                    nav_meta_gen_output,
                 } => {
                     if filters.is_some() && (add_filters.is_some() || remove_filters.is_some()) {
                         return Err(eyre!("Cannot specify both filters or add/remove filters."));
@@ -154,7 +161,7 @@ fn main() -> Result<()> {
                         && (add_preprocessors.is_some() || remove_preprocessors.is_some())
                     {
                         return Err(eyre!(
-                            "Cannot specify both preprocessors or add/remove preprocessors."
+                            "Cannot specify both preprocessors and add/remove preprocessors."
                         ));
                     }
 
@@ -177,6 +184,8 @@ fn main() -> Result<()> {
                         footer_injections,
                         multi_file_output,
                         output_extension,
+                        nav_meta_gen_feature.map(|t| t.into()),
+                        nav_meta_gen_output,
                     )?
                 }
             },
