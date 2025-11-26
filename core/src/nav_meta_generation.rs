@@ -1,71 +1,127 @@
 use color_eyre::eyre::Result;
-use std::path::{Path, PathBuf};
+use log::debug;
+use serde::Serialize;
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
+
+use crate::manifest_model::NavMetaGenerationSettings;
+
+pub const DEFAULT_NAV_META_FILE_PATH: &str = ".meta_nav.yml";
 
 /// Navigation metadata
 ///
 ///
+#[derive(Serialize)]
 pub struct NavMeta {
     pub nodes: Vec<NavMetaNode>,
 }
 
+#[derive(Serialize)]
 pub struct NavMetaNode {
     pub id: NavMetaNodeId,
     pub path: PathBuf,
     pub title: String,
     pub prev: Option<NavMetaNodeId>,
     pub next: Option<NavMetaNodeId>,
-    pub parent: Option<NavMetaNodeId>,
-    pub children: Vec<NavMetaNodeId>,
 }
 
+#[derive(Clone)]
+struct PreNavNode {
+    id: NavMetaNodeId,
+    path: PathBuf,
+    title: String,
+}
+
+#[derive(Serialize, Clone)]
 pub struct NavMetaNodeId {
     pub value: String,
 }
 
 pub(crate) fn retrieve_nav_meta(
     input_files: &Vec<PathBuf>,
-    project_directory_path: &Path,
-    _compiled_directory_path: &Path,
+    compiled_directory_path: &Path,
     conversion_input_dir: &Path,
 ) -> Result<NavMeta> {
     let mut i: u32 = 0;
 
-    // let canon_compiled_directory_path = &compiled_directory_path.canonicalize()?;
+    let canon_compiled_directory_path = &compiled_directory_path.canonicalize()?;
     let canon_conversion_input_dir = &conversion_input_dir.canonicalize()?;
 
-    let nodes = input_files
+    let mut pre_nodes: Vec<PreNavNode> = Vec::with_capacity(input_files.len());
+
+    for f in input_files {
+        let id = format!(
+            "{}_{}",
+            i,
+            f.file_stem()
+                .map(|s| s.to_string_lossy().to_string())
+                .unwrap_or("unknown".to_string())
+        );
+
+        let canon_file_path = canon_compiled_directory_path.join(f).canonicalize()?;
+        let path = canon_file_path
+            .strip_prefix(canon_conversion_input_dir)?
+            .to_path_buf();
+
+        let title = path.to_string_lossy().to_string();
+        let nav_id = NavMetaNodeId { value: id };
+
+        pre_nodes.push(PreNavNode {
+            id: nav_id,
+            path,
+            title,
+        });
+
+        i += 1;
+    }
+
+    let nodes = pre_nodes
         .iter()
-        .map(|f| {
-            let id = format!(
-                "{}_{}",
-                i,
-                f.file_stem()
-                    .map(|s| s.to_string_lossy().to_string())
-                    .unwrap_or("unknown".to_string())
-            );
-
-            let canon_file_path = project_directory_path.join(f).canonicalize()?;
-            let path = canon_file_path
-                .strip_prefix(canon_conversion_input_dir)?
-                .to_path_buf();
-
-            let title = path.to_string_lossy().to_string();
-
-            let node = NavMetaNode {
-                id: NavMetaNodeId { value: id },
-                path,
-                title,
-                prev: None,
-                next: None,
-                parent: None,
-                children: vec![],
+        .enumerate()
+        .map(|(idx, p)| {
+            let prev = if idx > 0 {
+                Some(pre_nodes[idx - 1].id.clone())
+            } else {
+                None
             };
+            let next = pre_nodes.get(idx + 1).map(|n| n.id.clone());
 
-            i += 1;
-
-            Ok(node)
+            NavMetaNode {
+                id: p.id.clone(),
+                path: p.path.clone(),
+                title: p.title.clone(),
+                prev,
+                next,
+            }
         })
-        .collect::<Result<Vec<NavMetaNode>>>()?;
+        .collect::<Vec<_>>();
+
+    debug!("Built navigation metadata tree.");
 
     Ok(NavMeta { nodes })
+}
+
+pub(crate) fn generate_nav_meta_file(
+    nav_meta_gen: &NavMetaGenerationSettings,
+    nav_meta: &NavMeta,
+    compiled_directory_path: &Path,
+) -> Result<PathBuf> {
+    let output = nav_meta_gen
+        .output
+        .clone()
+        .unwrap_or(PathBuf::from(DEFAULT_NAV_META_FILE_PATH));
+
+    let output = compiled_directory_path.join(output);
+
+    if let Some(parent) = output.parent() {
+        fs::create_dir_all(parent)?;
+    }
+
+    let nav_meta_yaml = serde_yaml::to_string(nav_meta)?;
+    fs::write(&output, nav_meta_yaml)?;
+    debug!("Navigation metadata written to {}", output.display());
+
+    Ok(output.clone())
 }

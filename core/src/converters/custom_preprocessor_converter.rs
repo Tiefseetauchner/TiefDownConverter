@@ -13,7 +13,8 @@ use crate::{
     file_retrieval::get_sorted_files,
     injections::retrieve_injections,
     manifest_model::{Injection, MetadataSettings, Processors, Template},
-    nav_meta_generation::retrieve_nav_meta,
+    nav_meta_generation::{generate_nav_meta_file, retrieve_nav_meta},
+    nav_meta_generation_feature::NavMetaGenerationFeature,
     template_type::TemplateType,
 };
 
@@ -79,13 +80,19 @@ pub(crate) fn convert_custom_preprocessors(
 
     debug!("Retrieving navigation metadata.");
 
-    let nav_meta = retrieve_nav_meta(
-        &input_files,
-        project_directory_path,
-        compiled_directory_path,
-        conversion_input_dir,
-    )?;
-    // let nav_meta_file = generate_nav_meta_file(template.nav_meta_gen, nav_meta);
+    let nav_meta_path = if let Some(nav_meta_gen) = &template.nav_meta_gen
+        && nav_meta_gen.feature != NavMetaGenerationFeature::None
+    {
+        let nav_meta =
+            retrieve_nav_meta(&input_files, compiled_directory_path, conversion_input_dir)?;
+        Some(generate_nav_meta_file(
+            nav_meta_gen,
+            &nav_meta,
+            compiled_directory_path,
+        )?)
+    } else {
+        None
+    };
 
     debug!("Processing injections.");
 
@@ -95,6 +102,7 @@ pub(crate) fn convert_custom_preprocessors(
         compiled_directory_path,
         metadata_fields,
         metadata_settings,
+        &nav_meta_path,
         &preprocessors,
         &injections.header_injections,
     )?;
@@ -105,6 +113,7 @@ pub(crate) fn convert_custom_preprocessors(
         compiled_directory_path,
         metadata_fields,
         metadata_settings,
+        &nav_meta_path,
         &preprocessors,
         &injections.footer_injections,
     )?;
@@ -116,6 +125,7 @@ pub(crate) fn convert_custom_preprocessors(
         compiled_directory_path,
         metadata_fields,
         metadata_settings,
+        &nav_meta_path,
         &preprocessors,
         &input_files,
     )?;

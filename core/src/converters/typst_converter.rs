@@ -20,6 +20,8 @@ use crate::{
     manifest_model::{
         DEFAULT_TYPST_PREPROCESSORS, Injection, MetadataSettings, Processors, Template,
     },
+    nav_meta_generation::{generate_nav_meta_file, retrieve_nav_meta},
+    nav_meta_generation_feature::NavMetaGenerationFeature,
     template_management::{get_output_path, get_template_path},
 };
 
@@ -88,6 +90,22 @@ pub(crate) fn convert_typst(
     )?;
     debug!("Found {} input files.", input_files.len());
 
+    debug!("Retrieving navigation metadata.");
+
+    let nav_meta_path = if let Some(nav_meta_gen) = &template.nav_meta_gen
+        && nav_meta_gen.feature != NavMetaGenerationFeature::None
+    {
+        let nav_meta =
+            retrieve_nav_meta(&input_files, compiled_directory_path, conversion_input_dir)?;
+        Some(generate_nav_meta_file(
+            nav_meta_gen,
+            &nav_meta,
+            compiled_directory_path,
+        )?)
+    } else {
+        None
+    };
+
     debug!("Processing injections.");
 
     let header_injection_output = run_preprocessors_on_injections(
@@ -96,6 +114,7 @@ pub(crate) fn convert_typst(
         compiled_directory_path,
         metadata_fields,
         metadata_settings,
+        &nav_meta_path,
         &preprocessors,
         &injections.header_injections,
     )?;
@@ -106,6 +125,7 @@ pub(crate) fn convert_typst(
         compiled_directory_path,
         metadata_fields,
         metadata_settings,
+        &nav_meta_path,
         &preprocessors,
         &injections.footer_injections,
     )?;
@@ -116,6 +136,7 @@ pub(crate) fn convert_typst(
         compiled_directory_path,
         metadata_fields,
         metadata_settings,
+        &nav_meta_path,
         &preprocessors,
         &input_files,
     )?;

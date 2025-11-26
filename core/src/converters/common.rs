@@ -122,6 +122,7 @@ pub(crate) fn run_preprocessors_on_inputs(
     compiled_directory_path: &Path,
     metadata_fields: &Table,
     _metadata_settings: &MetadataSettings,
+    nav_meta_path: &Option<PathBuf>,
     preprocessors: &Vec<PreProcessor>,
     input_files: &Vec<PathBuf>,
 ) -> Result<Vec<String>> {
@@ -141,6 +142,7 @@ pub(crate) fn run_preprocessors_on_inputs(
                 project_directory_path,
                 compiled_directory_path,
                 metadata_fields,
+                nav_meta_path,
                 &preprocessor,
                 &chunk.0,
             )
@@ -156,6 +158,7 @@ pub(crate) fn run_preprocessors_on_injections(
     compiled_directory_path: &Path,
     metadata_fields: &Table,
     _metadata_settings: &MetadataSettings,
+    nav_meta_path: &Option<PathBuf>,
     preprocessors: &Vec<PreProcessor>,
     input_files: &Vec<PathBuf>,
 ) -> Result<Vec<String>> {
@@ -166,6 +169,7 @@ pub(crate) fn run_preprocessors_on_injections(
             compiled_directory_path,
             metadata_fields,
             _metadata_settings,
+            nav_meta_path,
             &preprocessors,
             &input_files
                 .iter()
@@ -203,6 +207,7 @@ fn run_preprocessor(
     project_directory_path: &Path,
     compiled_directory_path: &Path,
     metadata_fields: &toml::map::Map<String, toml::Value>,
+    nav_meta_path: &Option<PathBuf>,
     preprocessor: &PreProcessor,
     files: &Vec<PathBuf>,
 ) -> std::result::Result<String, color_eyre::eyre::Error> {
@@ -225,6 +230,13 @@ fn run_preprocessor(
     {
         add_lua_filters(
             template,
+            project_directory_path,
+            compiled_directory_path,
+            &mut cli,
+        )?;
+
+        add_nav_meta(
+            nav_meta_path,
             project_directory_path,
             compiled_directory_path,
             &mut cli,
@@ -389,6 +401,26 @@ fn add_lua_filter_or_directory(
                 compiled_directory_path,
             )
             .unwrap_or(filter),
+        );
+    }
+
+    Ok(())
+}
+
+fn add_nav_meta(
+    nav_meta_path: &Option<PathBuf>,
+    project_directory_path: &Path,
+    compiled_directory_path: &Path,
+    pandoc: &mut Command,
+) -> Result<()> {
+    if let Some(nav_meta_path) = nav_meta_path {
+        pandoc.arg("--metadata-file").arg(
+            get_relative_path_from_compiled_dir(
+                &nav_meta_path,
+                project_directory_path,
+                compiled_directory_path,
+            )
+            .unwrap_or(nav_meta_path.clone()),
         );
     }
 
