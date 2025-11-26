@@ -9,15 +9,13 @@ use std::{
 #[derive(Deserialize, Serialize, Clone, Copy, Debug, PartialEq, Eq)]
 pub enum NavMetaGenerationFeature {
     None = 0,
-    Basic = 1,
-    Full = 2,
+    Full = 1,
 }
 
 impl From<&str> for NavMetaGenerationFeature {
     fn from(s: &str) -> Self {
         match s.to_lowercase().as_str() {
             "none" => NavMetaGenerationFeature::None,
-            "basic" => NavMetaGenerationFeature::Basic,
             "full" => NavMetaGenerationFeature::Full,
             _ => panic!("Invalid nav meta generation feature: {}", s),
         }
@@ -30,7 +28,6 @@ impl FromStr for NavMetaGenerationFeature {
     fn from_str(s: &str) -> Result<Self> {
         match s.to_lowercase().as_str() {
             "none" => Ok(NavMetaGenerationFeature::None),
-            "basic" => Ok(NavMetaGenerationFeature::Basic),
             "full" => Ok(NavMetaGenerationFeature::Full),
             _ => Err(eyre!("Invalid nav meta generation feature: {}", s)),
         }
@@ -41,8 +38,7 @@ impl From<usize> for NavMetaGenerationFeature {
     fn from(value: usize) -> Self {
         match value {
             0 => NavMetaGenerationFeature::None,
-            1 => NavMetaGenerationFeature::Basic,
-            2 => NavMetaGenerationFeature::Full,
+            1 => NavMetaGenerationFeature::Full,
             _ => panic!("Invalid nav meta generation feature index: {}", value),
         }
     }
@@ -52,7 +48,6 @@ impl NavMetaGenerationFeature {
     pub fn as_str(&self) -> &'static str {
         match self {
             NavMetaGenerationFeature::None => "None",
-            NavMetaGenerationFeature::Basic => "Basic",
             NavMetaGenerationFeature::Full => "Full",
         }
     }

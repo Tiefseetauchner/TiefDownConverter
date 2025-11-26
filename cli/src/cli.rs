@@ -356,7 +356,6 @@ This is required for multi-file outputs."#
             help = "Defines the feature level of and whether navigation metadata should be generated.",
             long_help = r#"Defines the feature level of and whether navigation metadata should be generated.
 None disables navigation metadata generation.
-Basic enables the basic navigation metadata generation helpers.
 Full enables full navigation metadata generation and injection."#
         )]
         nav_meta_gen_feature: Option<CliNavMetaGenerationFeature>,
@@ -516,7 +515,6 @@ This is required for multi-file outputs."#
             help = "Defines the feature level of and whether navigation metadata should be generated.",
             long_help = r#"Defines the feature level of and whether navigation metadata should be generated.
 None disables navigation metadata generation.
-Basic enables the basic navigation metadata generation helpers.
 Full enables full navigation metadata generation and injection."#
         )]
         nav_meta_gen_feature: Option<CliNavMetaGenerationFeature>,

@@ -12,15 +12,13 @@ use tiefdownlib::nav_meta_generation_feature::NavMetaGenerationFeature;
 #[derive(Clone, Copy, Debug, PartialEq, Eq, ValueEnum)]
 pub(crate) enum CliNavMetaGenerationFeature {
     None = 0,
-    Basic = 1,
-    Full = 2,
+    Full = 1,
 }
 
 impl From<&str> for CliNavMetaGenerationFeature {
     fn from(s: &str) -> Self {
         match s.to_lowercase().as_str() {
             "none" => CliNavMetaGenerationFeature::None,
-            "basic" => CliNavMetaGenerationFeature::Basic,
             "full" => CliNavMetaGenerationFeature::Full,
             _ => panic!("Invalid template type: {}", s),
         }
@@ -33,7 +31,6 @@ impl FromStr for CliNavMetaGenerationFeature {
     fn from_str(s: &str) -> Result<Self> {
         match s.to_lowercase().as_str() {
             "none" => Ok(CliNavMetaGenerationFeature::None),
-            "basic" => Ok(CliNavMetaGenerationFeature::Basic),
             "full" => Ok(CliNavMetaGenerationFeature::Full),
             _ => Err(eyre!("Invalid template type: {}", s)),
         }
@@ -44,8 +41,7 @@ impl From<usize> for CliNavMetaGenerationFeature {
     fn from(value: usize) -> Self {
         match value {
             0 => CliNavMetaGenerationFeature::None,
-            1 => CliNavMetaGenerationFeature::Basic,
-            2 => CliNavMetaGenerationFeature::Full,
+            1 => CliNavMetaGenerationFeature::Full,
             _ => panic!("Invalid template type index: {}", value),
         }
     }
@@ -55,7 +51,6 @@ impl From<CliNavMetaGenerationFeature> for NavMetaGenerationFeature {
     fn from(value: CliNavMetaGenerationFeature) -> Self {
         match value {
             CliNavMetaGenerationFeature::None => NavMetaGenerationFeature::None,
-            CliNavMetaGenerationFeature::Basic => NavMetaGenerationFeature::Basic,
             CliNavMetaGenerationFeature::Full => NavMetaGenerationFeature::Full,
         }
     }
@@ -65,7 +60,6 @@ impl From<NavMetaGenerationFeature> for CliNavMetaGenerationFeature {
     fn from(value: NavMetaGenerationFeature) -> Self {
         match value {
             NavMetaGenerationFeature::None => CliNavMetaGenerationFeature::None,
-            NavMetaGenerationFeature::Basic => CliNavMetaGenerationFeature::Basic,
             NavMetaGenerationFeature::Full => CliNavMetaGenerationFeature::Full,
         }
     }
@@ -75,7 +69,6 @@ impl CliNavMetaGenerationFeature {
     pub fn as_str(&self) -> &'static str {
         match self {
             CliNavMetaGenerationFeature::None => "None",
-            CliNavMetaGenerationFeature::Basic => "Basic",
             CliNavMetaGenerationFeature::Full => "Full",
         }
     }
