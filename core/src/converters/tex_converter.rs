@@ -12,8 +12,7 @@ use toml::Table;
 use crate::{
     converters::common::{
         merge_preprocessors, retrieve_combined_output, retrieve_preprocessors,
-        run_preprocessors_on_injections, run_preprocessors_on_inputs, run_with_logging,
-        write_combined_output,
+        run_preprocessors_on_inputs, run_with_logging, write_combined_output,
     },
     file_retrieval::get_sorted_files,
     injections::retrieve_injections,
@@ -111,28 +110,6 @@ pub fn convert_latex(
 
     debug!("Processing injections.");
 
-    let header_injection_output = run_preprocessors_on_injections(
-        template,
-        project_directory_path,
-        compiled_directory_path,
-        metadata_fields,
-        metadata_settings,
-        &nav_meta_path,
-        &preprocessors,
-        &injections.header_injections,
-    )?;
-
-    let footer_injection_output = run_preprocessors_on_injections(
-        template,
-        project_directory_path,
-        compiled_directory_path,
-        metadata_fields,
-        metadata_settings,
-        &nav_meta_path,
-        &preprocessors,
-        &injections.footer_injections,
-    )?;
-
     debug!("Running preprocessors on inputs...");
     let results = run_preprocessors_on_inputs(
         template,
@@ -145,13 +122,7 @@ pub fn convert_latex(
         &input_files,
     )?;
 
-    write_combined_output(
-        compiled_directory_path,
-        &combined_output,
-        &results,
-        &header_injection_output,
-        &footer_injection_output,
-    )?;
+    write_combined_output(compiled_directory_path, &combined_output, &results)?;
 
     debug!("Generating LaTeX metadata...");
     generate_tex_metadata(compiled_directory_path, metadata_fields, metadata_settings)?;

@@ -116,42 +116,6 @@ pub(crate) fn retrieve_output_extension(
     Ok(chosen)
 }
 
-pub(crate) fn run_preprocessors_on_inputs(
-    template: &Template,
-    project_directory_path: &Path,
-    compiled_directory_path: &Path,
-    metadata_fields: &Table,
-    _metadata_settings: &MetadataSettings,
-    nav_meta_path: &Option<PathBuf>,
-    preprocessors: &Vec<PreProcessor>,
-    input_files: &Vec<PathBuf>,
-) -> Result<Vec<String>> {
-    let processing_chunks =
-        get_preprocessing_chunks(&input_files, template.multi_file_output.unwrap_or(false))?;
-    debug!("Created {} preprocessing chunks.", processing_chunks.len());
-
-    let results = processing_chunks
-        .par_iter()
-        .map(|chunk| {
-            debug!("Processing chunk with extension {}", chunk.1);
-
-            let preprocessor = choose_preprocessor(preprocessors, &chunk.1)?;
-
-            run_preprocessor(
-                template,
-                project_directory_path,
-                compiled_directory_path,
-                metadata_fields,
-                nav_meta_path,
-                &preprocessor,
-                &chunk.0,
-            )
-        })
-        .collect::<Result<Vec<_>>>()?;
-
-    Ok(results)
-}
-
 pub(crate) fn run_preprocessors_on_injections(
     template: &Template,
     project_directory_path: &Path,
@@ -186,6 +150,42 @@ pub(crate) fn run_preprocessors_on_injections(
     } else {
         Ok(vec![])
     }
+}
+
+pub(crate) fn run_preprocessors_on_inputs(
+    template: &Template,
+    project_directory_path: &Path,
+    compiled_directory_path: &Path,
+    metadata_fields: &Table,
+    _metadata_settings: &MetadataSettings,
+    nav_meta_path: &Option<PathBuf>,
+    preprocessors: &Vec<PreProcessor>,
+    input_files: &Vec<PathBuf>,
+) -> Result<Vec<String>> {
+    let processing_chunks =
+        get_preprocessing_chunks(&input_files, template.multi_file_output.unwrap_or(false))?;
+    debug!("Created {} preprocessing chunks.", processing_chunks.len());
+
+    let results = processing_chunks
+        .par_iter()
+        .map(|chunk| {
+            debug!("Processing chunk with extension {}", chunk.1);
+
+            let preprocessor = choose_preprocessor(preprocessors, &chunk.1)?;
+
+            run_preprocessor(
+                template,
+                project_directory_path,
+                compiled_directory_path,
+                metadata_fields,
+                nav_meta_path,
+                &preprocessor,
+                &chunk.0,
+            )
+        })
+        .collect::<Result<Vec<_>>>()?;
+
+    Ok(results)
 }
 
 fn choose_preprocessor(preprocessors: &Vec<PreProcessor>, extension: &str) -> Result<PreProcessor> {
@@ -431,8 +431,6 @@ pub(crate) fn write_combined_output(
     compiled_directory_path: &Path,
     combined_output: &Path,
     results: &Vec<String>,
-    header_injection: &Vec<String>,
-    footer_injection: &Vec<String>,
 ) -> Result<()> {
     debug!(
         "Writing combined output to file: {}",
@@ -441,26 +439,21 @@ pub(crate) fn write_combined_output(
 
     std::fs::write(
         compiled_directory_path.join(&combined_output),
-        vec![
-            header_injection.join("\n\n"),
-            results.join("\n\n"),
-            footer_injection.join("\n\n"),
-        ]
-        .join("\n\n"),
+        results.join("\n\n"),
     )?;
     Ok(())
 }
 
-pub(crate) fn write_single_file_outputs(
+pub(crate) fn write_multi_file_outputs(
     project_root: &Path,
     compiled_directory_path: &Path,
     conversion_input_dir: &Path,
     output_path: &Path,
     output_extension: String,
     input_files: &Vec<PathBuf>,
+    header_injections: &Vec<String>,
+    footer_injections: &Vec<String>,
     results: &Vec<String>,
-    header_injection: &Vec<String>,
-    footer_injection: &Vec<String>,
 ) -> Result<()> {
     debug!(
         "Writing {} files to directory: {}",
@@ -499,9 +492,9 @@ pub(crate) fn write_single_file_outputs(
         std::fs::write(
             compiled_directory_path.join(output_path).join(file_name),
             vec![
-                header_injection.join("\n\n"),
+                header_injections.join("\n\n"),
                 res.0.clone(),
-                footer_injection.join("\n\n"),
+                footer_injections.join("\n\n"),
             ]
             .join("\n\n"),
         )?;

@@ -10,8 +10,8 @@ use toml::Table;
 use crate::{
     converters::common::{
         add_lua_filters, combine_pandoc_native, merge_preprocessors, preprocess_cli_args,
-        retrieve_combined_output, retrieve_preprocessors, run_preprocessors_on_injections,
-        run_preprocessors_on_inputs, run_with_logging, write_output,
+        retrieve_combined_output, retrieve_preprocessors, run_preprocessors_on_inputs,
+        run_with_logging, write_output,
     },
     file_retrieval::{get_relative_path_from_compiled_dir, get_sorted_files},
     injections::retrieve_injections,
@@ -112,30 +112,8 @@ pub(crate) fn convert_epub(
 
     debug!("Processing injections.");
 
-    let header_injection_output = run_preprocessors_on_injections(
-        template,
-        project_directory_path,
-        compiled_directory_path,
-        metadata_fields,
-        metadata_settings,
-        &nav_meta_path,
-        &preprocessors,
-        &injections.header_injections,
-    )?;
-
-    let footer_injection_output = run_preprocessors_on_injections(
-        template,
-        project_directory_path,
-        compiled_directory_path,
-        metadata_fields,
-        metadata_settings,
-        &nav_meta_path,
-        &preprocessors,
-        &injections.footer_injections,
-    )?;
-
     debug!("Running preprocessors on inputs...");
-    let body_results = run_preprocessors_on_inputs(
+    let results = run_preprocessors_on_inputs(
         template,
         project_directory_path,
         compiled_directory_path,
@@ -145,10 +123,6 @@ pub(crate) fn convert_epub(
         &preprocessors,
         &input_files,
     )?;
-
-    let mut results = header_injection_output.clone();
-    results.extend(body_results);
-    results.extend(footer_injection_output);
 
     let pandoc_native = combine_pandoc_native(results);
 

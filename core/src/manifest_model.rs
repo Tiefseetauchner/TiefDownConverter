@@ -140,16 +140,27 @@ pub static DEFAULT_TEX_PREPROCESSORS: LazyLock<(PreProcessors, Vec<PreProcessor>
     LazyLock::new(|| {
         (
             PreProcessors {
-                preprocessors: vec!["default_tex_preprocessor".to_string()],
+                preprocessors: vec![
+                    "default_tex_preprocessor".to_string(),
+                    "default_tex_preprocessor_tex_files".to_string(),
+                ],
                 combined_output: Some(PathBuf::from("output.tex")),
                 output_extension: None,
             },
-            vec![PreProcessor {
-                name: "default_tex_preprocessor".to_string(),
-                extension_filter: None,
-                cli: None,
-                cli_args: vec!["-t", "latex"].iter().map(|s| s.to_string()).collect(),
-            }],
+            vec![
+                PreProcessor {
+                    name: "default_tex_preprocessor".to_string(),
+                    extension_filter: None,
+                    cli: None,
+                    cli_args: vec!["-t", "latex"].iter().map(|s| s.to_string()).collect(),
+                },
+                PreProcessor {
+                    name: "default_tex_preprocessor".to_string(),
+                    extension_filter: Some("tex".to_string()),
+                    cli: Some("cat".to_string()),
+                    cli_args: vec![],
+                },
+            ],
         )
     });
 
