@@ -84,7 +84,7 @@ pub(crate) fn get_sorted_files(
     let input_files: Vec<PathBuf> = input_files
         .iter()
         .map(|f| {
-            get_relative_path_from_compiled_dir(f, project_directory_path, compiled_directory_path)
+            get_relative_path_from_compiled_dir(f, compiled_directory_path)
                 .unwrap_or(f.to_path_buf())
         })
         .collect();
@@ -117,7 +117,6 @@ fn retrieve_file_order_number(p: &Path) -> u32 {
 
 pub(crate) fn get_relative_path_from_compiled_dir(
     original_path: &Path,
-    _project_root: &Path,
     compiled_dir: &Path,
 ) -> Option<PathBuf> {
     let original_path = original_path.canonicalize().ok()?;

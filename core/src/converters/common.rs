@@ -13,7 +13,9 @@ use toml::Table;
 
 use crate::{
     file_retrieval::get_relative_path_from_compiled_dir,
+    injections::RenderingInjections,
     manifest_model::{MetadataSettings, PreProcessor, PreProcessors, Template},
+    nav_meta_generation::NavMeta,
     template_type::TemplateType,
 };
 
@@ -122,10 +124,11 @@ pub(crate) fn run_preprocessors_on_injections(
     compiled_directory_path: &Path,
     metadata_fields: &Table,
     _metadata_settings: &MetadataSettings,
-    nav_meta_path: &Option<PathBuf>,
+    nav_meta_data: &Option<(NavMeta, PathBuf)>,
     preprocessors: &Vec<PreProcessor>,
     input_files: &Vec<PathBuf>,
 ) -> Result<Vec<String>> {
+    debug!("Running Preprocessors on injection.");
     if input_files.len() > 0 {
         run_preprocessors_on_inputs(
             template,
@@ -133,17 +136,13 @@ pub(crate) fn run_preprocessors_on_injections(
             compiled_directory_path,
             metadata_fields,
             _metadata_settings,
-            nav_meta_path,
+            nav_meta_data,
             &preprocessors,
             &input_files
                 .iter()
                 .map(|i| {
-                    get_relative_path_from_compiled_dir(
-                        i,
-                        project_directory_path,
-                        compiled_directory_path,
-                    )
-                    .unwrap_or(i.clone())
+                    get_relative_path_from_compiled_dir(i, compiled_directory_path)
+                        .unwrap_or(i.clone())
                 })
                 .collect(),
         )
@@ -158,7 +157,7 @@ pub(crate) fn run_preprocessors_on_inputs(
     compiled_directory_path: &Path,
     metadata_fields: &Table,
     _metadata_settings: &MetadataSettings,
-    nav_meta_path: &Option<PathBuf>,
+    nav_meta_data: &Option<(NavMeta, PathBuf)>,
     preprocessors: &Vec<PreProcessor>,
     input_files: &Vec<PathBuf>,
 ) -> Result<Vec<String>> {
@@ -178,7 +177,7 @@ pub(crate) fn run_preprocessors_on_inputs(
                 project_directory_path,
                 compiled_directory_path,
                 metadata_fields,
-                nav_meta_path,
+                nav_meta_data,
                 &preprocessor,
                 &chunk.0,
             )
@@ -207,7 +206,7 @@ fn run_preprocessor(
     project_directory_path: &Path,
     compiled_directory_path: &Path,
     metadata_fields: &toml::map::Map<String, toml::Value>,
-    nav_meta_path: &Option<PathBuf>,
+    nav_meta_data: &Option<(NavMeta, PathBuf)>,
     preprocessor: &PreProcessor,
     files: &Vec<PathBuf>,
 ) -> std::result::Result<String, color_eyre::eyre::Error> {
@@ -235,12 +234,7 @@ fn run_preprocessor(
             &mut cli,
         )?;
 
-        add_nav_meta(
-            nav_meta_path,
-            project_directory_path,
-            compiled_directory_path,
-            &mut cli,
-        )?;
+        add_nav_meta(nav_meta_data, compiled_directory_path, &mut cli)?;
     }
     cli.args(files.clone());
     debug!(
@@ -358,19 +352,13 @@ pub(crate) fn add_lua_filters(
             ));
         }
 
-        add_lua_filter_or_directory(
-            project_directory_path,
-            compiled_directory_path,
-            filter,
-            pandoc,
-        )?;
+        add_lua_filter_or_directory(compiled_directory_path, filter, pandoc)?;
     }
     debug!("add_lua_filters -> filters processed.");
     Ok(())
 }
 
 fn add_lua_filter_or_directory(
-    project_directory_path: &Path,
     compiled_directory_path: &Path,
     filter: PathBuf,
     pandoc: &mut Command,
@@ -379,28 +367,14 @@ fn add_lua_filter_or_directory(
         for entry in fs::read_dir(filter)? {
             let entry = entry?.path();
 
-            add_lua_filter_or_directory(
-                project_directory_path,
-                compiled_directory_path,
-                entry,
-                pandoc,
-            )?;
+            add_lua_filter_or_directory(compiled_directory_path, entry, pandoc)?;
         }
     } else if filter.is_file() && filter.extension().unwrap_or_default() == "lua" {
-        let rel = get_relative_path_from_compiled_dir(
-            &filter,
-            project_directory_path,
-            compiled_directory_path,
-        )
-        .unwrap_or(filter.clone());
+        let rel = get_relative_path_from_compiled_dir(&filter, compiled_directory_path)
+            .unwrap_or(filter.clone());
         debug!("Adding lua filter: {}", rel.display());
         pandoc.arg("--lua-filter").arg(
-            get_relative_path_from_compiled_dir(
-                &filter,
-                project_directory_path,
-                compiled_directory_path,
-            )
-            .unwrap_or(filter),
+            get_relative_path_from_compiled_dir(&filter, compiled_directory_path).unwrap_or(filter),
         );
     }
 
@@ -408,20 +382,45 @@ fn add_lua_filter_or_directory(
 }
 
 fn add_nav_meta(
-    nav_meta_path: &Option<PathBuf>,
-    project_directory_path: &Path,
+    nav_meta_data: &Option<(NavMeta, PathBuf)>,
     compiled_directory_path: &Path,
     pandoc: &mut Command,
 ) -> Result<()> {
-    if let Some(nav_meta_path) = nav_meta_path {
+    if let Some((nav_meta, nav_meta_path)) = nav_meta_data {
+        debug!("Adding metadata to pandoc conversion parameters.");
         pandoc.arg("--metadata-file").arg(
-            get_relative_path_from_compiled_dir(
-                &nav_meta_path,
-                project_directory_path,
-                compiled_directory_path,
-            )
-            .unwrap_or(nav_meta_path.clone()),
+            get_relative_path_from_compiled_dir(&nav_meta_path, compiled_directory_path)
+                .unwrap_or(nav_meta_path.clone()),
         );
+
+        if let Some(current_node) = nav_meta.current.clone() {
+            debug!("Found current node '{}'", current_node.id.value);
+            let meta_data_path = compiled_directory_path.join(
+                current_node
+                    .path
+                    .parent()
+                    .unwrap_or(PathBuf::from(".").as_path())
+                    .join(PathBuf::from(format!(
+                        ".{}.tdc_meta",
+                        current_node
+                            .path
+                            .file_name()
+                            .ok_or(eyre!(
+                                "Error occurred when trying to add a non-file to metadata."
+                            ))?
+                            .to_string_lossy()
+                    ))),
+            );
+            std::fs::write(meta_data_path.clone(), serde_yaml::to_string(nav_meta)?)?;
+
+            debug!(
+                "Wrote current node metadata. Adding current node metadata to pandoc conversion parameters."
+            );
+            pandoc.arg("--metadata-file").arg(
+                get_relative_path_from_compiled_dir(&meta_data_path, compiled_directory_path)
+                    .unwrap_or(nav_meta_path.clone()),
+            );
+        }
     }
 
     Ok(())
@@ -445,14 +444,18 @@ pub(crate) fn write_combined_output(
 }
 
 pub(crate) fn write_multi_file_outputs(
-    project_root: &Path,
+    template: &Template,
+    project_directory_path: &Path,
     compiled_directory_path: &Path,
     conversion_input_dir: &Path,
     output_path: &Path,
     output_extension: String,
     input_files: &Vec<PathBuf>,
-    header_injections: &Vec<String>,
-    footer_injections: &Vec<String>,
+    injections: &RenderingInjections,
+    metadata_fields: &Table,
+    metadata_settings: &MetadataSettings,
+    nav_meta_data: &Option<(NavMeta, PathBuf)>,
+    preprocessors: &Vec<PreProcessor>,
     results: &Vec<String>,
 ) -> Result<()> {
     debug!(
@@ -475,32 +478,82 @@ pub(crate) fn write_multi_file_outputs(
 
     let results = results.iter().zip(input_files).collect::<Vec<_>>();
 
-    for res in results {
-        let relative_conversion_input_dir = get_relative_path_from_compiled_dir(
-            conversion_input_dir,
-            project_root,
-            compiled_directory_path,
-        )
-        .unwrap();
-        let relative_file_name = res.1.clone().with_extension(&output_extension);
-        let file_name = relative_file_name.strip_prefix(relative_conversion_input_dir)?;
+    results
+        .par_iter()
+        .map(|result: &(&String, &PathBuf)| -> Result<()> {
+            let path = result.1;
+            let res = result.0;
+            let nav_meta_data = populate_nav_meta_current(nav_meta_data, path)?;
 
-        if let Some(parent) = file_name.parent() {
-            std::fs::create_dir_all(compiled_directory_path.join(output_path).join(parent))?;
-        }
+            let header_injections = run_preprocessors_on_injections(
+                template,
+                project_directory_path,
+                compiled_directory_path,
+                metadata_fields,
+                metadata_settings,
+                &nav_meta_data,
+                &preprocessors,
+                &injections.header_injections,
+            )?;
+            let footer_injections = run_preprocessors_on_injections(
+                template,
+                project_directory_path,
+                compiled_directory_path,
+                metadata_fields,
+                metadata_settings,
+                &nav_meta_data,
+                &preprocessors,
+                &injections.footer_injections,
+            )?;
 
-        std::fs::write(
-            compiled_directory_path.join(output_path).join(file_name),
-            vec![
-                header_injections.join("\n\n"),
-                res.0.clone(),
-                footer_injections.join("\n\n"),
-            ]
-            .join("\n\n"),
-        )?;
-    }
+            let relative_conversion_input_dir =
+                get_relative_path_from_compiled_dir(conversion_input_dir, compiled_directory_path)
+                    .unwrap();
+            let relative_file_name = path.clone().with_extension(&output_extension);
+            let file_name = relative_file_name.strip_prefix(relative_conversion_input_dir)?;
+
+            if let Some(parent) = file_name.parent() {
+                std::fs::create_dir_all(compiled_directory_path.join(output_path).join(parent))?;
+            }
+
+            std::fs::write(
+                compiled_directory_path.join(output_path).join(file_name),
+                vec![
+                    header_injections.join("\n\n"),
+                    res.clone(),
+                    footer_injections.join("\n\n"),
+                ]
+                .join("\n\n"),
+            )?;
+
+            Ok(())
+        })
+        .collect::<Result<()>>()?;
 
     Ok(())
+}
+
+fn populate_nav_meta_current(
+    nav_meta_data: &Option<(NavMeta, PathBuf)>,
+    path: &PathBuf,
+) -> Result<Option<(NavMeta, PathBuf)>> {
+    return Ok(if let Some((nav_meta, nav_meta_path)) = nav_meta_data {
+        debug!(
+            "Populating current navigation metadata node: {}.",
+            path.display()
+        );
+        let current = nav_meta.nodes.iter().find(|n| path.ends_with(&n.path));
+
+        Some((
+            NavMeta {
+                nodes: nav_meta.nodes.clone(),
+                current: current.cloned(),
+            },
+            nav_meta_path.clone(),
+        ))
+    } else {
+        None
+    });
 }
 
 pub(crate) fn combine_pandoc_native(results: Vec<String>) -> String {

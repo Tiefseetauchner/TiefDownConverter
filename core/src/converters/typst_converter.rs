@@ -91,16 +91,15 @@ pub(crate) fn convert_typst(
 
     debug!("Retrieving navigation metadata.");
 
-    let nav_meta_path = if let Some(nav_meta_gen) = &template.nav_meta_gen
+    let nav_meta_data = if let Some(nav_meta_gen) = &template.nav_meta_gen
         && nav_meta_gen.feature != NavMetaGenerationFeature::None
     {
         let nav_meta =
             retrieve_nav_meta(&input_files, compiled_directory_path, conversion_input_dir)?;
-        Some(generate_nav_meta_file(
-            nav_meta_gen,
-            &nav_meta,
-            compiled_directory_path,
-        )?)
+        Some((
+            nav_meta.clone(),
+            generate_nav_meta_file(nav_meta_gen, &nav_meta, compiled_directory_path)?,
+        ))
     } else {
         None
     };
@@ -113,7 +112,7 @@ pub(crate) fn convert_typst(
         compiled_directory_path,
         metadata_fields,
         metadata_settings,
-        &nav_meta_path,
+        &nav_meta_data,
         &preprocessors,
         &input_files,
     )?;

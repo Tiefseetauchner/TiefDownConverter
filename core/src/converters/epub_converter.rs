@@ -96,16 +96,15 @@ pub(crate) fn convert_epub(
 
     debug!("Retrieving navigation metadata.");
 
-    let nav_meta_path = if let Some(nav_meta_gen) = &template.nav_meta_gen
+    let nav_meta_data = if let Some(nav_meta_gen) = &template.nav_meta_gen
         && nav_meta_gen.feature != NavMetaGenerationFeature::None
     {
         let nav_meta =
             retrieve_nav_meta(&input_files, compiled_directory_path, conversion_input_dir)?;
-        Some(generate_nav_meta_file(
-            nav_meta_gen,
-            &nav_meta,
-            compiled_directory_path,
-        )?)
+        Some((
+            nav_meta.clone(),
+            generate_nav_meta_file(nav_meta_gen, &nav_meta, compiled_directory_path)?,
+        ))
     } else {
         None
     };
@@ -119,7 +118,7 @@ pub(crate) fn convert_epub(
         compiled_directory_path,
         metadata_fields,
         metadata_settings,
-        &nav_meta_path,
+        &nav_meta_data,
         &preprocessors,
         &input_files,
     )?;
@@ -157,7 +156,6 @@ pub(crate) fn convert_epub(
     debug!("Added metadata fields to pandoc command.");
 
     add_css_files(
-        project_directory_path,
         compiled_directory_path,
         &compiled_directory_path.join(&template_path),
         &mut pandoc,
@@ -165,7 +163,6 @@ pub(crate) fn convert_epub(
     debug!("Added CSS files from template directory if present.");
 
     add_fonts(
-        project_directory_path,
         compiled_directory_path,
         &compiled_directory_path.join(&template_path),
         &mut pandoc,
@@ -206,7 +203,6 @@ fn add_meta_args(metadata_fields: &Table, pandoc: &mut Command) -> Result<()> {
 }
 
 fn add_css_files(
-    project_directory_path: &Path,
     compiled_directory_path: &Path,
     template_path: &Path,
     pandoc: &mut Command,
@@ -218,12 +214,7 @@ fn add_css_files(
             debug!("Adding CSS file to EPUB: {}", file.display());
 
             pandoc.arg("-c").arg(
-                get_relative_path_from_compiled_dir(
-                    &file,
-                    project_directory_path,
-                    compiled_directory_path,
-                )
-                .unwrap_or(file),
+                get_relative_path_from_compiled_dir(&file, compiled_directory_path).unwrap_or(file),
             );
         }
     }
@@ -232,7 +223,6 @@ fn add_css_files(
 }
 
 fn add_fonts(
-    project_directory_path: &Path,
     compiled_directory_path: &Path,
     template_path: &Path,
     pandoc: &mut Command,
@@ -254,12 +244,8 @@ fn add_fonts(
             debug!("Embedding font in EPUB: {}", font_file.display());
 
             pandoc.arg("--epub-embed-font").arg(
-                get_relative_path_from_compiled_dir(
-                    &font_file,
-                    project_directory_path,
-                    compiled_directory_path,
-                )
-                .unwrap_or(font_file),
+                get_relative_path_from_compiled_dir(&font_file, compiled_directory_path)
+                    .unwrap_or(font_file),
             );
         }
     }

@@ -10,15 +10,13 @@ use crate::manifest_model::NavMetaGenerationSettings;
 
 pub const DEFAULT_NAV_META_FILE_PATH: &str = ".meta_nav.yml";
 
-/// Navigation metadata
-///
-///
-#[derive(Serialize)]
+#[derive(Serialize, Clone)]
 pub struct NavMeta {
     pub nodes: Vec<NavMetaNode>,
+    pub current: Option<NavMetaNode>,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone)]
 pub struct NavMetaNode {
     pub id: NavMetaNodeId,
     pub path: PathBuf,
@@ -27,16 +25,16 @@ pub struct NavMetaNode {
     pub next: Option<NavMetaNodeId>,
 }
 
+#[derive(Serialize, Clone)]
+pub struct NavMetaNodeId {
+    pub value: String,
+}
+
 #[derive(Clone)]
 struct PreNavNode {
     id: NavMetaNodeId,
     path: PathBuf,
     title: String,
-}
-
-#[derive(Serialize, Clone)]
-pub struct NavMetaNodeId {
-    pub value: String,
 }
 
 pub(crate) fn retrieve_nav_meta(
@@ -100,7 +98,10 @@ pub(crate) fn retrieve_nav_meta(
 
     debug!("Built navigation metadata tree.");
 
-    Ok(NavMeta { nodes })
+    Ok(NavMeta {
+        nodes,
+        current: None,
+    })
 }
 
 pub(crate) fn generate_nav_meta_file(

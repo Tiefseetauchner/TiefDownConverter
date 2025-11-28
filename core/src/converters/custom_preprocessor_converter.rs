@@ -7,8 +7,7 @@ use toml::Table;
 use crate::{
     converters::common::{
         retrieve_combined_output, retrieve_output_extension, retrieve_preprocessors,
-        run_preprocessors_on_injections, run_preprocessors_on_inputs, write_combined_output,
-        write_multi_file_outputs,
+        run_preprocessors_on_inputs, write_combined_output, write_multi_file_outputs,
     },
     file_retrieval::get_sorted_files,
     injections::retrieve_injections,
@@ -80,22 +79,19 @@ pub(crate) fn convert_custom_preprocessors(
 
     debug!("Retrieving navigation metadata.");
 
-    let nav_meta_path = if let Some(nav_meta_gen) = &template.nav_meta_gen
+    let nav_meta_data = if let Some(nav_meta_gen) = &template.nav_meta_gen
         && nav_meta_gen.feature != NavMetaGenerationFeature::None
     {
         let nav_meta =
             retrieve_nav_meta(&input_files, compiled_directory_path, conversion_input_dir)?;
-        Some(generate_nav_meta_file(
-            nav_meta_gen,
-            &nav_meta,
-            compiled_directory_path,
-        )?)
+        Some((
+            nav_meta.clone(),
+            generate_nav_meta_file(nav_meta_gen, &nav_meta, compiled_directory_path)?,
+        ))
     } else {
         None
     };
 
-    // TODO: There needs to be a nav meta generated for each file processed if multi-file processing is enabled to allow injection of current file data
-    //       This needs to include the conversion of header and footer injections
     debug!("Running preprocessors on inputs...");
     let results = run_preprocessors_on_inputs(
         template,
@@ -103,7 +99,7 @@ pub(crate) fn convert_custom_preprocessors(
         compiled_directory_path,
         metadata_fields,
         metadata_settings,
-        &nav_meta_path,
+        &nav_meta_data,
         &preprocessors,
         &input_files,
     )?;
@@ -111,38 +107,21 @@ pub(crate) fn convert_custom_preprocessors(
     let combined_output = retrieve_combined_output(template, &None)?;
 
     if template.multi_file_output.unwrap_or(false) {
-        let header_injections = run_preprocessors_on_injections(
-            template,
-            project_directory_path,
-            compiled_directory_path,
-            metadata_fields,
-            metadata_settings,
-            &nav_meta_path,
-            &preprocessors,
-            &injections.header_injections,
-        )?;
-        let footer_injections = run_preprocessors_on_injections(
-            template,
-            project_directory_path,
-            compiled_directory_path,
-            metadata_fields,
-            metadata_settings,
-            &nav_meta_path,
-            &preprocessors,
-            &injections.footer_injections,
-        )?;
-
         let output_extension = retrieve_output_extension(template, &None)?;
 
         write_multi_file_outputs(
+            template,
             project_directory_path,
             compiled_directory_path,
             conversion_input_dir,
             &output_path,
             output_extension,
             &input_files,
-            &header_injections,
-            &footer_injections,
+            &injections,
+            metadata_fields,
+            metadata_settings,
+            &nav_meta_data,
+            &preprocessors,
             &results,
         )?;
     } else if let Some(combined_output) = combined_output {
