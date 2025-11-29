@@ -1,0 +1,18 @@
+
+
+<h1 id="metadata-settings">Metadata Settings</h1>
+<p>Metadata settings influence how metadata files are generated. The
+<code>[metadata_settings]</code> table currently supports the
+<code>metadata_prefix</code> option. This prefix determines the name of
+the macro or object used to access metadata in templates.</p>
+<p>For example, with</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[metadata_settings]</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="dt">metadata_prefix</span> <span class="op">=</span> <span class="st">&quot;book&quot;</span></span></code></pre></div>
+<p>the generated LaTeX file defines a <code>\book{}</code> command while
+Typst exposes a <code>book</code> object. In other words, the prefix
+fully replaces the default <code>meta</code> name. If no prefix is set
+the command and object are called <code>meta</code>.</p>
+
+
+<p>Tiefseetauchner © 2025</p>

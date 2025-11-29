@@ -1,0 +1,49 @@
+
+
+<h1 id="conversion-folders">Conversion folders</h1>
+<p>The conversion folder is where inputs are collected and processed for
+a run. A new, time-stamped folder is created inside the project whenever
+a conversion starts. If a <a href="#markdown-projects">markdown
+project</a> specifies an <code>output</code> directory, TiefDown uses
+that as the base for that project’s conversion folder. Old conversion
+folders can be removed manually with the clean command or automatically
+with <a href="#smart-clean">smart clean</a>.</p>
+<p>To understand what goes into the folder, it helps to look at the
+conversion pipeline (see the overview diagram):</p>
+<figure>
+<img src="./resources/architecture.jpg" alt="Workflow" />
+<figcaption aria-hidden="true">Workflow</figcaption>
+</figure>
+<ol type="1">
+<li><p>Input discovery and ordering: TiefDown scans the markdown project
+directory, orders files by the first number in the filename
+(e.g. <code>Chapter 10 - …</code>), and recurses into similarly numbered
+subfolders, preserving their order.</p></li>
+<li><p>Preprocessing by extension: Inputs are grouped by file extension.
+For each group, TiefDown selects the matching preprocessor for the
+active template (either a default or a custom one filtered by extension)
+and runs it in the conversion folder. The stdout from each run is
+captured.</p></li>
+<li><p>Combined output: The captured outputs are concatenated and
+written to the template’s configured
+<code>preprocessors.combined_output</code> file (typically
+<code>output.tex</code> for LaTeX or <code>output.typ</code> for Typst).
+Your template includes this file.</p></li>
+<li><p>Metadata files: TiefDown generates <code>metadata.tex</code> or
+<code>metadata.typ</code> (only if they don’t already exist) based on
+<code>[shared_metadata]</code>, any project-specific metadata, and your
+optional <a href="#metadata-settings">metadata settings</a>.</p></li>
+<li><p>Template processing: Depending on the template type, TiefDown
+runs XeLaTeX (twice) or Typst on the template file in the conversion
+folder, optionally passing arguments from a named <a
+href="#custom-processors">processor</a>. EPUB templates invoke Pandoc
+directly. <code>CustomPreprocessors</code> templates copy the combined
+output as-is to the final destination. <code>CustomProcessor</code>
+templates run a final Pandoc invocation reading the combined Pandoc
+Native input and passing the configured processor arguments.</p></li>
+<li><p>Finalization: The produced artifact (e.g. a PDF or EPUB) is then
+copied to the markdown project’s configured output path.</p></li>
+</ol>
+
+
+<p>Tiefseetauchner © 2025</p>

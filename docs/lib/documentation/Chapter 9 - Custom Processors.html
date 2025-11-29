@@ -1,0 +1,79 @@
+
+
+<h1 id="custom-processors">Custom Processors</h1>
+<p>Custom processors let you change the commands used during conversion.
+They come in two forms:</p>
+<ul>
+<li><strong>Preprocessors</strong> replace the default pandoc invocation
+that generates the intermediate file.</li>
+<li><strong>Processors</strong> provide additional arguments to the
+program that handles the template itself (for example XeLaTeX or
+Typst).</li>
+</ul>
+<p>A preprocessor is defined under
+<code>[[custom_processors.preprocessors]]</code>:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.preprocessors]]</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Enable Listings&quot;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="dt">cli_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;-t&quot;</span><span class="op">,</span> <span class="st">&quot;latex&quot;</span><span class="op">,</span> <span class="st">&quot;--listings&quot;</span><span class="op">]</span></span></code></pre></div>
+<p>A preprocessor can also define a command using the <code>cli</code>
+field. This replaces the Pandoc preprocessing step with a custom cli
+command preprocessing step.</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.preprocessors]]</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Copy without modification&quot;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="dt">cli</span> <span class="op">=</span> <span class="st">&quot;cat&quot;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="dt">cli_args</span> <span class="op">=</span> <span class="op">[]</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="dt">extension_filter</span> <span class="op">=</span> <span class="st">&quot;typ&quot;</span></span></code></pre></div>
+<p>Templates reference one or more preprocessors with their
+<code>preprocessors</code> field, which also has to define a
+<code>combined_output</code> field. The converter captures the stdout of
+each preprocessor run and writes it to this file, which your template
+then includes (<code>\input{./output.tex}</code> or
+<code>#include "./output.typ"</code>) or copies to the output location
+for <code>CustomPreprocessors</code> templates.</p>
+<p>Processors are specified similarly and referenced via the
+<code>processor</code> field:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.processors]]</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Typst Font Directory&quot;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="dt">processor_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;--font-path&quot;</span><span class="op">,</span> <span class="st">&quot;fonts/&quot;</span><span class="op">]</span></span></code></pre></div>
+<p>Usage notes:</p>
+<ul>
+<li>For <code>CustomPreprocessors</code> templates, there is no
+processor step. You are responsible for ensuring the
+<code>combined_output</code> is the final artifact you want to copy to
+the project’s output.</li>
+<li>For <code>CustomProcessor</code> templates, a processor is required.
+TiefDown combines inputs to Pandoc Native (defaults provided) and then
+runs Pandoc with your <code>processor_args</code> to produce the final
+artifact.</li>
+</ul>
+<p>These mechanisms allow fine-grained control over the conversion
+pipeline when the defaults are not sufficient.</p>
+<h2 id="defaults">Defaults</h2>
+<p>TiefDown provides reasonable defaults per template type:</p>
+<ul>
+<li>Tex templates preprocess inputs with Pandoc using
+<code>-t latex</code>, writing <code>output.tex</code>.</li>
+<li>Typst templates use two preprocessors: Pandoc with
+<code>-t typst</code> for non-<code>.typ</code> inputs, and a
+pass-through step for <code>.typ</code> inputs so existing Typst files
+are concatenated. The combined output is <code>output.typ</code>.</li>
+</ul>
+<p>You can override a default for a particular extension by defining a
+preprocessor with a matching <code>extension_filter</code>; defaults for
+other extensions remain.</p>
+<p>Preprocessors can be scoped by extension via
+<code>extension_filter</code>, which matches only the file extension
+(glob patterns such as <code>t*</code> are supported). If you omit the
+filter, the preprocessor acts as a fallback when no more specific filter
+matches. Defaults exist per template type and are merged by extension;
+defining your own preprocessor for a particular extension replaces the
+default for that extension but leaves the others intact. Finally,
+<code>cli_args</code> support metadata substitution, so any occurrence
+of <code>{{key}}</code> is replaced with the corresponding metadata
+value at conversion time.</p>
+
+
+<p>Tiefseetauchner © 2025</p>

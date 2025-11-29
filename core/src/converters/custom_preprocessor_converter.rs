@@ -82,8 +82,17 @@ pub(crate) fn convert_custom_preprocessors(
     let nav_meta_data = if let Some(nav_meta_gen) = &template.nav_meta_gen
         && nav_meta_gen.feature != NavMetaGenerationFeature::None
     {
-        let nav_meta =
-            retrieve_nav_meta(&input_files, compiled_directory_path, conversion_input_dir)?;
+        let output_extension = if template.multi_file_output.unwrap_or(false) {
+            Some(retrieve_output_extension(template, &None)?)
+        } else {
+            None
+        };
+        let nav_meta = retrieve_nav_meta(
+            &input_files,
+            compiled_directory_path,
+            conversion_input_dir,
+            &output_extension,
+        )?;
         Some((
             nav_meta.clone(),
             generate_nav_meta_file(nav_meta_gen, &nav_meta, compiled_directory_path)?,
@@ -95,7 +104,6 @@ pub(crate) fn convert_custom_preprocessors(
     debug!("Running preprocessors on inputs...");
     let results = run_preprocessors_on_inputs(
         template,
-        project_directory_path,
         compiled_directory_path,
         metadata_fields,
         metadata_settings,
@@ -111,7 +119,6 @@ pub(crate) fn convert_custom_preprocessors(
 
         write_multi_file_outputs(
             template,
-            project_directory_path,
             compiled_directory_path,
             conversion_input_dir,
             &output_path,

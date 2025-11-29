@@ -97,8 +97,12 @@ pub fn convert_latex(
     let nav_meta_data = if let Some(nav_meta_gen) = &template.nav_meta_gen
         && nav_meta_gen.feature != NavMetaGenerationFeature::None
     {
-        let nav_meta =
-            retrieve_nav_meta(&input_files, compiled_directory_path, conversion_input_dir)?;
+        let nav_meta = retrieve_nav_meta(
+            &input_files,
+            compiled_directory_path,
+            conversion_input_dir,
+            &None,
+        )?;
         Some((
             nav_meta.clone(),
             generate_nav_meta_file(nav_meta_gen, &nav_meta, compiled_directory_path)?,
@@ -112,7 +116,6 @@ pub fn convert_latex(
     debug!("Running preprocessors on inputs...");
     let results = run_preprocessors_on_inputs(
         template,
-        project_directory_path,
         compiled_directory_path,
         metadata_fields,
         metadata_settings,

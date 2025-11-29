@@ -1,0 +1,37 @@
+
+
+<h2
+id="projectpre-processorsadd"><code>tiefdownconverter project pre-processors add</code></h2>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.11.0-ALPHA.1</code></p>
+<h3 id="usage">Usage:</h3>
+<pre><code>Add a new preprocessor to the project.
+
+Usage: tiefdownconverter project pre-processors add [OPTIONS] &lt;NAME&gt; [-- &lt;CLI_ARGS&gt;...]
+
+Arguments:
+  &lt;NAME&gt;
+          The name of the preprocessor to create.
+
+  [CLI_ARGS]...
+          The arguments to pass to the preprocessor.
+
+Options:
+      --filter &lt;FILTER&gt;
+          The file extension filter for the preprocessor.
+          This defines which input files the preprocessor is applied to. If not provided, the preprocessor will be applied to all input files.
+          Allows glob patterns. Excludes the leading dot. Only matches the file extension.
+
+  -v, --verbose
+          Enable verbose output.
+
+      --cli &lt;CLI&gt;
+          The program to use as the preprocessor.
+          Requires cli arguments
+          Should Pandoc not be the required preprocessor for your use case, you can change the called cli program.
+
+  -h, --help
+          Print help (see a summary with &#39;-h&#39;)</code></pre>
+
+
+<p>Tiefseetauchner © 2025</p>

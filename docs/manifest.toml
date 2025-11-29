@@ -56,7 +56,7 @@ path = "index_markdown"
 
 [[profiles]]
 name = "Documentation"
-templates = ["PDF Documentation LaTeX", "PDF Documentation", "Epub Documentation", "GitHub Page Documentation"]
+templates = ["PDF Documentation LaTeX", "PDF Documentation", "Epub Documentation", "GitHub Page Documentation", "GitHub Multi Page Documentation"]
 
 [[profiles]]
 name = "Man"

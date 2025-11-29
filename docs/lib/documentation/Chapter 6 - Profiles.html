@@ -1,0 +1,18 @@
+
+
+<h1 id="profiles">Profiles</h1>
+<p>A profile is a named list of templates that can be converted
+together. Defining profiles avoids having to pass a long list of
+template names every time you run the converter.</p>
+<p>Profiles are stored in the project’s <code>manifest.toml</code>:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[profiles]]</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Documentation&quot;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="dt">templates</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;PDF Documentation LaTeX&quot;</span><span class="op">,</span> <span class="st">&quot;PDF Documentation&quot;</span><span class="op">]</span></span></code></pre></div>
+<p>Use the <code>--profile</code> option with
+<code>tiefdownconverter convert</code> to select a profile. Markdown
+projects may also specify a <code>default_profile</code>; this profile
+is used if none is supplied on the command line.</p>
+
+
+<p>Tiefseetauchner © 2025</p>

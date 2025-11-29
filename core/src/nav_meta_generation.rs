@@ -41,6 +41,7 @@ pub(crate) fn retrieve_nav_meta(
     input_files: &Vec<PathBuf>,
     compiled_directory_path: &Path,
     conversion_input_dir: &Path,
+    output_extension: &Option<String>,
 ) -> Result<NavMeta> {
     let mut i: u32 = 0;
 
@@ -62,6 +63,12 @@ pub(crate) fn retrieve_nav_meta(
         let path = canon_file_path
             .strip_prefix(canon_conversion_input_dir)?
             .to_path_buf();
+
+        let path = if let Some(output_extension) = output_extension {
+            path.with_extension(output_extension)
+        } else {
+            path
+        };
 
         let title = path.to_string_lossy().to_string();
         let nav_id = NavMetaNodeId { value: id };

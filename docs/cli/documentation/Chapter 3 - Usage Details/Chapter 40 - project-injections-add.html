@@ -1,0 +1,34 @@
+
+
+<h2
+id="projectinjectionsadd"><code>tiefdownconverter project injections add</code></h2>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.11.0-ALPHA.1</code></p>
+<h3 id="usage">Usage:</h3>
+<pre><code>Creates a new injection.
+Fails if an injection with that name already exists.
+
+Usage: tiefdownconverter project injections add [OPTIONS] &lt;NAME&gt; [FILES]...
+
+Arguments:
+  &lt;NAME&gt;
+          The name of the injection to create.
+          Must be unique per project.
+
+  [FILES]...
+          The files to be used for the injections.
+          Can be a directory.
+          The order of the files here defines the order for header and footer injections.
+          For body injections, the files are ordered as per the default algorithm.
+          Files in directories are ordered as per the default algorithm.
+          Duplicate files will be added twice.
+
+Options:
+  -v, --verbose
+          Enable verbose output.
+
+  -h, --help
+          Print help (see a summary with &#39;-h&#39;)</code></pre>
+
+
+<p>Tiefseetauchner © 2025</p>

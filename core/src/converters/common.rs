@@ -120,7 +120,6 @@ pub(crate) fn retrieve_output_extension(
 
 pub(crate) fn run_preprocessors_on_injections(
     template: &Template,
-    project_directory_path: &Path,
     compiled_directory_path: &Path,
     metadata_fields: &Table,
     _metadata_settings: &MetadataSettings,
@@ -132,7 +131,6 @@ pub(crate) fn run_preprocessors_on_injections(
     if input_files.len() > 0 {
         run_preprocessors_on_inputs(
             template,
-            project_directory_path,
             compiled_directory_path,
             metadata_fields,
             _metadata_settings,
@@ -153,7 +151,6 @@ pub(crate) fn run_preprocessors_on_injections(
 
 pub(crate) fn run_preprocessors_on_inputs(
     template: &Template,
-    project_directory_path: &Path,
     compiled_directory_path: &Path,
     metadata_fields: &Table,
     _metadata_settings: &MetadataSettings,
@@ -174,7 +171,6 @@ pub(crate) fn run_preprocessors_on_inputs(
 
             run_preprocessor(
                 template,
-                project_directory_path,
                 compiled_directory_path,
                 metadata_fields,
                 nav_meta_data,
@@ -203,7 +199,6 @@ fn choose_preprocessor(preprocessors: &Vec<PreProcessor>, extension: &str) -> Re
 
 fn run_preprocessor(
     template: &Template,
-    project_directory_path: &Path,
     compiled_directory_path: &Path,
     metadata_fields: &toml::map::Map<String, toml::Value>,
     nav_meta_data: &Option<(NavMeta, PathBuf)>,
@@ -227,12 +222,7 @@ fn run_preprocessor(
         && template.template_type != TemplateType::CustomProcessor
         && template.template_type != TemplateType::Epub
     {
-        add_lua_filters(
-            template,
-            project_directory_path,
-            compiled_directory_path,
-            &mut cli,
-        )?;
+        add_lua_filters(template, compiled_directory_path, &mut cli)?;
 
         add_nav_meta(nav_meta_data, compiled_directory_path, &mut cli)?;
     }
@@ -338,12 +328,11 @@ pub(crate) fn preprocess_cli_args(cli_args: &[String], metadata_fields: &Table) 
 
 pub(crate) fn add_lua_filters(
     template: &Template,
-    project_directory_path: &Path,
     compiled_directory_path: &Path,
     pandoc: &mut Command,
 ) -> Result<()> {
     for filter in template.filters.clone().unwrap_or_default() {
-        let filter = project_directory_path.join(&filter);
+        let filter = compiled_directory_path.join(&filter);
 
         if !filter.exists() {
             return Err(eyre!(
@@ -445,7 +434,6 @@ pub(crate) fn write_combined_output(
 
 pub(crate) fn write_multi_file_outputs(
     template: &Template,
-    project_directory_path: &Path,
     compiled_directory_path: &Path,
     conversion_input_dir: &Path,
     output_path: &Path,
@@ -487,7 +475,6 @@ pub(crate) fn write_multi_file_outputs(
 
             let header_injections = run_preprocessors_on_injections(
                 template,
-                project_directory_path,
                 compiled_directory_path,
                 metadata_fields,
                 metadata_settings,
@@ -497,7 +484,6 @@ pub(crate) fn write_multi_file_outputs(
             )?;
             let footer_injections = run_preprocessors_on_injections(
                 template,
-                project_directory_path,
                 compiled_directory_path,
                 metadata_fields,
                 metadata_settings,
@@ -542,7 +528,10 @@ fn populate_nav_meta_current(
             "Populating current navigation metadata node: {}.",
             path.display()
         );
-        let current = nav_meta.nodes.iter().find(|n| path.ends_with(&n.path));
+        let current = nav_meta.nodes.iter().find(|n| {
+            path.with_extension("")
+                .ends_with(&n.path.with_extension(""))
+        });
 
         Some((
             NavMeta {
