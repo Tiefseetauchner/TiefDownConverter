@@ -471,7 +471,7 @@ pub(crate) fn write_multi_file_outputs(
         .map(|result: &(&String, &PathBuf)| -> Result<()> {
             let path = result.1;
             let res = result.0;
-            let nav_meta_data = populate_nav_meta_current(nav_meta_data, path)?;
+            let nav_meta_data = get_current_node_nav_meta(nav_meta_data, path)?;
 
             let header_injections = run_preprocessors_on_injections(
                 template,
@@ -519,7 +519,7 @@ pub(crate) fn write_multi_file_outputs(
     Ok(())
 }
 
-fn populate_nav_meta_current(
+fn get_current_node_nav_meta(
     nav_meta_data: &Option<(NavMeta, PathBuf)>,
     path: &PathBuf,
 ) -> Result<Option<(NavMeta, PathBuf)>> {
@@ -528,14 +528,15 @@ fn populate_nav_meta_current(
             "Populating current navigation metadata node: {}.",
             path.display()
         );
-        let current = nav_meta.nodes.iter().find(|n| {
+        let nodes = nav_meta.nodes.clone().unwrap_or(vec![]);
+        let current = nodes.iter().find(|n| {
             path.with_extension("")
                 .ends_with(&n.path.with_extension(""))
         });
 
         Some((
             NavMeta {
-                nodes: nav_meta.nodes.clone(),
+                nodes: None,
                 current: current.cloned(),
             },
             nav_meta_path.clone(),

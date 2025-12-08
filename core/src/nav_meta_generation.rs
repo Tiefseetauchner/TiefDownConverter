@@ -12,7 +12,9 @@ pub const DEFAULT_NAV_META_FILE_PATH: &str = ".meta_nav.yml";
 
 #[derive(Serialize, Clone)]
 pub struct NavMeta {
-    pub nodes: Vec<NavMetaNode>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub nodes: Option<Vec<NavMetaNode>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub current: Option<NavMetaNode>,
 }
 
@@ -23,6 +25,7 @@ pub struct NavMetaNode {
     pub title: String,
     pub prev: Option<NavMetaNodeId>,
     pub next: Option<NavMetaNodeId>,
+    pub depth: usize,
 }
 
 #[derive(Serialize, Clone)]
@@ -43,44 +46,42 @@ pub(crate) fn retrieve_nav_meta(
     conversion_input_dir: &Path,
     output_extension: &Option<String>,
 ) -> Result<NavMeta> {
-    let mut i: u32 = 0;
-
     let canon_compiled_directory_path = &compiled_directory_path.canonicalize()?;
     let canon_conversion_input_dir = &conversion_input_dir.canonicalize()?;
 
-    let mut pre_nodes: Vec<PreNavNode> = Vec::with_capacity(input_files.len());
+    let pre_nodes: Vec<PreNavNode> = input_files
+        .iter()
+        .enumerate()
+        .map(|(i, f)| {
+            let id = format!(
+                "{}_{}",
+                i,
+                f.file_stem()
+                    .map(|s| s.to_string_lossy().to_string())
+                    .unwrap_or("unknown".to_string())
+            );
 
-    for f in input_files {
-        let id = format!(
-            "{}_{}",
-            i,
-            f.file_stem()
-                .map(|s| s.to_string_lossy().to_string())
-                .unwrap_or("unknown".to_string())
-        );
+            let canon_file_path = canon_compiled_directory_path.join(f).canonicalize()?;
+            let path = canon_file_path
+                .strip_prefix(canon_conversion_input_dir)?
+                .to_path_buf();
 
-        let canon_file_path = canon_compiled_directory_path.join(f).canonicalize()?;
-        let path = canon_file_path
-            .strip_prefix(canon_conversion_input_dir)?
-            .to_path_buf();
+            let path = if let Some(output_extension) = output_extension {
+                path.with_extension(output_extension)
+            } else {
+                path
+            };
 
-        let path = if let Some(output_extension) = output_extension {
-            path.with_extension(output_extension)
-        } else {
-            path
-        };
+            let title = path.with_extension("").to_string_lossy().to_string();
+            let nav_id = NavMetaNodeId { value: id };
 
-        let title = path.to_string_lossy().to_string();
-        let nav_id = NavMetaNodeId { value: id };
-
-        pre_nodes.push(PreNavNode {
-            id: nav_id,
-            path,
-            title,
-        });
-
-        i += 1;
-    }
+            Ok(PreNavNode {
+                id: nav_id,
+                path,
+                title,
+            })
+        })
+        .collect::<Result<Vec<_>>>()?;
 
     let nodes = pre_nodes
         .iter()
@@ -92,6 +93,11 @@ pub(crate) fn retrieve_nav_meta(
                 None
             };
             let next = pre_nodes.get(idx + 1).map(|n| n.id.clone());
+            let depth = if let Some(parent) = p.path.parent() {
+                parent.iter().count()
+            } else {
+                0
+            };
 
             NavMetaNode {
                 id: p.id.clone(),
@@ -99,6 +105,7 @@ pub(crate) fn retrieve_nav_meta(
                 title: p.title.clone(),
                 prev,
                 next,
+                depth,
             }
         })
         .collect::<Vec<_>>();
@@ -106,7 +113,7 @@ pub(crate) fn retrieve_nav_meta(
     debug!("Built navigation metadata tree.");
 
     Ok(NavMeta {
-        nodes,
+        nodes: Some(nodes),
         current: None,
     })
 }
