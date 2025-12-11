@@ -384,22 +384,16 @@ fn add_nav_meta(
 
         if let Some(current_node) = nav_meta.current.clone() {
             debug!("Found current node '{}'", current_node.id.value);
-            let meta_data_path = compiled_directory_path.join(
+            let meta_data_path = compiled_directory_path.join(PathBuf::from(format!(
+                ".{}.yml",
                 current_node
                     .path
-                    .parent()
-                    .unwrap_or(PathBuf::from(".").as_path())
-                    .join(PathBuf::from(format!(
-                        ".{}.tdc_meta",
-                        current_node
-                            .path
-                            .file_name()
-                            .ok_or(eyre!(
-                                "Error occurred when trying to add a non-file to metadata."
-                            ))?
-                            .to_string_lossy()
-                    ))),
-            );
+                    .file_name()
+                    .ok_or(eyre!(
+                        "Error occurred when trying to add a non-file to metadata."
+                    ))?
+                    .to_string_lossy()
+            )));
             std::fs::write(meta_data_path.clone(), serde_yaml::to_string(nav_meta)?)?;
 
             debug!(
