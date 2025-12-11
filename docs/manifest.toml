@@ -14,6 +14,12 @@ name = "Man Page"
 cli_args = ["--to", "html5", "--metadata", "title={{title}}", "--metadata", "author={{author}}", "--css", "/TiefDownConverter/template/html_template/style.css"]
 name = "HTML Conversion"
 
+[[custom_processors.preprocessors]]
+cli = "cat"
+cli_args = []
+extension_filter = "html"
+name = "HTML Direct Copy"
+
 [[custom_processors.processors]]
 name = "HTML Conversion"
 processor_args = ["--to", "html5", "-s", "--metadata", "title={{title}}", "--metadata", "author={{author}}", "--css", "/TiefDownConverter/template/html_template/style.css", "--toc", "-B", "html_template/header.html"]
@@ -25,6 +31,10 @@ processor_args = ["--font-path", "fonts/"]
 [[injections]]
 files = ["footer.html"]
 name = "HTML footer"
+
+[[injections]]
+files = ["head.html", "nav.md", "head2.html"]
+name = "HTML header"
 
 [[markdown_projects]]
 default_profile = "Documentation"
@@ -112,12 +122,17 @@ processor = "HTML Conversion"
 template_type = "CustomProcessor"
 
 [[templates]]
+filters = ["luafilters/mega_replacer_filter.lua"]
 footer_injections = ["HTML footer"]
+header_injections = ["HTML header"]
 multi_file_output = true
 name = "GitHub Multi Page Documentation"
 output = "documentation"
 template_type = "CustomPreprocessors"
 
+[templates.nav_meta_gen]
+feature = "Full"
+
 [templates.preprocessors]
 output_extension = "html"
-preprocessors = ["HTML Conversion"]
+preprocessors = ["HTML Conversion", "HTML Direct Copy"]
