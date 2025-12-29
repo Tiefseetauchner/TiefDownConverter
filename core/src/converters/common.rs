@@ -225,6 +225,10 @@ fn run_preprocessor(
         add_lua_filters(template, compiled_directory_path, &mut cli)?;
 
         add_nav_meta(nav_meta_data, compiled_directory_path, &mut cli)?;
+
+        let metadata_file = compiled_directory_path.join(".")
+        write_meta_file(metadata_fields, metadata_file)?;
+        add_meta_file(metadata_file, compiled_directory_path, &mut cli)?;
     }
     cli.args(files.clone());
     debug!(
@@ -405,6 +409,20 @@ fn add_nav_meta(
             );
         }
     }
+
+    Ok(())
+}
+
+fn add_meta_file(
+    metadata_file: &PathBuf,
+    compiled_directory_path: &Path,
+    pandoc: &mut Command,
+) -> Result<()> {
+    debug!("Adding metadata to pandoc conversion parameters.");
+    pandoc.arg("--metadata-file").arg(
+        get_relative_path_from_compiled_dir(&metadata_file, compiled_directory_path)
+            .unwrap_or(metadata_file.clone()),
+    );
 
     Ok(())
 }

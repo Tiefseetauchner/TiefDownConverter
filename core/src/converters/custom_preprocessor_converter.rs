@@ -101,6 +101,8 @@ pub(crate) fn convert_custom_preprocessors(
         None
     };
 
+    let meta_file = generate_meta_file(metadata_fields, metadata_settings, compiled_directory_path);
+
     debug!("Running preprocessors on inputs...");
     let results = run_preprocessors_on_inputs(
         template,
