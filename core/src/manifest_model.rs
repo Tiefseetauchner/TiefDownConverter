@@ -1,6 +1,7 @@
 use crate::{
-    consts::CURRENT_MANIFEST_VERSION, nav_meta_generation_feature::NavMetaGenerationFeature,
-    template_management::get_template_type_from_path, template_type::TemplateType,
+    consts::CURRENT_MANIFEST_VERSION, meta_generation_feature::MetaGenerationFeature,
+    meta_generation_format::MetaGenerationFormat, template_management::get_template_type_from_path,
+    template_type::TemplateType,
 };
 use color_eyre::eyre::{Result, eyre};
 use log::debug;
@@ -273,7 +274,7 @@ pub struct Template {
     pub body_injections: Option<Vec<String>>,
     pub footer_injections: Option<Vec<String>>,
     pub multi_file_output: Option<bool>,
-    pub nav_meta_gen: Option<NavMetaGenerationSettings>,
+    pub meta_gen: Option<MetaGenerationSettings>,
 }
 
 /// The settings to use for navigation metadata generation
@@ -283,9 +284,11 @@ pub struct Template {
 /// * `feature` - The navigation metadata complexity
 ///
 #[derive(Deserialize, Serialize, Clone)]
-pub struct NavMetaGenerationSettings {
-    pub feature: NavMetaGenerationFeature,
-    pub output: Option<PathBuf>,
+pub struct MetaGenerationSettings {
+    pub feature: MetaGenerationFeature,
+    pub format: Option<MetaGenerationFormat>,
+    pub nav_output: Option<PathBuf>,
+    pub metadata_output: Option<PathBuf>,
 }
 
 /// Represents an injection into the document.

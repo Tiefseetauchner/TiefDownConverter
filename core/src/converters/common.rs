@@ -14,10 +14,16 @@ use toml::Table;
 use crate::{
     file_retrieval::get_relative_path_from_compiled_dir,
     injections::RenderingInjections,
-    manifest_model::{MetadataSettings, PreProcessor, PreProcessors, Template},
+    manifest_model::{
+        MetaGenerationSettings, MetadataSettings, PreProcessor, PreProcessors, Template,
+    },
+    meta_generation_format::{DEFAULT_META_FILE_FORMAT, MetaGenerationFormat},
     nav_meta_generation::NavMeta,
     template_type::TemplateType,
 };
+
+const DEFAULT_METADATA_YML_FILE_PATH: &str = ".meta-metadata.yml";
+const DEFAULT_METADATA_JSON_FILE_PATH: &str = ".meta-metadata.json";
 
 pub(crate) fn retrieve_preprocessors(
     preprocessors: &Option<PreProcessors>,
@@ -118,10 +124,53 @@ pub(crate) fn retrieve_output_extension(
     Ok(chosen)
 }
 
+pub(crate) fn generate_meta_file(
+    meta_gen: &MetaGenerationSettings,
+    metadata_fields: &Table,
+    _metadata_settings: &MetadataSettings,
+    compiled_directory_path: &Path,
+) -> Result<PathBuf> {
+    let format = meta_gen.format.clone().unwrap_or(DEFAULT_META_FILE_FORMAT);
+
+    let output = meta_gen.metadata_output.clone().unwrap_or(PathBuf::from(
+        if format == MetaGenerationFormat::Yml {
+            DEFAULT_METADATA_YML_FILE_PATH
+        } else if format == MetaGenerationFormat::Json {
+            DEFAULT_METADATA_JSON_FILE_PATH
+        } else {
+            ".unknown"
+        },
+    ));
+
+    let output = compiled_directory_path.join(output);
+
+    if let Some(parent) = output.parent() {
+        fs::create_dir_all(parent)?;
+    }
+
+    if format == MetaGenerationFormat::Yml {
+        let nav_meta_yaml = serde_yaml::to_string(metadata_fields)?;
+        fs::write(&output, nav_meta_yaml)?;
+        debug!("Navigation metadata written to {}", output.display());
+    } else if format == MetaGenerationFormat::Json {
+        let nav_meta_json = serde_json::to_string(metadata_fields)?;
+        fs::write(&output, nav_meta_json)?;
+        debug!("Navigation metadata written to {}", output.display());
+    } else {
+        return Err(eyre!(
+            "Format '{}' is not currently supported for serialization.",
+            format
+        ));
+    }
+
+    Ok(output)
+}
+
 pub(crate) fn run_preprocessors_on_injections(
     template: &Template,
     compiled_directory_path: &Path,
     metadata_fields: &Table,
+    metadata_file: &Option<PathBuf>,
     _metadata_settings: &MetadataSettings,
     nav_meta_data: &Option<(NavMeta, PathBuf)>,
     preprocessors: &Vec<PreProcessor>,
@@ -133,6 +182,7 @@ pub(crate) fn run_preprocessors_on_injections(
             template,
             compiled_directory_path,
             metadata_fields,
+            metadata_file,
             _metadata_settings,
             nav_meta_data,
             &preprocessors,
@@ -153,6 +203,7 @@ pub(crate) fn run_preprocessors_on_inputs(
     template: &Template,
     compiled_directory_path: &Path,
     metadata_fields: &Table,
+    metadata_file: &Option<PathBuf>,
     _metadata_settings: &MetadataSettings,
     nav_meta_data: &Option<(NavMeta, PathBuf)>,
     preprocessors: &Vec<PreProcessor>,
@@ -173,6 +224,7 @@ pub(crate) fn run_preprocessors_on_inputs(
                 template,
                 compiled_directory_path,
                 metadata_fields,
+                metadata_file,
                 nav_meta_data,
                 &preprocessor,
                 &chunk.0,
@@ -201,6 +253,7 @@ fn run_preprocessor(
     template: &Template,
     compiled_directory_path: &Path,
     metadata_fields: &toml::map::Map<String, toml::Value>,
+    metadata_file: &Option<PathBuf>,
     nav_meta_data: &Option<(NavMeta, PathBuf)>,
     preprocessor: &PreProcessor,
     files: &Vec<PathBuf>,
@@ -226,9 +279,9 @@ fn run_preprocessor(
 
         add_nav_meta(nav_meta_data, compiled_directory_path, &mut cli)?;
 
-        let metadata_file = compiled_directory_path.join(".")
-        write_meta_file(metadata_fields, metadata_file)?;
-        add_meta_file(metadata_file, compiled_directory_path, &mut cli)?;
+        if let Some(metadata_file) = metadata_file {
+            add_meta_file(metadata_file, compiled_directory_path, &mut cli)?;
+        }
     }
     cli.args(files.clone());
     debug!(
@@ -403,10 +456,8 @@ fn add_nav_meta(
             debug!(
                 "Wrote current node metadata. Adding current node metadata to pandoc conversion parameters."
             );
-            pandoc.arg("--metadata-file").arg(
-                get_relative_path_from_compiled_dir(&meta_data_path, compiled_directory_path)
-                    .unwrap_or(nav_meta_path.clone()),
-            );
+
+            add_meta_file(&meta_data_path, compiled_directory_path, pandoc)?;
         }
     }
 
@@ -453,6 +504,7 @@ pub(crate) fn write_multi_file_outputs(
     input_files: &Vec<PathBuf>,
     injections: &RenderingInjections,
     metadata_fields: &Table,
+    metadata_file: &Option<PathBuf>,
     metadata_settings: &MetadataSettings,
     nav_meta_data: &Option<(NavMeta, PathBuf)>,
     preprocessors: &Vec<PreProcessor>,
@@ -489,6 +541,7 @@ pub(crate) fn write_multi_file_outputs(
                 template,
                 compiled_directory_path,
                 metadata_fields,
+                metadata_file,
                 metadata_settings,
                 &nav_meta_data,
                 &preprocessors,
@@ -498,6 +551,7 @@ pub(crate) fn write_multi_file_outputs(
                 template,
                 compiled_directory_path,
                 metadata_fields,
+                metadata_file,
                 metadata_settings,
                 &nav_meta_data,
                 &preprocessors,

@@ -9,17 +9,17 @@ use toml::Table;
 
 use crate::{
     converters::common::{
-        add_lua_filters, combine_pandoc_native, merge_preprocessors, preprocess_cli_args,
-        retrieve_combined_output, retrieve_preprocessors, run_preprocessors_on_inputs,
-        run_with_logging, write_output,
+        add_lua_filters, combine_pandoc_native, generate_meta_file, merge_preprocessors,
+        preprocess_cli_args, retrieve_combined_output, retrieve_preprocessors,
+        run_preprocessors_on_inputs, run_with_logging, write_output,
     },
     file_retrieval::{get_relative_path_from_compiled_dir, get_sorted_files},
     injections::retrieve_injections,
     manifest_model::{
         DEFAULT_CUSTOM_PROCESSOR_PREPROCESSORS, Injection, MetadataSettings, Processors, Template,
     },
+    meta_generation_feature::MetaGenerationFeature,
     nav_meta_generation::{generate_nav_meta_file, retrieve_nav_meta},
-    nav_meta_generation_feature::NavMetaGenerationFeature,
     template_management::{get_output_path, get_template_path},
 };
 
@@ -96,8 +96,9 @@ pub(crate) fn convert_epub(
 
     debug!("Retrieving navigation metadata.");
 
-    let nav_meta_data = if let Some(nav_meta_gen) = &template.nav_meta_gen
-        && nav_meta_gen.feature != NavMetaGenerationFeature::None
+    let nav_meta_data = if let Some(nav_meta_gen) = &template.meta_gen
+        && (nav_meta_gen.feature == MetaGenerationFeature::Full
+            || nav_meta_gen.feature == MetaGenerationFeature::NavOnly)
     {
         let nav_meta = retrieve_nav_meta(
             &input_files,
@@ -113,6 +114,20 @@ pub(crate) fn convert_epub(
         None
     };
 
+    let metadata_file = if let Some(meta_gen) = &template.meta_gen
+        && (meta_gen.feature == MetaGenerationFeature::Full
+            || meta_gen.feature == MetaGenerationFeature::MetadataOnly)
+    {
+        Some(generate_meta_file(
+            meta_gen,
+            metadata_fields,
+            metadata_settings,
+            compiled_directory_path,
+        )?)
+    } else {
+        None
+    };
+
     debug!("Processing injections.");
 
     debug!("Running preprocessors on inputs...");
@@ -120,6 +135,7 @@ pub(crate) fn convert_epub(
         template,
         compiled_directory_path,
         metadata_fields,
+        &metadata_file,
         metadata_settings,
         &nav_meta_data,
         &preprocessors,

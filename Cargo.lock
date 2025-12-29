@@ -1685,6 +1685,7 @@ dependencies = [
  "reqwest",
  "rstest",
  "serde",
+ "serde_json",
  "serde_yaml",
  "tempfile",
  "toml",

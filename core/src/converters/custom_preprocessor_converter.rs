@@ -6,14 +6,15 @@ use toml::Table;
 
 use crate::{
     converters::common::{
-        retrieve_combined_output, retrieve_output_extension, retrieve_preprocessors,
-        run_preprocessors_on_inputs, write_combined_output, write_multi_file_outputs,
+        generate_meta_file, retrieve_combined_output, retrieve_output_extension,
+        retrieve_preprocessors, run_preprocessors_on_inputs, write_combined_output,
+        write_multi_file_outputs,
     },
     file_retrieval::get_sorted_files,
     injections::retrieve_injections,
     manifest_model::{Injection, MetadataSettings, Processors, Template},
+    meta_generation_feature::MetaGenerationFeature,
     nav_meta_generation::{generate_nav_meta_file, retrieve_nav_meta},
-    nav_meta_generation_feature::NavMetaGenerationFeature,
     template_type::TemplateType,
 };
 
@@ -79,8 +80,9 @@ pub(crate) fn convert_custom_preprocessors(
 
     debug!("Retrieving navigation metadata.");
 
-    let nav_meta_data = if let Some(nav_meta_gen) = &template.nav_meta_gen
-        && nav_meta_gen.feature != NavMetaGenerationFeature::None
+    let nav_meta_data = if let Some(meta_gen) = &template.meta_gen
+        && (meta_gen.feature == MetaGenerationFeature::Full
+            || meta_gen.feature == MetaGenerationFeature::NavOnly)
     {
         let output_extension = if template.multi_file_output.unwrap_or(false) {
             Some(retrieve_output_extension(template, &None)?)
@@ -95,19 +97,32 @@ pub(crate) fn convert_custom_preprocessors(
         )?;
         Some((
             nav_meta.clone(),
-            generate_nav_meta_file(nav_meta_gen, &nav_meta, compiled_directory_path)?,
+            generate_nav_meta_file(meta_gen, &nav_meta, compiled_directory_path)?,
         ))
     } else {
         None
     };
 
-    let meta_file = generate_meta_file(metadata_fields, metadata_settings, compiled_directory_path);
+    let metadata_file = if let Some(meta_gen) = &template.meta_gen
+        && (meta_gen.feature == MetaGenerationFeature::Full
+            || meta_gen.feature == MetaGenerationFeature::MetadataOnly)
+    {
+        Some(generate_meta_file(
+            meta_gen,
+            metadata_fields,
+            metadata_settings,
+            compiled_directory_path,
+        )?)
+    } else {
+        None
+    };
 
     debug!("Running preprocessors on inputs...");
     let results = run_preprocessors_on_inputs(
         template,
         compiled_directory_path,
         metadata_fields,
+        &metadata_file,
         metadata_settings,
         &nav_meta_data,
         &preprocessors,
@@ -128,6 +143,7 @@ pub(crate) fn convert_custom_preprocessors(
             &input_files,
             &injections,
             metadata_fields,
+            &metadata_file,
             metadata_settings,
             &nav_meta_data,
             &preprocessors,
