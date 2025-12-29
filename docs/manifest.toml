@@ -43,12 +43,18 @@ output = "cli"
 path = "cli_markdown"
 resources = ["resources/"]
 
+[markdown_projects.metadata_fields]
+githubPagesDocsPath = "cli/"
+
 [[markdown_projects]]
 default_profile = "Documentation"
 name = "LIB Docs"
 output = "lib"
 path = "lib_markdown"
 resources = ["resources/"]
+
+[markdown_projects.metadata_fields]
+githubPagesDocsPath = "lib/"
 
 [[markdown_projects]]
 default_profile = "Man"
@@ -62,11 +68,14 @@ name = "Index HTML"
 output = "."
 path = "index_markdown"
 
+[markdown_projects.metadata_fields]
+githubPagesDocsPath = "/"
+
 [metadata_settings]
 
 [[profiles]]
 name = "Documentation"
-templates = ["PDF Documentation LaTeX", "PDF Documentation", "Epub Documentation", "GitHub Page Documentation", "GitHub Multi Page Documentation"]
+templates = ["PDF Documentation LaTeX", "PDF Documentation", "Epub Documentation", "GitHub Multi Page Documentation"]
 
 [[profiles]]
 name = "Man"
@@ -74,10 +83,11 @@ templates = ["Man Page"]
 
 [[profiles]]
 name = "Index HTML"
-templates = ["GitHub Page Documentation"]
+templates = ["GitHub Single File Documentation"]
 
 [shared_metadata]
 author = "Tiefseetauchner et al."
+githubPagesUrl = "https://tiefseetauchner.github.io/TiefDownConverter/"
 title = "TiefDownConverter Documentation"
 
 [[templates]]
@@ -115,13 +125,6 @@ combined_output = "tiefdownconverter.1"
 preprocessors = ["Man Page"]
 
 [[templates]]
-footer_injections = ["HTML footer"]
-name = "GitHub Page Documentation"
-output = "index.html"
-processor = "HTML Conversion"
-template_type = "CustomProcessor"
-
-[[templates]]
 filters = ["luafilters/mega_replacer_filter.lua"]
 footer_injections = ["HTML footer"]
 header_injections = ["HTML header"]
@@ -134,5 +137,18 @@ template_type = "CustomPreprocessors"
 feature = "Full"
 
 [templates.preprocessors]
+output_extension = "html"
+preprocessors = ["HTML Conversion", "HTML Direct Copy"]
+
+[[templates]]
+filters = ["luafilters/mega_replacer_filter.lua"]
+footer_injections = ["HTML footer"]
+header_injections = ["HTML header"]
+name = "GitHub Single File Documentation"
+output = "index.html"
+template_type = "CustomPreprocessors"
+
+[templates.preprocessors]
+combined_output = "index.html"
 output_extension = "html"
 preprocessors = ["HTML Conversion", "HTML Direct Copy"]

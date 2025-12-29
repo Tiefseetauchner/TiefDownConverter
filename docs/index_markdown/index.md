@@ -1,6 +1,6 @@
 # TiefDown!
 
-You're new best friend!
+Your new best friend!
 
 If you're like me, your only friend!
 
