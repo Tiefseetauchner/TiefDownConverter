@@ -1,4 +1,4 @@
-use color_eyre::eyre::{Result, eyre};
+use color_eyre::eyre::Result;
 use log::debug;
 use serde::Serialize;
 use std::{
@@ -6,13 +6,9 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::{
-    manifest_model::MetaGenerationSettings,
-    meta_generation_format::{DEFAULT_META_FILE_FORMAT, MetaGenerationFormat},
-};
+use crate::{manifest_model::MetaGenerationSettings, meta_generation_format::MetaGenerationFormat};
 
 const DEFAULT_NAV_META_YML_FILE_PATH: &str = ".meta_nav.yml";
-const DEFAULT_NAV_META_JSON_FILE_PATH: &str = ".meta_nav.json";
 
 #[derive(Serialize, Clone)]
 pub struct NavMeta {
@@ -127,17 +123,10 @@ pub(crate) fn generate_nav_meta_file(
     nav_meta: &NavMeta,
     compiled_directory_path: &Path,
 ) -> Result<PathBuf> {
-    let format = meta_gen.format.clone().unwrap_or(DEFAULT_META_FILE_FORMAT);
-
-    let output = meta_gen.nav_output.clone().unwrap_or(PathBuf::from(
-        if format == MetaGenerationFormat::Yml {
-            DEFAULT_NAV_META_YML_FILE_PATH
-        } else if format == MetaGenerationFormat::Json {
-            DEFAULT_NAV_META_JSON_FILE_PATH
-        } else {
-            ".unknown"
-        },
-    ));
+    let output = meta_gen
+        .nav_output
+        .clone()
+        .unwrap_or(PathBuf::from(DEFAULT_NAV_META_YML_FILE_PATH));
 
     let output = compiled_directory_path.join(output);
 
@@ -145,19 +134,24 @@ pub(crate) fn generate_nav_meta_file(
         fs::create_dir_all(parent)?;
     }
 
-    if format == MetaGenerationFormat::Yml {
-        let nav_meta_yaml = serde_yaml::to_string(nav_meta)?;
-        fs::write(&output, nav_meta_yaml)?;
-        debug!("Navigation metadata written to {}", output.display());
-    } else if format == MetaGenerationFormat::Json {
+    let nav_meta_yaml = serde_yaml::to_string(nav_meta)?;
+    fs::write(&output, nav_meta_yaml)?;
+    debug!("Navigation metadata written to {}", output.display());
+
+    if let Some(format) = meta_gen.format
+        && format == MetaGenerationFormat::Json
+    {
+        let output = meta_gen
+            .nav_output
+            .clone()
+            .unwrap_or(PathBuf::from(DEFAULT_NAV_META_YML_FILE_PATH))
+            .with_extension("json");
+
+        let output = compiled_directory_path.join(output);
+
         let nav_meta_json = serde_json::to_string(nav_meta)?;
         fs::write(&output, nav_meta_json)?;
         debug!("Navigation metadata written to {}", output.display());
-    } else {
-        return Err(eyre!(
-            "Format '{}' is not currently supported for serialization.",
-            format
-        ));
     }
 
     Ok(output)

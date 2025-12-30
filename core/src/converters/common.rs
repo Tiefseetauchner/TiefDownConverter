@@ -17,13 +17,12 @@ use crate::{
     manifest_model::{
         MetaGenerationSettings, MetadataSettings, PreProcessor, PreProcessors, Template,
     },
-    meta_generation_format::{DEFAULT_META_FILE_FORMAT, MetaGenerationFormat},
+    meta_generation_format::MetaGenerationFormat,
     nav_meta_generation::NavMeta,
     template_type::TemplateType,
 };
 
-const DEFAULT_METADATA_YML_FILE_PATH: &str = ".meta-metadata.yml";
-const DEFAULT_METADATA_JSON_FILE_PATH: &str = ".meta-metadata.json";
+const DEFAULT_METADATA_YML_FILE_PATH: &str = ".meta_metadata.yml";
 
 pub(crate) fn retrieve_preprocessors(
     preprocessors: &Option<PreProcessors>,
@@ -130,17 +129,10 @@ pub(crate) fn generate_meta_file(
     _metadata_settings: &MetadataSettings,
     compiled_directory_path: &Path,
 ) -> Result<PathBuf> {
-    let format = meta_gen.format.clone().unwrap_or(DEFAULT_META_FILE_FORMAT);
-
-    let output = meta_gen.metadata_output.clone().unwrap_or(PathBuf::from(
-        if format == MetaGenerationFormat::Yml {
-            DEFAULT_METADATA_YML_FILE_PATH
-        } else if format == MetaGenerationFormat::Json {
-            DEFAULT_METADATA_JSON_FILE_PATH
-        } else {
-            ".unknown"
-        },
-    ));
+    let output = meta_gen
+        .nav_output
+        .clone()
+        .unwrap_or(PathBuf::from(DEFAULT_METADATA_YML_FILE_PATH));
 
     let output = compiled_directory_path.join(output);
 
@@ -148,19 +140,24 @@ pub(crate) fn generate_meta_file(
         fs::create_dir_all(parent)?;
     }
 
-    if format == MetaGenerationFormat::Yml {
-        let nav_meta_yaml = serde_yaml::to_string(metadata_fields)?;
-        fs::write(&output, nav_meta_yaml)?;
+    let meta_yaml = serde_yaml::to_string(metadata_fields)?;
+    fs::write(&output, meta_yaml)?;
+    debug!("Navigation metadata written to {}", output.display());
+
+    if let Some(format) = meta_gen.format
+        && format == MetaGenerationFormat::Json
+    {
+        let output = meta_gen
+            .nav_output
+            .clone()
+            .unwrap_or(PathBuf::from(DEFAULT_METADATA_YML_FILE_PATH))
+            .with_extension("json");
+
+        let output = compiled_directory_path.join(output);
+
+        let meta_json = serde_json::to_string(metadata_fields)?;
+        fs::write(&output, meta_json)?;
         debug!("Navigation metadata written to {}", output.display());
-    } else if format == MetaGenerationFormat::Json {
-        let nav_meta_json = serde_json::to_string(metadata_fields)?;
-        fs::write(&output, nav_meta_json)?;
-        debug!("Navigation metadata written to {}", output.display());
-    } else {
-        return Err(eyre!(
-            "Format '{}' is not currently supported for serialization.",
-            format
-        ));
     }
 
     Ok(output)
