@@ -11,12 +11,14 @@ use tiefdownlib::meta_generation_format::MetaGenerationFormat;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, ValueEnum)]
 pub(crate) enum CliMetaGenerationFormat {
+    None = 0,
     Json = 1,
 }
 
 impl From<&str> for CliMetaGenerationFormat {
     fn from(s: &str) -> Self {
         match s.to_lowercase().as_str() {
+            "none" => CliMetaGenerationFormat::None,
             "json" => CliMetaGenerationFormat::Json,
             _ => panic!("Invalid template type: {}", s),
         }
@@ -28,7 +30,7 @@ impl FromStr for CliMetaGenerationFormat {
 
     fn from_str(s: &str) -> Result<Self> {
         match s.to_lowercase().as_str() {
-            "json" => Ok(CliMetaGenerationFormat::Json),
+            "none" => Ok(CliMetaGenerationFormat::None),
             _ => Err(eyre!("Invalid template type: {}", s)),
         }
     }
@@ -37,6 +39,7 @@ impl FromStr for CliMetaGenerationFormat {
 impl From<usize> for CliMetaGenerationFormat {
     fn from(value: usize) -> Self {
         match value {
+            0 => CliMetaGenerationFormat::None,
             1 => CliMetaGenerationFormat::Json,
             _ => panic!("Invalid template type index: {}", value),
         }
@@ -46,6 +49,7 @@ impl From<usize> for CliMetaGenerationFormat {
 impl From<CliMetaGenerationFormat> for MetaGenerationFormat {
     fn from(value: CliMetaGenerationFormat) -> Self {
         match value {
+            CliMetaGenerationFormat::None => MetaGenerationFormat::None,
             CliMetaGenerationFormat::Json => MetaGenerationFormat::Json,
         }
     }
@@ -54,6 +58,7 @@ impl From<CliMetaGenerationFormat> for MetaGenerationFormat {
 impl From<MetaGenerationFormat> for CliMetaGenerationFormat {
     fn from(value: MetaGenerationFormat) -> Self {
         match value {
+            MetaGenerationFormat::None => CliMetaGenerationFormat::None,
             MetaGenerationFormat::Json => CliMetaGenerationFormat::Json,
         }
     }
@@ -62,6 +67,7 @@ impl From<MetaGenerationFormat> for CliMetaGenerationFormat {
 impl CliMetaGenerationFormat {
     pub fn as_str(&self) -> &'static str {
         match self {
+            CliMetaGenerationFormat::None => "None",
             CliMetaGenerationFormat::Json => "Json",
         }
     }

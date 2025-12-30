@@ -352,15 +352,14 @@ When enabling multi-file output, every input file will be converted to a corresp
 This is required for multi-file outputs."#
         )]
         output_extension: Option<String>,
-        // TODO
         #[arg(
             long,
             help = "Defines the feature level of and whether metadata files should be generated.",
             long_help = r#"Defines the feature level of and whether metadata files should be generated.
-None disables navigation metadata generation.
+None disables metadata generation.
 NavOnly only enables navigation metadata generation and injection.
 MetadataOnly only enables manifest metadata generation and injection.
-Full enables full navigation metadata generation and injection."#
+Full enables full navigation and manifest metadata generation and injection."#
         )]
         meta_gen_feature: Option<CliMetaGenerationFeature>,
         #[arg(
@@ -377,7 +376,13 @@ Gets saved in the temporary compilation directory."#
 Gets saved in the temporary compilation directory."#
         )]
         metadata_meta_gen_output: Option<PathBuf>,
-        #[arg(long, help = "", long_help = r#""#)]
+        #[arg(
+            long,
+            help = "The format to generate metadata in.",
+            long_help = r#"The format to generate metadata in.
+Can be Json or None.
+YML metadata is always generated, JSON metadata is only needed if used by an external program."#
+        )]
         meta_gen_format: Option<CliMetaGenerationFormat>,
     },
     #[command(about = "Remove a template from the project.")]
@@ -523,13 +528,14 @@ When enabling multi-file output, every input file will be converted to a corresp
 This is required for multi-file outputs."#
         )]
         output_extension: Option<String>,
-        // TODO
         #[arg(
             long,
-            help = "Defines the feature level of and whether navigation metadata should be generated.",
-            long_help = r#"Defines the feature level of and whether navigation metadata should be generated.
-            None disables navigation metadata generation.
-            Full enables full navigation metadata generation and injection."#
+            help = "Defines the feature level of and whether metadata files should be generated.",
+            long_help = r#"Defines the feature level of and whether metadata files should be generated.
+None disables metadata generation.
+NavOnly only enables navigation metadata generation and injection.
+MetadataOnly only enables manifest metadata generation and injection.
+Full enables full navigation and manifest metadata generation and injection."#
         )]
         meta_gen_feature: Option<CliMetaGenerationFeature>,
         #[arg(
@@ -541,13 +547,18 @@ Gets saved in the temporary compilation directory."#
         nav_meta_gen_output: Option<PathBuf>,
         #[arg(
             long,
-            help = "The path to generate the metadata to.",
-            long_help = r#"The path to generate the metadata to.
+            help = "The path to generate the manifest metadata to.",
+            long_help = r#"The path to generate the manifest metadata to.
 Gets saved in the temporary compilation directory."#
         )]
         metadata_meta_gen_output: Option<PathBuf>,
-        // TODO
-        #[arg(long, help = "", long_help = r#""#)]
+        #[arg(
+            long,
+            help = "The format to generate metadata in.",
+            long_help = r#"The format to generate metadata in.
+Can be Json or None.
+YML metadata is always generated, JSON metadata is only needed if used by an external program."#
+        )]
         meta_gen_format: Option<CliMetaGenerationFormat>,
     },
 }

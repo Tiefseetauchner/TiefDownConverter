@@ -8,12 +8,14 @@ use std::{
 /// Format of Metadata Generation
 #[derive(Deserialize, Serialize, Clone, Copy, Debug, PartialEq, Eq)]
 pub enum MetaGenerationFormat {
+    None = 0,
     Json = 1,
 }
 
 impl From<&str> for MetaGenerationFormat {
     fn from(s: &str) -> Self {
         match s.to_lowercase().as_str() {
+            "none" => MetaGenerationFormat::None,
             "json" => MetaGenerationFormat::Json,
             _ => panic!("Invalid nav meta generation Format: {}", s),
         }
@@ -25,6 +27,7 @@ impl FromStr for MetaGenerationFormat {
 
     fn from_str(s: &str) -> Result<Self> {
         match s.to_lowercase().as_str() {
+            "none" => Ok(MetaGenerationFormat::None),
             "json" => Ok(MetaGenerationFormat::Json),
             _ => Err(eyre!("Invalid nav meta generation Format: {}", s)),
         }
@@ -34,6 +37,7 @@ impl FromStr for MetaGenerationFormat {
 impl From<usize> for MetaGenerationFormat {
     fn from(value: usize) -> Self {
         match value {
+            0 => MetaGenerationFormat::None,
             1 => MetaGenerationFormat::Json,
             _ => panic!("Invalid nav meta generation Format index: {}", value),
         }
@@ -43,6 +47,7 @@ impl From<usize> for MetaGenerationFormat {
 impl MetaGenerationFormat {
     pub fn as_str(&self) -> &'static str {
         match self {
+            MetaGenerationFormat::None => "None",
             MetaGenerationFormat::Json => "Json",
         }
     }
