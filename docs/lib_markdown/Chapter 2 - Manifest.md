@@ -11,11 +11,11 @@ It consists of a few important parts (for the full documentation, check
     version of TiefDownConverter. If it's not, the manifest will be
     automatically updated in the process of loading. Newer versions of the
     manifest file are rejected by the implementation.
-- The automatic smart clean flag
+- The automatic [smart clean](#smart-clean) flag
   - This is a boolean flag that determines if the project should be cleaned
     automatically when a conversion is run. This is useful for projects that
     are constantly being updated, allowing a user to decide how many
-    [conversion folders](#conversion-folders) they want to keep.
+    conversion folders they want to keep.
 - The smart clean threshold
   - This is the number of conversion folders that are kept before the oldest
     ones are deleted.
@@ -25,61 +25,124 @@ It consists of a few important parts (for the full documentation, check
 - A table of [shared metadata](#shared-metadata) for all markdown projects
 - A [metadata settings](#metadata-settings) object
 - A list of [profiles](#profiles) available for the conversion
+- A list of [injections](#injections)
 
-## Templates and processors (at a glance)
+## Building your own manifest
 
-Each entry under `[[templates]]` specifies one output variant. Important fields are:
+A manifest can grow to a complex web relatively quickly. Thus, in this section, I want to give a little bit of an example on building and reading manifests. *Knowledge of TOML is presupposed*
 
-- `template_type`: `Tex`, `Typst`, `Epub`, `CustomPreprocessors`, or `CustomProcessor`.
-- `template_file`: Path relative to the template directory; if omitted, the template name is used.
-- `output`: Optional output filename (defaults based on template type).
-- `filters`: Lua filters (file or directory paths) applied during Pandoc steps.
-- `preprocessors`: Names of preprocessors plus a required `combined_output` filename the
-  template includes.
-- `processor`: Name of a processor whose arguments are passed to XeLaTeX/Typst.
-  For `CustomProcessor`, the `processor` arguments are passed to Pandoc as the
-  final conversion step.
-
-Project-wide `[[custom_processors.preprocessors]]` and `[[custom_processors.processors]]` define
-reusable building blocks referenced by templates.
-
-Example snippets
+Consider the following manifest:
 
 ```toml
-# CustomPreprocessors: you decide how inputs are preprocessed; the combined
-# output is copied to the final destination without an additional processor step.
+smart_clean = true
+smart_clean_threshold = 3
+version = 6
+
+[[markdown_projects]]
+name = "Documentation"
+output = "."
+path = "markdown"
+resources = ["resources/"]
+
 [[templates]]
-name = "Website HTML"
-template_type = "CustomPreprocessors"
-output = "site/index.html"
-
-  [templates.preprocessors]
-  preprocessors = ["html-from-md"]
-  combined_output = "output.html"
-
-[[custom_processors.preprocessors]]
-name = "html-from-md"
-cli = "pandoc"
-cli_args = ["-f", "markdown", "-t", "html"]
-
-# CustomProcessor: preprocess to Pandoc Native, then run Pandoc once more with
-# processor arguments to produce the final artifact.
-[[templates]]
-name = "Docx Export"
-template_type = "CustomProcessor"
-output = "book.docx"
-processor = "docx-out"
-
-  [templates.preprocessors]
-  preprocessors = ["native-parts"]
-  combined_output = "output.pandoc_native"
-
-[[custom_processors.preprocessors]]
-name = "native-parts"
-cli = "pandoc"
-cli_args = ["-t", "native"]
-
-[[custom_processors.processors]]
-name = "docx-out"
-processor_args = ["--reference-doc", "resources/reference.docx"]
+name = "Documentation"
+template_file = "docs.tex"
+template_type = "Tex"
 ```
+
+This is the most basic manifest, corresponding to a TeX project. It defines the
+project meta information, as well as a template and a markdown project. It
+corresponds to a basic folder structure:
+
+```
+.
+├── markdown/
+│   ├── resources/
+│   │   └── image1.png
+│   ├── 1 - Introduction.md
+│   └── 2 - TiefDown.md
+├── template/
+│   ├── docs.tex
+│   └── lib.sty
+├── Documentation.pdf
+└── manifest.toml
+```
+
+Let us dissect the manifest, starting with the meta information.
+
+```toml
+smart_clean = true
+smart_clean_threshold = 3
+version = 6
+
+# ...
+```
+
+`smart_clean = true` sets up the automatic [smart clean](#smart-clean) feature
+to be enabled.
+
+`smart_clean_threshold = 3` sets the threshold of automatic smart cleaning to
+three.
+
+`version = 6` defines the supported featureset of this project, setting the
+required TiefDownLib version.
+
+As far as meta information goes, TiefDown is relatively lean. Let's now look
+at the `[[markdown_projects]]` section, which is TiefDowns way of specifying
+an input directory, as described in [markdown projects](#markdown-projects).
+
+```toml
+# ...
+
+[[markdown_projects]]
+name = "Documentation"
+output = "."
+path = "markdown"
+resources = ["resources/"]
+
+# ...
+```
+
+First off, we define the markdown project with a `name` parameter. This name is
+primarily for logging purposes, as well as for converting just a single 
+markdown project.
+
+`output = "."` defines the folder that the result files will be copied to. Per
+default, the `.` directory defines the TiefDown projects root directory.
+
+`path = "markdown"` is the input directory in which the input files will copied
+from before conversion, and thus is the primary source of truth of input files.
+
+`resources = ["resources/"]` is important here: it specifies that the 
+`resources/` folder does not include input files and should not be converted,
+but is still available during the conversion process. This allows for images 
+and other resources to be added on a per-markdown-project basis without
+requiring logic in the template. See [custom resources](#custom-resources)
+for more information.
+
+Lastly, there's the template section:
+
+```toml
+# ...
+
+[[templates]]
+name = "Documentation"
+template_file = "docs.tex"
+template_type = "Tex"
+```
+
+This defines the (in this case, singular) template.
+
+
+`name = "Documentation"` sets the name of the template, which serves as basic 
+meta information for conversion.
+
+`template_file = "docs.tex"` tells TiefDown, which TeX file should be 
+converted. Here, docs.tex in the `template/` folder gets converted.
+
+`template_type = "Tex"` is the template type, in our case TeX.
+
+That is a basic manifest toml. Following is a more complex manifest, but
+beware, this is likely an excessively complex usecase.
+
+------------------ **TODO** ------------------

@@ -275,6 +275,26 @@ Options:
           The extension used for multi-file output conversion.
           This is required for multi-file outputs.
 
+      --meta-gen-feature &lt;META_GEN_FEATURE&gt;
+          Defines the feature level of and whether metadata files should be generated.
+          None disables navigation metadata generation.
+          NavOnly only enables navigation metadata generation and injection.
+          MetadataOnly only enables manifest metadata generation and injection.
+          Full enables full navigation metadata generation and injection.
+          
+          [possible values: none, full, nav-only, metadata-only]
+
+      --nav-meta-gen-output &lt;NAV_META_GEN_OUTPUT&gt;
+          The path to generate the navigation metadata to.
+          Gets saved in the temporary compilation directory.
+
+      --metadata-meta-gen-output &lt;METADATA_META_GEN_OUTPUT&gt;
+          The path to generate the manifest metadata to.
+          Gets saved in the temporary compilation directory.
+
+      --meta-gen-format &lt;META_GEN_FORMAT&gt;
+          [possible values: json]
+
   -h, --help
           Print help (see a summary with &#39;-h&#39;)</code></pre>
 

@@ -208,13 +208,12 @@ current version of TiefDownConverter. If it’s not, the manifest will be
 automatically updated in the process of loading. Newer versions of the
 manifest file are rejected by the implementation.</li>
 </ul></li>
-<li>The automatic smart clean flag
+<li>The automatic <a href="#smart-clean">smart clean</a> flag
 <ul>
 <li>This is a boolean flag that determines if the project should be
 cleaned automatically when a conversion is run. This is useful for
 projects that are constantly being updated, allowing a user to decide
-how many <a href="#conversion-folders">conversion folders</a> they want
-to keep.</li>
+how many conversion folders they want to keep.</li>
 </ul></li>
 <li>The smart clean threshold
 <ul>
@@ -229,69 +228,104 @@ markdown projects</li>
 <li>A <a href="#metadata-settings">metadata settings</a> object</li>
 <li>A list of <a href="#profiles">profiles</a> available for the
 conversion</li>
+<li>A list of <a href="#injections">injections</a></li>
 </ul>
-<h2 id="templates-and-processors-at-a-glance">Templates and processors
-(at a glance)</h2>
-<p>Each entry under <code>[[templates]]</code> specifies one output
-variant. Important fields are:</p>
-<ul>
-<li><code>template_type</code>: <code>Tex</code>, <code>Typst</code>,
-<code>Epub</code>, <code>CustomPreprocessors</code>, or
-<code>CustomProcessor</code>.</li>
-<li><code>template_file</code>: Path relative to the template directory;
-if omitted, the template name is used.</li>
-<li><code>output</code>: Optional output filename (defaults based on
-template type).</li>
-<li><code>filters</code>: Lua filters (file or directory paths) applied
-during Pandoc steps.</li>
-<li><code>preprocessors</code>: Names of preprocessors plus a required
-<code>combined_output</code> filename the template includes.</li>
-<li><code>processor</code>: Name of a processor whose arguments are
-passed to XeLaTeX/Typst. For <code>CustomProcessor</code>, the
-<code>processor</code> arguments are passed to Pandoc as the final
-conversion step.</li>
-</ul>
-<p>Project-wide <code>[[custom_processors.preprocessors]]</code> and
-<code>[[custom_processors.processors]]</code> define reusable building
-blocks referenced by templates.</p>
-<p>Example snippets</p>
+<h2 id="building-your-own-manifest">Building your own manifest</h2>
+<p>A manifest can grow to a complex web relatively quickly. Thus, in
+this section, I want to give a little bit of an example on building and
+reading manifests. <em>Knowledge of TOML is presupposed</em></p>
+<p>Consider the following manifest:</p>
 <div class="sourceCode" id="cb1"><pre
-class="sourceCode toml"><code class="sourceCode toml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># CustomPreprocessors: you decide how inputs are preprocessed; the combined</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># output is copied to the final destination without an additional processor step.</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">[[templates]]</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Website HTML&quot;</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="dt">template_type</span> <span class="op">=</span> <span class="st">&quot;CustomPreprocessors&quot;</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">=</span> <span class="st">&quot;site/index.html&quot;</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">[templates.preprocessors]</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">preprocessors</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;html-from-md&quot;</span><span class="op">]</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">combined_output</span> <span class="op">=</span> <span class="st">&quot;output.html&quot;</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.preprocessors]]</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;html-from-md&quot;</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="dt">cli</span> <span class="op">=</span> <span class="st">&quot;pandoc&quot;</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="dt">cli_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;-f&quot;</span><span class="op">,</span> <span class="st">&quot;markdown&quot;</span><span class="op">,</span> <span class="st">&quot;-t&quot;</span><span class="op">,</span> <span class="st">&quot;html&quot;</span><span class="op">]</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># CustomProcessor: preprocess to Pandoc Native, then run Pandoc once more with</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># processor arguments to produce the final artifact.</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="kw">[[templates]]</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Docx Export&quot;</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="dt">template_type</span> <span class="op">=</span> <span class="st">&quot;CustomProcessor&quot;</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">=</span> <span class="st">&quot;book.docx&quot;</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="dt">processor</span> <span class="op">=</span> <span class="st">&quot;docx-out&quot;</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="kw">[templates.preprocessors]</span></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  <span class="dt">preprocessors</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;native-parts&quot;</span><span class="op">]</span></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="dt">combined_output</span> <span class="op">=</span> <span class="st">&quot;output.pandoc_native&quot;</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.preprocessors]]</span></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;native-parts&quot;</span></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="dt">cli</span> <span class="op">=</span> <span class="st">&quot;pandoc&quot;</span></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="dt">cli_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;-t&quot;</span><span class="op">,</span> <span class="st">&quot;native&quot;</span><span class="op">]</span></span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.processors]]</span></span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;docx-out&quot;</span></span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="dt">processor_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;--reference-doc&quot;</span><span class="op">,</span> <span class="st">&quot;resources/reference.docx&quot;</span><span class="op">]</span></span></code></pre></div>
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">smart_clean</span> <span class="op">=</span> <span class="cn">true</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="dt">smart_clean_threshold</span> <span class="op">=</span> <span class="dv">3</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="dv">6</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">[[markdown_projects]]</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Documentation&quot;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">=</span> <span class="st">&quot;.&quot;</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="dt">path</span> <span class="op">=</span> <span class="st">&quot;markdown&quot;</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="dt">resources</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;resources/&quot;</span><span class="op">]</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="kw">[[templates]]</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Documentation&quot;</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="dt">template_file</span> <span class="op">=</span> <span class="st">&quot;docs.tex&quot;</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="dt">template_type</span> <span class="op">=</span> <span class="st">&quot;Tex&quot;</span></span></code></pre></div>
+<p>This is the most basic manifest, corresponding to a TeX project. It
+defines the project meta information, as well as a template and a
+markdown project. It corresponds to a basic folder structure:</p>
+<pre><code>.
+├── markdown/
+│   ├── resources/
+│   │   └── image1.png
+│   ├── 1 - Introduction.md
+│   └── 2 - TiefDown.md
+├── template/
+│   ├── docs.tex
+│   └── lib.sty
+├── Documentation.pdf
+└── manifest.toml</code></pre>
+<p>Let us dissect the manifest, starting with the meta information.</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">smart_clean</span> <span class="op">=</span> <span class="cn">true</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="dt">smart_clean_threshold</span> <span class="op">=</span> <span class="dv">3</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="dv">6</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># ...</span></span></code></pre></div>
+<p><code>smart_clean = true</code> sets up the automatic <a
+href="#smart-clean">smart clean</a> feature to be enabled.</p>
+<p><code>smart_clean_threshold = 3</code> sets the threshold of
+automatic smart cleaning to three.</p>
+<p><code>version = 6</code> defines the supported featureset of this
+project, setting the required TiefDownLib version.</p>
+<p>As far as meta information goes, TiefDown is relatively lean. Let’s
+now look at the <code>[[markdown_projects]]</code> section, which is
+TiefDowns way of specifying an input directory, as described in <a
+href="#markdown-projects">markdown projects</a>.</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ...</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">[[markdown_projects]]</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Documentation&quot;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">=</span> <span class="st">&quot;.&quot;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="dt">path</span> <span class="op">=</span> <span class="st">&quot;markdown&quot;</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="dt">resources</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;resources/&quot;</span><span class="op">]</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># ...</span></span></code></pre></div>
+<p>First off, we define the markdown project with a <code>name</code>
+parameter. This name is primarily for logging purposes, as well as for
+converting just a single markdown project.</p>
+<p><code>output = "."</code> defines the folder that the result files
+will be copied to. Per default, the <code>.</code> directory defines the
+TiefDown projects root directory.</p>
+<p><code>path = "markdown"</code> is the input directory in which the
+input files will copied from before conversion, and thus is the primary
+source of truth of input files.</p>
+<p><code>resources = ["resources/"]</code> is important here: it
+specifies that the <code>resources/</code> folder does not include input
+files and should not be converted, but is still available during the
+conversion process. This allows for images and other resources to be
+added on a per-markdown-project basis without requiring logic in the
+template. See <a href="#custom-resources">custom resources</a> for more
+information.</p>
+<p>Lastly, there’s the template section:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ...</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="kw">[[templates]]</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Documentation&quot;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="dt">template_file</span> <span class="op">=</span> <span class="st">&quot;docs.tex&quot;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="dt">template_type</span> <span class="op">=</span> <span class="st">&quot;Tex&quot;</span></span></code></pre></div>
+<p>This defines the (in this case, singular) template.</p>
+<p><code>name = "Documentation"</code> sets the name of the template,
+which serves as basic meta information for conversion.</p>
+<p><code>template_file = "docs.tex"</code> tells TiefDown, which TeX
+file should be converted. Here, docs.tex in the <code>template/</code>
+folder gets converted.</p>
+<p><code>template_type = "Tex"</code> is the template type, in our case
+TeX.</p>
+<p>That is a basic manifest toml. Following is a more complex manifest,
+but beware, this is likely an excessively complex usecase.</p>
+<p>—————— <strong>TODO</strong> ——————</p>
 
 
 </div>
