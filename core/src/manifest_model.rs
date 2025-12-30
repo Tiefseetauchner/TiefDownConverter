@@ -545,6 +545,9 @@ pub(crate) fn upgrade_manifest_v4_to_v5(manifest: &mut Table) -> Result<()> {
     Ok(())
 }
 
-fn upgrade_manifest_v5_to_v6(_manifest: &mut Table) -> Result<()> {
+pub(crate) fn upgrade_manifest_v5_to_v6(manifest: &mut Table) -> Result<()> {
+    debug!("upgrade_manifest_v5_to_v6: Starting...");
+    manifest.insert("version".into(), toml::Value::Integer(6));
+
     Ok(())
 }

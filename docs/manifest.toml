@@ -1,6 +1,6 @@
 smart_clean = true
 smart_clean_threshold = 3
-version = 5
+version = 6
 
 [[custom_processors.preprocessors]]
 cli_args = ["-t", "latex", "--listings"]
