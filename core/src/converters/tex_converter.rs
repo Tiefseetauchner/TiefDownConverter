@@ -24,7 +24,7 @@ use crate::{
     template_management::{get_output_path, get_template_path},
 };
 
-pub fn convert_latex(
+pub(crate) fn convert_latex(
     project_directory_path: &Path,
     compiled_directory_path: &Path,
     conversion_input_dir: &Path,

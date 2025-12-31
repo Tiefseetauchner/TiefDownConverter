@@ -1030,6 +1030,21 @@ pub(crate) fn get_missing_dependencies(dependencies: Vec<&str>) -> Result<Vec<St
     Ok(errors)
 }
 
+/// Loads a project manifest from disk, upgrades it if needed, and returns it as a `Manifest`.
+///
+/// This function reads `manifest.toml`, checks its version against
+/// `CURRENT_MANIFEST_VERSION`, and applies `upgrade_manifest` when the file is
+/// older. The manifest is written back to disk after this step to persist any
+/// upgrades or normalization. If the file is from a newer version of the
+/// program, an error is returned.
+///
+/// # Arguments
+///
+/// * `manifest_path` - The path to the `manifest.toml` file.
+///
+/// # Returns
+///
+/// A Result containing either an error or the parsed `Manifest`.
 pub fn load_and_convert_manifest(manifest_path: &std::path::PathBuf) -> Result<Manifest> {
     if !manifest_path.exists() {
         return Err(eyre!(
