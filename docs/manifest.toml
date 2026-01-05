@@ -133,7 +133,7 @@ name = "GitHub Multi Page Documentation"
 output = "documentation"
 template_type = "CustomPreprocessors"
 
-[templates.nav_meta_gen]
+[templates.meta_gen]
 feature = "Full"
 
 [templates.preprocessors]
