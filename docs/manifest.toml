@@ -44,7 +44,7 @@ path = "cli_markdown"
 resources = ["resources/"]
 
 [markdown_projects.metadata_fields]
-githubPagesDocsPath = "cli/documentation"
+githubPagesDocsPath = "cli/documentation/"
 
 [[markdown_projects]]
 default_profile = "Documentation"
@@ -54,7 +54,7 @@ path = "lib_markdown"
 resources = ["resources/"]
 
 [markdown_projects.metadata_fields]
-githubPagesDocsPath = "lib/documentation"
+githubPagesDocsPath = "lib/documentation/"
 
 [[markdown_projects]]
 default_profile = "Index HTML"

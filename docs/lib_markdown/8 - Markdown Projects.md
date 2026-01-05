@@ -14,7 +14,7 @@ Folders similarly have an order number. Files in a folder are added recursively 
 
 As markdown projects have input files that are converted using pandoc or similar during the preprocessing step, one can define resources that are only copied but not consumed by the preprocessors. Resources are copied to the conversion directory of the markdown project instead of to the `conv_dir` of the relevant markdown project, even though they initially reside in the markdown projects' input directory.\
 
-As a concrete example: take a cover image. The cover image would be injected into a PDF. But different markdown projects (e.g. books, papers, ...) need seperate cover images. The cover image is thus added as a resource. Take the following folder structure:
+As a concrete example: take a cover image. The cover image would be injected into a PDF. But different markdown projects (e.g. books, papers, ...) need separate cover images. The cover image is thus added as a resource. Take the following folder structure:
 
 ```
 .

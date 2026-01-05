@@ -16,12 +16,12 @@ Ah. I was supposed to be writing a landing page with marketing terms...
 
 # Once again - TiefDown, A Flexible Markdown Project Management Solution
 
-TiefDown is a project format to manage your Markdown projects. At it's heart,
+TiefDown is a project format to manage your Markdown projects. At its heart,
 it's just a central manifest file that contains the metadata for your project,
 and you can do the rest - or let tools like TiefDownConverter do it for you.
 
 Whether you're a developer, a writer, or a student, TiefDown is the perfect
-solution for you. It's flexibility rivals no solution I know of, and it's
+solution for you. Its flexibility rivals no solution I know of, and it's
 super easy to get started with.
 
 **TiefDownConverter** is the official CLI tool - but it’s just one way to work
@@ -32,7 +32,7 @@ with TiefDown projects.
 Are you writing a dissertation? A book? A blog? A website? A website that's a
 book? A website that's a blog? A website that's a book that's a blog? TiefDown
 has you covered. Simply write your content in Markdown. Let's look at some of
-the top usecases:
+the top use cases:
 
 - **Writing a book**: TiefDown is the perfect solution for writing a book. You
   can write your book in Markdown, and then use TiefDown to convert it to

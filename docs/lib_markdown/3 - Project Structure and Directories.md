@@ -1,9 +1,9 @@
 # Project Structure & Directories
 
+## TiefDown Folder Example
+
 First off, the folder structure is as follows:
 
-## TiefDown Folder Example
-1
 ```
 .
 ├── 2025-12-30_23-23-26

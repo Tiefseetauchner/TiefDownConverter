@@ -15,7 +15,7 @@ For execution logic of each of the templates, see [Running Conversion](#running-
 
 TeX templates use a LaTeX file as the template for the primary execution point. This template file must be specified in the template, and should `\input` the combined output from the pandoc conversion.
 
-Metadata is written seperately to a `metadata.tex` file, which creates macros for accessing metadata. Below is an example of such a `metadata.tex` file:
+Metadata is written separately to a `metadata.tex` file, which creates macros for accessing metadata. Below is an example of such a `metadata.tex` file:
 
 ```tex
 \newcommand{\meta}[1]{\csname meta@#1\endcsname}
@@ -72,13 +72,13 @@ Processor arguments, as above, are fully supported. The processor arguments are 
 
 ## EPUB templates
 
-EPUB templates are a special kind of template, as they are less user-unfriendly CustomProcessor converters.
+EPUB templates are a special kind of template, as they are less user-unfriendly than CustomProcessor converters.
 
 The primary simplification in EPUB templates is the addition of css and font search. For conversion, EPUB retrieves CSS as well as font files from the template directory and injects them into the output file. Fonts are searched within a `fonts/` subfolder in the template.
 
 Lua filters are fully supported for epub conversion. Importantly, they are applied only to the last pandoc conversion process, and not to the AST conversion processes.
 
-Preprocessors however are supported but adviced against, as the default preprocessor converts the input files to pandoc native.
+Preprocessors however are supported but advised against, as the default preprocessor converts the input files to pandoc native.
 
 Processor arguments are fully supported, and operate on the pandoc command.
 
@@ -100,6 +100,6 @@ To convert via this method, you must set a custom processor with arguments for t
 
 Lua filters behave identically to custom processor conversion, applying only to the final pandoc process.
 
-Similarly, preprocessors are supported but adviced against unless entirely necessary.
+Similarly, preprocessors are supported but advised against unless entirely necessary.
 
 Custom processor arguments are mandatory.

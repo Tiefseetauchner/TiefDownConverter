@@ -79,10 +79,10 @@ Options:
 
       --meta-gen-feature <META_GEN_FEATURE>
           Defines the feature level of and whether metadata files should be generated.
-          None disables navigation metadata generation.
+          None disables metadata generation.
           NavOnly only enables navigation metadata generation and injection.
           MetadataOnly only enables manifest metadata generation and injection.
-          Full enables full navigation metadata generation and injection.
+          Full enables full navigation and manifest metadata generation and injection.
           
           [possible values: none, full, nav-only, metadata-only]
 
@@ -95,7 +95,11 @@ Options:
           Gets saved in the temporary compilation directory.
 
       --meta-gen-format <META_GEN_FORMAT>
-          [possible values: json]
+          The format to generate metadata in.
+          Can be Json or None.
+          YML metadata is always generated, JSON metadata is only needed if used by an external program.
+          
+          [possible values: none, json]
 
   -h, --help
           Print help (see a summary with '-h')

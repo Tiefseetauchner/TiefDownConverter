@@ -192,9 +192,9 @@ href="https://tiefseetauchner.github.io/TiefDownConverter/cli">CLI
 Docs</a> <a
 href="https://tiefseetauchner.github.io/TiefDownConverter/lib">LIB
 Docs</a> <a
-href="https://tiefseetauchner.github.io/TiefDownConverter/cli/documentationChapter 3 - Usage Details/Chapter 5 - project-templates.html">Chapter
+href="https://tiefseetauchner.github.io/TiefDownConverter/cli/documentation/Chapter 3 - Usage Details/Chapter 5 - project-templates.html">Chapter
 3 - Usage Details/Chapter 5 - project-templates</a> <a
-href="https://tiefseetauchner.github.io/TiefDownConverter/cli/documentationChapter 3 - Usage Details/Chapter 7 - project-templates-remove.html">Chapter
+href="https://tiefseetauchner.github.io/TiefDownConverter/cli/documentation/Chapter 3 - Usage Details/Chapter 7 - project-templates-remove.html">Chapter
 3 - Usage Details/Chapter 7 - project-templates-remove</a></p>
 
 
@@ -284,10 +284,10 @@ Options:
 
       --meta-gen-feature &lt;META_GEN_FEATURE&gt;
           Defines the feature level of and whether metadata files should be generated.
-          None disables navigation metadata generation.
+          None disables metadata generation.
           NavOnly only enables navigation metadata generation and injection.
           MetadataOnly only enables manifest metadata generation and injection.
-          Full enables full navigation metadata generation and injection.
+          Full enables full navigation and manifest metadata generation and injection.
           
           [possible values: none, full, nav-only, metadata-only]
 
@@ -300,7 +300,11 @@ Options:
           Gets saved in the temporary compilation directory.
 
       --meta-gen-format &lt;META_GEN_FORMAT&gt;
-          [possible values: json]
+          The format to generate metadata in.
+          Can be Json or None.
+          YML metadata is always generated, JSON metadata is only needed if used by an external program.
+          
+          [possible values: none, json]
 
   -h, --help
           Print help (see a summary with &#39;-h&#39;)</code></pre>

@@ -192,9 +192,9 @@ href="https://tiefseetauchner.github.io/TiefDownConverter/cli">CLI
 Docs</a> <a
 href="https://tiefseetauchner.github.io/TiefDownConverter/lib">LIB
 Docs</a> <a
-href="https://tiefseetauchner.github.io/TiefDownConverter/lib/documentation5 - Conversion Pipeline.html">5
+href="https://tiefseetauchner.github.io/TiefDownConverter/lib/documentation/5 - Conversion Pipeline.html">5
 - Conversion Pipeline</a> <a
-href="https://tiefseetauchner.github.io/TiefDownConverter/lib/documentation7 - Lua Filters.html">7
+href="https://tiefseetauchner.github.io/TiefDownConverter/lib/documentation/7 - Lua Filters.html">7
 - Lua Filters</a></p>
 
 
@@ -223,7 +223,7 @@ chapter.</p>
 execution point. This template file must be specified in the template,
 and should <code>\input</code> the combined output from the pandoc
 conversion.</p>
-<p>Metadata is written seperately to a <code>metadata.tex</code> file,
+<p>Metadata is written separately to a <code>metadata.tex</code> file,
 which creates macros for accessing metadata. Below is an example of such
 a <code>metadata.tex</code> file:</p>
 <div class="sourceCode" id="cb1"><pre
@@ -275,7 +275,7 @@ fully supported for Typst.</p>
 arguments are added to the typst process on conversion.</p>
 <h2 id="epub-templates">EPUB templates</h2>
 <p>EPUB templates are a special kind of template, as they are less
-user-unfriendly CustomProcessor converters.</p>
+user-unfriendly than CustomProcessor converters.</p>
 <p>The primary simplification in EPUB templates is the addition of css
 and font search. For conversion, EPUB retrieves CSS as well as font
 files from the template directory and injects them into the output file.
@@ -284,7 +284,7 @@ template.</p>
 <p>Lua filters are fully supported for epub conversion. Importantly,
 they are applied only to the last pandoc conversion process, and not to
 the AST conversion processes.</p>
-<p>Preprocessors however are supported but adviced against, as the
+<p>Preprocessors however are supported but advised against, as the
 default preprocessor converts the input files to pandoc native.</p>
 <p>Processor arguments are fully supported, and operate on the pandoc
 command.</p>
@@ -312,7 +312,7 @@ automatically appended to the process and must not be included in the
 arguments.</p>
 <p>Lua filters behave identically to custom processor conversion,
 applying only to the final pandoc process.</p>
-<p>Similarly, preprocessors are supported but adviced against unless
+<p>Similarly, preprocessors are supported but advised against unless
 entirely necessary.</p>
 <p>Custom processor arguments are mandatory.</p>
 

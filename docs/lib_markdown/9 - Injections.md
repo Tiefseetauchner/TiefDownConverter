@@ -6,7 +6,7 @@ Handling large projects with multiple templates can sometimes lead to a lot of t
 
 Header and footer injections act as insertions before and after the content respectively. That means that, after the content is preprocessed, it gets pre-/appended with the preprocessed injection.
 
-An example usecase for injections is adding an HTML scaffolding around the content. The header injection would hold the doctype declaration and head tags, while the footer could hold an HTML footer for displaying copyright. Injections are especially useful for [multi-file output](#multi-file-output-model).
+An example use case for injections is adding an HTML scaffolding around the content. The header injection would hold the doctype declaration and head tags, while the footer could hold an HTML footer for displaying copyright. Injections are especially useful for [multi-file output](#multi-file-output-model).
 
 ## Body Injections
 

@@ -36,7 +36,7 @@ The scratch directory can be automatically removed using [smart cleaning](#smart
 
 ## Template Directory
 
-Next, the template directory is copied to the conversion directory. This is done for each markdown project seperately.
+Next, the template directory is copied to the conversion directory. This is done for each markdown project separately.
 
 The items of the template directory are put in the markdown project specific folder, in which the primary conversion processes will run.
 

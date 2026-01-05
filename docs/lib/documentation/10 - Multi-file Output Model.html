@@ -192,9 +192,9 @@ href="https://tiefseetauchner.github.io/TiefDownConverter/cli">CLI
 Docs</a> <a
 href="https://tiefseetauchner.github.io/TiefDownConverter/lib">LIB
 Docs</a> <a
-href="https://tiefseetauchner.github.io/TiefDownConverter/lib/documentation9 - Injections.html">9
+href="https://tiefseetauchner.github.io/TiefDownConverter/lib/documentation/9 - Injections.html">9
 - Injections</a> <a
-href="https://tiefseetauchner.github.io/TiefDownConverter/lib/documentation11 - Metadata Generation and Injection.html">11
+href="https://tiefseetauchner.github.io/TiefDownConverter/lib/documentation/11 - Metadata Generation and Injection.html">11
 - Metadata Generation and Injection</a></p>
 
 
@@ -206,17 +206,17 @@ href="https://tiefseetauchner.github.io/TiefDownConverter/lib/documentation11 - 
 CustomPreProcessors conversion, they are able to produce multi-file
 outputs. When enabled, multi-file output allows the conversion to export
 one output file for each input file (including body injections).</p>
-<p>An example for a usecase of multi-file output is a wiki. You may want
-to provide a printable PDF of your wiki while also creating a statically
-rendered website from the same inputs. Multi-file output allows for the
-rendered website to not be a single page.</p>
+<p>An example for a use case of multi-file output is a wiki. You may
+want to provide a printable PDF of your wiki while also creating a
+statically rendered website from the same inputs. Multi-file output
+allows for the rendered website to not be a single page.</p>
 <p>Injections for multi-file outputs have a slightly different mental
 model to other templates. Instead of rendering the injections once, they
 are rendered <em>for each output file separately</em>, meaning the
 injection can include code that is unique to each output file.</p>
 <p>For example, a header injection could include accessing the
 navigation metadata (see below) to render the current position in a
-tree. The concrete implementation is left as an excercise to the
+tree. The concrete implementation is left as an exercise to the
 reader.</p>
 <p>Multi-file output is enabled on a per-template basis and is only
 available to CustomPreProcessors conversions.</p>
