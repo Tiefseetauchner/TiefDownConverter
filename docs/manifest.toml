@@ -79,6 +79,26 @@ resources = ["resources/"]
 githubPagesDocsPath = "lib/documentation"
 
 [[markdown_projects]]
+default_profile = "Index HTML"
+name = "CLI Docs Index"
+output = "cli"
+path = "cli_index_markdown"
+resources = ["resources/"]
+
+[markdown_projects.metadata_fields]
+githubPagesDocsPath = "cli"
+
+[[markdown_projects]]
+default_profile = "Index HTML"
+name = "LIB Docs"
+output = "lib"
+path = "lib_index_markdown"
+resources = ["resources/"]
+
+[markdown_projects.metadata_fields]
+githubPagesDocsPath = "lib"
+
+[[markdown_projects]]
 default_profile = "Man"
 name = "man"
 output = "man"
