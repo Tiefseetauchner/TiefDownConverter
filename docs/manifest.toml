@@ -11,16 +11,7 @@ cli_args = ["-s", "-t", "man", "--metadata-file", "man_metadata.yaml"]
 name = "Man Page"
 
 [[custom_processors.preprocessors]]
-cli_args = [
-    "--to",
-    "html5",
-    "--metadata",
-    "title={{title}}",
-    "--metadata",
-    "author={{author}}",
-    "--css",
-    "/TiefDownConverter/template/html_template/style.css",
-]
+cli_args = ["--to", "html5", "--metadata", "title={{title}}", "--metadata", "author={{author}}", "--css", "/TiefDownConverter/template/html_template/style.css"]
 name = "HTML Conversion"
 
 [[custom_processors.preprocessors]]
@@ -31,20 +22,7 @@ name = "HTML Direct Copy"
 
 [[custom_processors.processors]]
 name = "HTML Conversion"
-processor_args = [
-    "--to",
-    "html5",
-    "-s",
-    "--metadata",
-    "title={{title}}",
-    "--metadata",
-    "author={{author}}",
-    "--css",
-    "/TiefDownConverter/template/html_template/style.css",
-    "--toc",
-    "-B",
-    "html_template/header.html",
-]
+processor_args = ["--to", "html5", "-s", "--metadata", "title={{title}}", "--metadata", "author={{author}}", "--css", "/TiefDownConverter/template/html_template/style.css", "--toc", "-B", "html_template/header.html"]
 
 [[custom_processors.processors]]
 name = "Typst Font Directory"
@@ -83,7 +61,6 @@ default_profile = "Index HTML"
 name = "CLI Docs Index"
 output = "cli"
 path = "cli_index_markdown"
-resources = ["resources/"]
 
 [markdown_projects.metadata_fields]
 githubPagesDocsPath = "cli"
@@ -93,7 +70,6 @@ default_profile = "Index HTML"
 name = "LIB Docs"
 output = "lib"
 path = "lib_index_markdown"
-resources = ["resources/"]
 
 [markdown_projects.metadata_fields]
 githubPagesDocsPath = "lib"
@@ -117,12 +93,7 @@ githubPagesDocsPath = "/"
 
 [[profiles]]
 name = "Documentation"
-templates = [
-    "PDF Documentation LaTeX",
-    "PDF Documentation",
-    "Epub Documentation",
-    "GitHub Multi Page Documentation",
-]
+templates = ["PDF Documentation LaTeX", "PDF Documentation", "Epub Documentation", "GitHub Multi Page Documentation"]
 
 [[profiles]]
 name = "Man"
@@ -194,6 +165,9 @@ header_injections = ["HTML header"]
 name = "GitHub Single File Documentation"
 output = "index.html"
 template_type = "CustomPreprocessors"
+
+[templates.meta_gen]
+feature = "MetadataOnly"
 
 [templates.preprocessors]
 combined_output = "index.html"
