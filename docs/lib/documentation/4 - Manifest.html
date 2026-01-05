@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        :root {
+            --bg-gradient-start: #eef1f8;
+            --bg-gradient-end: #d9e2f2;
+            --surface: rgba(255, 255, 255, 0.8);
+            --border-subtle: rgba(255, 255, 255, 0.6);
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --accent: #2563eb;
+            --accent-soft: rgba(37, 99, 235, 0.08);
+            --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.18);
+            --shadow-nav: 0 10px 30px rgba(15, 23, 42, 0.16);
+            --radius-xl: 24px;
+            --radius-pill: 999px;
+        }
+
+        /* Layout baseline */
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+                "Segoe UI", sans-serif;
+            color: var(--text-main);
+            background: radial-gradient(circle at top, var(--bg-gradient-start), var(--bg-gradient-end));
+        }
+
+        /* Top nav */
+
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(18px);
+            background: linear-gradient(135deg,
+                    rgba(255, 255, 255, 0.3),
+                    rgba(248, 250, 252, 0.2));
+            border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+            box-shadow: var(--shadow-nav);
+        }
+
+        nav p {
+            margin: 0;
+            padding: 0.75rem 1.25rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        /* Link “chips” */
+
+        nav a {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.45rem 0.95rem;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border-radius: var(--radius-pill);
+            border: 1px solid var(--border-subtle);
+            background: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+            color: var(--accent);
+            letter-spacing: 0.01em;
+            transition:
+                transform 150ms ease,
+                box-shadow 150ms ease,
+                background 150ms ease,
+                border-color 150ms ease;
+        }
+
+        nav a:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 14px 26px rgba(15, 23, 42, 0.2);
+            background: var(--accent-soft);
+            border-color: rgba(37, 99, 235, 0.35);
+        }
+
+        nav a:active {
+            transform: translateY(0);
+            box-shadow: 0 6px 14px rgba(15, 23, 42, 0.18);
+        }
+
+        /* Main content card */
+
+        .main-body {
+            margin: 1.75rem auto 2.5rem;
+            max-width: 800px;
+            width: calc(100% - 2.5rem);
+            padding: 1.75rem 1.75rem 2rem;
+            border-radius: var(--radius-xl);
+            background: var(--surface);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: var(--shadow-soft);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        /* Typography */
+
+        .main-body h1 {
+            margin-top: 0;
+            margin-bottom: 0.9rem;
+            font-size: 1.7rem;
+            letter-spacing: -0.03em;
+        }
+
+        .main-body p {
+            margin-top: 0.4rem;
+            margin-bottom: 0.7rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+            font-size: 0.98rem;
+        }
+
+        .main-body strong {
+            color: var(--text-main);
+        }
+
+        .main-body a {
+            color: var(--accent);
+            text-decoration: none;
+            border-bottom: 1px solid rgba(37, 99, 235, 0.3);
+            padding-bottom: 0.05rem;
+            transition: border-color 140ms ease, color 140ms ease;
+        }
+
+        .main-body a:hover {
+            color: #1d4ed8;
+            border-color: rgba(37, 99, 235, 0.6);
+        }
+
+        /* Footer */
+
+        footer {
+            margin-top: auto;
+            padding: 1.25rem 1.5rem 1.75rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            opacity: 0.9;
+        }
+
+        /* Small screens */
+
+        @media (max-width: 640px) {
+            nav p {
+                padding: 0.6rem 0.85rem;
+            }
+
+            .main-body {
+                margin: 1.25rem auto 2rem;
+                width: calc(100% - 1.6rem);
+                padding: 1.4rem 1.25rem 1.6rem;
+                border-radius: 18px;
+            }
+
+            .main-body h1 {
+                font-size: 1.45rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+
+<p><a
+href="https://tiefseetauchner.github.io/TiefDownConverter/">Home</a> <a
+href="https://tiefseetauchner.github.io/TiefDownConverter/cli">CLI
+Docs</a> <a
+href="https://tiefseetauchner.github.io/TiefDownConverter/lib">LIB
+Docs</a> </p>
+
+
+</nav>
+<div class="main-body">
+
+<h1 id="manifest">Manifest</h1>
+<p>The manifest is the source of truth for TiefDown. It, and only it,
+defines the behavior of any TiefDown conversion. Note that the examples
+here are non-exhaustive. They simply serve to give you an idea of what
+to expect.</p>
+<h2 id="versioning-and-compatibilityupgrades">Versioning and
+compatibility/upgrades</h2>
+<p>The manifest version is at the top of the manifest, and similarly
+important. It consists of a single integer. Since TiefDown is under
+constant development, old manifests must be upgradeable in a consistent
+and expectable way. It also prevents an old version of TiefDownLib from
+messing up a manifest generated from a newer version.</p>
+<p>The upgrade process consists of sequentially upgrading the manifest
+through the versions until it reaches the current version. That way,
+upgrades are reproducible. It also means that every prior version of the
+manifest is upgradeable.</p>
+<p>Example:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="dv">6</span></span></code></pre></div>
+<h2 id="markdown-projects-list">Markdown Projects List</h2>
+<p>Markdown projects are the cornerstone of TiefDown. They define the
+input files and parameters. They can be used for a variety of use cases,
+but are especially useful when template sharing is a concern.</p>
+<p>There can be multiple markdown projects per TiefDown project.</p>
+<p>A markdown project contains, among others, an input and output
+directory, allowing clustering of output files. See <a
+href="#markdown-projects">markdown projects</a> for more
+information.</p>
+<p>Example:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[markdown_projects]]</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="dt">default_profile</span> <span class="op">=</span> <span class="st">&quot;Man&quot;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;man&quot;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">=</span> <span class="st">&quot;man&quot;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="dt">path</span> <span class="op">=</span> <span class="st">&quot;man_markdown&quot;</span></span></code></pre></div>
+<h2 id="templates-list">Templates List</h2>
+<p>Templates are the basis for document conversion. Each template can be
+applied to multiple markdown projects using the <a
+href="#queueing-system">queueing system</a>.</p>
+<p>Example:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[templates]]</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="dt">filters</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;luafilters/mega_replacer_filter.lua&quot;</span><span class="op">]</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="dt">footer_injections</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;HTML footer&quot;</span><span class="op">]</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="dt">header_injections</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;HTML header&quot;</span><span class="op">]</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;GitHub Single File Documentation&quot;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">=</span> <span class="st">&quot;index.html&quot;</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="dt">template_type</span> <span class="op">=</span> <span class="st">&quot;CustomPreprocessors&quot;</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="kw">[templates.preprocessors]</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="dt">combined_output</span> <span class="op">=</span> <span class="st">&quot;index.html&quot;</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="dt">output_extension</span> <span class="op">=</span> <span class="st">&quot;html&quot;</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="dt">preprocessors</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;HTML Conversion&quot;</span><span class="op">,</span> <span class="st">&quot;HTML Direct Copy&quot;</span><span class="op">]</span></span></code></pre></div>
+<h2 id="custom-processors-model">Custom Processors model</h2>
+<p>Custom processors and custom preprocessors are extensions on the
+usual conversion process, changing the arguments passed to the pandoc
+process, or even changing the executable of the preprocessing.</p>
+<p>Example:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.preprocessors]]</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="dt">cli</span> <span class="op">=</span> <span class="st">&quot;cat&quot;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="dt">cli_args</span> <span class="op">=</span> <span class="op">[]</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="dt">extension_filter</span> <span class="op">=</span> <span class="st">&quot;html&quot;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;HTML Direct Copy&quot;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.processors]]</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;HTML Standalone Conversion&quot;</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="dt">processor_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;--to&quot;</span><span class="op">,</span> <span class="st">&quot;html5&quot;</span><span class="op">,</span> <span class="st">&quot;-s&quot;</span><span class="op">,</span> <span class="st">&quot;--metadata&quot;</span><span class="op">,</span> <span class="st">&quot;title={{title}}&quot;</span><span class="op">,</span> <span class="st">&quot;--metadata&quot;</span><span class="op">,</span> <span class="st">&quot;author={{author}}&quot;</span><span class="op">,</span> <span class="st">&quot;--css&quot;</span><span class="op">,</span> <span class="st">&quot;/TiefDownConverter/template/html_template/style.css&quot;</span><span class="op">,</span> <span class="st">&quot;--toc&quot;</span><span class="op">,</span> <span class="st">&quot;-B&quot;</span><span class="op">,</span> <span class="st">&quot;html_template/header.html&quot;</span><span class="op">]</span></span></code></pre></div>
+<h2 id="shared-metadata">Shared Metadata</h2>
+<p>Metadata in TiefDown is split in two parts: shared metadata that is
+accessible from all markdown projects and markdown project specific
+metadata.</p>
+<p>Examples:</p>
+<ul>
+<li><p>Shared metadata:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[shared_metadata]</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="dt">author</span> <span class="op">=</span> <span class="st">&quot;Tiefseetauchner et al.&quot;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="dt">githubPagesUrl</span> <span class="op">=</span> <span class="st">&quot;https://tiefseetauchner.github.io/TiefDownConverter/&quot;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="dt">title</span> <span class="op">=</span> <span class="st">&quot;TiefDownConverter Documentation&quot;</span></span></code></pre></div></li>
+<li><p>Markdown project specific metadata:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[markdown_projects.metadata_fields]</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="dt">githubPagesDocsPath</span> <span class="op">=</span> <span class="st">&quot;/&quot;</span></span></code></pre></div></li>
+</ul>
+<h2 id="metadata-settings">Metadata Settings</h2>
+<p>Metadata settings define how metadata is injected into the conversion
+process.</p>
+<p>Example:</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[metadata_settings]</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="dt">metadata_prefix</span> <span class="op">=</span> <span class="st">&quot;projectMetadata&quot;</span></span></code></pre></div>
+<h2 id="profiles">Profiles</h2>
+<p>Profiles allow bundling of templates into a preset execution order,
+allowing the creation of subgroups as well as defining a default profile
+for a markdown project.</p>
+<p>Example:</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[profiles]]</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Documentation&quot;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="dt">templates</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;PDF Documentation LaTeX&quot;</span><span class="op">,</span> <span class="st">&quot;PDF Documentation&quot;</span><span class="op">,</span> <span class="st">&quot;Epub Documentation&quot;</span><span class="op">,</span> <span class="st">&quot;GitHub Multi Page Documentation&quot;</span><span class="op">]</span></span></code></pre></div>
+<h2 id="injections">Injections</h2>
+<p>Injections are the intended way to create template specific
+conversion additions. There are header, body, and footer injections,
+allowing the user to insert template specific markup into all parts of
+the conversion process.</p>
+<p>Example:</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[injections]]</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="dt">files</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;head.html&quot;</span><span class="op">,</span> <span class="st">&quot;nav.md&quot;</span><span class="op">,</span> <span class="st">&quot;head2.html&quot;</span><span class="op">]</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;HTML header&quot;</span></span></code></pre></div>
+<h2 id="smart-clean-settings">Smart Clean Settings</h2>
+<p>Smart Clean settings control how and whether smart clean should run
+during conversion.</p>
+<p>Example:</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="dt">smart_clean</span> <span class="op">=</span> <span class="cn">true</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="dt">smart_clean_threshold</span> <span class="op">=</span> <span class="dv">3</span></span></code></pre></div>
+<h2 id="full-example">Full Example</h2>
+<p>Below is an example of a <code>manifest.toml</code> that illustrates
+the most important features of TiefDownConverter, including injections,
+preprocessors, and multiple templates.</p>
+<p>For a detailed explanation of every part of this manifest, see below.
+Note that this manifest has been rearranged and indented to improve
+clarity.</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="dt">smart_clean</span> <span class="op">=</span> <span class="cn">true</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="dt">smart_clean_threshold</span> <span class="op">=</span> <span class="dv">3</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="dv">6</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="kw">[shared_metadata]</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="dt">author</span> <span class="op">=</span> <span class="st">&quot;Lena Tauchner&quot;</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="kw">[[markdown_projects]]</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Dream&quot;</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">=</span> <span class="st">&quot;Dream&quot;</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="dt">path</span> <span class="op">=</span> <span class="st">&quot;Dreams/1 - Dream&quot;</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="dt">resources</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;additional_meta.tex&quot;</span><span class="op">,</span> <span class="st">&quot;epub_meta.yaml&quot;</span><span class="op">,</span> <span class="st">&quot;cover.png&quot;</span><span class="op">]</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">[markdown_projects.metadata_fields]</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">edition_date</span> <span class="op">=</span> <span class="st">&quot;2025&quot;</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">edition_num</span> <span class="op">=</span> <span class="st">&quot;1&quot;</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>    <span class="dt">title</span> <span class="op">=</span> <span class="st">&quot;Dream&quot;</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a><span class="kw">[[markdown_projects]]</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Reality&quot;</span></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">=</span> <span class="st">&quot;Reality&quot;</span></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a><span class="dt">path</span> <span class="op">=</span> <span class="st">&quot;Dreams/2 - Reality&quot;</span></span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a><span class="dt">resources</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;additional_meta.tex&quot;</span><span class="op">,</span> <span class="st">&quot;epub_meta.yaml&quot;</span><span class="op">,</span> <span class="st">&quot;cover.png&quot;</span><span class="op">]</span></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>    <span class="kw">[markdown_projects.metadata_fields]</span></span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>    <span class="dt">edition_date</span> <span class="op">=</span> <span class="st">&quot;2025&quot;</span></span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>    <span class="dt">edition_num</span> <span class="op">=</span> <span class="st">&quot;1&quot;</span></span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>    <span class="dt">title</span> <span class="op">=</span> <span class="st">&quot;Reality&quot;</span></span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a><span class="kw">[[templates]]</span></span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a><span class="dt">filters</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;luafilters/&quot;</span><span class="op">]</span></span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;lix_novel_a4.tex&quot;</span></span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">=</span> <span class="st">&quot;a4_main.pdf&quot;</span></span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a><span class="dt">template_type</span> <span class="op">=</span> <span class="st">&quot;Tex&quot;</span></span>
+<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a><span class="kw">[[templates]]</span></span>
+<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a><span class="dt">filters</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;luafilters/&quot;</span><span class="op">]</span></span>
+<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;lix_novel_book_at.tex&quot;</span></span>
+<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">=</span> <span class="st">&quot;140x205mm_main.pdf&quot;</span></span>
+<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a><span class="dt">template_type</span> <span class="op">=</span> <span class="st">&quot;Tex&quot;</span></span>
+<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-42"><a href="#cb11-42" aria-hidden="true" tabindex="-1"></a><span class="kw">[[templates]]</span></span>
+<span id="cb11-43"><a href="#cb11-43" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Original MD&quot;</span></span>
+<span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">=</span> <span class="st">&quot;original.md&quot;</span></span>
+<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a><span class="dt">template_type</span> <span class="op">=</span> <span class="st">&quot;CustomPreprocessors&quot;</span></span>
+<span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a>    <span class="kw">[templates.preprocessors]</span></span>
+<span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a>    <span class="dt">combined_output</span> <span class="op">=</span> <span class="st">&quot;original.md&quot;</span></span>
+<span id="cb11-49"><a href="#cb11-49" aria-hidden="true" tabindex="-1"></a>    <span class="dt">preprocessors</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;Original MD&quot;</span><span class="op">]</span></span>
+<span id="cb11-50"><a href="#cb11-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-51"><a href="#cb11-51" aria-hidden="true" tabindex="-1"></a><span class="kw">[[templates]]</span></span>
+<span id="cb11-52"><a href="#cb11-52" aria-hidden="true" tabindex="-1"></a><span class="dt">filters</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;epub_lua_filters&quot;</span><span class="op">]</span></span>
+<span id="cb11-53"><a href="#cb11-53" aria-hidden="true" tabindex="-1"></a><span class="dt">header_injections</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;EPUB Copyright Block&quot;</span><span class="op">]</span></span>
+<span id="cb11-54"><a href="#cb11-54" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;EPUB Conversion&quot;</span></span>
+<span id="cb11-55"><a href="#cb11-55" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">=</span> <span class="st">&quot;main_ebook.epub&quot;</span></span>
+<span id="cb11-56"><a href="#cb11-56" aria-hidden="true" tabindex="-1"></a><span class="dt">processor</span> <span class="op">=</span> <span class="st">&quot;Metadata for EPUB&quot;</span></span>
+<span id="cb11-57"><a href="#cb11-57" aria-hidden="true" tabindex="-1"></a><span class="dt">template_file</span> <span class="op">=</span> <span class="st">&quot;main_epub/&quot;</span></span>
+<span id="cb11-58"><a href="#cb11-58" aria-hidden="true" tabindex="-1"></a><span class="dt">template_type</span> <span class="op">=</span> <span class="st">&quot;Epub&quot;</span></span>
+<span id="cb11-59"><a href="#cb11-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-60"><a href="#cb11-60" aria-hidden="true" tabindex="-1"></a><span class="kw">[[templates]]</span></span>
+<span id="cb11-61"><a href="#cb11-61" aria-hidden="true" tabindex="-1"></a><span class="dt">filters</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;luafilters/mega_replacer_filter.lua&quot;</span><span class="op">]</span></span>
+<span id="cb11-62"><a href="#cb11-62" aria-hidden="true" tabindex="-1"></a><span class="dt">multi_file_output</span> <span class="op">=</span> <span class="cn">true</span></span>
+<span id="cb11-63"><a href="#cb11-63" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;HTML Helper Export&quot;</span></span>
+<span id="cb11-64"><a href="#cb11-64" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">=</span> <span class="st">&quot;html_raw/&quot;</span></span>
+<span id="cb11-65"><a href="#cb11-65" aria-hidden="true" tabindex="-1"></a><span class="dt">template_type</span> <span class="op">=</span> <span class="st">&quot;CustomPreprocessors&quot;</span></span>
+<span id="cb11-66"><a href="#cb11-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-67"><a href="#cb11-67" aria-hidden="true" tabindex="-1"></a>    <span class="kw">[templates.preprocessors]</span></span>
+<span id="cb11-68"><a href="#cb11-68" aria-hidden="true" tabindex="-1"></a>    <span class="dt">output_extension</span> <span class="op">=</span> <span class="st">&quot;html&quot;</span></span>
+<span id="cb11-69"><a href="#cb11-69" aria-hidden="true" tabindex="-1"></a>    <span class="dt">preprocessors</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;HTML Multi Page&quot;</span><span class="op">,</span> <span class="st">&quot;HTML Raw&quot;</span><span class="op">]</span></span>
+<span id="cb11-70"><a href="#cb11-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-71"><a href="#cb11-71" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.preprocessors]]</span></span>
+<span id="cb11-72"><a href="#cb11-72" aria-hidden="true" tabindex="-1"></a><span class="dt">cli_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;-t&quot;</span><span class="op">,</span> <span class="st">&quot;markdown&quot;</span><span class="op">]</span></span>
+<span id="cb11-73"><a href="#cb11-73" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Original MD&quot;</span></span>
+<span id="cb11-74"><a href="#cb11-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-75"><a href="#cb11-75" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.preprocessors]]</span></span>
+<span id="cb11-76"><a href="#cb11-76" aria-hidden="true" tabindex="-1"></a><span class="dt">cli_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;-t&quot;</span><span class="op">,</span> <span class="st">&quot;html5&quot;</span><span class="op">]</span></span>
+<span id="cb11-77"><a href="#cb11-77" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;HTML Multi Page&quot;</span></span>
+<span id="cb11-78"><a href="#cb11-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-79"><a href="#cb11-79" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.preprocessors]]</span></span>
+<span id="cb11-80"><a href="#cb11-80" aria-hidden="true" tabindex="-1"></a><span class="dt">cli</span> <span class="op">=</span> <span class="st">&quot;cat&quot;</span></span>
+<span id="cb11-81"><a href="#cb11-81" aria-hidden="true" tabindex="-1"></a><span class="dt">cli_args</span> <span class="op">=</span> <span class="op">[]</span></span>
+<span id="cb11-82"><a href="#cb11-82" aria-hidden="true" tabindex="-1"></a><span class="dt">extension_filter</span> <span class="op">=</span> <span class="st">&quot;html&quot;</span></span>
+<span id="cb11-83"><a href="#cb11-83" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;HTML Raw&quot;</span></span>
+<span id="cb11-84"><a href="#cb11-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-85"><a href="#cb11-85" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.processors]]</span></span>
+<span id="cb11-86"><a href="#cb11-86" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Metadata for EPUB&quot;</span></span>
+<span id="cb11-87"><a href="#cb11-87" aria-hidden="true" tabindex="-1"></a><span class="dt">processor_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;--metadata-file&quot;</span><span class="op">,</span> <span class="st">&quot;epub_meta.yaml&quot;</span><span class="op">]</span></span>
+<span id="cb11-88"><a href="#cb11-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-89"><a href="#cb11-89" aria-hidden="true" tabindex="-1"></a><span class="kw">[[injections]]</span></span>
+<span id="cb11-90"><a href="#cb11-90" aria-hidden="true" tabindex="-1"></a><span class="dt">files</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;epub_copyright_block.html&quot;</span><span class="op">]</span></span>
+<span id="cb11-91"><a href="#cb11-91" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;EPUB Copyright Block&quot;</span></span></code></pre></div>
+<p>Now to explain the basic structure of the <code>manifest.toml</code>,
+I will start by addressing the basic project settings. Important are the
+<code>smart_clean</code> and <code>smart_clean_threshold</code> flags.
+These define the smart cleaning behavior of the project. See <a
+href="#smart-clean">Smart Clean</a> for more information. Also note the
+<code>version</code> field, which defines the compatibilty with
+TiefDown.0</p>
+<p>After smart cleaning, we define the <code>shared_metadata</code>
+table, which contains metadata about the project that is shared between
+the items. In this case, the author.</p>
+<p>Then, we define the markdown projects. The markdown projects in this
+case are Dream and Reality, each with a separate output and input
+folder, as well as metadata fields for filling in the LaTeX data and
+resources that are project specific but used in the template. In this
+example, we have a <code>cover.png</code>, which, during the epub
+conversion, is injected as the cover image.</p>
+<p>After defining the markdown projects, we add templates. Here, we have
+five templates. The LiX novel templates (<code>lix_novel_a4.tex</code>
+and <code>lix_novel_book_at.tex</code>), a
+<code>CustomPreprocessors</code> conversion to a singular markdown file,
+an EPUB template and the HTML Helper export, which simply exports an
+HTML file per input file (in my case here, chapters).</p>
+<p>Crucially, we define <code>[templates.preprocessors]</code> for the
+<code>CustomPreprocessors</code> conversions, which handle different
+output and input formats respectively.</p>
+<p>The aforementioned preprocessors are links to the
+<code>custom_processors.preprocessors</code> array, which contains all
+preprocessors needed for conversion. Here, that is the Markdown
+conversion, Markdown to HTML5 and Raw copying of HTML documents. For the
+last case, we use the <code>cli</code> field to change the executable
+ran during conversion to <code>cat</code> from <code>pandoc</code>, to
+simply copy the file content to memory.</p>
+<p>For EPUB conversion, we also need the processors argument, as there
+is metadata used. <code>epub_meta.yaml</code>, in this case, is a static
+template file which simply provides additional, common metadata to
+epub.</p>
+<p>Lastly, the EPUB conversion requires a copyright block specifically.
+In this case, that is solved as an injection, which simply places a
+<code>epub_copyright_block.html</code> into the epub conversions header
+injections.</p>
+
+
+</div>
+<footer>
+    <p>Tiefseetauchner © 2025</p>
+</footer>
+</body>
+
+</html>

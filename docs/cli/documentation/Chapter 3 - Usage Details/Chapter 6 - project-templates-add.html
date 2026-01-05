@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        :root {
+            --bg-gradient-start: #eef1f8;
+            --bg-gradient-end: #d9e2f2;
+            --surface: rgba(255, 255, 255, 0.8);
+            --border-subtle: rgba(255, 255, 255, 0.6);
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --accent: #2563eb;
+            --accent-soft: rgba(37, 99, 235, 0.08);
+            --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.18);
+            --shadow-nav: 0 10px 30px rgba(15, 23, 42, 0.16);
+            --radius-xl: 24px;
+            --radius-pill: 999px;
+        }
+
+        /* Layout baseline */
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+                "Segoe UI", sans-serif;
+            color: var(--text-main);
+            background: radial-gradient(circle at top, var(--bg-gradient-start), var(--bg-gradient-end));
+        }
+
+        /* Top nav */
+
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(18px);
+            background: linear-gradient(135deg,
+                    rgba(255, 255, 255, 0.3),
+                    rgba(248, 250, 252, 0.2));
+            border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+            box-shadow: var(--shadow-nav);
+        }
+
+        nav p {
+            margin: 0;
+            padding: 0.75rem 1.25rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        /* Link “chips” */
+
+        nav a {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.45rem 0.95rem;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border-radius: var(--radius-pill);
+            border: 1px solid var(--border-subtle);
+            background: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+            color: var(--accent);
+            letter-spacing: 0.01em;
+            transition:
+                transform 150ms ease,
+                box-shadow 150ms ease,
+                background 150ms ease,
+                border-color 150ms ease;
+        }
+
+        nav a:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 14px 26px rgba(15, 23, 42, 0.2);
+            background: var(--accent-soft);
+            border-color: rgba(37, 99, 235, 0.35);
+        }
+
+        nav a:active {
+            transform: translateY(0);
+            box-shadow: 0 6px 14px rgba(15, 23, 42, 0.18);
+        }
+
+        /* Main content card */
+
+        .main-body {
+            margin: 1.75rem auto 2.5rem;
+            max-width: 800px;
+            width: calc(100% - 2.5rem);
+            padding: 1.75rem 1.75rem 2rem;
+            border-radius: var(--radius-xl);
+            background: var(--surface);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: var(--shadow-soft);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        /* Typography */
+
+        .main-body h1 {
+            margin-top: 0;
+            margin-bottom: 0.9rem;
+            font-size: 1.7rem;
+            letter-spacing: -0.03em;
+        }
+
+        .main-body p {
+            margin-top: 0.4rem;
+            margin-bottom: 0.7rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+            font-size: 0.98rem;
+        }
+
+        .main-body strong {
+            color: var(--text-main);
+        }
+
+        .main-body a {
+            color: var(--accent);
+            text-decoration: none;
+            border-bottom: 1px solid rgba(37, 99, 235, 0.3);
+            padding-bottom: 0.05rem;
+            transition: border-color 140ms ease, color 140ms ease;
+        }
+
+        .main-body a:hover {
+            color: #1d4ed8;
+            border-color: rgba(37, 99, 235, 0.6);
+        }
+
+        /* Footer */
+
+        footer {
+            margin-top: auto;
+            padding: 1.25rem 1.5rem 1.75rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            opacity: 0.9;
+        }
+
+        /* Small screens */
+
+        @media (max-width: 640px) {
+            nav p {
+                padding: 0.6rem 0.85rem;
+            }
+
+            .main-body {
+                margin: 1.25rem auto 2rem;
+                width: calc(100% - 1.6rem);
+                padding: 1.4rem 1.25rem 1.6rem;
+                border-radius: 18px;
+            }
+
+            .main-body h1 {
+                font-size: 1.45rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+
+<p><a
+href="https://tiefseetauchner.github.io/TiefDownConverter/">Home</a> <a
+href="https://tiefseetauchner.github.io/TiefDownConverter/cli">CLI
+Docs</a> <a
+href="https://tiefseetauchner.github.io/TiefDownConverter/lib">LIB
+Docs</a> </p>
+
+
+</nav>
+<div class="main-body">
+
+<h2
+id="projecttemplatesadd"><code>tiefdownconverter project templates add</code></h2>
+<p><strong>Version:</strong>
+<code>tiefdownconverter 0.11.0-ALPHA.1</code></p>
+<h3 id="usage">Usage:</h3>
+<pre><code>Add a new template to the project.
+If using a preset template name, the preset will be copied to the template folder.
+If using a custom template, make sure to add the respective files to the template folder.
+Available preset templates are: template.tex, booklet.tex, lix_novel_a4.tex, lix_novel_book.tex, template_typ.typ, default_epub
+
+Usage: tiefdownconverter project templates &lt;TEMPLATE&gt; add [OPTIONS]
+
+Options:
+  -f, --template-file &lt;TEMPLATE_FILE&gt;
+          The file to use as the template. If not provided, the template name will be used.
+
+  -v, --verbose
+          Enable verbose output.
+
+  -t, --template-type &lt;TEMPLATE_TYPE&gt;
+          The type of the template. If not provided, the type will be inferred from the template file.
+          
+          [possible values: tex, typst, epub, custom-preprocessors, custom-processor]
+
+  -o, --output &lt;OUTPUT&gt;
+          The output file. If not provided, the template name will be used.
+
+      --filters &lt;FILTERS&gt;...
+          The luafilters to use for pandoc conversion of this templates markdown.
+          Luafilters are lua scripts applied during the pandoc conversion.
+          You can add a folder or a filename. If adding a folder, it will be traversed recursively, and any .lua file will be added.
+          See the pandoc documentation and &#39;Writing filters&#39; of the TiefDownConverter documentation for more details.
+
+      --preprocessors &lt;PREPROCESSORS&gt;
+          The preprocessors to use for this template.
+          A preprocessor defines the arguments passed to the pandoc conversion from the specified input format.
+          Each input format can have at most one preprocessor. Multiple preprocessors for the same input format will lead to an error.
+          There can be a preprocessor without an input format, which will be used if no other preprocessor matches the input format. Only one such preprocessor is allowed.
+          If using a CustomPreprocessors template, at least one preprocessor is required.
+          Preprocessors replace all arguments. Thus, with preprocessors, you need to define the output file and format.
+          For templates, that is the file imported by the template.
+
+      --preprocessor-output &lt;PREPROCESSOR_OUTPUT&gt;
+          The output file of the preprocessor. If not provided, the template name with the appropriate ending will be used.
+          This is the file the input gets converted to. When preprocessing the input files, the files will get converted, combined and written to this filename.
+
+      --processor &lt;PROCESSOR&gt;
+          The processor to use for this template.
+          A processor defines additional arguments passed to the conversion command.
+          For LaTeX and typst templates, this allows extending the respective conversion parameters.
+          Processors are incompatible with CustomPreprocessors conversions. Use preprocessors instead.
+
+      --header-injections &lt;HEADER_INJECTIONS&gt;...
+          The injection to use for prepending to the preprocessing step.
+          A header injection can define one or more files that will be prepended to the preprocessing step.
+          Files in header injections get prepended in the order that they are defined in in the manifest.
+          Duplicate files will be added twice.
+          Injections have to be defined in the manifest.
+
+      --body-injections &lt;BODY_INJECTIONS&gt;...
+          The injection to use for inserting into the preprocessing step.
+          A body injection can define one or more files that will be inserted into the preprocessing step.
+          Files in body injections get inserted in accordance with the sorting algorithm.
+          Duplicate files will be added twice.
+          Injections have to be defined in the manifest.
+
+      --footer-injections &lt;FOOTER_INJECTIONS&gt;...
+          The injection to use for appending to the preprocessing step.
+          A footer injection can define one or more files that will be appended to the preprocessing step.
+          Files in header injections get appended in the order that they are defined in in the manifest.
+          Duplicate files will be added twice.
+          Injections have to be defined in the manifest.
+
+      --multi-file-output
+          Enables multi-file output conversion for the template.
+          When enabling multi-file output, every input file will be converted to a corresponding output file.
+
+      --output-extension &lt;OUTPUT_EXTENSION&gt;
+          The extension used for multi-file output conversion.
+          This is required for multi-file outputs.
+
+      --meta-gen-feature &lt;META_GEN_FEATURE&gt;
+          Defines the feature level of and whether metadata files should be generated.
+          None disables navigation metadata generation.
+          NavOnly only enables navigation metadata generation and injection.
+          MetadataOnly only enables manifest metadata generation and injection.
+          Full enables full navigation metadata generation and injection.
+          
+          [possible values: none, full, nav-only, metadata-only]
+
+      --nav-meta-gen-output &lt;NAV_META_GEN_OUTPUT&gt;
+          The path to generate the navigation metadata to.
+          Gets saved in the temporary compilation directory.
+
+      --metadata-meta-gen-output &lt;METADATA_META_GEN_OUTPUT&gt;
+          The path to generate the manifest metadata to.
+          Gets saved in the temporary compilation directory.
+
+      --meta-gen-format &lt;META_GEN_FORMAT&gt;
+          [possible values: json]
+
+  -h, --help
+          Print help (see a summary with &#39;-h&#39;)</code></pre>
+
+
+</div>
+<footer>
+    <p>Tiefseetauchner © 2025</p>
+</footer>
+</body>
+
+</html>

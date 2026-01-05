@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        :root {
+            --bg-gradient-start: #eef1f8;
+            --bg-gradient-end: #d9e2f2;
+            --surface: rgba(255, 255, 255, 0.8);
+            --border-subtle: rgba(255, 255, 255, 0.6);
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --accent: #2563eb;
+            --accent-soft: rgba(37, 99, 235, 0.08);
+            --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.18);
+            --shadow-nav: 0 10px 30px rgba(15, 23, 42, 0.16);
+            --radius-xl: 24px;
+            --radius-pill: 999px;
+        }
+
+        /* Layout baseline */
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+                "Segoe UI", sans-serif;
+            color: var(--text-main);
+            background: radial-gradient(circle at top, var(--bg-gradient-start), var(--bg-gradient-end));
+        }
+
+        /* Top nav */
+
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(18px);
+            background: linear-gradient(135deg,
+                    rgba(255, 255, 255, 0.3),
+                    rgba(248, 250, 252, 0.2));
+            border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+            box-shadow: var(--shadow-nav);
+        }
+
+        nav p {
+            margin: 0;
+            padding: 0.75rem 1.25rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        /* Link “chips” */
+
+        nav a {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.45rem 0.95rem;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border-radius: var(--radius-pill);
+            border: 1px solid var(--border-subtle);
+            background: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+            color: var(--accent);
+            letter-spacing: 0.01em;
+            transition:
+                transform 150ms ease,
+                box-shadow 150ms ease,
+                background 150ms ease,
+                border-color 150ms ease;
+        }
+
+        nav a:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 14px 26px rgba(15, 23, 42, 0.2);
+            background: var(--accent-soft);
+            border-color: rgba(37, 99, 235, 0.35);
+        }
+
+        nav a:active {
+            transform: translateY(0);
+            box-shadow: 0 6px 14px rgba(15, 23, 42, 0.18);
+        }
+
+        /* Main content card */
+
+        .main-body {
+            margin: 1.75rem auto 2.5rem;
+            max-width: 800px;
+            width: calc(100% - 2.5rem);
+            padding: 1.75rem 1.75rem 2rem;
+            border-radius: var(--radius-xl);
+            background: var(--surface);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: var(--shadow-soft);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        /* Typography */
+
+        .main-body h1 {
+            margin-top: 0;
+            margin-bottom: 0.9rem;
+            font-size: 1.7rem;
+            letter-spacing: -0.03em;
+        }
+
+        .main-body p {
+            margin-top: 0.4rem;
+            margin-bottom: 0.7rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+            font-size: 0.98rem;
+        }
+
+        .main-body strong {
+            color: var(--text-main);
+        }
+
+        .main-body a {
+            color: var(--accent);
+            text-decoration: none;
+            border-bottom: 1px solid rgba(37, 99, 235, 0.3);
+            padding-bottom: 0.05rem;
+            transition: border-color 140ms ease, color 140ms ease;
+        }
+
+        .main-body a:hover {
+            color: #1d4ed8;
+            border-color: rgba(37, 99, 235, 0.6);
+        }
+
+        /* Footer */
+
+        footer {
+            margin-top: auto;
+            padding: 1.25rem 1.5rem 1.75rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            opacity: 0.9;
+        }
+
+        /* Small screens */
+
+        @media (max-width: 640px) {
+            nav p {
+                padding: 0.6rem 0.85rem;
+            }
+
+            .main-body {
+                margin: 1.25rem auto 2rem;
+                width: calc(100% - 1.6rem);
+                padding: 1.4rem 1.25rem 1.6rem;
+                border-radius: 18px;
+            }
+
+            .main-body h1 {
+                font-size: 1.45rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+
+<p><a
+href="https://tiefseetauchner.github.io/TiefDownConverter/">Home</a> <a
+href="https://tiefseetauchner.github.io/TiefDownConverter/cli">CLI
+Docs</a> <a
+href="https://tiefseetauchner.github.io/TiefDownConverter/lib">LIB
+Docs</a> </p>
+
+
+</nav>
+<div class="main-body">
+
+<h1 id="conversion-pipeline">Conversion Pipeline</h1>
+<p>The conversion pipeline, at its heart, is a simple queue of template
+– markdown project pairs that get processed one by one. Inside the
+conversion process, there’s the following steps:</p>
+<ul>
+<li>Creation of scratch directory</li>
+<li>Copying of templates and resources</li>
+<li>Merging of metadata</li>
+<li>Copying markdown files</li>
+<li>Running conversion</li>
+<li>Copying output files</li>
+</ul>
+<h2 id="queueing-system">Queueing System</h2>
+<p>Before a document can be converted, a queue must be created. The
+template – markdown project pair computation is done in TiefDownLib as a
+separate step to the conversion. It considers a given list of templates,
+profiles, and markdown projects, and based on that or, if not provided,
+the defaults, computes a queue to hand to the conversion pipeline.</p>
+<p>There’s a few defaults to keep in mind:</p>
+<ul>
+<li>Conversion is run against one manifest/project at a time.</li>
+<li>Markdown projects can be provided as a list.
+<ul>
+<li>If no markdown project is provided, all markdown projects are
+converted.</li>
+</ul></li>
+<li>Either templates or profile can be provided, never both.</li>
+<li>Templates can be provided as a list.
+<ul>
+<li>If one or more templates are provided, all are converted for all
+selected markdown projects, regardless of default profile.</li>
+<li>If no templates are provided, the profile logic sets in.</li>
+</ul></li>
+<li>One profile can be provided.
+<ul>
+<li>If a profile is provided, all contained templates are converted for
+all selected markdown projects, regardless of default profile.</li>
+<li>If no profile is provided, the default profile logic sets in.</li>
+</ul></li>
+<li>If neither templates nor profile is provided, the default profile
+for each markdown project is converted.</li>
+<li>If there is no default profile for a markdown project, all available
+templates are converted for this markdown project.</li>
+</ul>
+<h2 id="scratch-directory">Scratch Directory</h2>
+<p>All conversion happens in a temporary scratch directory. This
+directory is created when conversion is first started, and is named
+after the current timestamp.</p>
+<p>The scratch directory can be automatically removed using <a
+href="#smart-clean">smart cleaning</a>.</p>
+<h2 id="template-directory">Template Directory</h2>
+<p>Next, the template directory is copied to the conversion directory.
+This is done for each markdown project seperately.</p>
+<p>The items of the template directory are put in the markdown project
+specific folder, in which the primary conversion processes will run.</p>
+<h2 id="resources">Resources</h2>
+<p>Each markdown project can include resources that may be used by
+templates. These are, similarly to the template directory, copied to the
+markdown project specific directory.</p>
+<h2 id="shared-metadata-and-project-metadata-merging-rules">Shared
+Metadata and Project Metadata Merging Rules</h2>
+<p>Metadata gets merged after the copying of template and resources.
+Project specific metadata overrides shared metadata if conflicting.</p>
+<h2 id="copying-markdown-files">Copying Markdown Files</h2>
+<p>The markdown files are then copied for each conversion task. They are
+copied to a directory in the markdown project specific directory named
+after the template.</p>
+<h2 id="running-conversion">Running Conversion</h2>
+<p>At the heart of the conversion pipeline is, unsurprisingly, the
+conversion.</p>
+<p>First, a converter is decided from the available conversion
+engines:</p>
+<ul>
+<li>CustomPreprocessor</li>
+<li>CustomProcessor</li>
+<li>Tex</li>
+<li>Typst</li>
+<li>Epub</li>
+</ul>
+<p>Each conversion engine has a converter associated with it.</p>
+<p>After being decided, the converter is called. Shared in all
+converters is the retrieval of applicable preprocessors, injections, and
+input files. Input files are sorted according to the rules <a
+href="#input-file-sorting">below</a>.</p>
+<p>Then, navigation metadata is generated, and it as well as the
+previously computed metadata is written to the markdown project specific
+directory in accordance with the <a
+href="#metadata-generation-settings">metadata generation settings</a>,
+after which the primary conversion in accordance with the template type
+is started.</p>
+<h3 id="input-file-sorting">Input File Sorting</h3>
+<p>Input file sorting relies on numbers in the to-be-converted input
+file names. These are parsed and sorted accordingly, with directories
+with the same number being recursively added after a file of said
+number. Take the following folder structure:</p>
+<pre><code>Markdown/
+├── Take 1 - Introduction.md
+├── Chapter 2 - Usage.md
+├── 2 - Usage/
+│   ├── Subchapter 1 - Usage detail 1.md
+│   └── Subchapter 2 - Usage detail 2.md
+└── Asdf 3 - Customisation.md</code></pre>
+<p>The resulting order would be:</p>
+<ol type="1">
+<li>Take 1 - Introduction.md</li>
+<li>Chapter 2 - Usage.md</li>
+<li>2 - Usage/Subchapter 1 - Usage detail 1.md</li>
+<li>2 - Usage/Subchapter 2 - Usage detail 2.md</li>
+<li>Asdf 3 - Customisation.md</li>
+</ol>
+<p>Alphabetical order is ignored.</p>
+<h3 id="custompreprocessor-conversion-engine">CustomPreprocessor
+Conversion Engine</h3>
+<p>The CustomPreprocessor conversion engine follows the following
+steps:</p>
+<p>After the aforementioned steps, the selected preprocessors are run
+against the appropriate files. Each preprocessor can have a file
+extension filter, and the most specific filter is chosen for each file,
+falling back on a preprocessor without filter.</p>
+<p>The results are either combined to a singular large file or written
+to individual files.</p>
+<h3 id="customprocessor-conversion-engine">CustomProcessor Conversion
+Engine</h3>
+<p>The CustomProcessor conversion engine follows the following
+steps:</p>
+<p>After the aforementioned steps, the input files are run against
+preprocessors that convert to pandoc AST.</p>
+<p>The pandoc native is then combined and written to a file.</p>
+<p>Then, it is converted via pandoc in accordance with the parameters
+from the custom processor.</p>
+<h3 id="tex-conversion-engine">TeX Conversion Engine</h3>
+<p>The TeX conversion engine follows the following steps:</p>
+<p>After the aforementioned steps, the input files are converted to
+LaTeX using the preprocessors and combined.</p>
+<p>The combined LaTeX is then written to the combined output file.</p>
+<p>Then, XeLaTeX is run against the template file, converting it to PDF.
+This step is run twice, as XeLaTeX needs to first generate a
+bibliography.</p>
+<h3 id="typst-conversion-engine">Typst Conversion Engine</h3>
+<p>The Typst conversion engine follows the following steps:</p>
+<p>After the aforementioned steps, the input files are converted to
+Typst using the preprocessors and combined.</p>
+<p>The combined Typst is then written to the combined output file.</p>
+<p>Then, Typst is run against the template file, converting it to
+PDF.</p>
+<h3 id="epub-conversion-engine">Epub Conversion Engine</h3>
+<p>The Epub conversion engine follows the following steps:</p>
+<p>After the aforementioned steps, the input files are run against
+preprocessors that convert to pandoc AST.</p>
+<p>The pandoc native is then combined and written to a file.</p>
+<p>Then, pandoc is run against the AST using the processor
+arguments.</p>
+
+
+</div>
+<footer>
+    <p>Tiefseetauchner © 2025</p>
+</footer>
+</body>
+
+</html>

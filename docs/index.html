@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        :root {
+            --bg-gradient-start: #eef1f8;
+            --bg-gradient-end: #d9e2f2;
+            --surface: rgba(255, 255, 255, 0.8);
+            --border-subtle: rgba(255, 255, 255, 0.6);
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --accent: #2563eb;
+            --accent-soft: rgba(37, 99, 235, 0.08);
+            --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.18);
+            --shadow-nav: 0 10px 30px rgba(15, 23, 42, 0.16);
+            --radius-xl: 24px;
+            --radius-pill: 999px;
+        }
+
+        /* Layout baseline */
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+                "Segoe UI", sans-serif;
+            color: var(--text-main);
+            background: radial-gradient(circle at top, var(--bg-gradient-start), var(--bg-gradient-end));
+        }
+
+        /* Top nav */
+
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(18px);
+            background: linear-gradient(135deg,
+                    rgba(255, 255, 255, 0.3),
+                    rgba(248, 250, 252, 0.2));
+            border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+            box-shadow: var(--shadow-nav);
+        }
+
+        nav p {
+            margin: 0;
+            padding: 0.75rem 1.25rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        /* Link “chips” */
+
+        nav a {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.45rem 0.95rem;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border-radius: var(--radius-pill);
+            border: 1px solid var(--border-subtle);
+            background: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+            color: var(--accent);
+            letter-spacing: 0.01em;
+            transition:
+                transform 150ms ease,
+                box-shadow 150ms ease,
+                background 150ms ease,
+                border-color 150ms ease;
+        }
+
+        nav a:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 14px 26px rgba(15, 23, 42, 0.2);
+            background: var(--accent-soft);
+            border-color: rgba(37, 99, 235, 0.35);
+        }
+
+        nav a:active {
+            transform: translateY(0);
+            box-shadow: 0 6px 14px rgba(15, 23, 42, 0.18);
+        }
+
+        /* Main content card */
+
+        .main-body {
+            margin: 1.75rem auto 2.5rem;
+            max-width: 800px;
+            width: calc(100% - 2.5rem);
+            padding: 1.75rem 1.75rem 2rem;
+            border-radius: var(--radius-xl);
+            background: var(--surface);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: var(--shadow-soft);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        /* Typography */
+
+        .main-body h1 {
+            margin-top: 0;
+            margin-bottom: 0.9rem;
+            font-size: 1.7rem;
+            letter-spacing: -0.03em;
+        }
+
+        .main-body p {
+            margin-top: 0.4rem;
+            margin-bottom: 0.7rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+            font-size: 0.98rem;
+        }
+
+        .main-body strong {
+            color: var(--text-main);
+        }
+
+        .main-body a {
+            color: var(--accent);
+            text-decoration: none;
+            border-bottom: 1px solid rgba(37, 99, 235, 0.3);
+            padding-bottom: 0.05rem;
+            transition: border-color 140ms ease, color 140ms ease;
+        }
+
+        .main-body a:hover {
+            color: #1d4ed8;
+            border-color: rgba(37, 99, 235, 0.6);
+        }
+
+        /* Footer */
+
+        footer {
+            margin-top: auto;
+            padding: 1.25rem 1.5rem 1.75rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            opacity: 0.9;
+        }
+
+        /* Small screens */
+
+        @media (max-width: 640px) {
+            nav p {
+                padding: 0.6rem 0.85rem;
+            }
+
+            .main-body {
+                margin: 1.25rem auto 2rem;
+                width: calc(100% - 1.6rem);
+                padding: 1.4rem 1.25rem 1.6rem;
+                border-radius: 18px;
+            }
+
+            .main-body h1 {
+                font-size: 1.45rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+
+<p><a href="{{githubPagesUrl}}">Home</a> <a
+href="{{githubPagesUrl}}cli">CLI Docs</a> <a
+href="{{githubPagesUrl}}lib">LIB Docs</a> </p>
+
+
+</nav>
+<div class="main-body">
+
+<h1 id="tiefdown">TiefDown!</h1>
+<p>Your new best friend!</p>
+<p>If you’re like me, your only friend!</p>
+<p>Haha!</p>
+<p>Anyways, TiefDown (and by extension, TiefDownConverter) is a simple,
+yet powerful project management extravaganza to convert your markdown
+files to whatever you want. It streamlines project management,
+conversion, template management, multi-project conversion, and so much
+more that I ended up writing a gazillion line documentation for it.</p>
+<p>Ah. I was supposed to be writing a landing page with marketing
+terms…</p>
+<h1
+id="once-again---tiefdown-a-flexible-markdown-project-management-solution">Once
+again - TiefDown, A Flexible Markdown Project Management Solution</h1>
+<p>TiefDown is a project format to manage your Markdown projects. At
+it’s heart, it’s just a central manifest file that contains the metadata
+for your project, and you can do the rest - or let tools like
+TiefDownConverter do it for you.</p>
+<p>Whether you’re a developer, a writer, or a student, TiefDown is the
+perfect solution for you. It’s flexibility rivals no solution I know of,
+and it’s super easy to get started with.</p>
+<p><strong>TiefDownConverter</strong> is the official CLI tool - but
+it’s just one way to work with TiefDown projects.</p>
+<h2 id="use-cases">Use Cases</h2>
+<p>Are you writing a dissertation? A book? A blog? A website? A website
+that’s a book? A website that’s a blog? A website that’s a book that’s a
+blog? TiefDown has you covered. Simply write your content in Markdown.
+Let’s look at some of the top usecases:</p>
+<ul>
+<li><strong>Writing a book</strong>: TiefDown is the perfect solution
+for writing a book. You can write your book in Markdown, and then use
+TiefDown to convert it to an A4 PDF with a custom LaTeX or typst
+template, or to an EPUB or even a fancy Website!</li>
+<li><strong>Writing Docs</strong>: TiefDown is the perfect solution for
+writing documentation. Write the docs in Markdown and export to HTML,
+PDF, or even man pages!</li>
+<li><strong>Writing a blog</strong>: TiefDown is the perfect solution
+for writing a blog. Well, maybe not perfect. It’s no CMS, but if you
+want a SPA blog, it can do that for you. Just write a template and the
+blog posts, and TiefDown can convert it all to an HTML site, or if you
+want even a PDF! Why…? I don’t know! But it can!</li>
+</ul>
+<h2 id="why-tiefdown">Why TiefDown?</h2>
+<p>Focus on the content, not the conversion! TiefDown is specifically
+designed to alleviate the pain of converting your Markdown files to
+multiple formats.</p>
+<p>When you convert, your Markdown files are combined and converted into
+whatever format you want. You can then insert that output into your
+templates, or convert them however you want with custom processors.</p>
+<h2 id="ready-to-dive-deep">Ready to Dive Deep?</h2>
+<p>Get the reference CLI:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cargo</span> install tiefdownconverter</span></code></pre></div>
+<p>Learn the project format:</p>
+<ul>
+<li><a href="/TiefDownConverter/lib/">View Library
+Documentation</a></li>
+<li><a href="/TiefDownConverter/cli/">View CLI Documentation</a></li>
+</ul>
+<p>Contribute, extend, or integrate TiefDown into your own tools!</p>
+<ul>
+<li><a href="https://github.com/tiefseetauchner/tiefdownconverter">View
+the Source Code</a></li>
+</ul>
+
+
+</div>
+<footer>
+    <p>Tiefseetauchner © 2025</p>
+</footer>
+</body>
+
+</html>
