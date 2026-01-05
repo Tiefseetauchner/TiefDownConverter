@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        :root {
+            --bg-gradient-start: #eef1f8;
+            --bg-gradient-end: #d9e2f2;
+            --surface: rgba(255, 255, 255, 0.8);
+            --border-subtle: rgba(255, 255, 255, 0.6);
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --accent: #2563eb;
+            --accent-soft: rgba(37, 99, 235, 0.08);
+            --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.18);
+            --shadow-nav: 0 10px 30px rgba(15, 23, 42, 0.16);
+            --radius-xl: 24px;
+            --radius-pill: 999px;
+        }
+
+        /* Layout baseline */
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+                "Segoe UI", sans-serif;
+            color: var(--text-main);
+            background: radial-gradient(circle at top, var(--bg-gradient-start), var(--bg-gradient-end));
+        }
+
+        /* Top nav */
+
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(18px);
+            background: linear-gradient(135deg,
+                    rgba(255, 255, 255, 0.3),
+                    rgba(248, 250, 252, 0.2));
+            border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+            box-shadow: var(--shadow-nav);
+        }
+
+        nav p {
+            margin: 0;
+            padding: 0.75rem 1.25rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        /* Link “chips” */
+
+        nav a {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.45rem 0.95rem;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border-radius: var(--radius-pill);
+            border: 1px solid var(--border-subtle);
+            background: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+            color: var(--accent);
+            letter-spacing: 0.01em;
+            transition:
+                transform 150ms ease,
+                box-shadow 150ms ease,
+                background 150ms ease,
+                border-color 150ms ease;
+        }
+
+        nav a:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 14px 26px rgba(15, 23, 42, 0.2);
+            background: var(--accent-soft);
+            border-color: rgba(37, 99, 235, 0.35);
+        }
+
+        nav a:active {
+            transform: translateY(0);
+            box-shadow: 0 6px 14px rgba(15, 23, 42, 0.18);
+        }
+
+        /* Main content card */
+
+        .main-body {
+            margin: 1.75rem auto 2.5rem;
+            max-width: 800px;
+            width: calc(100% - 2.5rem);
+            padding: 1.75rem 1.75rem 2rem;
+            border-radius: var(--radius-xl);
+            background: var(--surface);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: var(--shadow-soft);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        /* Typography */
+
+        .main-body h1 {
+            margin-top: 0;
+            margin-bottom: 0.9rem;
+            font-size: 1.7rem;
+            letter-spacing: -0.03em;
+        }
+
+        .main-body p {
+            margin-top: 0.4rem;
+            margin-bottom: 0.7rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+            font-size: 0.98rem;
+        }
+
+        .main-body strong {
+            color: var(--text-main);
+        }
+
+        .main-body a {
+            color: var(--accent);
+            text-decoration: none;
+            border-bottom: 1px solid rgba(37, 99, 235, 0.3);
+            padding-bottom: 0.05rem;
+            transition: border-color 140ms ease, color 140ms ease;
+        }
+
+        .main-body a:hover {
+            color: #1d4ed8;
+            border-color: rgba(37, 99, 235, 0.6);
+        }
+
+        /* Footer */
+
+        footer {
+            margin-top: auto;
+            padding: 1.25rem 1.5rem 1.75rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            opacity: 0.9;
+        }
+
+        /* Small screens */
+
+        @media (max-width: 640px) {
+            nav p {
+                padding: 0.6rem 0.85rem;
+            }
+
+            .main-body {
+                margin: 1.25rem auto 2rem;
+                width: calc(100% - 1.6rem);
+                padding: 1.4rem 1.25rem 1.6rem;
+                border-radius: 18px;
+            }
+
+            .main-body h1 {
+                font-size: 1.45rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+
+<p><a
+href="https://tiefseetauchner.github.io/TiefDownConverter/">Home</a> <a
+href="https://tiefseetauchner.github.io/TiefDownConverter/cli">CLI
+Docs</a> <a
+href="https://tiefseetauchner.github.io/TiefDownConverter/lib">LIB
+Docs</a> <a
+href="https://tiefseetauchner.github.io/TiefDownConverter/cli/documentation/Chapter 3 - Usage Details/Chapter 47 - check-dependencies.html">Chapter
+3 - Usage Details/Chapter 47 - check-dependencies</a> </p>
+
+
+</nav>
+<div class="main-body">
+
+<h1 id="contributing">Contributing</h1>
+<p>This project is open source, and I’d love for you to contribute!
+There’s a few things you should know before you start.</p>
+<blockquote>
+<p><strong>NOTE:</strong> When raising the version, don’t forget to
+change the version in the documentation as well!!!</p>
+</blockquote>
+<h2 id="the-architecture">The architecture</h2>
+<p>The project has a relatively straight forward conversion process, as
+shown in the diagram below.</p>
+<figure>
+<img src="./resources/architecture.jpg" style="width:135mm;height:90mm"
+alt="Conversion Process" />
+<figcaption aria-hidden="true">Conversion Process</figcaption>
+</figure>
+<h2 id="pull-requests">Pull Requests</h2>
+<p>Pull Requests should be made with either a link to an issue or an
+explanation of</p>
+<ol type="1">
+<li>What was the problem</li>
+<li>How is it solved now</li>
+<li>How did it affect the documentation</li>
+</ol>
+<p>It takes a lot of work to understand the intention of code you didn’t
+write and then judging whether this was indeed the intended outcome.
+That’s why it’s helpful for everyone if there’s an explanation on what
+was changed and why.</p>
+<h2 id="conversion">Conversion</h2>
+<p>Conversion is split in a few different steps:</p>
+<ol type="1">
+<li>Combine all the markdown files into one megafile called
+<code>combined.md</code>.</li>
+<li>Run Pandoc conversion to TeX, EPUB, or Typst. This uses Lua filters
+that are defined in the <code>manifest.toml</code> file.</li>
+<li>Run XeLaTeX on all TeX templates, Typst on all Typst templates, and
+so on.</li>
+</ol>
+<p>Say you were to add a new conversion type. In
+<code>converters.rs</code>, you’d need to add a new function that
+handles the full conversion. Including handling lua filters, markdown
+conversion, so on. This converter function has to then be included in
+our conversion decision logic in <code>conversion_decider.rs</code>. And
+for that you need to add a new TemplateType, which includes editing the
+implementations. Then you need to add the new template type decision
+logic to <code>get_template_type_from_path</code>.</p>
+<h2 id="presets">Presets</h2>
+<blockquote>
+<p><strong>NOTE:</strong> This is a bit of a niche use case, so
+documentation is lacking. You can always ask for help on this in a
+GitHub issue.</p>
+</blockquote>
+<p>You can also add new presets, but that’s a bit more involved. You
+should check the implementation for the existing presets, I don’t think
+it’s useful to document this niche use case for now.</p>
+<h2 id="manifest">Manifest</h2>
+<p>Hope you don’t have to change the manifest.toml file. If you do,
+change the manifest model, increase the version number in
+<code>consts.rs</code> and add a upgrade logic to
+<code>manifest_model.rs</code>.</p>
+<h2 id="tests">Tests</h2>
+<p>Currently primarily integration tests. See the <code>tests</code>
+folder for examples. Any pull request to main will automatically run
+tests, and the expectation is that at least the existing tests work. If
+they break, fix your code or, if you changed behavior on purpose, the
+tests.</p>
+<p>I appreciate it if you add test coverage for your changes. I
+especially would appreciate more unit tests, but the tests I have are
+sufficient for now. Integration tests take priority over unit tests for
+me, as the overall behavior is more important to me than the individual
+functions, and I only have so much time that I want to spend on this
+project.</p>
+<h2 id="documentation">Documentation</h2>
+<p>When changing the documentation, it is of utmost importance that the
+documentation outputs are correctly generated. <em>These are not
+automatically generated on release</em> but rather held in git to more
+easily track changes during a pull request.</p>
+<p>To make sure this documentation is up to date, consider whether your
+changes significantly affect the workflow of using TiefDownConverter. If
+you add a command or flag, make sure to run
+<code>tools/generate_docs.py</code>. Either way, when changing the
+documentation, always run <code>tiefdownconverter convert -p docs</code>
+before committing the changes.</p>
+<p>Praise be you don’t need to have any fonts installed anymore - they
+are packaged in the fonts directory. But if you happen to change the
+fonts, you will need to replace them in fonts/ and add your own fonts to
+the templates.</p>
+<h2 id="code-style">Code Style</h2>
+<p>I don’t have one. I’m sorry.</p>
+
+
+</div>
+<footer>
+    <p>Tiefseetauchner © 2025</p>
+</footer>
+</body>
+
+</html>

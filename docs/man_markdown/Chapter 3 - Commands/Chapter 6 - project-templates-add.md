@@ -69,6 +69,38 @@ Options:
           Duplicate files will be added twice.
           Injections have to be defined in the manifest.
 
+      --multi-file-output
+          Enables multi-file output conversion for the template.
+          When enabling multi-file output, every input file will be converted to a corresponding output file.
+
+      --output-extension <OUTPUT_EXTENSION>
+          The extension used for multi-file output conversion.
+          This is required for multi-file outputs.
+
+      --meta-gen-feature <META_GEN_FEATURE>
+          Defines the feature level of and whether metadata files should be generated.
+          None disables metadata generation.
+          NavOnly only enables navigation metadata generation and injection.
+          MetadataOnly only enables manifest metadata generation and injection.
+          Full enables full navigation and manifest metadata generation and injection.
+          
+          [possible values: none, full, nav-only, metadata-only]
+
+      --nav-meta-gen-output <NAV_META_GEN_OUTPUT>
+          The path to generate the navigation metadata to.
+          Gets saved in the temporary compilation directory.
+
+      --metadata-meta-gen-output <METADATA_META_GEN_OUTPUT>
+          The path to generate the manifest metadata to.
+          Gets saved in the temporary compilation directory.
+
+      --meta-gen-format <META_GEN_FORMAT>
+          The format to generate metadata in.
+          Can be Json or None.
+          YML metadata is always generated, JSON metadata is only needed if used by an external program.
+          
+          [possible values: none, json]
+
   -h, --help
           Print help (see a summary with '-h')
 ```

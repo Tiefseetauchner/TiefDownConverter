@@ -1,7 +1,3 @@
-use crate::{
-    manifest_model::{Injection, MetadataSettings, PreProcessor, PreProcessors, Template},
-    template_type::TemplateType,
-};
 use color_eyre::eyre::{Ok, Result, eyre};
 use fast_glob::glob_match;
 use log::{debug, error};
@@ -15,11 +11,18 @@ use std::{
 };
 use toml::Table;
 
-struct RenderingInjections {
-    header_injections: Vec<PathBuf>,
-    body_injections: Vec<PathBuf>,
-    footer_injections: Vec<PathBuf>,
-}
+use crate::{
+    file_retrieval::get_relative_path_from_compiled_dir,
+    injections::RenderingInjections,
+    manifest_model::{
+        MetaGenerationSettings, MetadataSettings, PreProcessor, PreProcessors, Template,
+    },
+    meta_generation_format::MetaGenerationFormat,
+    nav_meta_generation::NavMeta,
+    template_type::TemplateType,
+};
+
+const DEFAULT_METADATA_YML_FILE_PATH: &str = ".meta_metadata.yml";
 
 pub(crate) fn retrieve_preprocessors(
     preprocessors: &Option<PreProcessors>,
@@ -69,95 +72,247 @@ pub(crate) fn merge_preprocessors(preprocessor_lists: Vec<Vec<PreProcessor>>) ->
 pub(crate) fn retrieve_combined_output(
     template: &Template,
     default_processors: &Option<PreProcessors>,
-) -> Result<PathBuf> {
+) -> Result<Option<PathBuf>> {
     let from_template = template
         .preprocessors
         .clone()
-        .and_then(|p| Some(p.combined_output));
+        .and_then(|p| p.combined_output);
+
+    if template.multi_file_output.unwrap_or(false) {
+        if from_template.is_some() {
+            return Err(eyre!(
+                "A template with multi-file output cannot have a preprocessor combined output defined."
+            ));
+        }
+
+        return Ok(None);
+    }
+
     let from_defaults = default_processors
         .as_ref()
-        .and_then(|p| Some(p.clone().combined_output));
+        .and_then(|p| p.clone().combined_output);
+
     let chosen = from_template.or(from_defaults).ok_or(eyre!(
         "No combined output defined for this template's preprocessor."
     ))?;
+
     debug!("retrieve_combined_output -> {}", chosen.display());
+
+    Ok(Some(chosen))
+}
+
+pub(crate) fn retrieve_output_extension(
+    template: &Template,
+    default_processors: &Option<PreProcessors>,
+) -> Result<String> {
+    let from_template = template
+        .preprocessors
+        .clone()
+        .and_then(|p| p.output_extension);
+
+    let from_defaults = default_processors
+        .as_ref()
+        .and_then(|p| p.clone().output_extension);
+
+    let chosen = from_template.or(from_defaults).ok_or(eyre!(
+        "No output extension defined for this template's preprocessor."
+    ))?;
+
+    debug!("retrieve_output_extension -> {}", chosen);
+
     Ok(chosen)
+}
+
+pub(crate) fn generate_meta_file(
+    meta_gen: &MetaGenerationSettings,
+    metadata_fields: &Table,
+    _metadata_settings: &MetadataSettings,
+    compiled_directory_path: &Path,
+) -> Result<PathBuf> {
+    let output = meta_gen
+        .nav_output
+        .clone()
+        .unwrap_or(PathBuf::from(DEFAULT_METADATA_YML_FILE_PATH));
+
+    let output = compiled_directory_path.join(output);
+
+    if let Some(parent) = output.parent() {
+        fs::create_dir_all(parent)?;
+    }
+
+    let meta_yaml = serde_yaml::to_string(metadata_fields)?;
+    fs::write(&output, meta_yaml)?;
+    debug!("Navigation metadata written to {}", output.display());
+
+    if let Some(format) = meta_gen.format
+        && format == MetaGenerationFormat::Json
+    {
+        let output = meta_gen
+            .nav_output
+            .clone()
+            .unwrap_or(PathBuf::from(DEFAULT_METADATA_YML_FILE_PATH))
+            .with_extension("json");
+
+        let output = compiled_directory_path.join(output);
+
+        let meta_json = serde_json::to_string(metadata_fields)?;
+        fs::write(&output, meta_json)?;
+        debug!("Navigation metadata written to {}", output.display());
+    }
+
+    Ok(output)
+}
+
+pub(crate) fn run_preprocessors_on_injections(
+    template: &Template,
+    compiled_directory_path: &Path,
+    metadata_fields: &Table,
+    metadata_file: &Option<PathBuf>,
+    _metadata_settings: &MetadataSettings,
+    nav_meta_data: &Option<(NavMeta, PathBuf)>,
+    preprocessors: &Vec<PreProcessor>,
+    input_files: &Vec<PathBuf>,
+) -> Result<Vec<String>> {
+    debug!("Running Preprocessors on injection.");
+    if input_files.len() > 0 {
+        run_preprocessors_on_inputs(
+            template,
+            compiled_directory_path,
+            metadata_fields,
+            metadata_file,
+            _metadata_settings,
+            nav_meta_data,
+            &preprocessors,
+            &input_files
+                .iter()
+                .map(|i| {
+                    get_relative_path_from_compiled_dir(i, compiled_directory_path)
+                        .unwrap_or(i.clone())
+                })
+                .collect(),
+        )
+    } else {
+        Ok(vec![])
+    }
 }
 
 pub(crate) fn run_preprocessors_on_inputs(
     template: &Template,
-    project_directory_path: &Path,
     compiled_directory_path: &Path,
-    conversion_input_dir: &Path,
     metadata_fields: &Table,
+    metadata_file: &Option<PathBuf>,
     _metadata_settings: &MetadataSettings,
+    nav_meta_data: &Option<(NavMeta, PathBuf)>,
     preprocessors: &Vec<PreProcessor>,
-    injections: &Vec<Injection>,
+    input_files: &Vec<PathBuf>,
 ) -> Result<Vec<String>> {
-    debug!("Collecting input files for preprocessing...");
+    let processing_chunks =
+        get_preprocessing_chunks(&input_files, template.multi_file_output.unwrap_or(false))?;
+    debug!("Created {} preprocessing chunks.", processing_chunks.len());
 
-    let injections = retrieve_injections(template, injections, conversion_input_dir)?;
-
-    let input_files = get_sorted_files(
-        conversion_input_dir,
-        project_directory_path,
-        compiled_directory_path,
-        injections,
-    )?;
-    debug!("Found {} input files.", input_files.len());
-
-    let chunks = get_preprocessing_chunks(&input_files)?;
-    debug!("Created {} preprocessing chunks.", chunks.len());
-
-    let results = chunks
+    let results = processing_chunks
         .par_iter()
         .map(|chunk| {
-            debug!("Processing chunk with extension {}: {:?}", chunk.1, chunk.0);
-            let preprocessor = preprocessors
-                .iter()
-                .filter(|p| p.extension_filter.is_some())
-                .find(|p| glob_match(p.extension_filter.as_ref().unwrap(), chunk.1.clone()))
-                .or(preprocessors.iter().find(|p| p.extension_filter.is_none()))
-                .ok_or(eyre!(
-                    "No preprocessor found for files with extension {}",
-                    chunk.1
-                ))?;
+            debug!("Processing chunk with extension {}", chunk.1);
 
-            let cli_name = preprocessor.cli.clone().unwrap_or("pandoc".to_string());
-            let cli_args = preprocess_cli_args(&preprocessor.cli_args, &metadata_fields);
+            let preprocessor = choose_preprocessor(preprocessors, &chunk.1)?;
 
-            let mut cli = Command::new(&cli_name);
-            cli.args(&cli_args);
-            cli.current_dir(compiled_directory_path);
-
-            if template.template_type != TemplateType::CustomProcessor
-                && template.template_type != TemplateType::Epub
-            {
-                add_lua_filters(
-                    template,
-                    project_directory_path,
-                    compiled_directory_path,
-                    &mut cli,
-                )?;
-            }
-            cli.args(chunk.0.clone());
-            debug!(
-                "Running preprocessor '{}' with args: \"{}\"",
-                cli.get_program().to_string_lossy(),
-                cli.get_args()
-                    .into_iter()
-                    .map(|a| a.to_string_lossy())
-                    .collect::<Vec<_>>()
-                    .join("\" \"")
-            );
-            run_with_logging(cli, &cli_name, true)
+            run_preprocessor(
+                template,
+                compiled_directory_path,
+                metadata_fields,
+                metadata_file,
+                nav_meta_data,
+                &preprocessor,
+                &chunk.0,
+            )
         })
         .collect::<Result<Vec<_>>>()?;
 
     Ok(results)
 }
 
-fn get_preprocessing_chunks(input_files: &Vec<PathBuf>) -> Result<Vec<(Vec<PathBuf>, String)>> {
+fn choose_preprocessor(preprocessors: &Vec<PreProcessor>, extension: &str) -> Result<PreProcessor> {
+    let preprocessor = preprocessors
+        .iter()
+        .filter(|p| p.extension_filter.is_some())
+        .find(|p| glob_match(p.extension_filter.as_ref().unwrap(), extension))
+        .or(preprocessors.iter().find(|p| p.extension_filter.is_none()))
+        .ok_or(eyre!(
+            "No preprocessor found for files with extension {}",
+            extension
+        ))?;
+
+    Ok(preprocessor.clone())
+}
+
+fn run_preprocessor(
+    template: &Template,
+    compiled_directory_path: &Path,
+    metadata_fields: &toml::map::Map<String, toml::Value>,
+    metadata_file: &Option<PathBuf>,
+    nav_meta_data: &Option<(NavMeta, PathBuf)>,
+    preprocessor: &PreProcessor,
+    files: &Vec<PathBuf>,
+) -> std::result::Result<String, color_eyre::eyre::Error> {
+    debug!(
+        "Running preprocessor '{}' on {} files.",
+        preprocessor.name,
+        files.len()
+    );
+
+    let cli_name = preprocessor.cli.clone().unwrap_or("pandoc".to_string());
+    let cli_args = preprocess_cli_args(&preprocessor.cli_args, &metadata_fields);
+
+    let mut cli = Command::new(&cli_name);
+    cli.args(&cli_args);
+    cli.current_dir(compiled_directory_path);
+
+    if cli_name == "pandoc"
+        && template.template_type != TemplateType::CustomProcessor
+        && template.template_type != TemplateType::Epub
+    {
+        add_lua_filters(template, compiled_directory_path, &mut cli)?;
+
+        add_nav_meta(nav_meta_data, compiled_directory_path, &mut cli)?;
+
+        if let Some(metadata_file) = metadata_file {
+            add_meta_file(metadata_file, compiled_directory_path, &mut cli)?;
+        }
+    }
+    cli.args(files.clone());
+    debug!(
+        "Running preprocessor '{}' with args: \"{}\"",
+        cli.get_program().to_string_lossy(),
+        cli.get_args()
+            .into_iter()
+            .map(|a| a.to_string_lossy())
+            .collect::<Vec<_>>()
+            .join("\" \"")
+    );
+    run_with_logging(cli, &cli_name, true)
+}
+
+fn get_preprocessing_chunks(
+    input_files: &Vec<PathBuf>,
+    create_single_file_chunks: bool,
+) -> Result<Vec<(Vec<PathBuf>, String)>> {
+    debug!("Chunking {} input files.", input_files.len());
+
+    if create_single_file_chunks {
+        return Ok(input_files
+            .iter()
+            .map(|f| {
+                (
+                    vec![f.clone()],
+                    f.extension()
+                        .and_then(|e| Some(e.to_string_lossy().to_string()))
+                        .unwrap_or(String::new()),
+                )
+            })
+            .collect::<Vec<_>>());
+    }
+
     let mut chunks = Vec::new();
     let mut current_chunk = Vec::new();
     let mut chunk_extension: Option<std::ffi::OsString> = None;
@@ -227,12 +382,11 @@ pub(crate) fn preprocess_cli_args(cli_args: &[String], metadata_fields: &Table) 
 
 pub(crate) fn add_lua_filters(
     template: &Template,
-    project_directory_path: &Path,
     compiled_directory_path: &Path,
     pandoc: &mut Command,
 ) -> Result<()> {
     for filter in template.filters.clone().unwrap_or_default() {
-        let filter = project_directory_path.join(&filter);
+        let filter = compiled_directory_path.join(&filter);
 
         if !filter.exists() {
             return Err(eyre!(
@@ -241,19 +395,13 @@ pub(crate) fn add_lua_filters(
             ));
         }
 
-        add_lua_filter_or_directory(
-            project_directory_path,
-            compiled_directory_path,
-            filter,
-            pandoc,
-        )?;
+        add_lua_filter_or_directory(compiled_directory_path, filter, pandoc)?;
     }
     debug!("add_lua_filters -> filters processed.");
     Ok(())
 }
 
 fn add_lua_filter_or_directory(
-    project_directory_path: &Path,
     compiled_directory_path: &Path,
     filter: PathBuf,
     pandoc: &mut Command,
@@ -262,217 +410,69 @@ fn add_lua_filter_or_directory(
         for entry in fs::read_dir(filter)? {
             let entry = entry?.path();
 
-            add_lua_filter_or_directory(
-                project_directory_path,
-                compiled_directory_path,
-                entry,
-                pandoc,
-            )?;
+            add_lua_filter_or_directory(compiled_directory_path, entry, pandoc)?;
         }
     } else if filter.is_file() && filter.extension().unwrap_or_default() == "lua" {
-        let rel = get_relative_path_from_compiled_dir(
-            &filter,
-            project_directory_path,
-            compiled_directory_path,
-        )
-        .unwrap_or(filter.clone());
+        let rel = get_relative_path_from_compiled_dir(&filter, compiled_directory_path)
+            .unwrap_or(filter.clone());
         debug!("Adding lua filter: {}", rel.display());
         pandoc.arg("--lua-filter").arg(
-            get_relative_path_from_compiled_dir(
-                &filter,
-                project_directory_path,
-                compiled_directory_path,
-            )
-            .unwrap_or(filter),
+            get_relative_path_from_compiled_dir(&filter, compiled_directory_path).unwrap_or(filter),
         );
     }
 
     Ok(())
 }
 
-pub(crate) fn get_relative_path_from_compiled_dir(
-    original_path: &Path,
-    project_root: &Path,
-    compiled_dir: &Path,
-) -> Option<PathBuf> {
-    let relative_to_project = original_path.strip_prefix(project_root).ok()?;
-
-    let depth = compiled_dir
-        .strip_prefix(project_root)
-        .ok()?
-        .components()
-        .count();
-    let mut relative_path = PathBuf::new();
-    for _ in 0..depth {
-        relative_path.push("..");
-    }
-
-    relative_path.push(relative_to_project);
-    Some(relative_path)
-}
-
-fn retrieve_injections(
-    template: &Template,
-    injections: &Vec<Injection>,
-    conversion_input_dir: &Path,
-) -> Result<RenderingInjections> {
-    let header_injections = retrieve_injections_from_manifest(
-        &injections,
-        template.header_injections.clone().unwrap_or(vec![]),
-        &template.name,
-        conversion_input_dir,
-    )?;
-    let body_injections = retrieve_injections_from_manifest(
-        &injections,
-        template.body_injections.clone().unwrap_or(vec![]),
-        &template.name,
-        conversion_input_dir,
-    )?;
-    let footer_injections = retrieve_injections_from_manifest(
-        &injections,
-        template.footer_injections.clone().unwrap_or(vec![]),
-        &template.name,
-        conversion_input_dir,
-    )?;
-
-    Ok(RenderingInjections {
-        header_injections,
-        body_injections,
-        footer_injections,
-    })
-}
-
-fn retrieve_injections_from_manifest(
-    injections: &Vec<Injection>,
-    template_injections: Vec<String>,
-    template_name: &String,
-    conversion_input_dir: &Path,
-) -> Result<Vec<PathBuf>> {
-    let injections = template_injections
-        .iter()
-        .map(|n| {
-            injections
-                .iter()
-                .find(|i| i.name == *n)
-                .ok_or(eyre!(
-                    "Injection '{}' referenced in template '{}' was not found in manifest.",
-                    n,
-                    template_name
-                ))
-                .and_then(|i| Ok(i.files.clone()))
-        })
-        .collect::<Result<Vec<_>>>()?
-        .iter()
-        .flatten()
-        .map(|p| conversion_input_dir.join("..").join(p.clone()))
-        .collect::<Vec<_>>();
-
-    Ok(injections)
-}
-
-fn get_sorted_files(
-    input_dir: &Path,
-    project_directory_path: &Path,
+fn add_nav_meta(
+    nav_meta_data: &Option<(NavMeta, PathBuf)>,
     compiled_directory_path: &Path,
-    injections: RenderingInjections,
-) -> Result<Vec<PathBuf>> {
-    let dir_content = fs::read_dir(input_dir)?;
+    pandoc: &mut Command,
+) -> Result<()> {
+    if let Some((nav_meta, nav_meta_path)) = nav_meta_data {
+        debug!("Adding metadata to pandoc conversion parameters.");
+        pandoc.arg("--metadata-file").arg(
+            get_relative_path_from_compiled_dir(&nav_meta_path, compiled_directory_path)
+                .unwrap_or(nav_meta_path.clone()),
+        );
 
-    let mut dir_content = dir_content
-        .filter_map(|f| {
-            let entry = f.ok()?;
+        if let Some(current_node) = nav_meta.current.clone() {
+            debug!("Found current node '{}'", current_node.id.value);
+            let meta_data_path = compiled_directory_path.join(PathBuf::from(format!(
+                ".{}.yml",
+                current_node
+                    .path
+                    .file_name()
+                    .ok_or(eyre!(
+                        "Error occurred when trying to add a non-file to metadata."
+                    ))?
+                    .to_string_lossy()
+            )));
+            std::fs::write(meta_data_path.clone(), serde_yaml::to_string(nav_meta)?)?;
 
-            Some(entry.path())
-        })
-        .collect::<Vec<_>>();
+            debug!(
+                "Wrote current node metadata. Adding current node metadata to pandoc conversion parameters."
+            );
 
-    dir_content.append(&mut injections.body_injections.clone());
-
-    dir_content.sort_by(|a, b| {
-        let a_num = retrieve_file_order_number(a);
-        let b_num = retrieve_file_order_number(b);
-
-        match a_num.cmp(&b_num) {
-            std::cmp::Ordering::Equal => {
-                let a_is_file = a.is_file();
-                let b_is_file = b.is_file();
-                match (a_is_file, b_is_file) {
-                    (true, false) => std::cmp::Ordering::Less,
-                    (false, true) => std::cmp::Ordering::Greater,
-                    _ => std::cmp::Ordering::Equal,
-                }
-            }
-            other => other,
+            add_meta_file(&meta_data_path, compiled_directory_path, pandoc)?;
         }
-    });
-
-    let injected_content = &mut injections.header_injections.clone();
-    injected_content.append(&mut dir_content);
-    injected_content.append(&mut injections.footer_injections.clone());
-
-    let input_files = injected_content
-        .iter()
-        .map(|f| {
-            if f.is_file() {
-                return Ok(vec![f.clone()]);
-            } else if f.is_dir() {
-                get_sorted_files(
-                    f,
-                    project_directory_path,
-                    compiled_directory_path,
-                    RenderingInjections {
-                        header_injections: vec![],
-                        body_injections: vec![],
-                        footer_injections: vec![],
-                    },
-                )
-            } else {
-                Err(eyre!(
-                    "Input file '{}' was not found or does not exist.",
-                    f.to_string_lossy()
-                ))
-            }
-        })
-        .collect::<Vec<_>>();
-
-    let input_files: Vec<PathBuf> = input_files
-        .into_iter()
-        .collect::<Result<Vec<_>>>()?
-        .into_iter()
-        .flatten()
-        .collect();
-
-    let input_files: Vec<PathBuf> = input_files
-        .iter()
-        .map(|f| {
-            get_relative_path_from_compiled_dir(f, project_directory_path, compiled_directory_path)
-                .unwrap_or(f.to_path_buf())
-        })
-        .collect();
-    debug!(
-        "get_sorted_files('{}') -> {} files",
-        input_dir.display(),
-        input_files.len()
-    );
-    Ok(input_files)
-}
-
-fn retrieve_file_order_number(p: &Path) -> u32 {
-    let file_name_regex = regex::Regex::new(r".*?(\d+).*").unwrap();
-
-    if let Some(order_number) = p
-        .file_name()
-        .and_then(|name| name.to_str().map(|s| s.to_string()))
-        .and_then(|s| file_name_regex.captures(&s).map(|cap| cap[1].to_string()))
-        .and_then(|n| match n.parse::<u32>() {
-            Result::Ok(n) => Some(n),
-            Err(_e) => None,
-        })
-    {
-        return order_number;
     }
 
-    0
+    Ok(())
+}
+
+fn add_meta_file(
+    metadata_file: &PathBuf,
+    compiled_directory_path: &Path,
+    pandoc: &mut Command,
+) -> Result<()> {
+    debug!("Adding metadata to pandoc conversion parameters.");
+    pandoc.arg("--metadata-file").arg(
+        get_relative_path_from_compiled_dir(&metadata_file, compiled_directory_path)
+            .unwrap_or(metadata_file.clone()),
+    );
+
+    Ok(())
 }
 
 pub(crate) fn write_combined_output(
@@ -492,6 +492,123 @@ pub(crate) fn write_combined_output(
     Ok(())
 }
 
+pub(crate) fn write_multi_file_outputs(
+    template: &Template,
+    compiled_directory_path: &Path,
+    conversion_input_dir: &Path,
+    output_path: &Path,
+    output_extension: String,
+    input_files: &Vec<PathBuf>,
+    injections: &RenderingInjections,
+    metadata_fields: &Table,
+    metadata_file: &Option<PathBuf>,
+    metadata_settings: &MetadataSettings,
+    nav_meta_data: &Option<(NavMeta, PathBuf)>,
+    preprocessors: &Vec<PreProcessor>,
+    results: &Vec<String>,
+) -> Result<()> {
+    debug!(
+        "Writing {} files to directory: {}",
+        results.len(),
+        output_path.display()
+    );
+
+    if compiled_directory_path.join(output_path).exists()
+        && !compiled_directory_path.join(output_path).is_dir()
+    {
+        return Err(eyre!(
+            "The output path for a multi-file export must be a directory."
+        ));
+    }
+
+    if !compiled_directory_path.join(output_path).exists() {
+        std::fs::create_dir_all(compiled_directory_path.join(output_path))?;
+    }
+
+    let results = results.iter().zip(input_files).collect::<Vec<_>>();
+
+    results
+        .par_iter()
+        .map(|result: &(&String, &PathBuf)| -> Result<()> {
+            let path = result.1;
+            let res = result.0;
+            let nav_meta_data = get_current_node_nav_meta(nav_meta_data, path)?;
+
+            let header_injections = run_preprocessors_on_injections(
+                template,
+                compiled_directory_path,
+                metadata_fields,
+                metadata_file,
+                metadata_settings,
+                &nav_meta_data,
+                &preprocessors,
+                &injections.header_injections,
+            )?;
+            let footer_injections = run_preprocessors_on_injections(
+                template,
+                compiled_directory_path,
+                metadata_fields,
+                metadata_file,
+                metadata_settings,
+                &nav_meta_data,
+                &preprocessors,
+                &injections.footer_injections,
+            )?;
+
+            let relative_conversion_input_dir =
+                get_relative_path_from_compiled_dir(conversion_input_dir, compiled_directory_path)
+                    .unwrap();
+            let relative_file_name = path.clone().with_extension(&output_extension);
+            let file_name = relative_file_name.strip_prefix(relative_conversion_input_dir)?;
+
+            if let Some(parent) = file_name.parent() {
+                std::fs::create_dir_all(compiled_directory_path.join(output_path).join(parent))?;
+            }
+
+            std::fs::write(
+                compiled_directory_path.join(output_path).join(file_name),
+                vec![
+                    header_injections.join("\n\n"),
+                    res.clone(),
+                    footer_injections.join("\n\n"),
+                ]
+                .join("\n\n"),
+            )?;
+
+            Ok(())
+        })
+        .collect::<Result<()>>()?;
+
+    Ok(())
+}
+
+fn get_current_node_nav_meta(
+    nav_meta_data: &Option<(NavMeta, PathBuf)>,
+    path: &PathBuf,
+) -> Result<Option<(NavMeta, PathBuf)>> {
+    return Ok(if let Some((nav_meta, nav_meta_path)) = nav_meta_data {
+        debug!(
+            "Populating current navigation metadata node: {}.",
+            path.display()
+        );
+        let nodes = nav_meta.nodes.clone().unwrap_or(vec![]);
+        let current = nodes.iter().find(|n| {
+            path.with_extension("")
+                .ends_with(&n.path.with_extension(""))
+        });
+
+        Some((
+            NavMeta {
+                nodes: None,
+                current: current.cloned(),
+            },
+            nav_meta_path.clone(),
+        ))
+    } else {
+        None
+    });
+}
+
 pub(crate) fn combine_pandoc_native(results: Vec<String>) -> String {
     let mut combined = String::new();
 
@@ -506,6 +623,18 @@ pub(crate) fn combine_pandoc_native(results: Vec<String>) -> String {
     ));
 
     combined
+}
+
+pub(crate) fn write_output(
+    compiled_directory_path: &Path,
+    combined_output: &PathBuf,
+    content: &str,
+) -> Result<()> {
+    debug!("Writing raw output to file: {}", combined_output.display());
+
+    std::fs::write(compiled_directory_path.join(&combined_output), content)?;
+
+    Ok(())
 }
 
 pub(crate) fn run_with_logging(

@@ -1517,6 +1517,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "serde_yaml"
+version = "0.9.34+deprecated"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6a8b1a1a2ebf674015cc02edccce75287f1a0130d394307b36743c2f5d504b47"
+dependencies = [
+ "indexmap",
+ "itoa",
+ "ryu",
+ "serde",
+ "unsafe-libyaml",
+]
+
+[[package]]
 name = "shlex"
 version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1638,7 +1651,7 @@ checksum = "8f50febec83f5ee1df3015341d8bd429f2d1cc62bcba7ea2076759d315084683"
 
 [[package]]
 name = "tiefdownconverter"
-version = "0.10.0"
+version = "0.11.0-ALPHA.1"
 dependencies = [
  "assert_cmd",
  "chrono",
@@ -1656,7 +1669,7 @@ dependencies = [
 
 [[package]]
 name = "tiefdownlib"
-version = "0.10.0"
+version = "0.11.0-ALPHA.1"
 dependencies = [
  "assert_cmd",
  "chrono",
@@ -1672,6 +1685,8 @@ dependencies = [
  "reqwest",
  "rstest",
  "serde",
+ "serde_json",
+ "serde_yaml",
  "tempfile",
  "toml",
 ]
@@ -1850,6 +1865,12 @@ name = "unicode-ident"
 version = "1.0.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5a5f39404a5da50712a4c1eecf25e90dd62b613502b7e925fd4e4d19b5c96512"
+
+[[package]]
+name = "unsafe-libyaml"
+version = "0.2.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "673aac59facbab8a9007c7f6108d11f63b603f7cabff99fabf650fea5c32b861"
 
 [[package]]
 name = "untrusted"

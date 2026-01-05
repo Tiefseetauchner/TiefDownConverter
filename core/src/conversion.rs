@@ -425,13 +425,25 @@ fn convert_template(
     debug!("Copying result file to output directory...");
 
     dir::create_all(project_path.join(output_dir), false)?;
-    file::copy(
-        &result_file_path,
-        project_path
-            .join(output_dir)
-            .join(result_file_path.file_name().unwrap_or_default()),
-        &file::CopyOptions::new().overwrite(true),
-    )?;
+
+    if template.multi_file_output.unwrap_or(false) {
+        dir::copy(
+            &result_file_path,
+            project_path.join(output_dir),
+            &dir::CopyOptions::new()
+                .overwrite(true)
+                .copy_inside(false)
+                .depth(0),
+        )?;
+    } else {
+        file::copy(
+            &result_file_path,
+            project_path
+                .join(output_dir)
+                .join(result_file_path.file_name().unwrap_or_default()),
+            &file::CopyOptions::new().overwrite(true),
+        )?;
+    }
 
     debug!("Copying finished.");
 

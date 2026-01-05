@@ -6,10 +6,15 @@ use toml::Table;
 
 use crate::{
     converters::common::{
-        retrieve_combined_output, retrieve_preprocessors, run_preprocessors_on_inputs,
-        write_combined_output,
+        generate_meta_file, retrieve_combined_output, retrieve_output_extension,
+        retrieve_preprocessors, run_preprocessors_on_inputs, write_combined_output,
+        write_multi_file_outputs,
     },
+    file_retrieval::get_sorted_files,
+    injections::retrieve_injections,
     manifest_model::{Injection, MetadataSettings, Processors, Template},
+    meta_generation_feature::MetaGenerationFeature,
+    nav_meta_generation::{generate_nav_meta_file, retrieve_nav_meta},
     template_type::TemplateType,
 };
 
@@ -29,7 +34,7 @@ pub(crate) fn convert_custom_preprocessors(
     );
     if template.processor != None {
         return Err(eyre!(
-            "Custom Pandoc templates cannot have a processor. Use preprocessors instead.",
+            "Custom Preprocessor templates cannot have a processor. Use preprocessors instead.",
         ));
     }
 
@@ -44,7 +49,7 @@ pub(crate) fn convert_custom_preprocessors(
 
     let Some(output_path) = output_path else {
         return Err(eyre!(
-            "Output Path is required for Custom Pandoc conversions."
+            "Output Path is required for Custom Preprocessor conversions."
         ));
     };
 
@@ -59,27 +64,104 @@ pub(crate) fn convert_custom_preprocessors(
             .collect::<Vec<String>>()
     );
 
-    let combined_output: PathBuf = retrieve_combined_output(template, &None)?;
-    debug!("Combined output file: {}", combined_output.display());
+    debug!("Collecting input files for preprocessing...");
+
+    let injections = retrieve_injections(template, compiled_directory_path, injections)?;
+
+    let input_files = get_sorted_files(
+        conversion_input_dir,
+        project_directory_path,
+        compiled_directory_path,
+        &injections,
+        template.multi_file_output.unwrap_or(false),
+    )?;
+
+    debug!("Found {} input files.", input_files.len());
+
+    debug!("Retrieving navigation metadata.");
+
+    let nav_meta_data = if let Some(meta_gen) = &template.meta_gen
+        && (meta_gen.feature == MetaGenerationFeature::Full
+            || meta_gen.feature == MetaGenerationFeature::NavOnly)
+    {
+        let output_extension = if template.multi_file_output.unwrap_or(false) {
+            Some(retrieve_output_extension(template, &None)?)
+        } else {
+            None
+        };
+        let nav_meta = retrieve_nav_meta(
+            &input_files,
+            compiled_directory_path,
+            conversion_input_dir,
+            &output_extension,
+        )?;
+        Some((
+            nav_meta.clone(),
+            generate_nav_meta_file(meta_gen, &nav_meta, compiled_directory_path)?,
+        ))
+    } else {
+        None
+    };
+
+    let metadata_file = if let Some(meta_gen) = &template.meta_gen
+        && (meta_gen.feature == MetaGenerationFeature::Full
+            || meta_gen.feature == MetaGenerationFeature::MetadataOnly)
+    {
+        Some(generate_meta_file(
+            meta_gen,
+            metadata_fields,
+            metadata_settings,
+            compiled_directory_path,
+        )?)
+    } else {
+        None
+    };
 
     debug!("Running preprocessors on inputs...");
     let results = run_preprocessors_on_inputs(
         template,
-        project_directory_path,
         compiled_directory_path,
-        conversion_input_dir,
         metadata_fields,
+        &metadata_file,
         metadata_settings,
+        &nav_meta_data,
         &preprocessors,
-        injections,
+        &input_files,
     )?;
 
-    write_combined_output(compiled_directory_path, &combined_output, &results)?;
+    let combined_output = retrieve_combined_output(template, &None)?;
+
+    if template.multi_file_output.unwrap_or(false) {
+        let output_extension = retrieve_output_extension(template, &None)?;
+
+        write_multi_file_outputs(
+            template,
+            compiled_directory_path,
+            conversion_input_dir,
+            &output_path,
+            output_extension,
+            &input_files,
+            &injections,
+            metadata_fields,
+            &metadata_file,
+            metadata_settings,
+            &nav_meta_data,
+            &preprocessors,
+            &results,
+        )?;
+    } else if let Some(combined_output) = combined_output {
+        debug!("Combined output file: {}", combined_output.display());
+        write_combined_output(compiled_directory_path, &combined_output, &results)?;
+    } else {
+        return Err(eyre!(
+            "Either multi-file output must be enabled or a combined output be set."
+        ));
+    }
 
     debug!("Preprocessing complete.");
 
     let output_path = compiled_directory_path.join(&output_path);
-    debug!("CustomPandoc result path: {}", output_path.display());
+    debug!("CustomPreprocessor result path: {}", output_path.display());
 
     Ok(output_path)
 }

@@ -1,679 +1,252 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<html>
+
 <head>
-  <meta charset="utf-8" />
-  <meta name="generator" content="pandoc" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <meta name="author" content="Tiefseetauchner et al." />
-  <title>TiefDownConverter Documentation</title>
-  <style>
-    code{white-space: pre-wrap;}
-    span.smallcaps{font-variant: small-caps;}
-    div.columns{display: flex; gap: min(4vw, 1.5em);}
-    div.column{flex: auto; overflow-x: auto;}
-    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-    /* The extra [class] is a hack that increases specificity enough to
-       override a similar rule in reveal.js */
-    ul.task-list[class]{list-style: none;}
-    ul.task-list li input[type="checkbox"] {
-      font-size: inherit;
-      width: 0.8em;
-      margin: 0 0.8em 0.2em -1.6em;
-      vertical-align: middle;
-    }
-    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
-    /* CSS for syntax highlighting */
-    html { -webkit-text-size-adjust: 100%; }
-    pre > code.sourceCode { white-space: pre; position: relative; }
-    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-    pre > code.sourceCode > span:empty { height: 1.2em; }
-    .sourceCode { overflow: visible; }
-    code.sourceCode > span { color: inherit; text-decoration: inherit; }
-    div.sourceCode { margin: 1em 0; }
-    pre.sourceCode { margin: 0; }
-    @media screen {
-    div.sourceCode { overflow: auto; }
-    }
-    @media print {
-    pre > code.sourceCode { white-space: pre-wrap; }
-    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-    }
-    pre.numberSource code
-      { counter-reset: source-line 0; }
-    pre.numberSource code > span
-      { position: relative; left: -4em; counter-increment: source-line; }
-    pre.numberSource code > span > a:first-child::before
-      { content: counter(source-line);
-        position: relative; left: -1em; text-align: right; vertical-align: baseline;
-        border: none; display: inline-block;
-        -webkit-touch-callout: none; -webkit-user-select: none;
-        -khtml-user-select: none; -moz-user-select: none;
-        -ms-user-select: none; user-select: none;
-        padding: 0 4px; width: 4em;
-        color: #aaaaaa;
-      }
-    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
-    div.sourceCode
-      {   }
-    @media screen {
-    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-    }
-    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-    code span.at { color: #7d9029; } /* Attribute */
-    code span.bn { color: #40a070; } /* BaseN */
-    code span.bu { color: #008000; } /* BuiltIn */
-    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-    code span.ch { color: #4070a0; } /* Char */
-    code span.cn { color: #880000; } /* Constant */
-    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-    code span.dt { color: #902000; } /* DataType */
-    code span.dv { color: #40a070; } /* DecVal */
-    code span.er { color: #ff0000; font-weight: bold; } /* Error */
-    code span.ex { } /* Extension */
-    code span.fl { color: #40a070; } /* Float */
-    code span.fu { color: #06287e; } /* Function */
-    code span.im { color: #008000; font-weight: bold; } /* Import */
-    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-    code span.op { color: #666666; } /* Operator */
-    code span.ot { color: #007020; } /* Other */
-    code span.pp { color: #bc7a00; } /* Preprocessor */
-    code span.sc { color: #4070a0; } /* SpecialChar */
-    code span.ss { color: #bb6688; } /* SpecialString */
-    code span.st { color: #4070a0; } /* String */
-    code span.va { color: #19177c; } /* Variable */
-    code span.vs { color: #4070a0; } /* VerbatimString */
-    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-  </style>
-  <link rel="stylesheet" href="/TiefDownConverter/template/html_template/style.css" />
+    <style>
+        :root {
+            --bg-gradient-start: #eef1f8;
+            --bg-gradient-end: #d9e2f2;
+            --surface: rgba(255, 255, 255, 0.8);
+            --border-subtle: rgba(255, 255, 255, 0.6);
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --accent: #2563eb;
+            --accent-soft: rgba(37, 99, 235, 0.08);
+            --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.18);
+            --shadow-nav: 0 10px 30px rgba(15, 23, 42, 0.16);
+            --radius-xl: 24px;
+            --radius-pill: 999px;
+        }
+
+        /* Layout baseline */
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+                "Segoe UI", sans-serif;
+            color: var(--text-main);
+            background: radial-gradient(circle at top, var(--bg-gradient-start), var(--bg-gradient-end));
+        }
+
+        /* Top nav */
+
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(18px);
+            background: linear-gradient(135deg,
+                    rgba(255, 255, 255, 0.3),
+                    rgba(248, 250, 252, 0.2));
+            border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+            box-shadow: var(--shadow-nav);
+        }
+
+        nav p {
+            margin: 0;
+            padding: 0.75rem 1.25rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        /* Link “chips” */
+
+        nav a {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.45rem 0.95rem;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border-radius: var(--radius-pill);
+            border: 1px solid var(--border-subtle);
+            background: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+            color: var(--accent);
+            letter-spacing: 0.01em;
+            transition:
+                transform 150ms ease,
+                box-shadow 150ms ease,
+                background 150ms ease,
+                border-color 150ms ease;
+        }
+
+        nav a:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 14px 26px rgba(15, 23, 42, 0.2);
+            background: var(--accent-soft);
+            border-color: rgba(37, 99, 235, 0.35);
+        }
+
+        nav a:active {
+            transform: translateY(0);
+            box-shadow: 0 6px 14px rgba(15, 23, 42, 0.18);
+        }
+
+        /* Main content card */
+
+        .main-body {
+            margin: 1.75rem auto 2.5rem;
+            max-width: 800px;
+            width: calc(100% - 2.5rem);
+            padding: 1.75rem 1.75rem 2rem;
+            border-radius: var(--radius-xl);
+            background: var(--surface);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: var(--shadow-soft);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        /* Typography */
+
+        .main-body h1 {
+            margin-top: 0;
+            margin-bottom: 0.9rem;
+            font-size: 1.7rem;
+            letter-spacing: -0.03em;
+        }
+
+        .main-body p {
+            margin-top: 0.4rem;
+            margin-bottom: 0.7rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+            font-size: 0.98rem;
+        }
+
+        .main-body strong {
+            color: var(--text-main);
+        }
+
+        .main-body a {
+            color: var(--accent);
+            text-decoration: none;
+            border-bottom: 1px solid rgba(37, 99, 235, 0.3);
+            padding-bottom: 0.05rem;
+            transition: border-color 140ms ease, color 140ms ease;
+        }
+
+        .main-body a:hover {
+            color: #1d4ed8;
+            border-color: rgba(37, 99, 235, 0.6);
+        }
+
+        /* Footer */
+
+        footer {
+            margin-top: auto;
+            padding: 1.25rem 1.5rem 1.75rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            opacity: 0.9;
+        }
+
+        /* Small screens */
+
+        @media (max-width: 640px) {
+            nav p {
+                padding: 0.6rem 0.85rem;
+            }
+
+            .main-body {
+                margin: 1.25rem auto 2rem;
+                width: calc(100% - 1.6rem);
+                padding: 1.4rem 1.25rem 1.6rem;
+                border-radius: 18px;
+            }
+
+            .main-body h1 {
+                font-size: 1.45rem;
+            }
+        }
+    </style>
 </head>
+
 <body>
-<header>
-    <em>Available at <a
-            href="https://github.com/Tiefseetauchner/TiefDownConverter">https://github.com/Tiefseetauchner/TiefDownConverter</a></em><br />
-    <nav class="nav-container">
-        <a href="/TiefDownConverter/">Home</a>
-        <a href="/TiefDownConverter/cli/">CLI Docs</a>
-        <a href="/TiefDownConverter/lib/">Library Docs</a>
-    </nav>
-</header>
-<header id="title-block-header">
-<h1 class="title">TiefDownConverter Documentation</h1>
-<p class="author">Tiefseetauchner et al.</p>
-</header>
-<nav id="TOC" role="doc-toc">
-<ul>
-<li><a href="#introduction" id="toc-introduction">Introduction</a>
-<ul>
-<li><a href="#what-is-tiefdown" id="toc-what-is-tiefdown">What is
-TiefDown?</a></li>
-</ul></li>
-<li><a href="#manifest-file" id="toc-manifest-file">Manifest File</a>
-<ul>
-<li><a href="#templates-and-processors-at-a-glance"
-id="toc-templates-and-processors-at-a-glance">Templates and processors
-(at a glance)</a></li>
-</ul></li>
-<li><a href="#conversion-folders" id="toc-conversion-folders">Conversion
-folders</a></li>
-<li><a href="#templates" id="toc-templates">Templates</a>
-<ul>
-<li><a href="#latex-templates" id="toc-latex-templates">LaTeX
-Templates</a></li>
-<li><a href="#typst-templates" id="toc-typst-templates">Typst
-Templates</a></li>
-<li><a href="#epub-templates" id="toc-epub-templates">EPUB
-Templates</a></li>
-<li><a href="#custompreprocessors-conversion"
-id="toc-custompreprocessors-conversion">CustomPreprocessors
-Conversion</a></li>
-<li><a href="#customprocessor-conversion"
-id="toc-customprocessor-conversion">CustomProcessor Conversion</a></li>
-</ul></li>
-<li><a href="#smart-clean" id="toc-smart-clean">Smart Clean</a></li>
-<li><a href="#profiles" id="toc-profiles">Profiles</a></li>
-<li><a href="#lua-filters" id="toc-lua-filters">Lua Filters</a></li>
-<li><a href="#markdown-projects" id="toc-markdown-projects">Markdown
-Projects</a>
-<ul>
-<li><a href="#custom-resources" id="toc-custom-resources">Custom
-Resources</a></li>
-<li><a href="#markdown-project-metadata"
-id="toc-markdown-project-metadata">Markdown Project Metadata</a></li>
-</ul></li>
-<li><a href="#custom-processors" id="toc-custom-processors">Custom
-Processors</a>
-<ul>
-<li><a href="#defaults" id="toc-defaults">Defaults</a></li>
-</ul></li>
-<li><a href="#shared-metadata" id="toc-shared-metadata">Shared
-Metadata</a></li>
-<li><a href="#metadata-settings" id="toc-metadata-settings">Metadata
-Settings</a></li>
-<li><a href="#injections" id="toc-injections">Injections</a>
-<ul>
-<li><a href="#header-and-footer-injections"
-id="toc-header-and-footer-injections">Header and footer
-injections</a></li>
-<li><a href="#body-injections" id="toc-body-injections">Body
-injections</a></li>
-</ul></li>
-</ul>
+    <nav>
+
+<p><a
+href="https://tiefseetauchner.github.io/TiefDownConverter/">Home</a> <a
+href="https://tiefseetauchner.github.io/TiefDownConverter/cli">CLI
+Docs</a> <a
+href="https://tiefseetauchner.github.io/TiefDownConverter/lib">LIB
+Docs</a> </p>
+
+
 </nav>
-<h1 id="introduction">Introduction</h1>
-<blockquote>
-<p>For the documenation of the library, see <a
-href="docs.rs/tiefdownlib">docs.rs</a>.</p>
-<p>For the documentation of the CLI, see <a
-href="https://tiefseetauchner.github.io/TiefDownConverter/cli">TiefDownConverter</a>.</p>
-</blockquote>
-<p>This is the documentation for the TiefDown concepts. This won’t
-explain the library or the CLI usage, but rather function as an
-introduction to the basics of TiefDown for users and contributors
-alike.</p>
-<h2 id="what-is-tiefdown">What is TiefDown?</h2>
-<p>TiefDown is a project format for managing markdown files and
-converting them to other formats. It’s not a markdown parser, but rather
-a project format and management system.</p>
-<p>Importantly, the project is split in a few parts:</p>
+<div class="main-body">
+
+<h1 id="lib-documentation">LIB Documentation</h1>
+<p>This section documents the <strong>TiefDown project format</strong>
+and the library concepts TiefDownConverter builds on (manifest,
+templates, markdown projects, and the conversion pipeline).</p>
+<p>If you’re looking for how to <em>use the CLI</em>, jump to the <a
+href="../cli/">CLI docs</a>.</p>
+<h2 id="start-here">Start here</h2>
 <ul>
-<li>The <code>manifest.toml</code> file, which contains all the
-information needed to manage and convert the project.</li>
-<li>The <code>template</code> directory, which contains all the
-templates for the project.</li>
-<li>One or more markdown directories, corresponding to markdown
-projects.</li>
+<li><a href="documentation/1%20-%20Introduction.html">Welcome to
+TiefDown</a> — what a TiefDown project is and why it exists.</li>
+<li><a
+href="documentation/3%20-%20Project%20Structure%20and%20Directories.html">Project
+Structure &amp; Directories</a> — folder layout, template dir, and
+scratch dirs.</li>
+<li><a href="documentation/4%20-%20Manifest.html">Manifest</a> — the
+<code>manifest.toml</code> schema, versioning, and examples.</li>
 </ul>
-<h1 id="manifest-file">Manifest File</h1>
-<p>The manifest file is the heart of the project. It contains all the
-information needed to manage and convert the project.</p>
-<p>It consists of a few important parts (for the full documentation,
-check <a
-href="https://docs.rs/tiefdownlib/latest/tiefdownlib/manifest_model/index.html">https://docs.rs/tiefdownlib/latest/tiefdownlib/manifest_model/index.html</a>):</p>
+<h2 id="topics-by-chapter">Topics (by chapter)</h2>
 <ul>
-<li>A version number
-<ul>
-<li>This is used to determine if the manifest is compatible with the
-current version of TiefDownConverter. If it’s not, the manifest will be
-automatically updated in the process of loading. Newer versions of the
-manifest file are rejected by the implementation.</li>
-</ul></li>
-<li>The automatic smart clean flag
-<ul>
-<li>This is a boolean flag that determines if the project should be
-cleaned automatically when a conversion is run. This is useful for
-projects that are constantly being updated, allowing a user to decide
-how many <a href="#conversion-folders">conversion folders</a> they want
-to keep.</li>
-</ul></li>
-<li>The smart clean threshold
-<ul>
-<li>This is the number of conversion folders that are kept before the
-oldest ones are deleted.</li>
-</ul></li>
-<li>A list of <a href="#markdown-projects">markdown projects</a></li>
-<li>A list of <a href="#templates">templates</a></li>
-<li>A <a href="#custom-processors">custom processors</a> object</li>
-<li>A table of <a href="#shared-metadata">shared metadata</a> for all
-markdown projects</li>
-<li>A <a href="#metadata-settings">metadata settings</a> object</li>
-<li>A list of <a href="#profiles">profiles</a> available for the
-conversion</li>
+<li><a
+href="documentation/2%20-%20Project%20Model%20Overview.html">Project
+Model Overview</a> — how the pieces fit together.</li>
+<li><a
+href="documentation/5%20-%20Conversion%20Pipeline.html">Conversion
+Pipeline</a> — queueing, copying, metadata merge, and converters.</li>
+<li><a href="documentation/6%20-%20Templates.html">Templates</a> —
+TeX/Typst/EPUB vs custom converter templates.</li>
+<li><a href="documentation/7%20-%20Lua%20Filters.html">Lua Filters</a> —
+discovery and where filters run.</li>
+<li><a href="documentation/8%20-%20Markdown%20Projects.html">Markdown
+Projects</a> — input discovery/sorting, resources, and per-project
+metadata.</li>
+<li><a href="documentation/9%20-%20Injections.html">Injections</a> —
+header/body/footer injections and when they apply.</li>
+<li><a
+href="documentation/10%20-%20Multi-file%20Output%20Model.html">Multi-file
+Output Model</a> — one output per input file (CustomPreprocessors).</li>
+<li><a
+href="documentation/11%20-%20Metadata%20Generation%20and%20Injection.html">Metadata
+Generation and Injection</a> — project vs navigation metadata and how to
+access it.</li>
+<li><a href="documentation/12%20-%20Smart%20Clean.html">Smart Clean</a>
+— pruning old conversion folders automatically.</li>
 </ul>
-<h2 id="templates-and-processors-at-a-glance">Templates and processors
-(at a glance)</h2>
-<p>Each entry under <code>[[templates]]</code> specifies one output
-variant. Important fields are:</p>
-<ul>
-<li><code>template_type</code>: <code>Tex</code>, <code>Typst</code>,
-<code>Epub</code>, <code>CustomPreprocessors</code>, or
-<code>CustomProcessor</code>.</li>
-<li><code>template_file</code>: Path relative to the template directory;
-if omitted, the template name is used.</li>
-<li><code>output</code>: Optional output filename (defaults based on
-template type).</li>
-<li><code>filters</code>: Lua filters (file or directory paths) applied
-during Pandoc steps.</li>
-<li><code>preprocessors</code>: Names of preprocessors plus a required
-<code>combined_output</code> filename the template includes.</li>
-<li><code>processor</code>: Name of a processor whose arguments are
-passed to XeLaTeX/Typst. For <code>CustomProcessor</code>, the
-<code>processor</code> arguments are passed to Pandoc as the final
-conversion step.</li>
-</ul>
-<p>Project-wide <code>[[custom_processors.preprocessors]]</code> and
-<code>[[custom_processors.processors]]</code> define reusable building
-blocks referenced by templates.</p>
-<p>Example snippets</p>
-<div class="sourceCode" id="cb1"><pre
-class="sourceCode toml"><code class="sourceCode toml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># CustomPreprocessors: you decide how inputs are preprocessed; the combined</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># output is copied to the final destination without an additional processor step.</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">[[templates]]</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Website HTML&quot;</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="dt">template_type</span> <span class="op">=</span> <span class="st">&quot;CustomPreprocessors&quot;</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">=</span> <span class="st">&quot;site/index.html&quot;</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">[templates.preprocessors]</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">preprocessors</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;html-from-md&quot;</span><span class="op">]</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">combined_output</span> <span class="op">=</span> <span class="st">&quot;output.html&quot;</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.preprocessors]]</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;html-from-md&quot;</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="dt">cli</span> <span class="op">=</span> <span class="st">&quot;pandoc&quot;</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="dt">cli_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;-f&quot;</span><span class="op">,</span> <span class="st">&quot;markdown&quot;</span><span class="op">,</span> <span class="st">&quot;-t&quot;</span><span class="op">,</span> <span class="st">&quot;html&quot;</span><span class="op">]</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># CustomProcessor: preprocess to Pandoc Native, then run Pandoc once more with</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># processor arguments to produce the final artifact.</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="kw">[[templates]]</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Docx Export&quot;</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="dt">template_type</span> <span class="op">=</span> <span class="st">&quot;CustomProcessor&quot;</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">=</span> <span class="st">&quot;book.docx&quot;</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="dt">processor</span> <span class="op">=</span> <span class="st">&quot;docx-out&quot;</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="kw">[templates.preprocessors]</span></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  <span class="dt">preprocessors</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;native-parts&quot;</span><span class="op">]</span></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="dt">combined_output</span> <span class="op">=</span> <span class="st">&quot;output.pandoc_native&quot;</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.preprocessors]]</span></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;native-parts&quot;</span></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="dt">cli</span> <span class="op">=</span> <span class="st">&quot;pandoc&quot;</span></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="dt">cli_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;-t&quot;</span><span class="op">,</span> <span class="st">&quot;native&quot;</span><span class="op">]</span></span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.processors]]</span></span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;docx-out&quot;</span></span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="dt">processor_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;--reference-doc&quot;</span><span class="op">,</span> <span class="st">&quot;resources/reference.docx&quot;</span><span class="op">]</span></span></code></pre></div>
-<h1 id="conversion-folders">Conversion folders</h1>
-<p>The conversion folder is where inputs are collected and processed for
-a run. A new, time-stamped folder is created inside the project whenever
-a conversion starts. If a <a href="#markdown-projects">markdown
-project</a> specifies an <code>output</code> directory, TiefDown uses
-that as the base for that project’s conversion folder. Old conversion
-folders can be removed manually with the clean command or automatically
-with <a href="#smart-clean">smart clean</a>.</p>
-<p>To understand what goes into the folder, it helps to look at the
-conversion pipeline (see the overview diagram):</p>
-<figure>
-<img src="./resources/architecture.jpg" alt="Workflow" />
-<figcaption aria-hidden="true">Workflow</figcaption>
-</figure>
-<ol type="1">
-<li><p>Input discovery and ordering: TiefDown scans the markdown project
-directory, orders files by the first number in the filename
-(e.g. <code>Chapter 10 - …</code>), and recurses into similarly numbered
-subfolders, preserving their order.</p></li>
-<li><p>Preprocessing by extension: Inputs are grouped by file extension.
-For each group, TiefDown selects the matching preprocessor for the
-active template (either a default or a custom one filtered by extension)
-and runs it in the conversion folder. The stdout from each run is
-captured.</p></li>
-<li><p>Combined output: The captured outputs are concatenated and
-written to the template’s configured
-<code>preprocessors.combined_output</code> file (typically
-<code>output.tex</code> for LaTeX or <code>output.typ</code> for Typst).
-Your template includes this file.</p></li>
-<li><p>Metadata files: TiefDown generates <code>metadata.tex</code> or
-<code>metadata.typ</code> (only if they don’t already exist) based on
-<code>[shared_metadata]</code>, any project-specific metadata, and your
-optional <a href="#metadata-settings">metadata settings</a>.</p></li>
-<li><p>Template processing: Depending on the template type, TiefDown
-runs XeLaTeX (twice) or Typst on the template file in the conversion
-folder, optionally passing arguments from a named <a
-href="#custom-processors">processor</a>. EPUB templates invoke Pandoc
-directly. <code>CustomPreprocessors</code> templates copy the combined
-output as-is to the final destination. <code>CustomProcessor</code>
-templates run a final Pandoc invocation reading the combined Pandoc
-Native input and passing the configured processor arguments.</p></li>
-<li><p>Finalization: The produced artifact (e.g. a PDF or EPUB) is then
-copied to the markdown project’s configured output path.</p></li>
-</ol>
-<h1 id="templates">Templates</h1>
-<p>Templating in TiefDown is done in several ways:</p>
-<ul>
-<li><a href="#latex-templates">LaTeX templates</a>
-<ul>
-<li>The most basic form of templating, it generates a LaTeX document
-from the markdown files that can be included in a LaTeX document.</li>
-<li>Supports Metadata file generation.</li>
-</ul></li>
-<li><a href="#typst-templates">Typst templates</a>
-<ul>
-<li>Similar to LaTeX, it generates a Typst document from the markdown
-files that can be included in a Typst document.</li>
-<li>Supports Metadata file generation.</li>
-</ul></li>
-<li><a href="#epub-templates">EPUB templates</a>
-<ul>
-<li>A legacy templating system, it generates a EPUB document from the
-markdown files. Convoluted and very much custom to basic usage.</li>
-<li>Adds Metadata directly to the EPUB file.</li>
-<li>(!) This template type should be forgone in favour of
-CustomPreprocessors conversion.</li>
-</ul></li>
-<li><a href="#custompreprocessors-conversion">CustomPreprocessors
-conversion</a>
-<ul>
-<li>A flexible pipeline where you define one or more preprocessors
-(Pandoc or any CLI) and write their combined output to a file your
-template or output references. No final processing step is
-performed.</li>
-<li>Supports metadata insertion into CLI arguments.</li>
-</ul></li>
-<li><a href="#customprocessor-conversion">CustomProcessor conversion</a>
-<ul>
-<li>Preprocesses inputs to a single Pandoc Native document and then runs
-a final Pandoc call with your processor arguments to produce the
-artifact (e.g., HTML, docx, reveal.js, etc.).</li>
-</ul></li>
-</ul>
-<h2 id="latex-templates">LaTeX Templates</h2>
-<p>LaTeX templates are the most intuitive form of templating in
-TiefDown, but also the most fleshed out. The basic usage generates a
-LaTeX document from markdown, usually output.tex, with <a
-href="#lua-filters">lua-filters</a> applied depending on the template,
-and then converts that template file to a PDF.</p>
-<p>The LaTeX file must include the following:</p>
-<div class="sourceCode" id="cb2"><pre
-class="sourceCode latex"><code class="sourceCode latex"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">\input</span>{./output.tex}</span></code></pre></div>
-<p>This imports the converted markdown files into the LaTeX document.
-You may adjust the behaviour by using <a
-href="#custom-processors">custom preprocessors</a> and <a
-href="#custom-processors">custom processors</a>.</p>
-<p>For Metadata, one can also import the metadata file, which is
-generated by TiefDown during the conversion process.</p>
-<div class="sourceCode" id="cb3"><pre
-class="sourceCode latex"><code class="sourceCode latex"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">\input</span>{./metadata.tex}</span></code></pre></div>
-<p>This file provides a macro to access metadata using the
-<code>\meta{}</code> keyword. This can be adjusted using the <a
-href="#metadata-settings">metadata settings</a>.</p>
-<p>There are preset templates available in the core library. These give
-a basic framework for extension and shouldn’t be taken as the only way
-to use LaTeX templates.</p>
-<h2 id="typst-templates">Typst Templates</h2>
-<p>Typst templates are, in concept, identical to LaTeX templates. They
-generate a Typst document from markdown, usually output.typ, with <a
-href="#lua-filters">lua-filters</a> applied depending on the template,
-and then converts that template file to a PDF.</p>
-<p>Importing the typst file works similar:</p>
-<pre class="typst"><code>#include &quot;output.typ&quot;</code></pre>
-<p>Again, see <a href="#custom-processors">custom preprocessors</a> and
-<a href="#custom-processors">custom processors</a> for more information
-on customization.</p>
-<p>Metadata importing is easier as typst has an object system.</p>
-<pre class="typst"><code>#import &quot;./metadata.typ&quot;: meta</code></pre>
-<p>One can then access metadata using the <code>meta</code> object.</p>
-<p>There are also preset templates available in the core library. Again,
-these are just a basic suggestion.</p>
-<h2 id="epub-templates">EPUB Templates</h2>
-<p>Epub templates are a custom version of CustomProcessing templates.
-They add the ability to add CSS and embed fonts through the templating
-system without defining the files in the processor.</p>
-<p>When adding a css file to the template directory of an epub template,
-it gets added to the pandoc conversion process with the <code>-c</code>
-flag.</p>
-<p>Additionally, you can add a <code>fonts/</code> directory in the epub
-folder. Every file in this directory gets added to the conversion
-process using the <code>--epub-embed-font</code> flag.</p>
-<p><strong>NOTE:</strong> this template type is somewhat deprecated and
-will likely not be gaining features. It has some shortcuts to
-CustomProcessor conversion but for full control, use said template type
-instead.</p>
-<h2 id="custompreprocessors-conversion">CustomPreprocessors
-Conversion</h2>
-<p>CustomPreprocessors replaces the older “Custom Pandoc Conversion”
-naming. It lets you define exactly how inputs are preprocessed (with
-Pandoc or any CLI) and where the combined output is written. There is no
-additional processing step after the combined output is produced.</p>
-<p>Key points</p>
-<ul>
-<li>Define one or more preprocessors under
-<code>[[custom_processors.preprocessors]]</code>.</li>
-<li>In the template, reference them via
-<code>preprocessors.preprocessors</code> and specify
-<code>preprocessors.combined_output</code>.</li>
-<li>The converter runs each preprocessor per extension group, captures
-stdout, and concatenates into the combined output file.</li>
-<li>Your template or output process must copy or reference this file to
-the final destination.</li>
-</ul>
-<p>Example: single-file HTML without a LaTeX/Typst step</p>
-<div class="sourceCode" id="cb6"><pre
-class="sourceCode toml"><code class="sourceCode toml"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[templates]]</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;HTML Article&quot;</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="dt">template_type</span> <span class="op">=</span> <span class="st">&quot;CustomPreprocessors&quot;</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">=</span> <span class="st">&quot;article.html&quot;</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">[templates.preprocessors]</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">preprocessors</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;md-to-html&quot;</span><span class="op">]</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">combined_output</span> <span class="op">=</span> <span class="st">&quot;output.html&quot;</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.preprocessors]]</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;md-to-html&quot;</span></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="dt">cli</span> <span class="op">=</span> <span class="st">&quot;pandoc&quot;</span></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="dt">cli_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;-f&quot;</span><span class="op">,</span> <span class="st">&quot;gfm&quot;</span><span class="op">,</span> <span class="st">&quot;-t&quot;</span><span class="op">,</span> <span class="st">&quot;html&quot;</span><span class="op">]</span></span></code></pre></div>
-<h2 id="customprocessor-conversion">CustomProcessor Conversion</h2>
-<p>CustomProcessor is a two-phase pipeline:</p>
-<ul>
-<li>Preprocess: Convert all inputs to Pandoc Native (defaults provided)
-and write a single <code>output.pandoc_native</code> file.</li>
-<li>Process: Run Pandoc once more, reading the native file and applying
-your processor’s arguments to produce the final artifact.</li>
-</ul>
-<p>Requirements and behavior</p>
-<ul>
-<li>The template’s <code>processor</code> is required and must reference
-an entry under <code>[[custom_processors.processors]]</code>.</li>
-<li><code>preprocessors.combined_output</code> should be a native file
-(defaults to <code>output.pandoc_native</code>).</li>
-<li>Lua filters configured on the template are applied to Pandoc
-preprocessing steps; the final Pandoc step uses
-<code>processor_args</code> only.</li>
-</ul>
-<p>Example: produce a docx from the combined native document</p>
-<div class="sourceCode" id="cb7"><pre
-class="sourceCode toml"><code class="sourceCode toml"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[templates]]</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Docx&quot;</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="dt">template_type</span> <span class="op">=</span> <span class="st">&quot;CustomProcessor&quot;</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">=</span> <span class="st">&quot;book.docx&quot;</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="dt">processor</span> <span class="op">=</span> <span class="st">&quot;docx&quot;</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">[templates.preprocessors]</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">preprocessors</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;native&quot;</span><span class="op">]</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">combined_output</span> <span class="op">=</span> <span class="st">&quot;output.pandoc_native&quot;</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.preprocessors]]</span></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;native&quot;</span></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="dt">cli</span> <span class="op">=</span> <span class="st">&quot;pandoc&quot;</span></span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="dt">cli_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;-t&quot;</span><span class="op">,</span> <span class="st">&quot;native&quot;</span><span class="op">]</span></span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.processors]]</span></span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;docx&quot;</span></span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="dt">processor_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;--reference-doc&quot;</span><span class="op">,</span> <span class="st">&quot;resources/ref.docx&quot;</span><span class="op">]</span></span></code></pre></div>
-<h1 id="smart-clean">Smart Clean</h1>
-<p>Smart clean automatically removes old conversion folders. When
-enabled via <code>smart_clean</code> in <code>manifest.toml</code>,
-TiefDown keeps only a given number of recent folders. The number is
-specified with <code>smart_clean_threshold</code> and defaults to
-<code>5</code>.</p>
-<p>During conversion the library checks the amount of existing
-conversion folders and deletes the oldest ones once the threshold is
-exceeded.</p>
-<h1 id="profiles">Profiles</h1>
-<p>A profile is a named list of templates that can be converted
-together. Defining profiles avoids having to pass a long list of
-template names every time you run the converter.</p>
-<p>Profiles are stored in the project’s <code>manifest.toml</code>:</p>
-<div class="sourceCode" id="cb8"><pre
-class="sourceCode toml"><code class="sourceCode toml"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[profiles]]</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Documentation&quot;</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="dt">templates</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;PDF Documentation LaTeX&quot;</span><span class="op">,</span> <span class="st">&quot;PDF Documentation&quot;</span><span class="op">]</span></span></code></pre></div>
-<p>Use the <code>--profile</code> option with
-<code>tiefdownconverter convert</code> to select a profile. Markdown
-projects may also specify a <code>default_profile</code>; this profile
-is used if none is supplied on the command line.</p>
-<h1 id="lua-filters">Lua Filters</h1>
-<p>Lua filters allow you to modify the document structure during
-Pandoc’s conversion step. They are attached to templates through the
-<code>filters</code> field. The value may be a single Lua file or a
-directory containing multiple filter scripts.</p>
-<p>Pandoc executes the filters in the order they are listed. Filters can
-rename headers, insert custom blocks or otherwise transform the document
-before it reaches the template engine.</p>
-<p>Example filter to adjust chapter headings:</p>
-<div class="sourceCode" id="cb9"><pre
-class="sourceCode lua"><code class="sourceCode lua"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> Header<span class="op">(</span><span class="va">el</span><span class="op">)</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="va">el</span><span class="op">.</span><span class="va">level</span> <span class="op">==</span> <span class="dv">1</span> <span class="cf">then</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">pandoc</span><span class="op">.</span>RawBlock<span class="op">(</span><span class="st">&quot;latex&quot;</span><span class="op">,</span> <span class="st">&quot;</span><span class="sc">\\</span><span class="st">chapter{&quot;</span> <span class="op">..</span> <span class="va">pandoc</span><span class="op">.</span><span class="va">utils</span><span class="op">.</span>stringify<span class="op">(</span><span class="va">el</span><span class="op">.</span><span class="va">content</span><span class="op">)</span> <span class="op">..</span> <span class="st">&quot;}&quot;</span><span class="op">)</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
-<p>For more details on writing filters see the Pandoc documentation.</p>
-<p>Note: Lua filters apply to the Pandoc preprocessing step(s). If a
-template uses a custom preprocessor whose CLI is not Pandoc, those
-filters have no effect on that preprocessor’s output.</p>
-<h1 id="markdown-projects">Markdown Projects</h1>
-<p>A TiefDown project can contain multiple markdown projects. Each
-project defines where the source files live and where the converted
-results should be placed. The information is stored in
-<code>[[markdown_projects]]</code> entries in
-<code>manifest.toml</code>.</p>
-<div class="sourceCode" id="cb10"><pre
-class="sourceCode toml"><code class="sourceCode toml"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[markdown_projects]]</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Book One&quot;</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="dt">path</span> <span class="op">=</span> <span class="st">&quot;book_one/markdown&quot;</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="dt">output</span> <span class="op">=</span> <span class="st">&quot;book_one/output&quot;</span></span></code></pre></div>
-<p>A markdown project may define a <code>default_profile</code> used for
-conversion, a list of <code>resources</code> to copy into the conversion
-folder and its own metadata.</p>
-<h2 id="custom-resources">Custom Resources</h2>
-<p>Resources are additional files that are copied from the markdown
-project directory to the conversion folder before processing. Typical
-examples are images, CSS files or fonts needed by a template. Specify
-them in the <code>resources</code> array:</p>
-<div class="sourceCode" id="cb11"><pre
-class="sourceCode toml"><code class="sourceCode toml"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="dt">resources</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;resources/cover.png&quot;</span><span class="op">,</span> <span class="st">&quot;resources/styles.css&quot;</span><span class="op">]</span></span></code></pre></div>
-<h2 id="markdown-project-metadata">Markdown Project Metadata</h2>
-<p>Project specific metadata is stored under the
-<code>metadata_fields</code> table of a markdown project. These values
-are merged with the <code>[shared_metadata]</code> of the project during
-conversion. When keys collide, the markdown project metadata overrides
-the shared metadata.</p>
-<h1 id="custom-processors">Custom Processors</h1>
-<p>Custom processors let you change the commands used during conversion.
-They come in two forms:</p>
-<ul>
-<li><strong>Preprocessors</strong> replace the default pandoc invocation
-that generates the intermediate file.</li>
-<li><strong>Processors</strong> provide additional arguments to the
-program that handles the template itself (for example XeLaTeX or
-Typst).</li>
-</ul>
-<p>A preprocessor is defined under
-<code>[[custom_processors.preprocessors]]</code>:</p>
-<div class="sourceCode" id="cb12"><pre
-class="sourceCode toml"><code class="sourceCode toml"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.preprocessors]]</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Enable Listings&quot;</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="dt">cli_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;-t&quot;</span><span class="op">,</span> <span class="st">&quot;latex&quot;</span><span class="op">,</span> <span class="st">&quot;--listings&quot;</span><span class="op">]</span></span></code></pre></div>
-<p>A preprocessor can also define a command using the <code>cli</code>
-field. This replaces the Pandoc preprocessing step with a custom cli
-command preprocessing step.</p>
-<div class="sourceCode" id="cb13"><pre
-class="sourceCode toml"><code class="sourceCode toml"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.preprocessors]]</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Copy without modification&quot;</span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="dt">cli</span> <span class="op">=</span> <span class="st">&quot;cat&quot;</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="dt">cli_args</span> <span class="op">=</span> <span class="op">[]</span></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="dt">extension_filter</span> <span class="op">=</span> <span class="st">&quot;typ&quot;</span></span></code></pre></div>
-<p>Templates reference one or more preprocessors with their
-<code>preprocessors</code> field, which also has to define a
-<code>combined_output</code> field. The converter captures the stdout of
-each preprocessor run and writes it to this file, which your template
-then includes (<code>\input{./output.tex}</code> or
-<code>#include "./output.typ"</code>) or copies to the output location
-for <code>CustomPreprocessors</code> templates.</p>
-<p>Processors are specified similarly and referenced via the
-<code>processor</code> field:</p>
-<div class="sourceCode" id="cb14"><pre
-class="sourceCode toml"><code class="sourceCode toml"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[custom_processors.processors]]</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;Typst Font Directory&quot;</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="dt">processor_args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;--font-path&quot;</span><span class="op">,</span> <span class="st">&quot;fonts/&quot;</span><span class="op">]</span></span></code></pre></div>
-<p>Usage notes:</p>
-<ul>
-<li>For <code>CustomPreprocessors</code> templates, there is no
-processor step. You are responsible for ensuring the
-<code>combined_output</code> is the final artifact you want to copy to
-the project’s output.</li>
-<li>For <code>CustomProcessor</code> templates, a processor is required.
-TiefDown combines inputs to Pandoc Native (defaults provided) and then
-runs Pandoc with your <code>processor_args</code> to produce the final
-artifact.</li>
-</ul>
-<p>These mechanisms allow fine-grained control over the conversion
-pipeline when the defaults are not sufficient.</p>
-<h2 id="defaults">Defaults</h2>
-<p>TiefDown provides reasonable defaults per template type:</p>
-<ul>
-<li>Tex templates preprocess inputs with Pandoc using
-<code>-t latex</code>, writing <code>output.tex</code>.</li>
-<li>Typst templates use two preprocessors: Pandoc with
-<code>-t typst</code> for non-<code>.typ</code> inputs, and a
-pass-through step for <code>.typ</code> inputs so existing Typst files
-are concatenated. The combined output is <code>output.typ</code>.</li>
-</ul>
-<p>You can override a default for a particular extension by defining a
-preprocessor with a matching <code>extension_filter</code>; defaults for
-other extensions remain.</p>
-<p>Preprocessors can be scoped by extension via
-<code>extension_filter</code>, which matches only the file extension
-(glob patterns such as <code>t*</code> are supported). If you omit the
-filter, the preprocessor acts as a fallback when no more specific filter
-matches. Defaults exist per template type and are merged by extension;
-defining your own preprocessor for a particular extension replaces the
-default for that extension but leaves the others intact. Finally,
-<code>cli_args</code> support metadata substitution, so any occurrence
-of <code>{{key}}</code> is replaced with the corresponding metadata
-value at conversion time.</p>
-<h1 id="shared-metadata">Shared Metadata</h1>
-<p>Shared metadata is defined once for the whole project and is
-available to every markdown project. It lives under
-<code>[shared_metadata]</code> in the manifest file and is merged with
-project specific metadata at conversion time. Values defined in a
-markdown project override entries from the shared metadata.</p>
-<p>Use shared metadata for information that stays the same across
-multiple books or documents, like the publisher or an overarching author
-list.</p>
-<h1 id="metadata-settings">Metadata Settings</h1>
-<p>Metadata settings influence how metadata files are generated. The
-<code>[metadata_settings]</code> table currently supports the
-<code>metadata_prefix</code> option. This prefix determines the name of
-the macro or object used to access metadata in templates.</p>
-<p>For example, with</p>
-<div class="sourceCode" id="cb15"><pre
-class="sourceCode toml"><code class="sourceCode toml"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[metadata_settings]</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="dt">metadata_prefix</span> <span class="op">=</span> <span class="st">&quot;book&quot;</span></span></code></pre></div>
-<p>the generated LaTeX file defines a <code>\book{}</code> command while
-Typst exposes a <code>book</code> object. In other words, the prefix
-fully replaces the default <code>meta</code> name. If no prefix is set
-the command and object are called <code>meta</code>.</p>
-<h1 id="injections">Injections</h1>
-<p>Injections are a project-driven way to insert input files at either
-the top, inside, or bottom of a document, correspondingly named header,
-body and footer injections.</p>
-<p>Injections serve as a template scoped way to add content to a
-conversion. An injection is defined once in the manifest and then
-assigned to a template as any of the aforementioned methods.</p>
-<p>During conversion, the injected files are resolved and placed in the
-list of input files to be converted to the intermediary format.</p>
-<h2 id="header-and-footer-injections">Header and footer injections</h2>
-<p>Header injections are inserted at the top of the document, while
-footer injections are inserted at the bottom, both in the order as
-defined in the manifest. The first file defined in the first referenced
-injection is placed first, the last file of the last referenced
-injection last.</p>
-<h2 id="body-injections">Body injections</h2>
-<p>Body injections are injected before the main sorting algorithm as any
-file in the input directory would be. That means they get sorted in
-accordance with the primary sorting algorithm.</p>
-<p>Tiefseetauchner © 2025</p>
+
+
+</div>
+<footer>
+    <p>Tiefseetauchner © 2025</p>
+</footer>
 </body>
+
 </html>

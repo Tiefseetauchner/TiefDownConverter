@@ -12,5 +12,7 @@ set ylabel "Lines of Code"
 set grid
 set key off
 set xtics rotate by -45
+set format y "%.0f"
+set ytics 1000
 
 plot datafile using 1:2 with lines lw 2 lc rgb "blue"

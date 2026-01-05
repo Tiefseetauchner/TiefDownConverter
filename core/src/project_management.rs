@@ -1,9 +1,11 @@
 use crate::{
     consts::CURRENT_MANIFEST_VERSION,
     manifest_model::{
-        Manifest, MarkdownProject, PreProcessor, PreProcessors, Processor, Processors, Profile,
-        Template, upgrade_manifest,
+        Manifest, MarkdownProject, MetaGenerationSettings, PreProcessor, PreProcessors, Processor,
+        Processors, Profile, Template, upgrade_manifest,
     },
+    meta_generation_feature::MetaGenerationFeature,
+    meta_generation_format::MetaGenerationFormat,
     template_management::{self, add_lix_filters, get_template_path, get_template_type_from_path},
     template_type::TemplateType,
 };
@@ -141,6 +143,8 @@ fn get_template_mapping_for_preset(template: &String) -> Result<Template> {
         header_injections: None,
         body_injections: None,
         footer_injections: None,
+        multi_file_output: None,
+        meta_gen: None,
     };
 
     add_lix_filters(&mut template);
@@ -162,6 +166,15 @@ fn get_template_mapping_for_preset(template: &String) -> Result<Template> {
 ///   * Can be either a file or directory.
 /// * `preprocessor` - The name of the preprocessor to use.
 /// * `processor` - The name of the processor to use.
+/// * `header_injections` - The list of injections to be preprended to the document.
+/// * `body_injections` - The list of injections to be inserted into the document.
+/// * `body_injections` - The list of injections to be appended to the document.
+/// * `multi_file_output` - Whether the created template will be using multi file output.
+/// * `output_extension` - Extension to use for multi file outputs.
+/// * `meta_gen_feature` - Featureset of meta generation
+/// * `nav_meta_gen_output` - Output path of IR for navigation meta generation
+/// * `metadata_meta_gen_output` - Output path of IR for metadata meta generation
+/// * `meta_gen_format` - Output format of IR for meta generation
 ///
 /// # Returns
 ///
@@ -179,6 +192,12 @@ pub fn add_template(
     header_injections: Option<Vec<String>>,
     body_injections: Option<Vec<String>>,
     footer_injections: Option<Vec<String>>,
+    multi_file_output: bool,
+    output_extension: Option<String>,
+    meta_gen_feature: Option<MetaGenerationFeature>,
+    nav_meta_gen_output: Option<PathBuf>,
+    metadata_meta_gen_output: Option<PathBuf>,
+    meta_gen_format: Option<MetaGenerationFormat>,
 ) -> Result<()> {
     debug!(
         "Adding template '{}' (type: {:?})...",
@@ -203,19 +222,49 @@ pub fn add_template(
         }
     };
 
-    if preprocessors.is_some() && preprocessor_output.is_none() {
+    if preprocessors.is_some() && preprocessor_output.is_none() && !multi_file_output {
         return Err(eyre!(
-            "Cannot set preprocessors without setting a combined output."
+            "Cannot set preprocessors without setting a combined output for non-multi-file templates."
+        ));
+    }
+
+    if preprocessor_output.is_some() && multi_file_output {
+        return Err(eyre!(
+            "Cannot set multi-file-output while also setting a preprocessor output."
+        ));
+    }
+
+    if multi_file_output != output_extension.is_some() {
+        return Err(eyre!(
+            "Multi-file output requires an output extension to be set."
         ));
     }
 
     let mut template_preprocessors = None;
-    if preprocessor_output.is_some() {
+    if preprocessor_output.is_some() || multi_file_output {
         template_preprocessors = Some(PreProcessors {
             preprocessors: preprocessors.unwrap_or(vec![]),
-            combined_output: PathBuf::from(preprocessor_output.unwrap()),
+            combined_output: if multi_file_output {
+                None
+            } else {
+                Some(PathBuf::from(preprocessor_output.unwrap()))
+            },
+            output_extension,
         });
     }
+
+    let meta_gen = if let Some(meta_gen_feature) = meta_gen_feature
+        && meta_gen_feature != MetaGenerationFeature::None
+    {
+        Some(MetaGenerationSettings {
+            feature: meta_gen_feature,
+            nav_output: nav_meta_gen_output,
+            metadata_output: metadata_meta_gen_output,
+            format: meta_gen_format,
+        })
+    } else {
+        None
+    };
 
     let mut template = Template {
         name: template_name.clone(),
@@ -228,6 +277,8 @@ pub fn add_template(
         header_injections,
         body_injections,
         footer_injections,
+        multi_file_output: if multi_file_output { Some(true) } else { None },
+        meta_gen,
     };
 
     create_templates(&project, &vec![template.clone()])?;
@@ -314,6 +365,14 @@ pub fn remove_template(project: Option<PathBuf>, template_name: String) -> Resul
 ///   * Can be either a file or directory.
 /// * `preprocessor` - The name of the preprocessor to use.
 /// * `processor` - The name of the processor to use.
+/// * `header_injections` - The list of injections to be preprended to the document.
+/// * `body_injections` - The list of injections to be inserted into the document.
+/// * `body_injections` - The list of injections to be appended to the document.
+/// * `multi_file_output` - Whether the created template will be using multi file output.
+/// * `meta_gen_feature` - Featureset of meta generation
+/// * `nav_meta_gen_output` - Output path of IR for navigation meta generation
+/// * `metadata_meta_gen_output` - Output path of IR for metadata meta generation
+/// * `meta_gen_format` - Output format of IR for meta generation
 ///
 /// # Returns
 ///
@@ -335,6 +394,12 @@ pub fn update_template(
     header_injections: Option<Vec<String>>,
     body_injections: Option<Vec<String>>,
     footer_injections: Option<Vec<String>>,
+    multi_file_output: Option<bool>,
+    output_extension: Option<String>,
+    meta_gen_feature: Option<MetaGenerationFeature>,
+    nav_meta_gen_output: Option<PathBuf>,
+    metadata_meta_gen_output: Option<PathBuf>,
+    meta_gen_format: Option<MetaGenerationFormat>,
 ) -> Result<()> {
     debug!(
         "Updating template '{}' (fields provided: type={:?}, file={:?}, output={:?})",
@@ -384,12 +449,19 @@ pub fn update_template(
         }
 
         if let Some(preprocessor_output) = preprocessor_output {
+            if template.multi_file_output.unwrap_or(false) || multi_file_output.unwrap_or(false) {
+                return Err(eyre!(
+                    "Cannot set the preprocessor output for a template with multi-file-output enabled."
+                ));
+            }
+
             if let Some(preprocessors) = &mut template.preprocessors {
-                preprocessors.combined_output = PathBuf::from(preprocessor_output);
+                preprocessors.combined_output = Some(PathBuf::from(preprocessor_output));
             } else {
                 template.preprocessors = Some(PreProcessors {
                     preprocessors: vec![],
-                    combined_output: PathBuf::from(preprocessor_output),
+                    combined_output: Some(PathBuf::from(preprocessor_output)),
+                    output_extension: None,
                 });
             }
         }
@@ -398,10 +470,10 @@ pub fn update_template(
             if let Some(template_preprocessors) = &mut template.preprocessors {
                 template_preprocessors.preprocessors = preprocessors;
             } else {
-                return Err(eyre!(
-                    "Preprocessor cannot be set as no combined output is set for the template '{}'. Please set a combined output first.",
-                    template_name
-                ));
+                // return Err(eyre!(
+                //     "Preprocessor cannot be set as no combined output is set for the template '{}'. Please set a combined output first.",
+                //     template_name
+                // ));
             }
         } else if let Some(add_preprocessors) = add_preprocessors {
             if add_preprocessors.iter().any(|filter| {
@@ -420,10 +492,16 @@ pub fn update_template(
             if let Some(preprocessors) = &mut template.preprocessors {
                 preprocessors.preprocessors.extend(add_preprocessors);
             } else {
-                return Err(eyre!(
-                    "Preprocessor cannot be set as no combined output is set for the template '{}'. Please set a combined output first.",
-                    template_name
-                ));
+                template.preprocessors = Some(PreProcessors {
+                    preprocessors: add_preprocessors,
+                    combined_output: None,
+                    output_extension: None,
+                });
+
+                // return Err(eyre!(
+                //     "Preprocessor cannot be set as no combined output is set for the template '{}'. Please set a combined output first.",
+                //     template_name
+                // ));
             }
         } else if let Some(remove_preprocessors) = remove_preprocessors {
             if remove_preprocessors.iter().any(|filter| filter.is_empty()) {
@@ -445,6 +523,59 @@ pub fn update_template(
         template.header_injections = header_injections.or(template.header_injections.clone());
         template.body_injections = body_injections.or(template.body_injections.clone());
         template.footer_injections = footer_injections.or(template.footer_injections.clone());
+
+        if let Some(preprocessors) = &mut template.preprocessors {
+            if preprocessors.combined_output.is_some() && multi_file_output.unwrap_or(false) {
+                return Err(eyre!(
+                    "Cannot set multi file output on a template which has a combined output."
+                ));
+            }
+
+            if multi_file_output
+                .or(template.multi_file_output)
+                .unwrap_or(false)
+                != output_extension
+                    .clone()
+                    .or(preprocessors.output_extension.clone())
+                    .is_some()
+            {
+                return Err(eyre!(
+                    "Multi-File output requires an output extension to be set."
+                ));
+            }
+
+            preprocessors.output_extension =
+                output_extension.or(preprocessors.output_extension.clone());
+        }
+
+        template.multi_file_output = multi_file_output.or(template.multi_file_output);
+
+        if meta_gen_feature.is_some()
+            || nav_meta_gen_output.is_some()
+            || metadata_meta_gen_output.is_some()
+            || meta_gen_format.is_some()
+        {
+            if let Some(meta_gen) = &mut template.meta_gen {
+                meta_gen.feature = meta_gen_feature.unwrap_or(meta_gen.feature);
+                meta_gen.nav_output = nav_meta_gen_output.or(meta_gen.nav_output.clone());
+                meta_gen.metadata_output =
+                    metadata_meta_gen_output.or(meta_gen.metadata_output.clone());
+                meta_gen.format = meta_gen_format.or(meta_gen.format.clone());
+            } else {
+                if let Some(meta_gen_feature) = meta_gen_feature {
+                    template.meta_gen = Some(MetaGenerationSettings {
+                        feature: meta_gen_feature,
+                        nav_output: nav_meta_gen_output,
+                        metadata_output: metadata_meta_gen_output,
+                        format: meta_gen_format,
+                    })
+                } else {
+                    return Err(eyre!(
+                        "Navigation metadata generation requires a navigation metadata generation feature to be set"
+                    ));
+                }
+            }
+        }
     } else {
         return Err(eyre!(
             "Template with name '{}' does not exist.",
@@ -899,6 +1030,21 @@ pub(crate) fn get_missing_dependencies(dependencies: Vec<&str>) -> Result<Vec<St
     Ok(errors)
 }
 
+/// Loads a project manifest from disk, upgrades it if needed, and returns it as a `Manifest`.
+///
+/// This function reads `manifest.toml`, checks its version against
+/// `CURRENT_MANIFEST_VERSION`, and applies `upgrade_manifest` when the file is
+/// older. The manifest is written back to disk after this step to persist any
+/// upgrades or normalization. If the file is from a newer version of the
+/// program, an error is returned.
+///
+/// # Arguments
+///
+/// * `manifest_path` - The path to the `manifest.toml` file.
+///
+/// # Returns
+///
+/// A Result containing either an error or the parsed `Manifest`.
 pub fn load_and_convert_manifest(manifest_path: &std::path::PathBuf) -> Result<Manifest> {
     if !manifest_path.exists() {
         return Err(eyre!(

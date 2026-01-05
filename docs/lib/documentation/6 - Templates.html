@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        :root {
+            --bg-gradient-start: #eef1f8;
+            --bg-gradient-end: #d9e2f2;
+            --surface: rgba(255, 255, 255, 0.8);
+            --border-subtle: rgba(255, 255, 255, 0.6);
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --accent: #2563eb;
+            --accent-soft: rgba(37, 99, 235, 0.08);
+            --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.18);
+            --shadow-nav: 0 10px 30px rgba(15, 23, 42, 0.16);
+            --radius-xl: 24px;
+            --radius-pill: 999px;
+        }
+
+        /* Layout baseline */
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+                "Segoe UI", sans-serif;
+            color: var(--text-main);
+            background: radial-gradient(circle at top, var(--bg-gradient-start), var(--bg-gradient-end));
+        }
+
+        /* Top nav */
+
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(18px);
+            background: linear-gradient(135deg,
+                    rgba(255, 255, 255, 0.3),
+                    rgba(248, 250, 252, 0.2));
+            border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+            box-shadow: var(--shadow-nav);
+        }
+
+        nav p {
+            margin: 0;
+            padding: 0.75rem 1.25rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        /* Link “chips” */
+
+        nav a {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.45rem 0.95rem;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border-radius: var(--radius-pill);
+            border: 1px solid var(--border-subtle);
+            background: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+            color: var(--accent);
+            letter-spacing: 0.01em;
+            transition:
+                transform 150ms ease,
+                box-shadow 150ms ease,
+                background 150ms ease,
+                border-color 150ms ease;
+        }
+
+        nav a:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 14px 26px rgba(15, 23, 42, 0.2);
+            background: var(--accent-soft);
+            border-color: rgba(37, 99, 235, 0.35);
+        }
+
+        nav a:active {
+            transform: translateY(0);
+            box-shadow: 0 6px 14px rgba(15, 23, 42, 0.18);
+        }
+
+        /* Main content card */
+
+        .main-body {
+            margin: 1.75rem auto 2.5rem;
+            max-width: 800px;
+            width: calc(100% - 2.5rem);
+            padding: 1.75rem 1.75rem 2rem;
+            border-radius: var(--radius-xl);
+            background: var(--surface);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: var(--shadow-soft);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        /* Typography */
+
+        .main-body h1 {
+            margin-top: 0;
+            margin-bottom: 0.9rem;
+            font-size: 1.7rem;
+            letter-spacing: -0.03em;
+        }
+
+        .main-body p {
+            margin-top: 0.4rem;
+            margin-bottom: 0.7rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+            font-size: 0.98rem;
+        }
+
+        .main-body strong {
+            color: var(--text-main);
+        }
+
+        .main-body a {
+            color: var(--accent);
+            text-decoration: none;
+            border-bottom: 1px solid rgba(37, 99, 235, 0.3);
+            padding-bottom: 0.05rem;
+            transition: border-color 140ms ease, color 140ms ease;
+        }
+
+        .main-body a:hover {
+            color: #1d4ed8;
+            border-color: rgba(37, 99, 235, 0.6);
+        }
+
+        /* Footer */
+
+        footer {
+            margin-top: auto;
+            padding: 1.25rem 1.5rem 1.75rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            opacity: 0.9;
+        }
+
+        /* Small screens */
+
+        @media (max-width: 640px) {
+            nav p {
+                padding: 0.6rem 0.85rem;
+            }
+
+            .main-body {
+                margin: 1.25rem auto 2rem;
+                width: calc(100% - 1.6rem);
+                padding: 1.4rem 1.25rem 1.6rem;
+                border-radius: 18px;
+            }
+
+            .main-body h1 {
+                font-size: 1.45rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+
+<p><a
+href="https://tiefseetauchner.github.io/TiefDownConverter/">Home</a> <a
+href="https://tiefseetauchner.github.io/TiefDownConverter/cli">CLI
+Docs</a> <a
+href="https://tiefseetauchner.github.io/TiefDownConverter/lib">LIB
+Docs</a> <a
+href="https://tiefseetauchner.github.io/TiefDownConverter/lib/documentation/5 - Conversion Pipeline.html">5
+- Conversion Pipeline</a> <a
+href="https://tiefseetauchner.github.io/TiefDownConverter/lib/documentation/7 - Lua Filters.html">7
+- Lua Filters</a></p>
+
+
+</nav>
+<div class="main-body">
+
+<h1 id="templates">Templates</h1>
+<p>A pivotal point in any TiefDown user’s life is once they truly
+understand templating. This section seeks to serve that purpose.</p>
+<p>Templating in TiefDown is separated into two archetypes:
+template-based templates and logic-based templates.</p>
+<p>TeX, Typst, and EPUB templates are template-based. They rely on a
+concrete template file located in the template directory, which defines
+the structure of the final output and into which converted content and
+metadata are injected.</p>
+<p>CustomPreprocessors and CustomProcessor templates are logic-based.
+They define the conversion process purely through configured commands
+and processors, without relying on a single template file. They may
+still make use of files from the template directory, but the execution
+flow is driven by logic rather than a fixed document template.</p>
+<p>For execution logic of each of the templates, see <a
+href="#running-conversion">Running Conversion</a> from the previous
+chapter.</p>
+<h2 id="tex-templates">TeX templates</h2>
+<p>TeX templates use a LaTeX file as the template for the primary
+execution point. This template file must be specified in the template,
+and should <code>\input</code> the combined output from the pandoc
+conversion.</p>
+<p>Metadata is written separately to a <code>metadata.tex</code> file,
+which creates macros for accessing metadata. Below is an example of such
+a <code>metadata.tex</code> file:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode tex"><code class="sourceCode latex"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">\newcommand</span>{<span class="ex">\meta</span>}[1]{<span class="fu">\csname</span> meta@#1<span class="fu">\endcsname</span>}</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">\expandafter\def\csname</span> meta@author<span class="fu">\endcsname</span>{Tiefseetauchner et al.}</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">\expandafter\def\csname</span> meta@githubPagesDocsPath<span class="fu">\endcsname</span>{lib/}</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">\expandafter\def\csname</span> meta@githubPagesUrl<span class="fu">\endcsname</span>{https://tiefseetauchner.github.io/TiefDownConverter/}</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">\expandafter\def\csname</span> meta@title<span class="fu">\endcsname</span>{TiefDownConverter Documentation}</span></code></pre></div>
+<p>Metadata can then be accessed in the template file or in
+<code>.tex</code> files in the input like so:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode tex"><code class="sourceCode latex"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">\input</span>{./metadata.tex}</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">\meta</span>{title}</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">% Writes &quot;TiefDownConverter Documentation&quot;</span></span></code></pre></div>
+<p>Lua filters and preprocessors in LaTeX are fully supported. For
+example:</p>
+<ul>
+<li>TeX Raw<br />
+A <code>cat</code> preprocessor that copies <code>.tex</code> files
+instead of running them through pandoc.</li>
+<li>–listings<br />
+Pandoc supports outputting LaTeX with listings support. A preprocessor
+can enable that for your file.</li>
+</ul>
+<p>Processor arguments are fully supported. Processor arguments can be
+used to adjust the XeTeX cli call.</p>
+<h2 id="typst-templates">Typst templates</h2>
+<p>Similarly to TeX templates, Typst templates also use a template file,
+in this case a <code>.typ</code> file, for conversion. This template
+file must be specified in the template, and should <code>#include</code>
+the combined output from the pandoc conversion.</p>
+<p>Metadata is also written to a <code>metadata.typ</code> file, which
+creates a dictionary for accessing metadata. Below is the same example
+as above for Typst:</p>
+<pre class="typst"><code>#let meta = (
+  author: &quot;Tiefseetauchner et al.&quot;,
+  githubPagesDocsPath: &quot;lib/&quot;,
+  githubPagesUrl: &quot;https://tiefseetauchner.github.io/TiefDownConverter/&quot;,
+  title: &quot;TiefDownConverter Documentation&quot;,
+)</code></pre>
+<p>Accessing metadata then becomes trivial:</p>
+<pre class="typst"><code>#import &quot;metadata.typ&quot;: meta
+#meta.title
+// Writes &quot;TiefDownConverter Documentation</code></pre>
+<p>Equally to the above template, lua filters and preprocessors are
+fully supported for Typst.</p>
+<p>Processor arguments, as above, are fully supported. The processor
+arguments are added to the typst process on conversion.</p>
+<h2 id="epub-templates">EPUB templates</h2>
+<p>EPUB templates are a special kind of template, as they are less
+user-unfriendly than CustomProcessor converters.</p>
+<p>The primary simplification in EPUB templates is the addition of css
+and font search. For conversion, EPUB retrieves CSS as well as font
+files from the template directory and injects them into the output file.
+Fonts are searched within a <code>fonts/</code> subfolder in the
+template.</p>
+<p>Lua filters are fully supported for epub conversion. Importantly,
+they are applied only to the last pandoc conversion process, and not to
+the AST conversion processes.</p>
+<p>Preprocessors however are supported but advised against, as the
+default preprocessor converts the input files to pandoc native.</p>
+<p>Processor arguments are fully supported, and operate on the pandoc
+command.</p>
+<h2 id="custompreprocessors-conversion">CustomPreprocessors
+conversion</h2>
+<p>Custom preprocessors conversion uses preprocessors to convert to a
+common format, then concatenating the output to the final file. There is
+no template file for custom preprocessors conversion.</p>
+<p>To convert via this method, you must define one or more custom
+preprocessor. There are no default custom preprocessors for this
+conversion, which means the custom preprocessors must cover each file
+type converted.</p>
+<p>Lua filters are supported for this conversion, and only get added for
+pandoc processes.</p>
+<p>Custom processors are <strong>not</strong> supported, as there is no
+unified processing step.</p>
+<h2 id="customprocessor-conversion">CustomProcessor conversion</h2>
+<p>Similarly to custom preprocessors conversion, custom processors
+conversion does not have a template file, but instead converts all input
+files to pandoc AST before combining them to one large AST mega file and
+converting that with a custom processor.</p>
+<p>To convert via this method, you must set a custom processor with
+arguments for the target file type. The target file name is
+automatically appended to the process and must not be included in the
+arguments.</p>
+<p>Lua filters behave identically to custom processor conversion,
+applying only to the final pandoc process.</p>
+<p>Similarly, preprocessors are supported but advised against unless
+entirely necessary.</p>
+<p>Custom processor arguments are mandatory.</p>
+
+
+</div>
+<footer>
+    <p>Tiefseetauchner © 2025</p>
+</footer>
+</body>
+
+</html>

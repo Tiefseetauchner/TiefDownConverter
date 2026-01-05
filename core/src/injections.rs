@@ -1,8 +1,27 @@
-use std::path::PathBuf;
-
-use crate::{manifest_model::Injection, project_management::load_and_convert_manifest};
 use color_eyre::eyre::{Result, eyre};
 use log::debug;
+use std::path::{Path, PathBuf};
+
+use crate::{
+    manifest_model::{Injection, Template},
+    project_management::load_and_convert_manifest,
+};
+
+pub(crate) struct RenderingInjections {
+    pub header_injections: Vec<PathBuf>,
+    pub body_injections: Vec<PathBuf>,
+    pub footer_injections: Vec<PathBuf>,
+}
+
+impl RenderingInjections {
+    pub fn new() -> RenderingInjections {
+        RenderingInjections {
+            header_injections: vec![],
+            body_injections: vec![],
+            footer_injections: vec![],
+        }
+    }
+}
 
 /// Adds an injection to the project manifest.
 ///
@@ -138,4 +157,84 @@ pub fn add_files_to_injection(
     debug!("Added {} files to the injection '{}'.", files.len(), name);
 
     Ok(())
+}
+
+pub(crate) fn retrieve_injections(
+    template: &Template,
+    compiled_directory_path: &Path,
+    injections: &Vec<Injection>,
+) -> Result<RenderingInjections> {
+    let header_injections = retrieve_injections_from_manifest(
+        &injections,
+        compiled_directory_path,
+        template.header_injections.clone().unwrap_or(vec![]),
+        &template.name,
+    )?;
+    let body_injections = retrieve_injections_from_manifest(
+        &injections,
+        compiled_directory_path,
+        template.body_injections.clone().unwrap_or(vec![]),
+        &template.name,
+    )?;
+    let footer_injections = retrieve_injections_from_manifest(
+        &injections,
+        compiled_directory_path,
+        template.footer_injections.clone().unwrap_or(vec![]),
+        &template.name,
+    )?;
+
+    Ok(RenderingInjections {
+        header_injections,
+        body_injections,
+        footer_injections,
+    })
+}
+
+fn retrieve_injections_from_manifest(
+    injections: &Vec<Injection>,
+    compiled_directory_path: &Path,
+    template_injections: Vec<String>,
+    template_name: &String,
+) -> Result<Vec<PathBuf>> {
+    debug!(
+        "Retrieving injections '{}' from Manifest.",
+        template_injections.join(",")
+    );
+
+    let injections = template_injections
+        .iter()
+        .map(|n| {
+            injections
+                .iter()
+                .find(|i| i.name == *n)
+                .ok_or(eyre!(
+                    "Injection '{}' referenced in template '{}' was not found in manifest.",
+                    n,
+                    template_name
+                ))
+                .and_then(|i| Ok(i.files.clone()))
+        })
+        .collect::<Result<Vec<_>>>()?
+        .iter()
+        .flatten()
+        .map(|f| {
+            let template_injection_path = compiled_directory_path.join(f);
+            debug!(
+                "Found injection file '{}'.",
+                template_injection_path.display()
+            );
+            if !template_injection_path.exists() {
+                return Err(eyre!(
+                    "Injection file '{}' is not a file or directory.",
+                    f.display(),
+                ));
+            }
+
+            Ok(template_injection_path)
+        })
+        .collect::<Result<Vec<_>>>()?;
+
+    debug!("Retrieved {} injections.", injections.len());
+
+    Ok(injections)
 }

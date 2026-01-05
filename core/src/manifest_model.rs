@@ -1,5 +1,6 @@
 use crate::{
-    consts::CURRENT_MANIFEST_VERSION, template_management::get_template_type_from_path,
+    consts::CURRENT_MANIFEST_VERSION, meta_generation_feature::MetaGenerationFeature,
+    meta_generation_format::MetaGenerationFormat, template_management::get_template_type_from_path,
     template_type::TemplateType,
 };
 use color_eyre::eyre::{Result, eyre};
@@ -109,18 +110,21 @@ pub struct PreProcessor {
 /// # Fields
 ///
 /// * `preprocessors` - A list of preprocessors.
-/// * `combined_output` - The name of the combined output file.
+/// * `combined_output` - The name of the combined output file.\
+///   Can be none if template is multi-file output
+/// * `output_extension` - The extension used for files of multi file output.
 #[derive(Deserialize, Serialize, Clone)]
 pub struct PreProcessors {
     pub preprocessors: Vec<String>,
-    pub combined_output: PathBuf,
+    pub combined_output: Option<PathBuf>,
+    pub output_extension: Option<String>,
 }
 
 /// Represents processors available to the project.
 ///
 /// A processor defines custom conversion arguments passed to the primary conversion process, supplementing the default arguments.
 ///
-/// The primary conversion process is the process that processes the template. This could be XeLaTeX or Typst.
+/// The primary conversion process is the process that processes the template. This could be XeLaTeX, Typst, or pandoc for CustomProcessor conversion.
 ///
 /// # Fields
 ///
@@ -137,15 +141,27 @@ pub static DEFAULT_TEX_PREPROCESSORS: LazyLock<(PreProcessors, Vec<PreProcessor>
     LazyLock::new(|| {
         (
             PreProcessors {
-                preprocessors: vec!["default_tex_preprocessor".to_string()],
-                combined_output: PathBuf::from("output.tex"),
+                preprocessors: vec![
+                    "default_tex_preprocessor".to_string(),
+                    "default_tex_preprocessor_tex_files".to_string(),
+                ],
+                combined_output: Some(PathBuf::from("output.tex")),
+                output_extension: None,
             },
-            vec![PreProcessor {
-                name: "default_tex_preprocessor".to_string(),
-                extension_filter: None,
-                cli: None,
-                cli_args: vec!["-t", "latex"].iter().map(|s| s.to_string()).collect(),
-            }],
+            vec![
+                PreProcessor {
+                    name: "default_tex_preprocessor".to_string(),
+                    extension_filter: None,
+                    cli: None,
+                    cli_args: vec!["-t", "latex"].iter().map(|s| s.to_string()).collect(),
+                },
+                PreProcessor {
+                    name: "default_tex_preprocessor".to_string(),
+                    extension_filter: Some("tex".to_string()),
+                    cli: Some("cat".to_string()),
+                    cli_args: vec![],
+                },
+            ],
         )
     });
 
@@ -158,7 +174,8 @@ pub static DEFAULT_TYPST_PREPROCESSORS: LazyLock<(PreProcessors, Vec<PreProcesso
                     "default_typst_preprocessor".to_string(),
                     "default_typst_preprocessor_typst_files".to_string(),
                 ],
-                combined_output: PathBuf::from("output.typ"),
+                combined_output: Some(PathBuf::from("output.typ")),
+                output_extension: None,
             },
             vec![
                 PreProcessor {
@@ -177,12 +194,14 @@ pub static DEFAULT_TYPST_PREPROCESSORS: LazyLock<(PreProcessors, Vec<PreProcesso
         )
     });
 
+// The default pandoc arguments for Custom Processor conversion.
 pub static DEFAULT_CUSTOM_PROCESSOR_PREPROCESSORS: LazyLock<(PreProcessors, Vec<PreProcessor>)> =
     LazyLock::new(|| {
         (
             PreProcessors {
                 preprocessors: vec!["native_pandoc".to_string()],
-                combined_output: PathBuf::from("output.pandoc_native"),
+                combined_output: Some(PathBuf::from("output.pandoc_native")),
+                output_extension: None,
             },
             vec![PreProcessor {
                 name: "native_pandoc".to_string(),
@@ -238,6 +257,10 @@ pub struct Profile {
 ///   * Can be a file or a directory.
 /// * `preprocessor` - The name of the preprocessor to use for the template.
 /// * `processor` - The name of the processor to use for the template.
+/// * `header_injections` - Link to the header injections of the template
+/// * `body_injections` - Link to the body injections of the template
+/// * `footer_injections` - Link to the footer injections of the template
+/// * `multi_file_output` - Enables multi-file generation
 #[derive(Deserialize, Serialize, Clone)]
 pub struct Template {
     pub name: String,
@@ -250,6 +273,22 @@ pub struct Template {
     pub header_injections: Option<Vec<String>>,
     pub body_injections: Option<Vec<String>>,
     pub footer_injections: Option<Vec<String>>,
+    pub multi_file_output: Option<bool>,
+    pub meta_gen: Option<MetaGenerationSettings>,
+}
+
+/// The settings to use for navigation metadata generation
+///
+/// # Fields
+///
+/// * `feature` - The navigation metadata complexity
+///
+#[derive(Deserialize, Serialize, Clone)]
+pub struct MetaGenerationSettings {
+    pub feature: MetaGenerationFeature,
+    pub format: Option<MetaGenerationFormat>,
+    pub nav_output: Option<PathBuf>,
+    pub metadata_output: Option<PathBuf>,
 }
 
 /// Represents an injection into the document.
@@ -257,7 +296,7 @@ pub struct Template {
 /// # Fields
 ///
 /// * `name`: Name of the injection to be referenced by the `Template`.
-/// * `files`: Files to be injected by the injection.
+/// * `files`: Files to be injected by the injection.\
 ///   The files get injected into the template using order numbers in the name of the template, equivalent to the input file order.
 #[derive(Deserialize, Serialize, Clone)]
 pub struct Injection {
@@ -289,6 +328,9 @@ pub(crate) fn upgrade_manifest(manifest: &mut Table, current_version: u32) -> Re
             } else if updated_version == 4 {
                 debug!("Applying upgrade v4 -> v5...");
                 upgrade_manifest_v4_to_v5(manifest)?
+            } else if updated_version == 5 {
+                debug!("Applying upgrade v5 -> v6...");
+                upgrade_manifest_v5_to_v6(manifest)?
             } else {
                 return Err(eyre!(
                     "Manifest version {} is not supported for upgrades.",
@@ -499,6 +541,13 @@ pub(crate) fn upgrade_manifest_v4_to_v5(manifest: &mut Table) -> Result<()> {
             }
         }
     }
+
+    Ok(())
+}
+
+pub(crate) fn upgrade_manifest_v5_to_v6(manifest: &mut Table) -> Result<()> {
+    debug!("upgrade_manifest_v5_to_v6: Starting...");
+    manifest.insert("version".into(), toml::Value::Integer(6));
 
     Ok(())
 }

@@ -11,6 +11,8 @@ use tiefdownlib::{
 };
 
 mod cli;
+mod cli_meta_generation_feature;
+mod cli_meta_generation_format;
 mod cli_template_type;
 mod project_commands;
 
@@ -107,6 +109,12 @@ fn main() -> Result<()> {
                     header_injections,
                     body_injections,
                     footer_injections,
+                    multi_file_output,
+                    output_extension,
+                    meta_gen_feature,
+                    nav_meta_gen_output,
+                    metadata_meta_gen_output,
+                    meta_gen_format,
                 } => project_management::add_template(
                     project,
                     template,
@@ -120,6 +128,12 @@ fn main() -> Result<()> {
                     header_injections,
                     body_injections,
                     footer_injections,
+                    multi_file_output,
+                    output_extension,
+                    meta_gen_feature.map(|t| t.into()),
+                    nav_meta_gen_output,
+                    metadata_meta_gen_output,
+                    meta_gen_format.map(|t| t.into()),
                 )?,
                 TemplatesCommands::Remove => {
                     project_management::remove_template(project, template)?
@@ -139,6 +153,12 @@ fn main() -> Result<()> {
                     header_injections,
                     body_injections,
                     footer_injections,
+                    multi_file_output,
+                    output_extension,
+                    meta_gen_feature,
+                    nav_meta_gen_output,
+                    metadata_meta_gen_output,
+                    meta_gen_format,
                 } => {
                     if filters.is_some() && (add_filters.is_some() || remove_filters.is_some()) {
                         return Err(eyre!("Cannot specify both filters or add/remove filters."));
@@ -148,7 +168,7 @@ fn main() -> Result<()> {
                         && (add_preprocessors.is_some() || remove_preprocessors.is_some())
                     {
                         return Err(eyre!(
-                            "Cannot specify both preprocessors or add/remove preprocessors."
+                            "Cannot specify both preprocessors and add/remove preprocessors."
                         ));
                     }
 
@@ -169,6 +189,12 @@ fn main() -> Result<()> {
                         header_injections,
                         body_injections,
                         footer_injections,
+                        multi_file_output,
+                        output_extension,
+                        meta_gen_feature.map(|t| t.into()),
+                        nav_meta_gen_output,
+                        metadata_meta_gen_output,
+                        meta_gen_format.map(|t| t.into()),
                     )?
                 }
             },

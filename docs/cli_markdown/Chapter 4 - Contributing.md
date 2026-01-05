@@ -43,12 +43,12 @@ add the new template type decision logic to `get_template_type_from_path`.
 
 ## Presets
 
-> **NOTE:** This is a bit of a niche usecase, so documentation is lacking. You can
+> **NOTE:** This is a bit of a niche use case, so documentation is lacking. You can
 > always ask for help on this in a GitHub issue.
 
 You can also add new presets, but that's a bit more involved. You should check
 the implementation for the existing presets, I don't think it's useful to document
-this nieche usecase for now.
+this niche use case for now.
 
 ## Manifest
 

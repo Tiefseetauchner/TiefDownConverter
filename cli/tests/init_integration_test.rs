@@ -7,7 +7,7 @@ use tempfile::tempdir;
 #[macro_use]
 mod assertions;
 
-const DEFAULT_MANIFEST_CONTENT: &str = r#"version = 5
+const DEFAULT_MANIFEST_CONTENT: &str = r#"version = 6
 
 [[markdown_projects]]
 name = "Markdown"

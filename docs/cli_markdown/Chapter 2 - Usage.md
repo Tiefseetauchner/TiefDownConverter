@@ -2,7 +2,7 @@
 
 The basic usage of `tiefdownconverter` is relatively simple.
 The difficult part is understanding the templating system and
-how to customise it for your usecases. Presets can only do so much.
+how to customise it for your use cases. Presets can only do so much.
 
 > Note: I wrote this paragraph before the big refactor. The basic
 > usage is no longer simple.
@@ -55,7 +55,7 @@ and running `tiefdownconverter convert` in the project directory or
 TL;DR: Make a folder, go into it and run `tiefdownconverter init` and
 `tiefdownconverter convert`. That's it.
 
-Long anser: First off, you need to create a project using `tiefdownconverter init`. This will
+Long answer: First off, you need to create a project using `tiefdownconverter init`. This will
 create a new project **in the current directory**. You can (and maybe should)
 specify a project, like `tiefdownconverter init your_project`.
 
@@ -79,7 +79,7 @@ converted. Essentially, the first number you include must be the number of the f
 order, so I suggest using a pattern like `Chapter X.md` or `X - ... .md`.
 
 Now you should be able to run `tiefdownconverter convert -p path/to/your_project` (or
-ommitting the -p flag if you're already in the project directory) and it should
+omitting the -p flag if you're already in the project directory) and it should
 generate a PDF file in the project directory using the default LaTeX template. 
 You can now adjust the template, add your own input files (Markdown or otherwise), and so on.
 
@@ -132,7 +132,7 @@ in them, importantly **markdown project specific metadata**.
 
 Now, why does this exist? Well, the basic idea is that you can have multiple projects per
 project. Markdown projects per TiefDown project, that is. It's useful for books for example,
-where you may have shared templates and metadata (like an author) but seperate content and
+where you may have shared templates and metadata (like an author) but separate content and
 metadata (like a title) for the different books. This, in theory, simplifies the workflow
 substantially - but makes it more complicated to understand.
 
@@ -146,7 +146,7 @@ to add a markdown project to a TiefDown project. Per default, this is either not
 using the default markdown directory and output directory, or it is set to the default
 markdown directory and output directory of the TiefDown project, which are `Markdown` and
 `.` respectively. Importantly, the output directory is relevant for the conversion - it is
-used to seperate the templating for the different projects, as well as the markdown files.
+used to separate the templating for the different projects, as well as the markdown files.
 So don't use the same output directory for multiple projects unless you hacked TDC to change
 the output format to include the template name, in which case, tell me how you did it.
 
@@ -172,8 +172,8 @@ to set a metadata value for a markdown project.
 You can also assign resources, which are files that are copied to the compile directory from
 the markdown project directory *and are ignored during the conversion process*. 
 This is done by using the resource command. For example,
-if you had multiple books as seperate markdown projects, you could have a `cover.png` file
-for each book seperately and then use the resource management to copy it to be able to be
+if you had multiple books as separate markdown projects, you could have a `cover.png` file
+for each book separately and then use the resource management to copy it to be able to be
 used in a template, for example an epub or as the cover of a PDF. Check out the
 [resources command](#projectmarkdownresources) for more information.
 
@@ -184,7 +184,7 @@ Imagine... Well, don't imagine. Look at this documentation on github. You can se
 a markdown project called `cli_markdown` and a markdown project called `man_markdown`. They both
 contain relatively similar but different markdown files but importantly, they act quite different. 
 One generates the manpage, and one the documentation you are reading right now. These are two
-completely different tasks, so the `man_markdown` project uses a differen profile per default.
+completely different tasks, so the `man_markdown` project uses a different profile per default.
 
 A default profile is assigned using the `--default-profile` flag. This is the profile that
 will be used to convert the markdown project _by default_. That doesn't mean you can't use
@@ -396,7 +396,7 @@ rights: "Copyright © 2012 Your Name"
 ```
 
 You can also do this via the custom processor arguments, adding metadata as described
-in the pandoc documentation. For example, to use a seperate metadata file, you can do this:
+in the pandoc documentation. For example, to use a separate metadata file, you can do this:
 
 ```bash
 tiefdownconverter project [PROJECT_NAME] processors add "Metadata for EPUB" -- --metadata-file metadata.yaml
@@ -535,7 +535,7 @@ end
 ```
 
 Of course, you could just redefine the font in TeX but I think this is a bit more flexible. One
-usecase that is quite important is to change the way chapters are handled for LiX. In case of
+use case that is quite important is to change the way chapters are handled for LiX. In case of
 LiX, they expect `\h{chapter_name}` instead of `\section`, which is the standard behaviour of
 pandoc. So when you create a LiX backed template, you have to add a filter to change that
 behaviour. Something like this:
@@ -713,7 +713,7 @@ For example, setting a different chapter 3 per template is made possible by
 making a file like `3 - injection_pdf.md` and `3 - injection_epub.md` and
 add the injections to the corresponding documents.
 
-A header could be used for a seperate index conversion, allowing you to define
+A header could be used for a separate index conversion, allowing you to define
 a different header for different output formats. Footers function similarly.
 
 An injection can be added using the `project injections` command:

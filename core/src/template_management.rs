@@ -1,6 +1,4 @@
-use crate::{
-    consts::POSSIBLE_TEMPLATES, manifest_model::Template, template_type::TemplateType,
-};
+use crate::{consts::POSSIBLE_TEMPLATES, manifest_model::Template, template_type::TemplateType};
 use color_eyre::eyre::{Result, eyre};
 use log::{debug, info, warn};
 use reqwest::blocking::get;

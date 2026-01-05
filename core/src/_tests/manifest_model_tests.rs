@@ -2,7 +2,7 @@ use rstest::rstest;
 
 use crate::manifest_model::{
     upgrade_manifest_v0_to_v1, upgrade_manifest_v1_to_v2, upgrade_manifest_v2_to_v3,
-    upgrade_manifest_v3_to_v4, upgrade_manifest_v4_to_v5,
+    upgrade_manifest_v3_to_v4, upgrade_manifest_v4_to_v5, upgrade_manifest_v5_to_v6,
 };
 
 #[rstest]
@@ -253,6 +253,86 @@ template_type = "CustomPreprocessors"
 [templates.preprocessors]
 combined_output = "combined.tex"
 preprocessors = ["custom preprocessor"]
+"#;
+
+    let actual_manifest = toml::to_string(&manifest).unwrap();
+    assert_eq!(expected_manifest, actual_manifest);
+}
+
+#[rstest]
+fn test_upgrade_manifest_v5_to_v6() {
+    let manifest_content = r#"version = 5
+
+[custom_processors]
+processors = []
+
+[[custom_processors.preprocessors]]
+name = "custom preprocessor"
+pandoc_args = ["-o", "combined.tex", "-t", "tex", "--listings"]
+
+[[markdown_projects]]
+name = "Custom Markdown Directory"
+output = "."
+path = "Custom Markdown Directory"
+
+[metadata_settings]
+metadata_prefix = "supermeta"
+
+[shared_metadata]
+author = "Author Name"
+title = "Document Title"
+
+[[templates]]
+name = "template1.tex"
+template_type = "Tex"
+
+[[templates]]
+name = "template2.typ"
+template_type = "Typst"
+
+[[templates]]
+name = "template3"
+preprocessor = "custom preprocessor"
+template_type = "CustomPandoc"
+"#;
+
+    let mut manifest = toml::from_str(manifest_content).unwrap();
+    let result = upgrade_manifest_v5_to_v6(&mut manifest);
+    assert!(result.is_ok());
+
+    let expected_manifest = r#"version = 6
+
+[custom_processors]
+processors = []
+
+[[custom_processors.preprocessors]]
+name = "custom preprocessor"
+pandoc_args = ["-o", "combined.tex", "-t", "tex", "--listings"]
+
+[[markdown_projects]]
+name = "Custom Markdown Directory"
+output = "."
+path = "Custom Markdown Directory"
+
+[metadata_settings]
+metadata_prefix = "supermeta"
+
+[shared_metadata]
+author = "Author Name"
+title = "Document Title"
+
+[[templates]]
+name = "template1.tex"
+template_type = "Tex"
+
+[[templates]]
+name = "template2.typ"
+template_type = "Typst"
+
+[[templates]]
+name = "template3"
+preprocessor = "custom preprocessor"
+template_type = "CustomPandoc"
 "#;
 
     let actual_manifest = toml::to_string(&manifest).unwrap();

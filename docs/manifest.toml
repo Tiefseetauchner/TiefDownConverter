@@ -1,6 +1,6 @@
 smart_clean = true
 smart_clean_threshold = 3
-version = 5
+version = 6
 
 [[custom_processors.preprocessors]]
 cli_args = ["-t", "latex", "--listings"]
@@ -9,6 +9,16 @@ name = "Enable Listings"
 [[custom_processors.preprocessors]]
 cli_args = ["-s", "-t", "man", "--metadata-file", "man_metadata.yaml"]
 name = "Man Page"
+
+[[custom_processors.preprocessors]]
+cli_args = ["--to", "html5", "--metadata", "title={{title}}", "--metadata", "author={{author}}", "--css", "/TiefDownConverter/template/html_template/style.css"]
+name = "HTML Conversion"
+
+[[custom_processors.preprocessors]]
+cli = "cat"
+cli_args = []
+extension_filter = "html"
+name = "HTML Direct Copy"
 
 [[custom_processors.processors]]
 name = "HTML Conversion"
@@ -22,6 +32,10 @@ processor_args = ["--font-path", "fonts/"]
 files = ["footer.html"]
 name = "HTML footer"
 
+[[injections]]
+files = ["head.html", "nav.md", "head2.html"]
+name = "HTML header"
+
 [[markdown_projects]]
 default_profile = "Documentation"
 name = "CLI Docs"
@@ -29,12 +43,36 @@ output = "cli"
 path = "cli_markdown"
 resources = ["resources/"]
 
+[markdown_projects.metadata_fields]
+githubPagesDocsPath = "cli/documentation/"
+
 [[markdown_projects]]
 default_profile = "Documentation"
 name = "LIB Docs"
 output = "lib"
 path = "lib_markdown"
 resources = ["resources/"]
+
+[markdown_projects.metadata_fields]
+githubPagesDocsPath = "lib/documentation/"
+
+[[markdown_projects]]
+default_profile = "Index HTML"
+name = "CLI Docs Index"
+output = "cli"
+path = "cli_index_markdown"
+
+[markdown_projects.metadata_fields]
+githubPagesDocsPath = "cli"
+
+[[markdown_projects]]
+default_profile = "Index HTML"
+name = "LIB Docs"
+output = "lib"
+path = "lib_index_markdown"
+
+[markdown_projects.metadata_fields]
+githubPagesDocsPath = "lib"
 
 [[markdown_projects]]
 default_profile = "Man"
@@ -48,11 +86,14 @@ name = "Index HTML"
 output = "."
 path = "index_markdown"
 
+[markdown_projects.metadata_fields]
+githubPagesDocsPath = "/"
+
 [metadata_settings]
 
 [[profiles]]
 name = "Documentation"
-templates = ["PDF Documentation LaTeX", "PDF Documentation", "Epub Documentation", "GitHub Page Documentation"]
+templates = ["PDF Documentation LaTeX", "PDF Documentation", "Epub Documentation", "GitHub Multi Page Documentation"]
 
 [[profiles]]
 name = "Man"
@@ -60,10 +101,11 @@ templates = ["Man Page"]
 
 [[profiles]]
 name = "Index HTML"
-templates = ["GitHub Page Documentation"]
+templates = ["GitHub Single File Documentation"]
 
 [shared_metadata]
 author = "Tiefseetauchner et al."
+githubPagesUrl = "https://tiefseetauchner.github.io/TiefDownConverter/"
 title = "TiefDownConverter Documentation"
 
 [[templates]]
@@ -101,8 +143,33 @@ combined_output = "tiefdownconverter.1"
 preprocessors = ["Man Page"]
 
 [[templates]]
+filters = ["luafilters/mega_replacer_filter.lua"]
 footer_injections = ["HTML footer"]
-name = "GitHub Page Documentation"
+header_injections = ["HTML header"]
+multi_file_output = true
+name = "GitHub Multi Page Documentation"
+output = "documentation"
+template_type = "CustomPreprocessors"
+
+[templates.meta_gen]
+feature = "Full"
+
+[templates.preprocessors]
+output_extension = "html"
+preprocessors = ["HTML Conversion", "HTML Direct Copy"]
+
+[[templates]]
+filters = ["luafilters/mega_replacer_filter.lua"]
+footer_injections = ["HTML footer"]
+header_injections = ["HTML header"]
+name = "GitHub Single File Documentation"
 output = "index.html"
-processor = "HTML Conversion"
-template_type = "CustomProcessor"
+template_type = "CustomPreprocessors"
+
+[templates.meta_gen]
+feature = "MetadataOnly"
+
+[templates.preprocessors]
+combined_output = "index.html"
+output_extension = "html"
+preprocessors = ["HTML Conversion", "HTML Direct Copy"]
