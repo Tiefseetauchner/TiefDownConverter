@@ -182,7 +182,7 @@ pub fn convert(project: Option<PathBuf>, conversion_queue: Vec<ConversionTask>) 
         dir::copy(
             project.join("template/"),
             &markdown_project_compiled_directory_path,
-            &dir::CopyOptions::new().overwrite(true).content_only(true),
+            &dir::CopyOptions::new().skip_exist(true).content_only(true),
         )?;
 
         debug!("Copied template directory.");
