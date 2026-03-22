@@ -1,0 +1,169 @@
+use assert_cmd::Command;
+use rstest::rstest;
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
+use tempfile::tempdir;
+
+#[path = "assertions.rs"]
+#[macro_use]
+mod assertions;
+
+fn create_empty_project(temp_dir: &Path) -> PathBuf {
+    let project_path = temp_dir.join("project");
+    fs::create_dir(&project_path).expect("Failed to create project directory");
+    let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
+    cmd.current_dir(&project_path)
+        .arg("init")
+        .arg("-n")
+        .assert()
+        .success();
+
+    fs::create_dir_all(project_path.join("template")).expect("Failed to create template directory");
+
+    project_path
+}
+
+fn create_markdown_project(name: &str, input: &str, output: &str, project_path: &Path) {
+    let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
+    cmd.current_dir(&project_path)
+        .arg("project")
+        .arg("markdown")
+        .arg("add")
+        .arg(&name)
+        .arg(&input)
+        .arg(&output)
+        .assert()
+        .success();
+}
+
+#[rstest]
+fn test_markdown_update_path() {
+    let temp_dir = tempdir().expect("Failed to create temporary directory");
+    let project_path = create_empty_project(&temp_dir.path());
+
+    create_markdown_project("name", "input", "output", &project_path);
+
+    let manifest_path = project_path.join("manifest.toml");
+    assert!(manifest_path.exists(), "Manifest file should exist");
+    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
+
+    assert_contains!(
+        manifest_content,
+        r#"[[markdown_projects]]
+name = "name"
+path = "input"
+output = "output""#
+    );
+
+    let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
+    cmd.current_dir(&project_path)
+        .arg("project")
+        .arg("markdown")
+        .arg("update")
+        .arg("name")
+        .arg("--path")
+        .arg("new_path")
+        .assert()
+        .success();
+
+    let manifest_path = project_path.join("manifest.toml");
+    assert!(manifest_path.exists(), "Manifest file should exist");
+    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
+
+    assert_contains!(
+        manifest_content,
+        r#"[[markdown_projects]]
+name = "name"
+path = "new_path"
+output = "output""#
+    );
+}
+
+#[rstest]
+fn test_markdown_update_output() {
+    let temp_dir = tempdir().expect("Failed to create temporary directory");
+    let project_path = create_empty_project(&temp_dir.path());
+
+    create_markdown_project("name", "input", "output", &project_path);
+
+    let manifest_path = project_path.join("manifest.toml");
+    assert!(manifest_path.exists(), "Manifest file should exist");
+    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
+
+    assert_contains!(
+        manifest_content,
+        r#"[[markdown_projects]]
+name = "name"
+path = "input"
+output = "output""#
+    );
+
+    let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
+    cmd.current_dir(&project_path)
+        .arg("project")
+        .arg("markdown")
+        .arg("update")
+        .arg("name")
+        .arg("--output")
+        .arg("new_path")
+        .assert()
+        .success();
+
+    let manifest_path = project_path.join("manifest.toml");
+    assert!(manifest_path.exists(), "Manifest file should exist");
+    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
+
+    assert_contains!(
+        manifest_content,
+        r#"[[markdown_projects]]
+name = "name"
+path = "input"
+output = "new_path""#
+    );
+}
+
+#[rstest]
+fn test_markdown_update_default_profile() {
+    let temp_dir = tempdir().expect("Failed to create temporary directory");
+    let project_path = create_empty_project(&temp_dir.path());
+
+    create_markdown_project("name", "input", "output", &project_path);
+
+    let manifest_path = project_path.join("manifest.toml");
+    assert!(manifest_path.exists(), "Manifest file should exist");
+    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
+
+    assert_contains!(
+        manifest_content,
+        r#"[[markdown_projects]]
+name = "name"
+path = "input"
+output = "output""#
+    );
+
+    let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
+    cmd.current_dir(&project_path)
+        .arg("project")
+        .arg("markdown")
+        .arg("update")
+        .arg("name")
+        .arg("--default-profile")
+        .arg("profile")
+        .assert()
+        .success();
+
+    let manifest_path = project_path.join("manifest.toml");
+    assert!(manifest_path.exists(), "Manifest file should exist");
+    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
+
+    assert_contains!(
+        manifest_content,
+        r#"[[markdown_projects]]
+name = "name"
+path = "input"
+output = "output"
+default_profile = "profile""#
+    );
+}

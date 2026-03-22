@@ -6,6 +6,17 @@ use std::{
 };
 
 /// The type of a template. Defines the conversion behavior of a template.
+///
+/// # Examples
+///
+/// ```
+/// use tiefdownlib::template_type::TemplateType;
+/// use std::str::FromStr;
+///
+/// let t = TemplateType::from_str("tex").unwrap();
+/// assert_eq!(t, TemplateType::Tex);
+/// assert_eq!(t.to_string(), "Tex");
+/// ```
 #[derive(Deserialize, Serialize, Clone, Copy, Debug, PartialEq, Eq)]
 pub enum TemplateType {
     Tex = 0,
@@ -16,6 +27,20 @@ pub enum TemplateType {
 }
 
 impl From<&str> for TemplateType {
+    /// Converts a string slice to a `TemplateType`.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the string does not match a known template type (case-insensitive).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use tiefdownlib::template_type::TemplateType;
+    ///
+    /// assert_eq!(TemplateType::from("typst"), TemplateType::Typst);
+    /// assert_eq!(TemplateType::from("Epub"), TemplateType::Epub);
+    /// ```
     fn from(s: &str) -> Self {
         match s.to_lowercase().as_str() {
             "tex" => TemplateType::Tex,
@@ -31,6 +56,20 @@ impl From<&str> for TemplateType {
 impl FromStr for TemplateType {
     type Err = eyre::Report;
 
+    /// Parses a string slice into a `TemplateType`.
+    ///
+    /// Case-insensitive. Returns an error if the value is not recognized.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use tiefdownlib::template_type::TemplateType;
+    /// use std::str::FromStr;
+    ///
+    /// assert_eq!(TemplateType::from_str("tex").unwrap(), TemplateType::Tex);
+    /// assert_eq!(TemplateType::from_str("CustomProcessor").unwrap(), TemplateType::CustomProcessor);
+    /// assert!(TemplateType::from_str("unknown").is_err());
+    /// ```
     fn from_str(s: &str) -> Result<Self> {
         match s.to_lowercase().as_str() {
             "tex" => Ok(TemplateType::Tex),
@@ -44,6 +83,21 @@ impl FromStr for TemplateType {
 }
 
 impl From<usize> for TemplateType {
+    /// Converts a `usize` index to a `TemplateType`.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the index is out of range.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use tiefdownlib::template_type::TemplateType;
+    ///
+    /// assert_eq!(TemplateType::from(0usize), TemplateType::Tex);
+    /// assert_eq!(TemplateType::from(1usize), TemplateType::Typst);
+    /// assert_eq!(TemplateType::from(2usize), TemplateType::Epub);
+    /// ```
     fn from(value: usize) -> Self {
         match value {
             0 => TemplateType::Tex,
@@ -57,6 +111,19 @@ impl From<usize> for TemplateType {
 }
 
 impl TemplateType {
+    /// Returns the canonical string name of the template type.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use tiefdownlib::template_type::TemplateType;
+    ///
+    /// assert_eq!(TemplateType::Tex.as_str(), "Tex");
+    /// assert_eq!(TemplateType::Typst.as_str(), "Typst");
+    /// assert_eq!(TemplateType::Epub.as_str(), "Epub");
+    /// assert_eq!(TemplateType::CustomPreprocessors.as_str(), "CustomPreprocessors");
+    /// assert_eq!(TemplateType::CustomProcessor.as_str(), "CustomProcessor");
+    /// ```
     pub fn as_str(&self) -> &'static str {
         match self {
             TemplateType::Tex => "Tex",

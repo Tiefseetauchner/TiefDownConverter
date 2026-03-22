@@ -6,6 +6,17 @@ use std::{
 };
 
 /// Featureset of Metadata Generation
+///
+/// # Examples
+///
+/// ```
+/// use tiefdownlib::meta_generation_feature::MetaGenerationFeature;
+/// use std::str::FromStr;
+///
+/// let f = MetaGenerationFeature::from_str("full").unwrap();
+/// assert_eq!(f, MetaGenerationFeature::Full);
+/// assert_eq!(f.to_string(), "Full");
+/// ```
 #[derive(Deserialize, Serialize, Clone, Copy, Debug, PartialEq, Eq)]
 pub enum MetaGenerationFeature {
     None = 0,
@@ -15,6 +26,20 @@ pub enum MetaGenerationFeature {
 }
 
 impl From<&str> for MetaGenerationFeature {
+    /// Converts a string slice to a `MetaGenerationFeature`.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the string does not match a known variant (case-insensitive).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use tiefdownlib::meta_generation_feature::MetaGenerationFeature;
+    ///
+    /// assert_eq!(MetaGenerationFeature::from("none"), MetaGenerationFeature::None);
+    /// assert_eq!(MetaGenerationFeature::from("NavOnly"), MetaGenerationFeature::NavOnly);
+    /// ```
     fn from(s: &str) -> Self {
         match s.to_lowercase().as_str() {
             "none" => MetaGenerationFeature::None,
@@ -29,6 +54,19 @@ impl From<&str> for MetaGenerationFeature {
 impl FromStr for MetaGenerationFeature {
     type Err = eyre::Report;
 
+    /// Parses a string slice into a `MetaGenerationFeature`.
+    ///
+    /// Case-insensitive. Returns an error for unrecognized values.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use tiefdownlib::meta_generation_feature::MetaGenerationFeature;
+    /// use std::str::FromStr;
+    ///
+    /// assert_eq!(MetaGenerationFeature::from_str("metadataonly").unwrap(), MetaGenerationFeature::MetadataOnly);
+    /// assert!(MetaGenerationFeature::from_str("invalid").is_err());
+    /// ```
     fn from_str(s: &str) -> Result<Self> {
         match s.to_lowercase().as_str() {
             "none" => Ok(MetaGenerationFeature::None),
@@ -53,6 +91,18 @@ impl From<usize> for MetaGenerationFeature {
 }
 
 impl MetaGenerationFeature {
+    /// Returns the canonical string name of this feature variant.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use tiefdownlib::meta_generation_feature::MetaGenerationFeature;
+    ///
+    /// assert_eq!(MetaGenerationFeature::None.as_str(), "None");
+    /// assert_eq!(MetaGenerationFeature::Full.as_str(), "Full");
+    /// assert_eq!(MetaGenerationFeature::NavOnly.as_str(), "NavOnly");
+    /// assert_eq!(MetaGenerationFeature::MetadataOnly.as_str(), "MetadataOnly");
+    /// ```
     pub fn as_str(&self) -> &'static str {
         match self {
             MetaGenerationFeature::None => "None",

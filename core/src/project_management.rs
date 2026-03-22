@@ -32,6 +32,23 @@ use toml::{Table, Value};
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::project_management::init;
+/// use std::path::PathBuf;
+///
+/// init(
+///     Some(PathBuf::from("my_project")),
+///     None,    // default templates
+///     false,   // no_templates
+///     false,   // force
+///     None,    // markdown_dir
+///     false,   // smart_clean
+///     None,    // smart_clean_threshold
+/// ).unwrap();
+/// ```
 pub fn init(
     project: Option<PathBuf>,
     template_names: Option<Vec<String>>,
@@ -179,6 +196,23 @@ fn get_template_mapping_for_preset(template: &String) -> Result<Template> {
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::project_management::add_template;
+/// use std::path::PathBuf;
+///
+/// add_template(
+///     Some(PathBuf::from("my_project")),
+///     "my_template".to_string(),
+///     None,  // auto-detect type from file
+///     Some(PathBuf::from("template.tex")),
+///     Some(PathBuf::from("output.pdf")),
+///     None, None, None, None, None, None, None,
+///     false, None, None, None, None, None,
+/// ).unwrap();
+/// ```
 pub fn add_template(
     project: Option<PathBuf>,
     template_name: String,
@@ -304,6 +338,15 @@ pub fn add_template(
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::project_management::remove_template;
+/// use std::path::PathBuf;
+///
+/// remove_template(Some(PathBuf::from("my_project")), "my_template".to_string()).unwrap();
+/// ```
 pub fn remove_template(project: Option<PathBuf>, template_name: String) -> Result<()> {
     debug!("Removing template '{}'...", template_name);
     let project = project.unwrap_or(PathBuf::from("."));
@@ -377,6 +420,23 @@ pub fn remove_template(project: Option<PathBuf>, template_name: String) -> Resul
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::project_management::update_template;
+/// use std::path::PathBuf;
+///
+/// // Change the output file for an existing template
+/// update_template(
+///     Some(PathBuf::from("my_project")),
+///     "my_template".to_string(),
+///     None, None,
+///     Some(PathBuf::from("new_output.pdf")),
+///     None, None, None, None, None, None, None, None, None, None, None,
+///     Some(false), None, None, None, None, None,
+/// ).unwrap();
+/// ```
 pub fn update_template(
     project: Option<PathBuf>,
     template_name: String,
@@ -602,6 +662,16 @@ pub fn update_template(
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::project_management::update_settings;
+/// use std::path::PathBuf;
+///
+/// // Enable smart clean with a threshold of 3 builds
+/// update_settings(Some(PathBuf::from("my_project")), Some(true), Some(3)).unwrap();
+/// ```
 pub fn update_settings(
     project: Option<PathBuf>,
     smart_clean: Option<bool>,
@@ -642,6 +712,21 @@ pub fn update_settings(
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::project_management::add_preprocessor;
+/// use std::path::PathBuf;
+///
+/// add_preprocessor(
+///     Some(PathBuf::from("my_project")),
+///     "my_preprocessor".to_string(),
+///     Some("md".to_string()),
+///     None,
+///     vec!["-t".to_string(), "latex".to_string()],
+/// ).unwrap();
+/// ```
 pub fn add_preprocessor(
     project: Option<PathBuf>,
     name: String,
@@ -679,6 +764,15 @@ pub fn add_preprocessor(
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::project_management::remove_preprocessor;
+/// use std::path::PathBuf;
+///
+/// remove_preprocessor(Some(PathBuf::from("my_project")), "my_preprocessor".to_string()).unwrap();
+/// ```
 pub fn remove_preprocessor(project: Option<PathBuf>, name: String) -> Result<()> {
     let project = project.unwrap_or(PathBuf::from("."));
     let manifest_path = project.join("manifest.toml");
@@ -714,6 +808,19 @@ pub fn remove_preprocessor(project: Option<PathBuf>, name: String) -> Result<()>
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::project_management::add_processor;
+/// use std::path::PathBuf;
+///
+/// add_processor(
+///     Some(PathBuf::from("my_project")),
+///     "my_processor".to_string(),
+///     vec!["--shell-escape".to_string()],
+/// ).unwrap();
+/// ```
 pub fn add_processor(
     project: Option<PathBuf>,
     name: String,
@@ -747,6 +854,15 @@ pub fn add_processor(
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::project_management::remove_processor;
+/// use std::path::PathBuf;
+///
+/// remove_processor(Some(PathBuf::from("my_project")), "my_processor".to_string()).unwrap();
+/// ```
 pub fn remove_processor(project: Option<PathBuf>, name: String) -> Result<()> {
     let project = project.unwrap_or(PathBuf::from("."));
     let manifest_path = project.join("manifest.toml");
@@ -780,6 +896,18 @@ pub fn remove_processor(project: Option<PathBuf>, name: String) -> Result<()> {
 /// # Returns
 ///
 /// A Result containing either an error or a vector of Processor objects.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::project_management::get_processors;
+/// use std::path::PathBuf;
+///
+/// let processors = get_processors(Some(PathBuf::from("my_project"))).unwrap();
+/// for processor in processors {
+///     println!("{}", processor.name);
+/// }
+/// ```
 pub fn get_processors(project: Option<PathBuf>) -> Result<Vec<Processor>> {
     let project = project.unwrap_or(PathBuf::from("."));
     let manifest_path = project.join("manifest.toml");
@@ -801,6 +929,19 @@ pub fn get_processors(project: Option<PathBuf>) -> Result<Vec<Processor>> {
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::project_management::add_profile;
+/// use std::path::PathBuf;
+///
+/// add_profile(
+///     Some(PathBuf::from("my_project")),
+///     "print".to_string(),
+///     vec!["template.tex".to_string(), "booklet.tex".to_string()],
+/// ).unwrap();
+/// ```
 pub fn add_profile(project: Option<PathBuf>, name: String, templates: Vec<String>) -> Result<()> {
     let project = project.unwrap_or(PathBuf::from("."));
     let manifest_path = project.join("manifest.toml");
@@ -832,6 +973,15 @@ pub fn add_profile(project: Option<PathBuf>, name: String, templates: Vec<String
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::project_management::remove_profile;
+/// use std::path::PathBuf;
+///
+/// remove_profile(Some(PathBuf::from("my_project")), "print".to_string()).unwrap();
+/// ```
 pub fn remove_profile(project: Option<PathBuf>, name: String) -> Result<()> {
     let project = project.unwrap_or(PathBuf::from("."));
     let manifest_path = project.join("manifest.toml");
@@ -864,6 +1014,18 @@ pub fn remove_profile(project: Option<PathBuf>, name: String) -> Result<()> {
 /// # Returns
 ///
 /// A Result containing either an error or a vector of TemplateMapping objects.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::project_management::get_templates;
+/// use std::path::PathBuf;
+///
+/// let templates = get_templates(Some(PathBuf::from("my_project"))).unwrap();
+/// for template in templates {
+///     println!("{}: {}", template.name, template.template_type);
+/// }
+/// ```
 pub fn get_templates(project: Option<PathBuf>) -> Result<Vec<Template>> {
     let project = project.unwrap_or(PathBuf::from("."));
     let manifest_path = project.join("manifest.toml");
@@ -883,6 +1045,18 @@ pub fn get_templates(project: Option<PathBuf>) -> Result<Vec<Template>> {
 /// # Returns
 ///
 /// A Result containing either an error or a vector of Profile objects.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::project_management::get_profiles;
+/// use std::path::PathBuf;
+///
+/// let profiles = get_profiles(Some(PathBuf::from("my_project"))).unwrap();
+/// for profile in profiles {
+///     println!("{}: {:?}", profile.name, profile.templates);
+/// }
+/// ```
 pub fn get_profiles(project: Option<PathBuf>) -> Result<Vec<Profile>> {
     let project = project.unwrap_or(PathBuf::from("."));
     let manifest_path = project.join("manifest.toml");
@@ -904,6 +1078,18 @@ pub fn get_profiles(project: Option<PathBuf>) -> Result<Vec<Profile>> {
 /// # Returns
 ///
 /// A Result containing either an error or a vector of PreProcessor objects.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::project_management::get_preprocessors;
+/// use std::path::PathBuf;
+///
+/// let preprocessors = get_preprocessors(Some(PathBuf::from("my_project"))).unwrap();
+/// for preprocessor in preprocessors {
+///     println!("{}", preprocessor.name);
+/// }
+/// ```
 pub fn get_preprocessors(project: Option<PathBuf>) -> Result<Vec<PreProcessor>> {
     let project = project.unwrap_or(PathBuf::from("."));
     let manifest_path = project.join("manifest.toml");
@@ -923,6 +1109,15 @@ pub fn get_preprocessors(project: Option<PathBuf>) -> Result<Vec<PreProcessor>> 
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::project_management::clean;
+/// use std::path::PathBuf;
+///
+/// clean(Some(PathBuf::from("my_project"))).unwrap();
+/// ```
 pub fn clean(project: Option<PathBuf>) -> Result<()> {
     let project = project.unwrap_or(PathBuf::from("."));
     let manifest_path = project.join("manifest.toml");
@@ -939,6 +1134,15 @@ pub fn clean(project: Option<PathBuf>) -> Result<()> {
 ///
 /// * `project` - The path to the project directory (relative or absolute).
 ///   * Defaults to the current directory if not provided.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::project_management::smart_clean;
+/// use std::path::PathBuf;
+///
+/// smart_clean(Some(PathBuf::from("my_project"))).unwrap();
+/// ```
 pub fn smart_clean(project: Option<PathBuf>) -> Result<()> {
     let project = project.unwrap_or(PathBuf::from("."));
     let manifest_path = project.join("manifest.toml");
@@ -996,6 +1200,14 @@ pub(crate) fn run_smart_clean(project: &PathBuf, smart_clean_threshold: u32) -> 
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::project_management::check_dependencies;
+///
+/// check_dependencies(vec!["pandoc", "xelatex"]).unwrap();
+/// ```
 pub fn check_dependencies(dependencies: Vec<&str>) -> Result<()> {
     debug!("Checking dependencies: {:?}", dependencies);
     let errors = get_missing_dependencies(dependencies)?;
@@ -1045,6 +1257,16 @@ pub(crate) fn get_missing_dependencies(dependencies: Vec<&str>) -> Result<Vec<St
 /// # Returns
 ///
 /// A Result containing either an error or the parsed `Manifest`.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::project_management::load_and_convert_manifest;
+/// use std::path::PathBuf;
+///
+/// let manifest = load_and_convert_manifest(&PathBuf::from("my_project/manifest.toml")).unwrap();
+/// println!("Manifest version: {}", manifest.version);
+/// ```
 pub fn load_and_convert_manifest(manifest_path: &std::path::PathBuf) -> Result<Manifest> {
     if !manifest_path.exists() {
         return Err(eyre!(

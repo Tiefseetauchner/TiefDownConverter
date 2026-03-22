@@ -34,6 +34,19 @@ impl RenderingInjections {
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::injections::add_injection;
+/// use std::path::PathBuf;
+///
+/// add_injection(
+///     Some(PathBuf::from("my_project")),
+///     "header".to_string(),
+///     vec![PathBuf::from("header.tex")],
+/// ).unwrap();
+/// ```
 pub fn add_injection(project: Option<PathBuf>, name: String, files: Vec<PathBuf>) -> Result<()> {
     let project = project.unwrap_or(PathBuf::from("."));
     let manifest_path = project.join("manifest.toml");
@@ -72,6 +85,15 @@ pub fn add_injection(project: Option<PathBuf>, name: String, files: Vec<PathBuf>
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::injections::remove_injection;
+/// use std::path::PathBuf;
+///
+/// remove_injection(Some(PathBuf::from("my_project")), "header".to_string()).unwrap();
+/// ```
 pub fn remove_injection(project: Option<PathBuf>, name: String) -> Result<()> {
     let project = project.unwrap_or(PathBuf::from("."));
     let manifest_path = project.join("manifest.toml");
@@ -104,6 +126,18 @@ pub fn remove_injection(project: Option<PathBuf>, name: String) -> Result<()> {
 /// # Returns
 ///
 /// A Result containing either an error or a vector of Injection objects.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::injections::get_injections;
+/// use std::path::PathBuf;
+///
+/// let injections = get_injections(Some(PathBuf::from("my_project"))).unwrap();
+/// for injection in injections {
+///     println!("{}: {:?}", injection.name, injection.files);
+/// }
+/// ```
 pub fn get_injections(project: Option<PathBuf>) -> Result<Vec<Injection>> {
     let project = project.unwrap_or(PathBuf::from("."));
     let manifest_path = project.join("manifest.toml");
@@ -128,6 +162,19 @@ pub fn get_injections(project: Option<PathBuf>) -> Result<Vec<Injection>> {
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::injections::add_files_to_injection;
+/// use std::path::PathBuf;
+///
+/// add_files_to_injection(
+///     Some(PathBuf::from("my_project")),
+///     "header".to_string(),
+///     vec![PathBuf::from("extra_header.tex")],
+/// ).unwrap();
+/// ```
 pub fn add_files_to_injection(
     project: Option<PathBuf>,
     name: String,

@@ -20,6 +20,21 @@ use toml::{Table, Value};
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::markdown_project_management::add_markdown_project;
+/// use std::path::PathBuf;
+///
+/// add_markdown_project(
+///     Some(PathBuf::from("my_project")),
+///     "chapter1".to_string(),
+///     PathBuf::from("Markdown/Chapter1"),
+///     PathBuf::from("output/chapter1"),
+///     None,
+/// ).unwrap();
+/// ```
 pub fn add_markdown_project(
     project: Option<PathBuf>,
     name: String,
@@ -76,6 +91,15 @@ pub fn add_markdown_project(
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::markdown_project_management::remove_markdown_project;
+/// use std::path::PathBuf;
+///
+/// remove_markdown_project(Some(PathBuf::from("my_project")), "chapter1".to_string()).unwrap();
+/// ```
 pub fn remove_markdown_project(project: Option<PathBuf>, name: String) -> Result<()> {
     debug!("Removing markdown project '{}'", name);
     let project = project.unwrap_or(PathBuf::from("."));
@@ -117,6 +141,21 @@ pub fn remove_markdown_project(project: Option<PathBuf>, name: String) -> Result
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::markdown_project_management::update_markdown_project;
+/// use std::path::PathBuf;
+///
+/// update_markdown_project(
+///     Some(PathBuf::from("my_project")),
+///     "chapter1".to_string(),
+///     Some(PathBuf::from("Markdown/NewChapter1")),
+///     None,
+///     None,
+/// ).unwrap();
+/// ```
 pub fn update_markdown_project(
     project: Option<PathBuf>,
     name: String,
@@ -174,6 +213,20 @@ pub fn update_markdown_project(
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::markdown_project_management::set_metadata;
+/// use std::path::PathBuf;
+///
+/// set_metadata(
+///     Some(PathBuf::from("my_project")),
+///     "chapter1".to_string(),
+///     "title".to_string(),
+///     "Chapter One".to_string(),
+/// ).unwrap();
+/// ```
 pub fn set_metadata(
     project: Option<PathBuf>,
     name: String,
@@ -219,6 +272,19 @@ pub fn set_metadata(
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::markdown_project_management::remove_metadata;
+/// use std::path::PathBuf;
+///
+/// remove_metadata(
+///     Some(PathBuf::from("my_project")),
+///     "chapter1".to_string(),
+///     "title".to_string(),
+/// ).unwrap();
+/// ```
 pub fn remove_metadata(project: Option<PathBuf>, name: String, key: String) -> Result<()> {
     debug!("markdown.remove_metadata: project='{}' key='{}'", name, key);
     let project = project.unwrap_or(PathBuf::from("."));
@@ -265,6 +331,19 @@ pub fn remove_metadata(project: Option<PathBuf>, name: String, key: String) -> R
 /// # Returns
 ///
 /// A Result containing either an error or a Vec of MetadataField.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::markdown_project_management::get_metadata;
+/// use std::path::PathBuf;
+///
+/// let name = "chapter1".to_string();
+/// let fields = get_metadata(Some(PathBuf::from("my_project")), &name).unwrap();
+/// for field in fields {
+///     println!("{} = {}", field.key, field.value);
+/// }
+/// ```
 pub fn get_metadata(project: Option<PathBuf>, name: &String) -> Result<Vec<MetadataField>> {
     let project = project.unwrap_or(PathBuf::from("."));
     let manifest_path = project.join("manifest.toml");
@@ -303,7 +382,18 @@ pub fn get_metadata(project: Option<PathBuf>, name: &String) -> Result<Vec<Metad
 /// # Returns
 ///
 /// A Result containing either an error or a Vec of MarkdownProject.
-
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::markdown_project_management::get_markdown_projects;
+/// use std::path::PathBuf;
+///
+/// let projects = get_markdown_projects(Some(PathBuf::from("my_project"))).unwrap();
+/// for project in projects {
+///     println!("{}: {}", project.name, project.path.display());
+/// }
+/// ```
 pub fn get_markdown_projects(project: Option<PathBuf>) -> Result<Vec<MarkdownProject>> {
     let project = project.unwrap_or(PathBuf::from("."));
     let manifest_path = project.join("manifest.toml");
@@ -330,6 +420,19 @@ pub fn get_markdown_projects(project: Option<PathBuf>) -> Result<Vec<MarkdownPro
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::markdown_project_management::add_resources;
+/// use std::path::PathBuf;
+///
+/// add_resources(
+///     Some(PathBuf::from("my_project")),
+///     "chapter1".to_string(),
+///     vec![PathBuf::from("images/")],
+/// ).unwrap();
+/// ```
 pub fn add_resources(
     project: Option<PathBuf>,
     name: String,
@@ -381,6 +484,19 @@ pub fn add_resources(
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::markdown_project_management::remove_resource;
+/// use std::path::PathBuf;
+///
+/// remove_resource(
+///     Some(PathBuf::from("my_project")),
+///     "chapter1".to_string(),
+///     PathBuf::from("images/"),
+/// ).unwrap();
+/// ```
 pub fn remove_resource(project: Option<PathBuf>, name: String, resource: PathBuf) -> Result<()> {
     debug!(
         "markdown.remove_resource: project='{}' resource='{}'",
@@ -431,6 +547,19 @@ pub fn remove_resource(project: Option<PathBuf>, name: String, resource: PathBuf
 /// # Returns
 ///
 /// A Result containing either an error or a Vec of PathBuf.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::markdown_project_management::get_resources;
+/// use std::path::PathBuf;
+///
+/// let name = "chapter1".to_string();
+/// let resources = get_resources(Some(PathBuf::from("my_project")), &name).unwrap();
+/// for resource in resources {
+///     println!("{}", resource.display());
+/// }
+/// ```
 pub fn get_resources(project: Option<PathBuf>, name: &String) -> Result<Vec<PathBuf>> {
     let project = project.unwrap_or(PathBuf::from("."));
     let manifest_path = project.join("manifest.toml");

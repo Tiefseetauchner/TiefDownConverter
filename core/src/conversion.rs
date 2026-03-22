@@ -45,6 +45,22 @@ pub struct ConversionTask {
 /// # Returns
 ///
 /// A Result containing either an error or a vector of ConversionTask.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::conversion::get_conversion_queue;
+/// use std::path::PathBuf;
+///
+/// // Build a queue for all templates and all markdown projects
+/// let queue = get_conversion_queue(
+///     Some(PathBuf::from("my_project")),
+///     None,  // all templates
+///     None,  // no profile filter
+///     None,  // all markdown projects
+/// ).unwrap();
+/// println!("Queued {} conversion tasks.", queue.len());
+/// ```
 pub fn get_conversion_queue(
     project: Option<PathBuf>,
     templates: Option<Vec<String>>,
@@ -124,6 +140,17 @@ pub fn get_conversion_queue(
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::conversion::{convert, get_conversion_queue};
+/// use std::path::PathBuf;
+///
+/// let project = Some(PathBuf::from("my_project"));
+/// let queue = get_conversion_queue(project.clone(), None, None, None).unwrap();
+/// convert(project, queue).unwrap();
+/// ```
 pub fn convert(project: Option<PathBuf>, conversion_queue: Vec<ConversionTask>) -> Result<()> {
     let pandoc_errors = get_missing_dependencies(vec!["pandoc"])?;
 

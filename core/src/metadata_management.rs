@@ -17,6 +17,19 @@ use toml::{Table, Value};
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::metadata_management::set_metadata;
+/// use std::path::PathBuf;
+///
+/// set_metadata(
+///     Some(PathBuf::from("my_project")),
+///     "author".to_string(),
+///     "Jane Doe".to_string(),
+/// ).unwrap();
+/// ```
 pub fn set_metadata(project: Option<PathBuf>, key: String, value: String) -> Result<()> {
     debug!("metadata.set: key='{}'", key);
     let project = project.unwrap_or(PathBuf::from("."));
@@ -50,6 +63,15 @@ pub fn set_metadata(project: Option<PathBuf>, key: String, value: String) -> Res
 /// # Returns
 ///
 /// A Result containing either an error or nothing.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::metadata_management::remove_metadata;
+/// use std::path::PathBuf;
+///
+/// remove_metadata(Some(PathBuf::from("my_project")), "author".to_string()).unwrap();
+/// ```
 pub fn remove_metadata(project: Option<PathBuf>, key: String) -> Result<()> {
     debug!("metadata.remove: key='{}'", key);
     let project = project.unwrap_or(PathBuf::from("."));
@@ -88,6 +110,18 @@ pub fn remove_metadata(project: Option<PathBuf>, key: String) -> Result<()> {
 /// # Returns
 ///
 /// A Result containing either an error or a Vec of MetadataField.
+///
+/// # Examples
+///
+/// ```no_run
+/// use tiefdownlib::metadata_management::get_metadata;
+/// use std::path::PathBuf;
+///
+/// let fields = get_metadata(Some(PathBuf::from("my_project"))).unwrap();
+/// for field in fields {
+///     println!("{} = {}", field.key, field.value);
+/// }
+/// ```
 pub fn get_metadata(project: Option<PathBuf>) -> Result<Vec<MetadataField>> {
     let project = project.unwrap_or(PathBuf::from("."));
     let manifest_path = project.join("manifest.toml");

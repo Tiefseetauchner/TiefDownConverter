@@ -224,6 +224,16 @@ pub struct MetadataSettings {
 }
 
 impl MetadataSettings {
+    /// Creates a `MetadataSettings` with all options set to their defaults.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use tiefdownlib::manifest_model::MetadataSettings;
+    ///
+    /// let settings = MetadataSettings::default();
+    /// assert!(settings.metadata_prefix.is_none());
+    /// ```
     pub fn default() -> Self {
         Self {
             metadata_prefix: None,
