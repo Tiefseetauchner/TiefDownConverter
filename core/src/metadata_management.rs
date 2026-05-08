@@ -1,6 +1,4 @@
-use std::path::PathBuf;
-
-use crate::{manifest_model::MetadataField, project_management::load_and_convert_manifest};
+use crate::{manifest_model::MetadataField, project_handle::ProjectHandle};
 use color_eyre::eyre::{Result, eyre};
 use log::debug;
 use toml::{Table, Value};
@@ -30,24 +28,15 @@ use toml::{Table, Value};
 ///     "Jane Doe".to_string(),
 /// ).unwrap();
 /// ```
-pub fn set_metadata(project: Option<PathBuf>, key: String, value: String) -> Result<()> {
+pub fn set_metadata(project_handle: &mut ProjectHandle, key: String, value: String) -> Result<()> {
     debug!("metadata.set: key='{}'", key);
-    let project = project.unwrap_or(PathBuf::from("."));
-    let manifest_path = project.join("manifest.toml");
-
-    let mut manifest = load_and_convert_manifest(&manifest_path)?;
-
-    manifest
+    project_handle
+        .manifest
         .shared_metadata
         .get_or_insert_with(&mut || Table::new())
         .insert(key, Value::String(value));
 
-    let manifest_content = toml::to_string(&manifest)?;
-    std::fs::write(&manifest_path, manifest_content)?;
-    debug!(
-        "metadata.set: updated manifest at '{}'",
-        manifest_path.display()
-    );
+    project_handle.mark_dirty();
 
     Ok(())
 }
@@ -72,14 +61,9 @@ pub fn set_metadata(project: Option<PathBuf>, key: String, value: String) -> Res
 ///
 /// remove_metadata(Some(PathBuf::from("my_project")), "author".to_string()).unwrap();
 /// ```
-pub fn remove_metadata(project: Option<PathBuf>, key: String) -> Result<()> {
-    debug!("metadata.remove: key='{}'", key);
-    let project = project.unwrap_or(PathBuf::from("."));
-    let manifest_path = project.join("manifest.toml");
-
-    let mut manifest = load_and_convert_manifest(&manifest_path)?;
-
-    let shared_metadata = manifest
+pub fn remove_metadata(project_handle: &mut ProjectHandle, key: String) -> Result<()> {
+    let shared_metadata = project_handle
+        .manifest
         .shared_metadata
         .as_mut()
         .ok_or(eyre!("No shared metadata found."))?;
@@ -90,12 +74,7 @@ pub fn remove_metadata(project: Option<PathBuf>, key: String) -> Result<()> {
 
     shared_metadata.remove(&key);
 
-    let manifest_content = toml::to_string(&manifest)?;
-    std::fs::write(&manifest_path, manifest_content)?;
-    debug!(
-        "metadata.remove: updated manifest at '{}'",
-        manifest_path.display()
-    );
+    project_handle.mark_dirty();
 
     Ok(())
 }
@@ -122,13 +101,12 @@ pub fn remove_metadata(project: Option<PathBuf>, key: String) -> Result<()> {
 ///     println!("{} = {}", field.key, field.value);
 /// }
 /// ```
-pub fn get_metadata(project: Option<PathBuf>) -> Result<Vec<MetadataField>> {
-    let project = project.unwrap_or(PathBuf::from("."));
-    let manifest_path = project.join("manifest.toml");
-
-    let manifest = load_and_convert_manifest(&manifest_path)?;
-
-    let metadata_fields = manifest.shared_metadata.unwrap_or_default();
+pub fn get_metadata(project_handle: &ProjectHandle) -> Result<Vec<MetadataField>> {
+    let metadata_fields = project_handle
+        .manifest
+        .shared_metadata
+        .clone()
+        .unwrap_or_default();
     debug!("metadata.get: {} entries", metadata_fields.len());
 
     Ok(metadata_fields

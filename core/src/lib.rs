@@ -10,6 +10,7 @@ pub mod meta_generation_feature;
 pub mod meta_generation_format;
 pub mod metadata_management;
 pub mod nav_meta_generation;
+pub mod project_handle;
 pub mod project_management;
 mod template_management;
 pub mod template_type;

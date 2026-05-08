@@ -6,6 +6,7 @@ use crate::{
     },
     meta_generation_feature::MetaGenerationFeature,
     meta_generation_format::MetaGenerationFormat,
+    project_handle::ProjectHandle,
     template_management::{self, add_lix_filters, get_template_path, get_template_type_from_path},
     template_type::TemplateType,
 };
@@ -214,7 +215,7 @@ fn get_template_mapping_for_preset(template: &String) -> Result<Template> {
 /// ).unwrap();
 /// ```
 pub fn add_template(
-    project: Option<PathBuf>,
+    project_handle: &mut ProjectHandle,
     template_name: String,
     template_type: Option<TemplateType>,
     template_file: Option<PathBuf>,
@@ -237,12 +238,13 @@ pub fn add_template(
         "Adding template '{}' (type: {:?})...",
         template_name, template_type
     );
-    let project = project.unwrap_or(PathBuf::from("."));
-    let manifest_path = project.join("manifest.toml");
 
-    let mut manifest = load_and_convert_manifest(&manifest_path)?;
-
-    if manifest.templates.iter().any(|t| t.name == template_name) {
+    if project_handle
+        .manifest
+        .templates
+        .iter()
+        .any(|t| t.name == template_name)
+    {
         return Err(eyre!(
             "Template with name '{}' already exists.",
             template_name
@@ -315,14 +317,11 @@ pub fn add_template(
         meta_gen,
     };
 
-    create_templates(&project, &vec![template.clone()])?;
+    create_templates(&project_handle.project_path, &vec![template.clone()])?;
     add_lix_filters(&mut template);
 
-    manifest.templates.extend([template.clone()]);
-
-    let manifest_content = toml::to_string(&manifest)?;
-    std::fs::write(&manifest_path, manifest_content)?;
-    debug!("Template '{}' added and manifest updated.", template_name);
+    project_handle.manifest.templates.extend([template.clone()]);
+    project_handle.mark_dirty();
 
     Ok(())
 }
@@ -347,30 +346,24 @@ pub fn add_template(
 ///
 /// remove_template(Some(PathBuf::from("my_project")), "my_template".to_string()).unwrap();
 /// ```
-pub fn remove_template(project: Option<PathBuf>, template_name: String) -> Result<()> {
-    debug!("Removing template '{}'...", template_name);
-    let project = project.unwrap_or(PathBuf::from("."));
-    let manifest_path = project.join("manifest.toml");
-
-    let mut manifest = load_and_convert_manifest(&manifest_path)?;
-
-    if let Some(pos) = manifest
+pub fn remove_template(project_handle: &mut ProjectHandle, template_name: String) -> Result<()> {
+    if let Some(pos) = project_handle
+        .manifest
         .templates
         .iter()
         .position(|t| t.name == template_name)
     {
-        let removed_template = manifest.templates.swap_remove(pos);
+        let removed_template = project_handle.manifest.templates.swap_remove(pos);
 
-        let manifest_content = toml::to_string(&manifest)?;
-        std::fs::write(&manifest_path, manifest_content)?;
-
-        let template_dir = project.join("template");
+        let template_dir = project_handle.project_path.join("template");
         let template_path = template_dir.join(
             removed_template
                 .template_file
                 .as_ref()
                 .unwrap_or(&PathBuf::from(&removed_template.name)),
         );
+
+        project_handle.mark_dirty();
 
         if template_path.is_dir() {
             std::fs::remove_dir_all(&template_path)?;
@@ -427,7 +420,6 @@ pub fn remove_template(project: Option<PathBuf>, template_name: String) -> Resul
 /// use tiefdownlib::project_management::update_template;
 /// use std::path::PathBuf;
 ///
-/// // Change the output file for an existing template
 /// update_template(
 ///     Some(PathBuf::from("my_project")),
 ///     "my_template".to_string(),
@@ -438,7 +430,7 @@ pub fn remove_template(project: Option<PathBuf>, template_name: String) -> Resul
 /// ).unwrap();
 /// ```
 pub fn update_template(
-    project: Option<PathBuf>,
+    project_handle: &mut ProjectHandle,
     template_name: String,
     template_type: Option<TemplateType>,
     template_file: Option<PathBuf>,
@@ -465,17 +457,14 @@ pub fn update_template(
         "Updating template '{}' (fields provided: type={:?}, file={:?}, output={:?})",
         template_name, template_type, template_file, output
     );
-    let project = project.unwrap_or(PathBuf::from("."));
-    let manifest_path = project.join("manifest.toml");
 
-    let mut manifest = load_and_convert_manifest(&manifest_path)?;
-
-    if let Some(index) = manifest
+    if let Some(index) = project_handle
+        .manifest
         .templates
         .iter()
         .position(|t| t.name == template_name)
     {
-        let template = &mut manifest.templates[index];
+        let template = &mut project_handle.manifest.templates[index];
 
         template.template_type = template_type.unwrap_or(template.template_type.clone());
         template.output = output.or(template.output.clone());
@@ -537,7 +526,8 @@ pub fn update_template(
             }
         } else if let Some(add_preprocessors) = add_preprocessors {
             if add_preprocessors.iter().any(|filter| {
-                manifest
+                project_handle
+                    .manifest
                     .custom_processors
                     .preprocessors
                     .iter()
@@ -643,9 +633,7 @@ pub fn update_template(
         ));
     }
 
-    let manifest_content = toml::to_string(&manifest)?;
-    std::fs::write(&manifest_path, manifest_content)?;
-    debug!("Template '{}' updated and manifest saved.", template_name);
+    project_handle.mark_dirty();
 
     Ok(())
 }
@@ -669,30 +657,23 @@ pub fn update_template(
 /// use tiefdownlib::project_management::update_settings;
 /// use std::path::PathBuf;
 ///
-/// // Enable smart clean with a threshold of 3 builds
 /// update_settings(Some(PathBuf::from("my_project")), Some(true), Some(3)).unwrap();
 /// ```
 pub fn update_settings(
-    project: Option<PathBuf>,
+    project_handle: &mut ProjectHandle,
     smart_clean: Option<bool>,
     smart_clean_threshold: Option<u32>,
 ) -> Result<()> {
-    let project = project.unwrap_or(PathBuf::from("."));
-    let manifest_path = project.join("manifest.toml");
-
-    let mut manifest = load_and_convert_manifest(&manifest_path)?;
-
     if let Some(smart_clean_value) = smart_clean {
         let smart_clean_value = if smart_clean_value { Some(true) } else { None };
-        manifest.smart_clean = smart_clean_value;
+        project_handle.manifest.smart_clean = smart_clean_value;
     }
 
     if let Some(smart_clean_threshold) = smart_clean_threshold {
-        manifest.smart_clean_threshold = Some(smart_clean_threshold);
+        project_handle.manifest.smart_clean_threshold = Some(smart_clean_threshold);
     }
 
-    let manifest_content = toml::to_string(&manifest)?;
-    std::fs::write(&manifest_path, manifest_content)?;
+    project_handle.mark_dirty();
 
     Ok(())
 }
@@ -728,27 +709,25 @@ pub fn update_settings(
 /// ).unwrap();
 /// ```
 pub fn add_preprocessor(
-    project: Option<PathBuf>,
+    project_handle: &mut ProjectHandle,
     name: String,
     extension_filter: Option<String>,
     cli: Option<String>,
     cli_args: Vec<String>,
 ) -> Result<()> {
-    let project = project.unwrap_or(PathBuf::from("."));
-    let manifest_path = project.join("manifest.toml");
-
-    let mut manifest = load_and_convert_manifest(&manifest_path)?;
-
     let preprocessor = PreProcessor {
         name,
         extension_filter,
         cli,
         cli_args,
     };
-    manifest.custom_processors.preprocessors.push(preprocessor);
+    project_handle
+        .manifest
+        .custom_processors
+        .preprocessors
+        .push(preprocessor);
 
-    let manifest_content = toml::to_string(&manifest)?;
-    std::fs::write(&manifest_path, manifest_content)?;
+    project_handle.mark_dirty();
 
     Ok(())
 }
@@ -773,25 +752,24 @@ pub fn add_preprocessor(
 ///
 /// remove_preprocessor(Some(PathBuf::from("my_project")), "my_preprocessor".to_string()).unwrap();
 /// ```
-pub fn remove_preprocessor(project: Option<PathBuf>, name: String) -> Result<()> {
-    let project = project.unwrap_or(PathBuf::from("."));
-    let manifest_path = project.join("manifest.toml");
-
-    let mut manifest = load_and_convert_manifest(&manifest_path)?;
-
-    if let Some(pos) = manifest
+pub fn remove_preprocessor(project_handle: &mut ProjectHandle, name: String) -> Result<()> {
+    if let Some(pos) = project_handle
+        .manifest
         .custom_processors
         .preprocessors
         .iter()
         .position(|p| p.name == name)
     {
-        manifest.custom_processors.preprocessors.remove(pos);
+        project_handle
+            .manifest
+            .custom_processors
+            .preprocessors
+            .remove(pos);
     } else {
         return Err(eyre!("Preprocessor with name '{}' does not exist.", name));
     }
 
-    let manifest_content = toml::to_string(&manifest)?;
-    std::fs::write(&manifest_path, manifest_content)?;
+    project_handle.mark_dirty();
 
     Ok(())
 }
@@ -822,23 +800,21 @@ pub fn remove_preprocessor(project: Option<PathBuf>, name: String) -> Result<()>
 /// ).unwrap();
 /// ```
 pub fn add_processor(
-    project: Option<PathBuf>,
+    project_handle: &mut ProjectHandle,
     name: String,
     processor_args: Vec<String>,
 ) -> Result<()> {
-    let project = project.unwrap_or(PathBuf::from("."));
-    let manifest_path = project.join("manifest.toml");
-
-    let mut manifest = load_and_convert_manifest(&manifest_path)?;
-
     let processor = Processor {
         name,
         processor_args,
     };
-    manifest.custom_processors.processors.push(processor);
+    project_handle
+        .manifest
+        .custom_processors
+        .processors
+        .push(processor);
 
-    let manifest_content = toml::to_string(&manifest)?;
-    std::fs::write(&manifest_path, manifest_content)?;
+    project_handle.mark_dirty();
 
     Ok(())
 }
@@ -863,25 +839,24 @@ pub fn add_processor(
 ///
 /// remove_processor(Some(PathBuf::from("my_project")), "my_processor".to_string()).unwrap();
 /// ```
-pub fn remove_processor(project: Option<PathBuf>, name: String) -> Result<()> {
-    let project = project.unwrap_or(PathBuf::from("."));
-    let manifest_path = project.join("manifest.toml");
-
-    let mut manifest = load_and_convert_manifest(&manifest_path)?;
-
-    if let Some(pos) = manifest
+pub fn remove_processor(project_handle: &mut ProjectHandle, name: String) -> Result<()> {
+    if let Some(pos) = project_handle
+        .manifest
         .custom_processors
         .processors
         .iter()
         .position(|p| p.name == name)
     {
-        manifest.custom_processors.processors.remove(pos);
+        project_handle
+            .manifest
+            .custom_processors
+            .processors
+            .remove(pos);
     } else {
         return Err(eyre!("Processor with name '{}' does not exist.", name));
     }
 
-    let manifest_content = toml::to_string(&manifest)?;
-    std::fs::write(&manifest_path, manifest_content)?;
+    project_handle.mark_dirty();
 
     Ok(())
 }
@@ -908,13 +883,8 @@ pub fn remove_processor(project: Option<PathBuf>, name: String) -> Result<()> {
 ///     println!("{}", processor.name);
 /// }
 /// ```
-pub fn get_processors(project: Option<PathBuf>) -> Result<Vec<Processor>> {
-    let project = project.unwrap_or(PathBuf::from("."));
-    let manifest_path = project.join("manifest.toml");
-
-    let manifest = load_and_convert_manifest(&manifest_path)?;
-
-    Ok(manifest.custom_processors.processors)
+pub fn get_processors(project_handle: &ProjectHandle) -> Result<Vec<Processor>> {
+    Ok(project_handle.manifest.custom_processors.processors.clone())
 }
 
 /// Adds a profile to the project's manifest.
@@ -942,22 +912,25 @@ pub fn get_processors(project: Option<PathBuf>) -> Result<Vec<Processor>> {
 ///     vec!["template.tex".to_string(), "booklet.tex".to_string()],
 /// ).unwrap();
 /// ```
-pub fn add_profile(project: Option<PathBuf>, name: String, templates: Vec<String>) -> Result<()> {
-    let project = project.unwrap_or(PathBuf::from("."));
-    let manifest_path = project.join("manifest.toml");
-
-    let mut manifest = load_and_convert_manifest(&manifest_path)?;
-
+pub fn add_profile(
+    project_handle: &mut ProjectHandle,
+    name: String,
+    templates: Vec<String>,
+) -> Result<()> {
     let profile = Profile { name, templates };
 
-    if manifest.profiles.is_none() {
-        manifest.profiles = Some(vec![]);
+    if project_handle.manifest.profiles.is_none() {
+        project_handle.manifest.profiles = Some(vec![]);
     }
 
-    manifest.profiles.as_mut().unwrap().push(profile);
+    project_handle
+        .manifest
+        .profiles
+        .as_mut()
+        .unwrap()
+        .push(profile);
 
-    let manifest_content = toml::to_string(&manifest)?;
-    std::fs::write(&manifest_path, manifest_content)?;
+    project_handle.mark_dirty();
 
     Ok(())
 }
@@ -982,13 +955,8 @@ pub fn add_profile(project: Option<PathBuf>, name: String, templates: Vec<String
 ///
 /// remove_profile(Some(PathBuf::from("my_project")), "print".to_string()).unwrap();
 /// ```
-pub fn remove_profile(project: Option<PathBuf>, name: String) -> Result<()> {
-    let project = project.unwrap_or(PathBuf::from("."));
-    let manifest_path = project.join("manifest.toml");
-
-    let mut manifest = load_and_convert_manifest(&manifest_path)?;
-
-    if let Some(profiles) = &mut manifest.profiles {
+pub fn remove_profile(project_handle: &mut ProjectHandle, name: String) -> Result<()> {
+    if let Some(profiles) = &mut project_handle.manifest.profiles {
         if let Some(pos) = profiles.iter().position(|p| p.name == name) {
             profiles.remove(pos);
         } else {
@@ -998,8 +966,7 @@ pub fn remove_profile(project: Option<PathBuf>, name: String) -> Result<()> {
         return Err(eyre!("Profile with name '{}' does not exist.", name));
     }
 
-    let manifest_content = toml::to_string(&manifest)?;
-    std::fs::write(&manifest_path, manifest_content)?;
+    project_handle.mark_dirty();
 
     Ok(())
 }
@@ -1026,13 +993,8 @@ pub fn remove_profile(project: Option<PathBuf>, name: String) -> Result<()> {
 ///     println!("{}: {}", template.name, template.template_type);
 /// }
 /// ```
-pub fn get_templates(project: Option<PathBuf>) -> Result<Vec<Template>> {
-    let project = project.unwrap_or(PathBuf::from("."));
-    let manifest_path = project.join("manifest.toml");
-
-    let manifest = load_and_convert_manifest(&manifest_path)?;
-
-    Ok(manifest.templates)
+pub fn get_templates(project_handle: &ProjectHandle) -> Result<Vec<Template>> {
+    Ok(project_handle.manifest.templates.clone())
 }
 
 /// Retrieves the list of profiles from the project's manifest.
@@ -1057,13 +1019,8 @@ pub fn get_templates(project: Option<PathBuf>) -> Result<Vec<Template>> {
 ///     println!("{}: {:?}", profile.name, profile.templates);
 /// }
 /// ```
-pub fn get_profiles(project: Option<PathBuf>) -> Result<Vec<Profile>> {
-    let project = project.unwrap_or(PathBuf::from("."));
-    let manifest_path = project.join("manifest.toml");
-
-    let manifest = load_and_convert_manifest(&manifest_path)?;
-
-    let profiles = manifest.profiles;
+pub fn get_profiles(project_handle: &ProjectHandle) -> Result<Vec<Profile>> {
+    let profiles = project_handle.manifest.profiles.clone();
 
     Ok(profiles.unwrap_or_default())
 }
@@ -1090,13 +1047,12 @@ pub fn get_profiles(project: Option<PathBuf>) -> Result<Vec<Profile>> {
 ///     println!("{}", preprocessor.name);
 /// }
 /// ```
-pub fn get_preprocessors(project: Option<PathBuf>) -> Result<Vec<PreProcessor>> {
-    let project = project.unwrap_or(PathBuf::from("."));
-    let manifest_path = project.join("manifest.toml");
-
-    let manifest = load_and_convert_manifest(&manifest_path)?;
-
-    Ok(manifest.custom_processors.preprocessors)
+pub fn get_preprocessors(project_handle: &ProjectHandle) -> Result<Vec<PreProcessor>> {
+    Ok(project_handle
+        .manifest
+        .custom_processors
+        .preprocessors
+        .clone())
 }
 
 /// Cleans the project's output directories.
@@ -1118,12 +1074,8 @@ pub fn get_preprocessors(project: Option<PathBuf>) -> Result<Vec<PreProcessor>> 
 ///
 /// clean(Some(PathBuf::from("my_project"))).unwrap();
 /// ```
-pub fn clean(project: Option<PathBuf>) -> Result<()> {
-    let project = project.unwrap_or(PathBuf::from("."));
-    let manifest_path = project.join("manifest.toml");
-    let _ = load_and_convert_manifest(&manifest_path)?;
-
-    run_smart_clean(&project, 0)?;
+pub fn clean(project_handle: &ProjectHandle) -> Result<()> {
+    run_smart_clean(&project_handle.project_path, 0)?;
 
     Ok(())
 }
@@ -1143,13 +1095,10 @@ pub fn clean(project: Option<PathBuf>) -> Result<()> {
 ///
 /// smart_clean(Some(PathBuf::from("my_project"))).unwrap();
 /// ```
-pub fn smart_clean(project: Option<PathBuf>) -> Result<()> {
-    let project = project.unwrap_or(PathBuf::from("."));
-    let manifest_path = project.join("manifest.toml");
-    let manifest = load_and_convert_manifest(&manifest_path)?;
-    let smart_clean_threshold = manifest.smart_clean_threshold.unwrap_or(5);
+pub fn smart_clean(project_handle: &ProjectHandle) -> Result<()> {
+    let smart_clean_threshold = project_handle.manifest.smart_clean_threshold.unwrap_or(5);
 
-    run_smart_clean(&project, smart_clean_threshold)?;
+    run_smart_clean(&project_handle.project_path, smart_clean_threshold)?;
 
     Ok(())
 }
@@ -1293,20 +1242,21 @@ pub fn load_and_convert_manifest(manifest_path: &std::path::PathBuf) -> Result<M
     if current_manifest_version < CURRENT_MANIFEST_VERSION {
         upgrade_manifest(&mut manifest, current_manifest_version)?;
         debug!("Manifest upgraded to version {}.", CURRENT_MANIFEST_VERSION,);
+
+        let manifest = &toml::to_string(&manifest)?;
+        fs::write(manifest_path, manifest)?;
+        debug!(
+            "Manifest written back after potential upgrade ({} bytes).",
+            manifest.len()
+        );
     } else if current_manifest_version > CURRENT_MANIFEST_VERSION {
         return Err(eyre!(
             "Manifest file is from a newer version of the program. Please update the program."
         ));
     }
 
-    let manifest = &toml::to_string(&manifest)?;
-    fs::write(manifest_path, manifest)?;
-    debug!(
-        "Manifest written back after potential upgrade ({} bytes).",
-        manifest.len()
-    );
-
-    let manifest: Manifest = toml::from_str(manifest)?;
+    let manifest_content = fs::read_to_string(manifest_path)?;
+    let manifest: Manifest = toml::from_str(&manifest_content)?;
 
     Ok(manifest)
 }

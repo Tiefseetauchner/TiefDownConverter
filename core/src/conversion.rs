@@ -52,7 +52,6 @@ pub struct ConversionTask {
 /// use tiefdownlib::conversion::get_conversion_queue;
 /// use std::path::PathBuf;
 ///
-/// // Build a queue for all templates and all markdown projects
 /// let queue = get_conversion_queue(
 ///     Some(PathBuf::from("my_project")),
 ///     None,  // all templates

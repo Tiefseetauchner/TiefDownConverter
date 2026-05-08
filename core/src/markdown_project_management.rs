@@ -1,6 +1,6 @@
 use crate::{
     manifest_model::{MarkdownProject, MetadataField},
-    project_management::load_and_convert_manifest,
+    project_handle::ProjectHandle,
 };
 use color_eyre::eyre::{Result, eyre};
 use log::debug;
@@ -36,7 +36,7 @@ use toml::{Table, Value};
 /// ).unwrap();
 /// ```
 pub fn add_markdown_project(
-    project: Option<PathBuf>,
+    project_handle: &mut ProjectHandle,
     name: String,
     path: PathBuf,
     output: PathBuf,
@@ -48,12 +48,12 @@ pub fn add_markdown_project(
         path.display(),
         output.display()
     );
-    let project = project.unwrap_or(PathBuf::from("."));
-    let manifest_path = project.join("manifest.toml");
 
-    let mut manifest = load_and_convert_manifest(&manifest_path)?;
-
-    let mut markdown_projects = manifest.markdown_projects.unwrap_or(vec![]);
+    let mut markdown_projects = project_handle
+        .manifest
+        .markdown_projects
+        .clone()
+        .unwrap_or(vec![]);
 
     if markdown_projects.iter().any(|p| p.name == name) {
         return Err(eyre!(
@@ -71,10 +71,10 @@ pub fn add_markdown_project(
         resources: None,
     });
 
-    manifest.markdown_projects = Some(markdown_projects);
+    project_handle.manifest.markdown_projects = Some(markdown_projects);
 
-    let manifest_content = toml::to_string(&manifest)?;
-    std::fs::write(&manifest_path, manifest_content)?;
+    project_handle.mark_dirty();
+
     debug!("Markdown project '{}' added.", name);
 
     Ok(())
@@ -100,14 +100,14 @@ pub fn add_markdown_project(
 ///
 /// remove_markdown_project(Some(PathBuf::from("my_project")), "chapter1".to_string()).unwrap();
 /// ```
-pub fn remove_markdown_project(project: Option<PathBuf>, name: String) -> Result<()> {
+pub fn remove_markdown_project(project_handle: &mut ProjectHandle, name: String) -> Result<()> {
     debug!("Removing markdown project '{}'", name);
-    let project = project.unwrap_or(PathBuf::from("."));
-    let manifest_path = project.join("manifest.toml");
 
-    let mut manifest = load_and_convert_manifest(&manifest_path)?;
-
-    let mut markdown_projects = manifest.markdown_projects.unwrap_or(vec![]);
+    let mut markdown_projects = project_handle
+        .manifest
+        .markdown_projects
+        .clone()
+        .unwrap_or(vec![]);
 
     if let Some(pos) = markdown_projects.iter().position(|p| p.name == name) {
         markdown_projects.remove(pos);
@@ -118,10 +118,10 @@ pub fn remove_markdown_project(project: Option<PathBuf>, name: String) -> Result
         ));
     }
 
-    manifest.markdown_projects = Some(markdown_projects);
+    project_handle.manifest.markdown_projects = Some(markdown_projects);
 
-    let manifest_content = toml::to_string(&manifest)?;
-    std::fs::write(&manifest_path, manifest_content)?;
+    project_handle.mark_dirty();
+
     debug!("Markdown project '{}' removed.", name);
 
     Ok(())
@@ -157,7 +157,7 @@ pub fn remove_markdown_project(project: Option<PathBuf>, name: String) -> Result
 /// ).unwrap();
 /// ```
 pub fn update_markdown_project(
-    project: Option<PathBuf>,
+    project_handle: &mut ProjectHandle,
     name: String,
     path: Option<PathBuf>,
     output: Option<PathBuf>,
@@ -167,12 +167,12 @@ pub fn update_markdown_project(
         "Updating markdown project '{}' (path={:?}, output={:?}, default_profile={:?})",
         name, path, output, default_profile
     );
-    let project = project.unwrap_or(PathBuf::from("."));
-    let manifest_path = project.join("manifest.toml");
 
-    let mut manifest = load_and_convert_manifest(&manifest_path)?;
-
-    let mut markdown_projects = manifest.markdown_projects.unwrap_or(vec![]);
+    let mut markdown_projects = project_handle
+        .manifest
+        .markdown_projects
+        .clone()
+        .unwrap_or(vec![]);
 
     let project = markdown_projects
         .iter_mut()
@@ -191,10 +191,10 @@ pub fn update_markdown_project(
         project.default_profile = Some(default_profile);
     }
 
-    manifest.markdown_projects = Some(markdown_projects);
+    project_handle.manifest.markdown_projects = Some(markdown_projects);
 
-    let manifest_content = toml::to_string(&manifest)?;
-    std::fs::write(&manifest_path, manifest_content)?;
+    project_handle.mark_dirty();
+
     debug!("Markdown project '{}' updated.", name);
 
     Ok(())
@@ -228,18 +228,18 @@ pub fn update_markdown_project(
 /// ).unwrap();
 /// ```
 pub fn set_metadata(
-    project: Option<PathBuf>,
+    project_handle: &mut ProjectHandle,
     name: String,
     key: String,
     value: String,
 ) -> Result<()> {
     debug!("markdown.set_metadata: project='{}' key='{}'", name, key);
-    let project = project.unwrap_or(PathBuf::from("."));
-    let manifest_path = project.join("manifest.toml");
 
-    let mut manifest = load_and_convert_manifest(&manifest_path)?;
-
-    let mut markdown_projects = manifest.markdown_projects.unwrap_or(vec![]);
+    let mut markdown_projects = project_handle
+        .manifest
+        .markdown_projects
+        .clone()
+        .unwrap_or(vec![]);
 
     let project = markdown_projects
         .iter_mut()
@@ -251,10 +251,10 @@ pub fn set_metadata(
         .get_or_insert_with(Table::new)
         .insert(key, Value::String(value));
 
-    manifest.markdown_projects = Some(markdown_projects);
+    project_handle.manifest.markdown_projects = Some(markdown_projects);
 
-    let manifest_content = toml::to_string(&manifest)?;
-    std::fs::write(&manifest_path, manifest_content)?;
+    project_handle.mark_dirty();
+
     debug!("markdown.set_metadata: updated manifest for '{}'", name);
 
     Ok(())
@@ -285,14 +285,18 @@ pub fn set_metadata(
 ///     "title".to_string(),
 /// ).unwrap();
 /// ```
-pub fn remove_metadata(project: Option<PathBuf>, name: String, key: String) -> Result<()> {
+pub fn remove_metadata(
+    project_handle: &mut ProjectHandle,
+    name: String,
+    key: String,
+) -> Result<()> {
     debug!("markdown.remove_metadata: project='{}' key='{}'", name, key);
-    let project = project.unwrap_or(PathBuf::from("."));
-    let manifest_path = project.join("manifest.toml");
 
-    let mut manifest = load_and_convert_manifest(&manifest_path)?;
-
-    let mut markdown_projects = manifest.markdown_projects.unwrap_or(vec![]);
+    let mut markdown_projects = project_handle
+        .manifest
+        .markdown_projects
+        .clone()
+        .unwrap_or(vec![]);
 
     let project = markdown_projects
         .iter_mut()
@@ -311,10 +315,10 @@ pub fn remove_metadata(project: Option<PathBuf>, name: String, key: String) -> R
         }
     }
 
-    manifest.markdown_projects = Some(markdown_projects);
+    project_handle.manifest.markdown_projects = Some(markdown_projects);
 
-    let manifest_content = toml::to_string(&manifest)?;
-    std::fs::write(&manifest_path, manifest_content)?;
+    project_handle.mark_dirty();
+
     debug!("markdown.remove_metadata: updated manifest for '{}'", name);
 
     Ok(())
@@ -344,12 +348,12 @@ pub fn remove_metadata(project: Option<PathBuf>, name: String, key: String) -> R
 ///     println!("{} = {}", field.key, field.value);
 /// }
 /// ```
-pub fn get_metadata(project: Option<PathBuf>, name: &String) -> Result<Vec<MetadataField>> {
-    let project = project.unwrap_or(PathBuf::from("."));
-    let manifest_path = project.join("manifest.toml");
-
-    let manifest = load_and_convert_manifest(&manifest_path)?;
-    let markdown_projects = manifest.markdown_projects.unwrap_or(vec![]);
+pub fn get_metadata(project_handle: &ProjectHandle, name: &String) -> Result<Vec<MetadataField>> {
+    let markdown_projects = project_handle
+        .manifest
+        .markdown_projects
+        .clone()
+        .unwrap_or(vec![]);
 
     let project = markdown_projects
         .iter()
@@ -394,13 +398,12 @@ pub fn get_metadata(project: Option<PathBuf>, name: &String) -> Result<Vec<Metad
 ///     println!("{}: {}", project.name, project.path.display());
 /// }
 /// ```
-pub fn get_markdown_projects(project: Option<PathBuf>) -> Result<Vec<MarkdownProject>> {
-    let project = project.unwrap_or(PathBuf::from("."));
-    let manifest_path = project.join("manifest.toml");
-
-    let manifest = load_and_convert_manifest(&manifest_path)?;
-
-    let markdown_projects = manifest.markdown_projects.unwrap_or(vec![]);
+pub fn get_markdown_projects(project_handle: &ProjectHandle) -> Result<Vec<MarkdownProject>> {
+    let markdown_projects = project_handle
+        .manifest
+        .markdown_projects
+        .clone()
+        .unwrap_or(vec![]);
     debug!(
         "markdown.get_markdown_projects: {} projects",
         markdown_projects.len()
@@ -434,7 +437,7 @@ pub fn get_markdown_projects(project: Option<PathBuf>) -> Result<Vec<MarkdownPro
 /// ).unwrap();
 /// ```
 pub fn add_resources(
-    project: Option<PathBuf>,
+    project_handle: &mut ProjectHandle,
     name: String,
     resources: Vec<PathBuf>,
 ) -> Result<()> {
@@ -443,12 +446,12 @@ pub fn add_resources(
         name,
         resources.len()
     );
-    let project = project.unwrap_or(PathBuf::from("."));
-    let manifest_path = project.join("manifest.toml");
 
-    let mut manifest = load_and_convert_manifest(&manifest_path)?;
-
-    let mut markdown_projects = manifest.markdown_projects.unwrap_or(vec![]);
+    let mut markdown_projects = project_handle
+        .manifest
+        .markdown_projects
+        .clone()
+        .unwrap_or(vec![]);
 
     if let Some(project) = markdown_projects.iter_mut().find(|p| p.name == name) {
         if let Some(project_resources) = &mut project.resources {
@@ -463,10 +466,10 @@ pub fn add_resources(
         ));
     }
 
-    manifest.markdown_projects = Some(markdown_projects);
+    project_handle.manifest.markdown_projects = Some(markdown_projects);
 
-    let manifest_content = toml::to_string(&manifest)?;
-    std::fs::write(&manifest_path, manifest_content)?;
+    project_handle.mark_dirty();
+
     debug!("markdown.add_resources: updated manifest for '{}'", name);
 
     Ok(())
@@ -497,18 +500,22 @@ pub fn add_resources(
 ///     PathBuf::from("images/"),
 /// ).unwrap();
 /// ```
-pub fn remove_resource(project: Option<PathBuf>, name: String, resource: PathBuf) -> Result<()> {
+pub fn remove_resource(
+    project_handle: &mut ProjectHandle,
+    name: String,
+    resource: PathBuf,
+) -> Result<()> {
     debug!(
         "markdown.remove_resource: project='{}' resource='{}'",
         name,
         resource.display()
     );
-    let project = project.unwrap_or(PathBuf::from("."));
-    let manifest_path = project.join("manifest.toml");
 
-    let mut manifest = load_and_convert_manifest(&manifest_path)?;
-
-    let mut markdown_projects = manifest.markdown_projects.unwrap_or(vec![]);
+    let mut markdown_projects = project_handle
+        .manifest
+        .markdown_projects
+        .clone()
+        .unwrap_or(vec![]);
 
     let project = markdown_projects
         .iter_mut()
@@ -527,10 +534,10 @@ pub fn remove_resource(project: Option<PathBuf>, name: String, resource: PathBuf
         return Err(eyre!("Resource '{}' not found.", resource.display()));
     }
 
-    manifest.markdown_projects = Some(markdown_projects);
+    project_handle.manifest.markdown_projects = Some(markdown_projects);
 
-    let manifest_content = toml::to_string(&manifest)?;
-    std::fs::write(&manifest_path, manifest_content)?;
+    project_handle.mark_dirty();
+
     debug!("markdown.remove_resource: updated manifest for '{}'", name);
 
     Ok(())
@@ -560,13 +567,12 @@ pub fn remove_resource(project: Option<PathBuf>, name: String, resource: PathBuf
 ///     println!("{}", resource.display());
 /// }
 /// ```
-pub fn get_resources(project: Option<PathBuf>, name: &String) -> Result<Vec<PathBuf>> {
-    let project = project.unwrap_or(PathBuf::from("."));
-    let manifest_path = project.join("manifest.toml");
-
-    let manifest = load_and_convert_manifest(&manifest_path)?;
-
-    let markdown_projects = manifest.markdown_projects.unwrap_or(vec![]);
+pub fn get_resources(project_handle: &ProjectHandle, name: &String) -> Result<Vec<PathBuf>> {
+    let markdown_projects = project_handle
+        .manifest
+        .markdown_projects
+        .clone()
+        .unwrap_or(vec![]);
 
     let project = markdown_projects
         .iter()

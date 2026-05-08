@@ -1,13 +1,12 @@
-use std::path::PathBuf;
-
 use color_eyre::eyre::Result;
 use log::info;
 use tiefdownlib::{
-    injections, markdown_project_management, metadata_management, project_management,
+    injections, markdown_project_management, metadata_management, project_handle::ProjectHandle,
+    project_management,
 };
 
-pub(crate) fn list_preprocessors(project: Option<PathBuf>) -> Result<()> {
-    let preprocessors = project_management::get_preprocessors(project)?;
+pub(crate) fn list_preprocessors(project_handle: &ProjectHandle) -> Result<()> {
+    let preprocessors = project_management::get_preprocessors(project_handle)?;
 
     if preprocessors.is_empty() {
         info!("No preprocessors found.");
@@ -25,8 +24,8 @@ pub(crate) fn list_preprocessors(project: Option<PathBuf>) -> Result<()> {
 
     Ok(())
 }
-pub(crate) fn list_processors(project: Option<PathBuf>) -> Result<()> {
-    let processors = project_management::get_processors(project)?;
+pub(crate) fn list_processors(project_handle: &ProjectHandle) -> Result<()> {
+    let processors = project_management::get_processors(project_handle)?;
 
     if processors.is_empty() {
         info!("No processors found.");
@@ -39,8 +38,8 @@ pub(crate) fn list_processors(project: Option<PathBuf>) -> Result<()> {
 
     Ok(())
 }
-pub(crate) fn list_profiles(project: Option<PathBuf>) -> Result<()> {
-    let profiles = project_management::get_profiles(project)?;
+pub(crate) fn list_profiles(project_handle: &ProjectHandle) -> Result<()> {
+    let profiles = project_management::get_profiles(project_handle)?;
 
     if profiles.is_empty() {
         info!("No profiles found.");
@@ -57,8 +56,8 @@ pub(crate) fn list_profiles(project: Option<PathBuf>) -> Result<()> {
 
     Ok(())
 }
-pub(crate) fn list_shared_metadata(project: Option<PathBuf>) -> Result<()> {
-    let metadata = metadata_management::get_metadata(project)?;
+pub(crate) fn list_shared_metadata(project_handle: &ProjectHandle) -> Result<()> {
+    let metadata = metadata_management::get_metadata(project_handle)?;
 
     if metadata.is_empty() {
         info!("No shared metadata fields found.");
@@ -72,10 +71,11 @@ pub(crate) fn list_shared_metadata(project: Option<PathBuf>) -> Result<()> {
     Ok(())
 }
 pub(crate) fn list_markdown_project_metadata(
-    project: Option<PathBuf>,
+    project_handle: &ProjectHandle,
     markdown_project_name: String,
 ) -> Result<()> {
-    let metadata = markdown_project_management::get_metadata(project, &markdown_project_name)?;
+    let metadata =
+        markdown_project_management::get_metadata(project_handle, &markdown_project_name)?;
 
     if metadata.is_empty() {
         info!("No metadata found for project {}.", markdown_project_name);
@@ -89,10 +89,11 @@ pub(crate) fn list_markdown_project_metadata(
     Ok(())
 }
 pub(crate) fn list_resources(
-    project: Option<PathBuf>,
+    project_handle: &ProjectHandle,
     markdown_project_name: String,
 ) -> Result<()> {
-    let resources = markdown_project_management::get_resources(project, &markdown_project_name)?;
+    let resources =
+        markdown_project_management::get_resources(project_handle, &markdown_project_name)?;
 
     if resources.is_empty() {
         info!("No resources found for project {}.", markdown_project_name);
@@ -105,8 +106,8 @@ pub(crate) fn list_resources(
 
     Ok(())
 }
-pub(crate) fn list_markdown_projects(project: Option<PathBuf>) -> Result<()> {
-    let markdown_projects = markdown_project_management::get_markdown_projects(project)?;
+pub(crate) fn list_markdown_projects(project_handle: &ProjectHandle) -> Result<()> {
+    let markdown_projects = markdown_project_management::get_markdown_projects(project_handle)?;
 
     if markdown_projects.is_empty() {
         info!("No markdown projects found.");
@@ -133,8 +134,8 @@ pub(crate) fn list_markdown_projects(project: Option<PathBuf>) -> Result<()> {
 
     Ok(())
 }
-pub(crate) fn list_templates(project: Option<PathBuf>) -> Result<()> {
-    let templates = project_management::get_templates(project)?;
+pub(crate) fn list_templates(project_handle: &ProjectHandle) -> Result<()> {
+    let templates = project_management::get_templates(project_handle)?;
 
     if templates.is_empty() {
         info!("No templates found.");
@@ -158,8 +159,8 @@ pub(crate) fn list_templates(project: Option<PathBuf>) -> Result<()> {
     Ok(())
 }
 
-pub(crate) fn list_injections(project: Option<PathBuf>) -> Result<()> {
-    let injections = injections::get_injections(project)?;
+pub(crate) fn list_injections(project_handle: &ProjectHandle) -> Result<()> {
+    let injections = injections::get_injections(project_handle)?;
 
     if injections.is_empty() {
         info!("No templates found.");

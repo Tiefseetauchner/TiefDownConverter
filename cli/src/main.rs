@@ -7,7 +7,7 @@ use log::Level;
 use std::io::Write;
 use tiefdownlib::{
     consts, conversion, injections, markdown_project_management, metadata_management,
-    project_management,
+    project_handle::ProjectHandle, project_management,
 };
 
 mod cli;
@@ -96,87 +96,54 @@ fn main() -> Result<()> {
             smart_clean,
             smart_clean_threshold,
         )?,
-        Commands::Project { project, command } => match command {
-            ProjectCommands::Templates { template, command } => match command {
-                TemplatesCommands::Add {
-                    template_file,
-                    template_type,
-                    output,
-                    filters,
-                    preprocessors,
-                    preprocessor_output,
-                    processor,
-                    header_injections,
-                    body_injections,
-                    footer_injections,
-                    multi_file_output,
-                    output_extension,
-                    meta_gen_feature,
-                    nav_meta_gen_output,
-                    metadata_meta_gen_output,
-                    meta_gen_format,
-                } => project_management::add_template(
-                    project,
-                    template,
-                    template_type.map(|t| t.into()),
-                    template_file,
-                    output,
-                    filters,
-                    preprocessors,
-                    preprocessor_output,
-                    processor,
-                    header_injections,
-                    body_injections,
-                    footer_injections,
-                    multi_file_output,
-                    output_extension,
-                    meta_gen_feature.map(|t| t.into()),
-                    nav_meta_gen_output,
-                    metadata_meta_gen_output,
-                    meta_gen_format.map(|t| t.into()),
-                )?,
-                TemplatesCommands::Remove => {
-                    project_management::remove_template(project, template)?
-                }
-                TemplatesCommands::Update {
-                    template_file,
-                    template_type,
-                    output,
-                    filters,
-                    add_filters,
-                    remove_filters,
-                    preprocessors,
-                    add_preprocessors,
-                    remove_preprocessors,
-                    preprocessor_output,
-                    processor,
-                    header_injections,
-                    body_injections,
-                    footer_injections,
-                    multi_file_output,
-                    output_extension,
-                    meta_gen_feature,
-                    nav_meta_gen_output,
-                    metadata_meta_gen_output,
-                    meta_gen_format,
-                } => {
-                    if filters.is_some() && (add_filters.is_some() || remove_filters.is_some()) {
-                        return Err(eyre!("Cannot specify both filters or add/remove filters."));
-                    }
+        Commands::Project { project, command } => {
+            let mut handle = ProjectHandle::open(project)?;
 
-                    if preprocessors.is_some()
-                        && (add_preprocessors.is_some() || remove_preprocessors.is_some())
-                    {
-                        return Err(eyre!(
-                            "Cannot specify both preprocessors and add/remove preprocessors."
-                        ));
-                    }
-
-                    project_management::update_template(
-                        project,
+            match command {
+                ProjectCommands::Templates { template, command } => match command {
+                    TemplatesCommands::Add {
+                        template_file,
+                        template_type,
+                        output,
+                        filters,
+                        preprocessors,
+                        preprocessor_output,
+                        processor,
+                        header_injections,
+                        body_injections,
+                        footer_injections,
+                        multi_file_output,
+                        output_extension,
+                        meta_gen_feature,
+                        nav_meta_gen_output,
+                        metadata_meta_gen_output,
+                        meta_gen_format,
+                    } => project_management::add_template(
+                        &mut handle,
                         template,
                         template_type.map(|t| t.into()),
                         template_file,
+                        output,
+                        filters,
+                        preprocessors,
+                        preprocessor_output,
+                        processor,
+                        header_injections,
+                        body_injections,
+                        footer_injections,
+                        multi_file_output,
+                        output_extension,
+                        meta_gen_feature.map(|t| t.into()),
+                        nav_meta_gen_output,
+                        metadata_meta_gen_output,
+                        meta_gen_format.map(|t| t.into()),
+                    )?,
+                    TemplatesCommands::Remove => {
+                        project_management::remove_template(&mut handle, template)?
+                    }
+                    TemplatesCommands::Update {
+                        template_file,
+                        template_type,
                         output,
                         filters,
                         add_filters,
@@ -191,129 +158,188 @@ fn main() -> Result<()> {
                         footer_injections,
                         multi_file_output,
                         output_extension,
-                        meta_gen_feature.map(|t| t.into()),
+                        meta_gen_feature,
                         nav_meta_gen_output,
                         metadata_meta_gen_output,
-                        meta_gen_format.map(|t| t.into()),
-                    )?
-                }
-            },
-            ProjectCommands::UpdateSettings {
-                smart_clean,
-                smart_clean_threshold,
-            } => project_management::update_settings(project, smart_clean, smart_clean_threshold)?,
-            ProjectCommands::PreProcessors { command } => match command {
-                PreProcessorsCommands::Add {
-                    name,
-                    filter,
-                    cli,
-                    cli_args,
-                } => project_management::add_preprocessor(project, name, filter, cli, cli_args)?,
-                PreProcessorsCommands::Remove { name } => {
-                    project_management::remove_preprocessor(project, name)?
-                }
-                PreProcessorsCommands::List => project_commands::list_preprocessors(project)?,
-            },
-            ProjectCommands::Processors { command } => match command {
-                ProcessorsCommands::Add {
-                    name,
-                    processor_args,
-                } => project_management::add_processor(project, name, processor_args)?,
-                ProcessorsCommands::Remove { name } => {
-                    project_management::remove_processor(project, name)?
-                }
-                ProcessorsCommands::List => project_commands::list_processors(project)?,
-            },
-            ProjectCommands::Profiles { command } => match command {
-                ProfilesCommands::Add { name, templates } => {
-                    project_management::add_profile(project, name, templates)?
-                }
-                ProfilesCommands::Remove { name } => {
-                    project_management::remove_profile(project, name)?
-                }
-                ProfilesCommands::List => project_commands::list_profiles(project)?,
-            },
-            ProjectCommands::Injections { command } => match command {
-                ManageInjectionsCommand::Add { name, files } => {
-                    injections::add_injection(project, name, files)?
-                }
-                ManageInjectionsCommand::Remove { name } => {
-                    injections::remove_injection(project, name)?
-                }
-                ManageInjectionsCommand::AddFiles { name, files } => {
-                    injections::add_files_to_injection(project, name, files)?
-                }
-                ManageInjectionsCommand::List {} => {
-                    project_commands::list_injections(project)?;
-                }
-            },
-            ProjectCommands::SharedMeta { command } => match command {
-                ManageMetadataCommand::Set { key, value } => {
-                    metadata_management::set_metadata(project, key, value)?
-                }
-                ManageMetadataCommand::Remove { key } => {
-                    metadata_management::remove_metadata(project, key)?
-                }
-                ManageMetadataCommand::List => project_commands::list_shared_metadata(project)?,
-            },
-            ProjectCommands::Markdown { command } => match command {
-                ManageMarkdownProjectsCommand::Add {
-                    name,
-                    path,
-                    output,
-                    default_profile,
-                } => markdown_project_management::add_markdown_project(
-                    project,
-                    name,
-                    path,
-                    output,
-                    default_profile,
+                        meta_gen_format,
+                    } => {
+                        if filters.is_some() && (add_filters.is_some() || remove_filters.is_some())
+                        {
+                            return Err(eyre!(
+                                "Cannot specify both filters or add/remove filters."
+                            ));
+                        }
+
+                        if preprocessors.is_some()
+                            && (add_preprocessors.is_some() || remove_preprocessors.is_some())
+                        {
+                            return Err(eyre!(
+                                "Cannot specify both preprocessors and add/remove preprocessors."
+                            ));
+                        }
+
+                        project_management::update_template(
+                            &mut handle,
+                            template,
+                            template_type.map(|t| t.into()),
+                            template_file,
+                            output,
+                            filters,
+                            add_filters,
+                            remove_filters,
+                            preprocessors,
+                            add_preprocessors,
+                            remove_preprocessors,
+                            preprocessor_output,
+                            processor,
+                            header_injections,
+                            body_injections,
+                            footer_injections,
+                            multi_file_output,
+                            output_extension,
+                            meta_gen_feature.map(|t| t.into()),
+                            nav_meta_gen_output,
+                            metadata_meta_gen_output,
+                            meta_gen_format.map(|t| t.into()),
+                        )?
+                    }
+                },
+                ProjectCommands::UpdateSettings {
+                    smart_clean,
+                    smart_clean_threshold,
+                } => project_management::update_settings(
+                    &mut handle,
+                    smart_clean,
+                    smart_clean_threshold,
                 )?,
-                ManageMarkdownProjectsCommand::Remove { name } => {
-                    markdown_project_management::remove_markdown_project(project, name)?
-                }
-                ManageMarkdownProjectsCommand::Update {
-                    name,
-                    path,
-                    output,
-                    default_profile,
-                } => markdown_project_management::update_markdown_project(
-                    project,
-                    name,
-                    path,
-                    output,
-                    default_profile,
-                )?,
-                ManageMarkdownProjectsCommand::Meta { name, command } => match command {
+                ProjectCommands::PreProcessors { command } => match command {
+                    PreProcessorsCommands::Add {
+                        name,
+                        filter,
+                        cli,
+                        cli_args,
+                    } => project_management::add_preprocessor(
+                        &mut handle,
+                        name,
+                        filter,
+                        cli,
+                        cli_args,
+                    )?,
+                    PreProcessorsCommands::Remove { name } => {
+                        project_management::remove_preprocessor(&mut handle, name)?
+                    }
+                    PreProcessorsCommands::List => project_commands::list_preprocessors(&handle)?,
+                },
+                ProjectCommands::Processors { command } => match command {
+                    ProcessorsCommands::Add {
+                        name,
+                        processor_args,
+                    } => project_management::add_processor(&mut handle, name, processor_args)?,
+                    ProcessorsCommands::Remove { name } => {
+                        project_management::remove_processor(&mut handle, name)?
+                    }
+                    ProcessorsCommands::List => project_commands::list_processors(&handle)?,
+                },
+                ProjectCommands::Profiles { command } => match command {
+                    ProfilesCommands::Add { name, templates } => {
+                        project_management::add_profile(&mut handle, name, templates)?
+                    }
+                    ProfilesCommands::Remove { name } => {
+                        project_management::remove_profile(&mut handle, name)?
+                    }
+                    ProfilesCommands::List => project_commands::list_profiles(&handle)?,
+                },
+                ProjectCommands::Injections { command } => match command {
+                    ManageInjectionsCommand::Add { name, files } => {
+                        injections::add_injection(&mut handle, name, files)?
+                    }
+                    ManageInjectionsCommand::Remove { name } => {
+                        injections::remove_injection(&mut handle, name)?
+                    }
+                    ManageInjectionsCommand::AddFiles { name, files } => {
+                        injections::add_files_to_injection(&mut handle, name, files)?
+                    }
+                    ManageInjectionsCommand::List {} => {
+                        project_commands::list_injections(&mut handle)?;
+                    }
+                },
+                ProjectCommands::SharedMeta { command } => match command {
                     ManageMetadataCommand::Set { key, value } => {
-                        markdown_project_management::set_metadata(project, name, key, value)?
+                        metadata_management::set_metadata(&mut handle, key, value)?
                     }
                     ManageMetadataCommand::Remove { key } => {
-                        markdown_project_management::remove_metadata(project, name, key)?
+                        metadata_management::remove_metadata(&mut handle, key)?
                     }
                     ManageMetadataCommand::List => {
-                        project_commands::list_markdown_project_metadata(project, name)?
+                        project_commands::list_shared_metadata(&mut handle)?
                     }
                 },
-                ManageMarkdownProjectsCommand::Resources { name, command } => match command {
-                    ManageResourcesCommand::Add { paths } => {
-                        markdown_project_management::add_resources(project, name, paths)?
+                ProjectCommands::Markdown { command } => match command {
+                    ManageMarkdownProjectsCommand::Add {
+                        name,
+                        path,
+                        output,
+                        default_profile,
+                    } => markdown_project_management::add_markdown_project(
+                        &mut handle,
+                        name,
+                        path,
+                        output,
+                        default_profile,
+                    )?,
+                    ManageMarkdownProjectsCommand::Remove { name } => {
+                        markdown_project_management::remove_markdown_project(&mut handle, name)?
                     }
-                    ManageResourcesCommand::Remove { path } => {
-                        markdown_project_management::remove_resource(project, name, path)?
-                    }
-                    ManageResourcesCommand::List => {
-                        project_commands::list_resources(project, name)?
+                    ManageMarkdownProjectsCommand::Update {
+                        name,
+                        path,
+                        output,
+                        default_profile,
+                    } => markdown_project_management::update_markdown_project(
+                        &mut handle,
+                        name,
+                        path,
+                        output,
+                        default_profile,
+                    )?,
+                    ManageMarkdownProjectsCommand::Meta { name, command } => match command {
+                        ManageMetadataCommand::Set { key, value } => {
+                            markdown_project_management::set_metadata(
+                                &mut handle,
+                                name,
+                                key,
+                                value,
+                            )?
+                        }
+                        ManageMetadataCommand::Remove { key } => {
+                            markdown_project_management::remove_metadata(&mut handle, name, key)?
+                        }
+                        ManageMetadataCommand::List => {
+                            project_commands::list_markdown_project_metadata(&mut handle, name)?
+                        }
+                    },
+                    ManageMarkdownProjectsCommand::Resources { name, command } => match command {
+                        ManageResourcesCommand::Add { paths } => {
+                            markdown_project_management::add_resources(&mut handle, name, paths)?
+                        }
+                        ManageResourcesCommand::Remove { path } => {
+                            markdown_project_management::remove_resource(&mut handle, name, path)?
+                        }
+                        ManageResourcesCommand::List => {
+                            project_commands::list_resources(&mut handle, name)?
+                        }
+                    },
+                    ManageMarkdownProjectsCommand::List => {
+                        project_commands::list_markdown_projects(&mut handle)?
                     }
                 },
-                ManageMarkdownProjectsCommand::List => {
-                    project_commands::list_markdown_projects(project)?
-                }
-            },
-            ProjectCommands::ListTemplates => project_commands::list_templates(project)?,
-            ProjectCommands::Clean => project_management::clean(project)?,
-            ProjectCommands::SmartClean => project_management::smart_clean(project)?,
-        },
+                ProjectCommands::ListTemplates => project_commands::list_templates(&mut handle)?,
+                ProjectCommands::Clean => project_management::clean(&mut handle)?,
+                ProjectCommands::SmartClean => project_management::smart_clean(&mut handle)?,
+            }
+
+            handle.save_if_dirty()?;
+        }
         Commands::CheckDependencies => {
             project_management::check_dependencies(vec!["pandoc", "xelatex", "typst"])?
         }
