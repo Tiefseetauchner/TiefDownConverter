@@ -44,15 +44,11 @@ fn test_markdown_remove() {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(
-        manifest_content,
-        r#"[[markdown_projects]]
-name = "main"
-path = "Markdown"
-output = ".""#
-    );
+    let manifest = assertions::read_manifest(&manifest_path);
+    let projects = manifest.markdown_projects.as_ref().unwrap();
+    assert!(projects.iter().any(|p| p.name == "main"
+        && p.path.to_str() == Some("Markdown")
+        && p.output.to_str() == Some(".")));
 
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
@@ -65,9 +61,13 @@ output = ".""#
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_not_contains!(manifest_content, r#"name = "main""#);
+    let manifest = assertions::read_manifest(&manifest_path);
+    let no_main = manifest
+        .markdown_projects
+        .as_ref()
+        .map(|ps| ps.iter().all(|p| p.name != "main"))
+        .unwrap_or(true);
+    assert!(no_main);
 }
 
 #[rstest]

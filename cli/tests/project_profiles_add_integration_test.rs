@@ -41,15 +41,10 @@ fn test_add_profile() {
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
 
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(
-        manifest_content,
-        r#"[[profiles]]
-name = "My funny profile"
-templates = ["Template 1", "Template 2"]
-"#
-    );
+    let manifest = assertions::read_manifest(&manifest_path);
+    let profile = &manifest.profiles.as_ref().unwrap()[0];
+    assert_eq!(profile.name, "My funny profile");
+    assert_eq!(profile.templates, vec!["Template 1", "Template 2"]);
 }
 
 #[rstest]
@@ -69,13 +64,8 @@ fn test_add_profile_no_templates() {
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
 
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(
-        manifest_content,
-        r#"[[profiles]]
-name = "My funny profile"
-templates = []
-"#
-    );
+    let manifest = assertions::read_manifest(&manifest_path);
+    let profile = &manifest.profiles.as_ref().unwrap()[0];
+    assert_eq!(profile.name, "My funny profile");
+    assert_eq!(profile.templates, Vec::<String>::new());
 }

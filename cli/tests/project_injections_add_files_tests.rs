@@ -60,16 +60,18 @@ fn test_injection_add_files(#[case] file_name: &str) {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    let expected_manifest = format!(
-        r#"[[injections]]
-name = "injection-name"
-files = ["files", "{}"]"#,
-        file_name
+    let manifest = assertions::read_manifest(&manifest_path);
+    let injection = manifest
+        .injections
+        .as_ref()
+        .unwrap()
+        .iter()
+        .find(|i| i.name == "injection-name")
+        .unwrap();
+    assert_eq!(
+        injection.files,
+        vec![PathBuf::from("files"), PathBuf::from(file_name)]
     );
-
-    assert_contains!(manifest_content, &expected_manifest);
 }
 
 #[rstest]
@@ -98,16 +100,24 @@ fn test_injection_add_files_preserves_order(#[case] file_name: &str) {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    let expected_manifest = format!(
-        r#"[[injections]]
-name = "injection-name"
-files = ["files", "{0}1", "{0}2", "{0}3", "{0}4"]"#,
-        file_name
+    let manifest = assertions::read_manifest(&manifest_path);
+    let injection = manifest
+        .injections
+        .as_ref()
+        .unwrap()
+        .iter()
+        .find(|i| i.name == "injection-name")
+        .unwrap();
+    assert_eq!(
+        injection.files,
+        vec![
+            PathBuf::from("files"),
+            PathBuf::from(format!("{file_name}1")),
+            PathBuf::from(format!("{file_name}2")),
+            PathBuf::from(format!("{file_name}3")),
+            PathBuf::from(format!("{file_name}4")),
+        ]
     );
-
-    assert_contains!(manifest_content, &expected_manifest);
 }
 
 #[rstest]
@@ -134,14 +144,20 @@ fn test_injection_add_files_adds_duplicate(#[case] file_name: &str) {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    let expected_manifest = format!(
-        r#"[[injections]]
-name = "injection-name"
-files = ["{0}", "{0}", "{0}"]"#,
-        file_name
+    let manifest = assertions::read_manifest(&manifest_path);
+    let injection = manifest
+        .injections
+        .as_ref()
+        .unwrap()
+        .iter()
+        .find(|i| i.name == "injection-name")
+        .unwrap();
+    assert_eq!(
+        injection.files,
+        vec![
+            PathBuf::from(file_name),
+            PathBuf::from(file_name),
+            PathBuf::from(file_name),
+        ]
     );
-
-    assert_contains!(manifest_content, &expected_manifest);
 }

@@ -42,9 +42,8 @@ fn test_update_manifest_enable_smart_clean_with_arg() {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(manifest_content, r#"smart_clean = true"#);
+    let manifest = assertions::read_manifest(&manifest_path);
+    assert_eq!(manifest.smart_clean, Some(true));
 }
 
 #[rstest]
@@ -64,10 +63,8 @@ fn test_update_manifest_disable_smart_clean() {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_not_contains!(manifest_content, r#"smart_clean"#);
+    let manifest = assertions::read_manifest(&manifest_path);
+    assert_eq!(manifest.smart_clean, None);
 }
 
 #[rstest]
@@ -93,11 +90,9 @@ fn test_update_manifest_change_smart_clean_threshold(#[case] threshold: &str) {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(
-        manifest_content,
-        format!("smart_clean_threshold = {}", threshold).as_str()
+    let manifest = assertions::read_manifest(&manifest_path);
+    assert_eq!(
+        manifest.smart_clean_threshold,
+        Some(threshold.parse::<u32>().unwrap())
     );
 }

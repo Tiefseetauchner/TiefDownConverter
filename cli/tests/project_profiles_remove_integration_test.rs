@@ -38,15 +38,12 @@ fn test_remove_profile() {
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
 
-    let manifest_content =
-        fs::read_to_string(&manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(
-        manifest_content,
-        r#"[[profiles]]
-name = "My funny profile"
-templates = ["Template 1", "Template 2"]
-"#
+    let manifest = assertions::read_manifest(&manifest_path);
+    let profiles = manifest.profiles.as_ref().unwrap();
+    assert!(
+        profiles.iter().any(
+            |p| p.name == "My funny profile" && p.templates == vec!["Template 1", "Template 2"]
+        )
     );
 
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
@@ -58,16 +55,13 @@ templates = ["Template 1", "Template 2"]
         .assert()
         .success();
 
-    let manifest_content =
-        fs::read_to_string(&manifest_path).expect("Failed to read manifest file");
-
-    assert_not_contains!(
-        manifest_content,
-        r#"[[profiles]]
-name = "My funny profile"
-templates = ["Template 1", "Template 2"]
-"#
-    );
+    let manifest = assertions::read_manifest(&manifest_path);
+    let has_profile = manifest
+        .profiles
+        .as_ref()
+        .map(|ps| ps.iter().any(|p| p.name == "My funny profile"))
+        .unwrap_or(false);
+    assert!(!has_profile);
 }
 
 #[rstest]

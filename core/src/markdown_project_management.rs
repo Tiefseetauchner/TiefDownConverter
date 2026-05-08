@@ -24,11 +24,11 @@ use toml::{Table, Value};
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::markdown_project_management::add_markdown_project;
+/// use tiefdownlib::{project_handle::ProjectHandle, markdown_project_management::add_markdown_project};
 /// use std::path::PathBuf;
 ///
 /// add_markdown_project(
-///     Some(PathBuf::from("my_project")),
+///     &mut ProjectHandle::open(Some(PathBuf::from("."))).unwrap(),
 ///     "chapter1".to_string(),
 ///     PathBuf::from("Markdown/Chapter1"),
 ///     PathBuf::from("output/chapter1"),
@@ -95,10 +95,10 @@ pub fn add_markdown_project(
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::markdown_project_management::remove_markdown_project;
+/// use tiefdownlib::{project_handle::ProjectHandle, markdown_project_management::remove_markdown_project};
 /// use std::path::PathBuf;
 ///
-/// remove_markdown_project(Some(PathBuf::from("my_project")), "chapter1".to_string()).unwrap();
+/// remove_markdown_project(&mut ProjectHandle::open(Some(PathBuf::from("."))).unwrap(), "chapter1".to_string()).unwrap();
 /// ```
 pub fn remove_markdown_project(project_handle: &mut ProjectHandle, name: String) -> Result<()> {
     debug!("Removing markdown project '{}'", name);
@@ -145,11 +145,11 @@ pub fn remove_markdown_project(project_handle: &mut ProjectHandle, name: String)
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::markdown_project_management::update_markdown_project;
+/// use tiefdownlib::{project_handle::ProjectHandle, markdown_project_management::update_markdown_project};
 /// use std::path::PathBuf;
 ///
 /// update_markdown_project(
-///     Some(PathBuf::from("my_project")),
+///     &mut ProjectHandle::open(Some(PathBuf::from("."))).unwrap(),
 ///     "chapter1".to_string(),
 ///     Some(PathBuf::from("Markdown/NewChapter1")),
 ///     None,
@@ -217,11 +217,11 @@ pub fn update_markdown_project(
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::markdown_project_management::set_metadata;
+/// use tiefdownlib::{project_handle::ProjectHandle, markdown_project_management::set_metadata};
 /// use std::path::PathBuf;
 ///
 /// set_metadata(
-///     Some(PathBuf::from("my_project")),
+///     &mut ProjectHandle::open(Some(PathBuf::from("."))).unwrap(),
 ///     "chapter1".to_string(),
 ///     "title".to_string(),
 ///     "Chapter One".to_string(),
@@ -276,11 +276,11 @@ pub fn set_metadata(
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::markdown_project_management::remove_metadata;
+/// use tiefdownlib::{project_handle::ProjectHandle, markdown_project_management::remove_metadata};
 /// use std::path::PathBuf;
 ///
 /// remove_metadata(
-///     Some(PathBuf::from("my_project")),
+///     &mut ProjectHandle::open(Some(PathBuf::from("."))).unwrap(),
 ///     "chapter1".to_string(),
 ///     "title".to_string(),
 /// ).unwrap();
@@ -339,11 +339,11 @@ pub fn remove_metadata(
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::markdown_project_management::get_metadata;
+/// use tiefdownlib::{project_handle::ProjectHandle, markdown_project_management::get_metadata};
 /// use std::path::PathBuf;
 ///
 /// let name = "chapter1".to_string();
-/// let fields = get_metadata(Some(PathBuf::from("my_project")), &name).unwrap();
+/// let fields = get_metadata(&ProjectHandle::open(Some(PathBuf::from("."))).unwrap(), &name).unwrap();
 /// for field in fields {
 ///     println!("{} = {}", field.key, field.value);
 /// }
@@ -390,10 +390,10 @@ pub fn get_metadata(project_handle: &ProjectHandle, name: &String) -> Result<Vec
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::markdown_project_management::get_markdown_projects;
+/// use tiefdownlib::{project_handle::ProjectHandle, markdown_project_management::get_markdown_projects};
 /// use std::path::PathBuf;
 ///
-/// let projects = get_markdown_projects(Some(PathBuf::from("my_project"))).unwrap();
+/// let projects = get_markdown_projects(&mut ProjectHandle::open(Some(PathBuf::from("."))).unwrap()).unwrap();
 /// for project in projects {
 ///     println!("{}: {}", project.name, project.path.display());
 /// }
@@ -427,11 +427,11 @@ pub fn get_markdown_projects(project_handle: &ProjectHandle) -> Result<Vec<Markd
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::markdown_project_management::add_resources;
+/// use tiefdownlib::{project_handle::ProjectHandle, markdown_project_management::add_resources};
 /// use std::path::PathBuf;
 ///
 /// add_resources(
-///     Some(PathBuf::from("my_project")),
+///     &mut ProjectHandle::open(Some(PathBuf::from("."))).unwrap(),
 ///     "chapter1".to_string(),
 ///     vec![PathBuf::from("images/")],
 /// ).unwrap();
@@ -491,11 +491,11 @@ pub fn add_resources(
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::markdown_project_management::remove_resource;
+/// use tiefdownlib::{project_handle::ProjectHandle, markdown_project_management::remove_resource};
 /// use std::path::PathBuf;
 ///
 /// remove_resource(
-///     Some(PathBuf::from("my_project")),
+///     &mut ProjectHandle::open(Some(PathBuf::from("."))).unwrap(),
 ///     "chapter1".to_string(),
 ///     PathBuf::from("images/"),
 /// ).unwrap();
@@ -558,11 +558,11 @@ pub fn remove_resource(
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::markdown_project_management::get_resources;
+/// use tiefdownlib::{project_handle::ProjectHandle, markdown_project_management::get_resources};
 /// use std::path::PathBuf;
 ///
 /// let name = "chapter1".to_string();
-/// let resources = get_resources(Some(PathBuf::from("my_project")), &name).unwrap();
+/// let resources = get_resources(&ProjectHandle::open(Some(PathBuf::from("."))).unwrap(), &name).unwrap();
 /// for resource in resources {
 ///     println!("{}", resource.display());
 /// }

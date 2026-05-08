@@ -24,6 +24,14 @@ impl ProjectHandle {
         })
     }
 
+    pub(crate) fn create_with_manifest(project: PathBuf, manifest: Manifest) -> Self {
+        ProjectHandle {
+            project_path: project,
+            manifest,
+            dirty: false,
+        }
+    }
+
     pub fn mark_dirty(&mut self) {
         self.dirty = true;
     }
@@ -37,6 +45,10 @@ impl ProjectHandle {
         std::fs::write(get_manifest_path(&self.project_path), manifest_content)?;
 
         Ok(())
+    }
+
+    pub(crate) fn is_dirty(&self) -> bool {
+        self.dirty
     }
 }
 

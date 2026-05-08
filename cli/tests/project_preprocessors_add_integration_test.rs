@@ -42,14 +42,10 @@ fn test_add_preprocessor() {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(
-        manifest_content,
-        r#"[[custom_processors.preprocessors]]
-name = "My funny preprocessor"
-cli_args = ["-t", "html"]"#
-    );
+    let manifest = assertions::read_manifest(&manifest_path);
+    let preprocessor = &manifest.custom_processors.preprocessors[0];
+    assert_eq!(preprocessor.name, "My funny preprocessor");
+    assert_eq!(preprocessor.cli_args, vec!["-t", "html"]);
 }
 
 #[rstest]
@@ -71,15 +67,11 @@ fn test_add_preprocessor_custom_cli() {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(
-        manifest_content,
-        r#"[[custom_processors.preprocessors]]
-name = "My funny preprocessor"
-cli = "cat"
-cli_args = []"#
-    );
+    let manifest = assertions::read_manifest(&manifest_path);
+    let preprocessor = &manifest.custom_processors.preprocessors[0];
+    assert_eq!(preprocessor.name, "My funny preprocessor");
+    assert_eq!(preprocessor.cli.as_deref(), Some("cat"));
+    assert_eq!(preprocessor.cli_args, Vec::<String>::new());
 }
 
 #[rstest]
@@ -99,12 +91,8 @@ fn test_add_preprocessor_no_args() {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(
-        manifest_content,
-        r#"[[custom_processors.preprocessors]]
-name = "My funny preprocessor"
-cli_args = []"#
-    );
+    let manifest = assertions::read_manifest(&manifest_path);
+    let preprocessor = &manifest.custom_processors.preprocessors[0];
+    assert_eq!(preprocessor.name, "My funny preprocessor");
+    assert_eq!(preprocessor.cli_args, Vec::<String>::new());
 }

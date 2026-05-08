@@ -56,12 +56,13 @@ fn test_remove_preprocessor() {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_not_contains!(
-        manifest_content,
-        r#"[[custom_processors.preprocessors]]
-name = "My funny preprocessor""#
+    let manifest = assertions::read_manifest(&manifest_path);
+    assert!(
+        !manifest
+            .custom_processors
+            .preprocessors
+            .iter()
+            .any(|p| p.name == "My funny preprocessor")
     );
 }
 
@@ -86,25 +87,27 @@ fn test_remove_preprocessor_others_remain() {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_not_contains!(
-        manifest_content,
-        r#"[[custom_processors.preprocessors]]
-name = "Remove this""#
+    let manifest = assertions::read_manifest(&manifest_path);
+    assert!(
+        !manifest
+            .custom_processors
+            .preprocessors
+            .iter()
+            .any(|p| p.name == "Remove this")
     );
-
-    assert_contains!(
-        manifest_content,
-        r#"[[custom_processors.preprocessors]]
-name = "My funny preprocessor"
-cli_args = ["--listings"]"#
+    assert!(
+        manifest
+            .custom_processors
+            .preprocessors
+            .iter()
+            .any(|p| p.name == "My funny preprocessor" && p.cli_args == vec!["--listings"])
     );
-    assert_contains!(
-        manifest_content,
-        r#"[[custom_processors.preprocessors]]
-name = "My best preprocessor"
-cli_args = ["--listings"]"#
+    assert!(
+        manifest
+            .custom_processors
+            .preprocessors
+            .iter()
+            .any(|p| p.name == "My best preprocessor" && p.cli_args == vec!["--listings"])
     );
 }
 
@@ -130,12 +133,12 @@ fn test_remove_preprocessor_does_not_exist() {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(
-        manifest_content,
-        r#"[[custom_processors.preprocessors]]
-cli_args = ["--listings"]
-name = "My funny preprocessor""#
+    let manifest = assertions::read_manifest(&manifest_path);
+    assert!(
+        manifest
+            .custom_processors
+            .preprocessors
+            .iter()
+            .any(|p| p.name == "My funny preprocessor" && p.cli_args == vec!["--listings"])
     );
 }

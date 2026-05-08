@@ -82,17 +82,21 @@ fn test_update_template_template_file() {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(
-        manifest_content,
-        r#"[[templates]]
-name = "old_name"
-template_type = "Tex"
-template_file = "new_file.tex"
-output = "old_output.tex"
-filters = ["old_filters/"]"#
+    let manifest = assertions::read_manifest(&manifest_path);
+    let tmpl = manifest
+        .templates
+        .iter()
+        .find(|t| t.name == "old_name")
+        .unwrap();
+    assert_eq!(
+        tmpl.template_file.as_ref().unwrap().to_str(),
+        Some("new_file.tex")
     );
+    assert_eq!(
+        tmpl.output.as_ref().unwrap().to_str(),
+        Some("old_output.tex")
+    );
+    assert_eq!(tmpl.filters.as_ref().unwrap(), &vec!["old_filters/"]);
 }
 
 #[rstest]
@@ -121,17 +125,25 @@ fn test_update_template_template_type() {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(
-        manifest_content,
-        r#"[[templates]]
-name = "old_name"
-template_type = "Typst"
-template_file = "old_file.tex"
-output = "old_output.tex"
-filters = ["old_filters/"]"#
+    let manifest = assertions::read_manifest(&manifest_path);
+    let tmpl = manifest
+        .templates
+        .iter()
+        .find(|t| t.name == "old_name")
+        .unwrap();
+    assert_eq!(
+        tmpl.template_type,
+        tiefdownlib::template_type::TemplateType::Typst
     );
+    assert_eq!(
+        tmpl.template_file.as_ref().unwrap().to_str(),
+        Some("old_file.tex")
+    );
+    assert_eq!(
+        tmpl.output.as_ref().unwrap().to_str(),
+        Some("old_output.tex")
+    );
+    assert_eq!(tmpl.filters.as_ref().unwrap(), &vec!["old_filters/"]);
 }
 
 #[rstest]
@@ -160,17 +172,21 @@ fn test_update_template_output_file() {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(
-        manifest_content,
-        r#"[[templates]]
-name = "old_name"
-template_type = "Tex"
-template_file = "old_file.tex"
-output = "new_output.tex"
-filters = ["old_filters/"]"#
+    let manifest = assertions::read_manifest(&manifest_path);
+    let tmpl = manifest
+        .templates
+        .iter()
+        .find(|t| t.name == "old_name")
+        .unwrap();
+    assert_eq!(
+        tmpl.template_file.as_ref().unwrap().to_str(),
+        Some("old_file.tex")
     );
+    assert_eq!(
+        tmpl.output.as_ref().unwrap().to_str(),
+        Some("new_output.tex")
+    );
+    assert_eq!(tmpl.filters.as_ref().unwrap(), &vec!["old_filters/"]);
 }
 
 #[rstest]
@@ -199,17 +215,21 @@ fn test_update_template_filters() {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(
-        manifest_content,
-        r#"[[templates]]
-name = "old_name"
-template_type = "Tex"
-template_file = "old_file.tex"
-output = "old_output.tex"
-filters = ["new_filters/"]"#
+    let manifest = assertions::read_manifest(&manifest_path);
+    let tmpl = manifest
+        .templates
+        .iter()
+        .find(|t| t.name == "old_name")
+        .unwrap();
+    assert_eq!(
+        tmpl.template_file.as_ref().unwrap().to_str(),
+        Some("old_file.tex")
     );
+    assert_eq!(
+        tmpl.output.as_ref().unwrap().to_str(),
+        Some("old_output.tex")
+    );
+    assert_eq!(tmpl.filters.as_ref().unwrap(), &vec!["new_filters/"]);
 }
 
 #[rstest]
@@ -240,25 +260,16 @@ fn test_update_template_add_filters(#[case] filters: Vec<&str>) {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(
-        manifest_content,
-        format!(
-            r#"[[templates]]
-name = "old_name"
-template_type = "Tex"
-template_file = "old_file.tex"
-output = "old_output.tex"
-filters = ["old_filters/"{}]"#,
-            filters
-                .iter()
-                .map(|f| format!(r#", "{}""#, f))
-                .collect::<Vec<String>>()
-                .join("")
-        )
-        .as_str()
-    );
+    let manifest = assertions::read_manifest(&manifest_path);
+    let tmpl = manifest
+        .templates
+        .iter()
+        .find(|t| t.name == "old_name")
+        .unwrap();
+    let expected_filters: Vec<&str> = std::iter::once("old_filters/")
+        .chain(filters.iter().copied())
+        .collect();
+    assert_eq!(tmpl.filters.as_ref().unwrap(), &expected_filters);
 }
 
 #[rstest]
@@ -318,18 +329,26 @@ fn test_update_template_remove_filters() {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(
-        manifest_content,
-        r#"[[templates]]
-name = "old_name"
-template_type = "Tex"
-template_file = "old_file.tex"
-output = "old_output.tex""#
+    let manifest = assertions::read_manifest(&manifest_path);
+    let tmpl = manifest
+        .templates
+        .iter()
+        .find(|t| t.name == "old_name")
+        .unwrap();
+    assert_eq!(
+        tmpl.template_file.as_ref().unwrap().to_str(),
+        Some("old_file.tex")
     );
-
-    assert_not_contains!(manifest_content, "filters = \"old_filters/\"");
+    assert_eq!(
+        tmpl.output.as_ref().unwrap().to_str(),
+        Some("old_output.tex")
+    );
+    let has_old_filter = tmpl
+        .filters
+        .as_ref()
+        .map(|f| f.iter().any(|s| s == "old_filters/"))
+        .unwrap_or(false);
+    assert!(!has_old_filter);
 }
 
 #[rstest]
@@ -358,16 +377,15 @@ fn test_update_template_remove_filters_filters_remain() {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(
-        manifest_content,
-        r#"[[templates]]
-name = "old_name"
-template_type = "Tex"
-template_file = "old_file.tex"
-output = "old_output.tex"
-filters = ["second_filter.lua", "third_filter.lua"]"#
+    let manifest = assertions::read_manifest(&manifest_path);
+    let tmpl = manifest
+        .templates
+        .iter()
+        .find(|t| t.name == "old_name")
+        .unwrap();
+    assert_eq!(
+        tmpl.filters.as_ref().unwrap(),
+        &vec!["second_filter.lua", "third_filter.lua"]
     );
 }
 
@@ -434,17 +452,25 @@ fn test_update_template_all_fields() {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(
-        manifest_content,
-        r#"[[templates]]
-name = "old_name"
-template_type = "Typst"
-template_file = "new_file.tex"
-output = "new_output.tex"
-filters = ["new_filters/"]"#
+    let manifest = assertions::read_manifest(&manifest_path);
+    let tmpl = manifest
+        .templates
+        .iter()
+        .find(|t| t.name == "old_name")
+        .unwrap();
+    assert_eq!(
+        tmpl.template_type,
+        tiefdownlib::template_type::TemplateType::Typst
     );
+    assert_eq!(
+        tmpl.template_file.as_ref().unwrap().to_str(),
+        Some("new_file.tex")
+    );
+    assert_eq!(
+        tmpl.output.as_ref().unwrap().to_str(),
+        Some("new_output.tex")
+    );
+    assert_eq!(tmpl.filters.as_ref().unwrap(), &vec!["new_filters/"]);
 }
 
 #[rstest]

@@ -44,15 +44,11 @@ fn test_markdown_add() {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(
-        manifest_content,
-        r#"[[markdown_projects]]
-name = "main"
-path = "Markdown"
-output = ".""#
-    );
+    let manifest = assertions::read_manifest(&manifest_path);
+    let projects = manifest.markdown_projects.as_ref().unwrap();
+    assert!(projects.iter().any(|p| p.name == "main"
+        && p.path.to_str() == Some("Markdown")
+        && p.output.to_str() == Some(".")));
 }
 
 #[rstest]
@@ -84,20 +80,14 @@ fn test_markdown_add_with_existing_project() {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(
-        manifest_content,
-        r#"[[markdown_projects]]
-name = "first"
-path = "Markdown1"
-output = "out1"
-
-[[markdown_projects]]
-name = "second"
-path = "Markdown2"
-output = "out2""#
-    );
+    let manifest = assertions::read_manifest(&manifest_path);
+    let projects = manifest.markdown_projects.as_ref().unwrap();
+    assert!(projects.iter().any(|p| p.name == "first"
+        && p.path.to_str() == Some("Markdown1")
+        && p.output.to_str() == Some("out1")));
+    assert!(projects.iter().any(|p| p.name == "second"
+        && p.path.to_str() == Some("Markdown2")
+        && p.output.to_str() == Some("out2")));
 }
 
 #[rstest]

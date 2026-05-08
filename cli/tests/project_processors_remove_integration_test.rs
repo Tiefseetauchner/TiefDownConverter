@@ -46,14 +46,13 @@ fn test_remove_processor() {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_not_contains!(
-        manifest_content,
-        r#"[[custom_processors.processors]]
-name = "My funny processor"
-processor_args = ["-t", "html", "-o", "mega.html"]
-"#
+    let manifest = assertions::read_manifest(&manifest_path);
+    assert!(
+        !manifest
+            .custom_processors
+            .processors
+            .iter()
+            .any(|p| p.name == "My funny processor")
     );
 }
 

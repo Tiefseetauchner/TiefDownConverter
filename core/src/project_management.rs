@@ -37,11 +37,11 @@ use toml::{Table, Value};
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::project_management::init;
+/// use tiefdownlib::{project_handle::ProjectHandle, project_management::init};
 /// use std::path::PathBuf;
 ///
 /// init(
-///     Some(PathBuf::from("my_project")),
+///     Some(PathBuf::from(".")),
 ///     None,    // default templates
 ///     false,   // no_templates
 ///     false,   // force
@@ -201,11 +201,11 @@ fn get_template_mapping_for_preset(template: &String) -> Result<Template> {
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::project_management::add_template;
+/// use tiefdownlib::{project_handle::ProjectHandle, project_management::add_template};
 /// use std::path::PathBuf;
 ///
 /// add_template(
-///     Some(PathBuf::from("my_project")),
+///     &mut ProjectHandle::open(Some(PathBuf::from("my_project"))).unwrap(),
 ///     "my_template".to_string(),
 ///     None,  // auto-detect type from file
 ///     Some(PathBuf::from("template.tex")),
@@ -341,10 +341,10 @@ pub fn add_template(
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::project_management::remove_template;
+/// use tiefdownlib::{project_handle::ProjectHandle, project_management::remove_template};
 /// use std::path::PathBuf;
 ///
-/// remove_template(Some(PathBuf::from("my_project")), "my_template".to_string()).unwrap();
+/// remove_template(&mut ProjectHandle::open(Some(PathBuf::from("my_project"))).unwrap(), "my_template".to_string()).unwrap();
 /// ```
 pub fn remove_template(project_handle: &mut ProjectHandle, template_name: String) -> Result<()> {
     if let Some(pos) = project_handle
@@ -417,11 +417,11 @@ pub fn remove_template(project_handle: &mut ProjectHandle, template_name: String
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::project_management::update_template;
+/// use tiefdownlib::{project_handle::ProjectHandle, project_management::update_template};
 /// use std::path::PathBuf;
 ///
 /// update_template(
-///     Some(PathBuf::from("my_project")),
+///     &mut ProjectHandle::open(Some(PathBuf::from("my_project"))).unwrap(),
 ///     "my_template".to_string(),
 ///     None, None,
 ///     Some(PathBuf::from("new_output.pdf")),
@@ -654,10 +654,10 @@ pub fn update_template(
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::project_management::update_settings;
+/// use tiefdownlib::{project_handle::ProjectHandle, project_management::update_settings};
 /// use std::path::PathBuf;
 ///
-/// update_settings(Some(PathBuf::from("my_project")), Some(true), Some(3)).unwrap();
+/// update_settings(&mut ProjectHandle::open(Some(PathBuf::from("my_project"))).unwrap(), Some(true), Some(3)).unwrap();
 /// ```
 pub fn update_settings(
     project_handle: &mut ProjectHandle,
@@ -697,11 +697,11 @@ pub fn update_settings(
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::project_management::add_preprocessor;
+/// use tiefdownlib::{project_handle::ProjectHandle, project_management::add_preprocessor};
 /// use std::path::PathBuf;
 ///
 /// add_preprocessor(
-///     Some(PathBuf::from("my_project")),
+///     &mut ProjectHandle::open(Some(PathBuf::from("my_project"))).unwrap(),
 ///     "my_preprocessor".to_string(),
 ///     Some("md".to_string()),
 ///     None,
@@ -747,10 +747,10 @@ pub fn add_preprocessor(
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::project_management::remove_preprocessor;
+/// use tiefdownlib::{project_handle::ProjectHandle, project_management::remove_preprocessor};
 /// use std::path::PathBuf;
 ///
-/// remove_preprocessor(Some(PathBuf::from("my_project")), "my_preprocessor".to_string()).unwrap();
+/// remove_preprocessor(&mut ProjectHandle::open(Some(PathBuf::from("my_project"))).unwrap(), "my_preprocessor".to_string()).unwrap();
 /// ```
 pub fn remove_preprocessor(project_handle: &mut ProjectHandle, name: String) -> Result<()> {
     if let Some(pos) = project_handle
@@ -790,11 +790,11 @@ pub fn remove_preprocessor(project_handle: &mut ProjectHandle, name: String) -> 
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::project_management::add_processor;
+/// use tiefdownlib::{project_handle::ProjectHandle, project_management::add_processor};
 /// use std::path::PathBuf;
 ///
 /// add_processor(
-///     Some(PathBuf::from("my_project")),
+///     &mut ProjectHandle::open(Some(PathBuf::from("my_project"))).unwrap(),
 ///     "my_processor".to_string(),
 ///     vec!["--shell-escape".to_string()],
 /// ).unwrap();
@@ -834,10 +834,10 @@ pub fn add_processor(
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::project_management::remove_processor;
+/// use tiefdownlib::{project_handle::ProjectHandle, project_management::remove_processor};
 /// use std::path::PathBuf;
 ///
-/// remove_processor(Some(PathBuf::from("my_project")), "my_processor".to_string()).unwrap();
+/// remove_processor(&mut ProjectHandle::open(Some(PathBuf::from("my_project"))).unwrap(), "my_processor".to_string()).unwrap();
 /// ```
 pub fn remove_processor(project_handle: &mut ProjectHandle, name: String) -> Result<()> {
     if let Some(pos) = project_handle
@@ -875,10 +875,10 @@ pub fn remove_processor(project_handle: &mut ProjectHandle, name: String) -> Res
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::project_management::get_processors;
+/// use tiefdownlib::{project_handle::ProjectHandle, project_management::get_processors};
 /// use std::path::PathBuf;
 ///
-/// let processors = get_processors(Some(PathBuf::from("my_project"))).unwrap();
+/// let processors = get_processors(&ProjectHandle::open(Some(PathBuf::from("my_project"))).unwrap()).unwrap();
 /// for processor in processors {
 ///     println!("{}", processor.name);
 /// }
@@ -903,11 +903,11 @@ pub fn get_processors(project_handle: &ProjectHandle) -> Result<Vec<Processor>> 
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::project_management::add_profile;
+/// use tiefdownlib::{project_handle::ProjectHandle, project_management::add_profile};
 /// use std::path::PathBuf;
 ///
 /// add_profile(
-///     Some(PathBuf::from("my_project")),
+///     &mut ProjectHandle::open(Some(PathBuf::from("my_project"))).unwrap(),
 ///     "print".to_string(),
 ///     vec!["template.tex".to_string(), "booklet.tex".to_string()],
 /// ).unwrap();
@@ -950,10 +950,10 @@ pub fn add_profile(
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::project_management::remove_profile;
+/// use tiefdownlib::{project_handle::ProjectHandle, project_management::remove_profile};
 /// use std::path::PathBuf;
 ///
-/// remove_profile(Some(PathBuf::from("my_project")), "print".to_string()).unwrap();
+/// remove_profile(&mut ProjectHandle::open(Some(PathBuf::from("my_project"))).unwrap(), "print".to_string()).unwrap();
 /// ```
 pub fn remove_profile(project_handle: &mut ProjectHandle, name: String) -> Result<()> {
     if let Some(profiles) = &mut project_handle.manifest.profiles {
@@ -985,10 +985,10 @@ pub fn remove_profile(project_handle: &mut ProjectHandle, name: String) -> Resul
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::project_management::get_templates;
+/// use tiefdownlib::{project_handle::ProjectHandle, project_management::get_templates};
 /// use std::path::PathBuf;
 ///
-/// let templates = get_templates(Some(PathBuf::from("my_project"))).unwrap();
+/// let templates = get_templates(&ProjectHandle::open(Some(PathBuf::from("my_project"))).unwrap()).unwrap();
 /// for template in templates {
 ///     println!("{}: {}", template.name, template.template_type);
 /// }
@@ -1011,10 +1011,10 @@ pub fn get_templates(project_handle: &ProjectHandle) -> Result<Vec<Template>> {
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::project_management::get_profiles;
+/// use tiefdownlib::{project_handle::ProjectHandle, project_management::get_profiles};
 /// use std::path::PathBuf;
 ///
-/// let profiles = get_profiles(Some(PathBuf::from("my_project"))).unwrap();
+/// let profiles = get_profiles(&ProjectHandle::open(Some(PathBuf::from("my_project"))).unwrap()).unwrap();
 /// for profile in profiles {
 ///     println!("{}: {:?}", profile.name, profile.templates);
 /// }
@@ -1039,10 +1039,10 @@ pub fn get_profiles(project_handle: &ProjectHandle) -> Result<Vec<Profile>> {
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::project_management::get_preprocessors;
+/// use tiefdownlib::{project_handle::ProjectHandle, project_management::get_preprocessors};
 /// use std::path::PathBuf;
 ///
-/// let preprocessors = get_preprocessors(Some(PathBuf::from("my_project"))).unwrap();
+/// let preprocessors = get_preprocessors(&ProjectHandle::open(Some(PathBuf::from("my_project"))).unwrap()).unwrap();
 /// for preprocessor in preprocessors {
 ///     println!("{}", preprocessor.name);
 /// }
@@ -1069,10 +1069,10 @@ pub fn get_preprocessors(project_handle: &ProjectHandle) -> Result<Vec<PreProces
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::project_management::clean;
+/// use tiefdownlib::{project_handle::ProjectHandle, project_management::clean};
 /// use std::path::PathBuf;
 ///
-/// clean(Some(PathBuf::from("my_project"))).unwrap();
+/// clean(&ProjectHandle::open(Some(PathBuf::from("my_project"))).unwrap()).unwrap();
 /// ```
 pub fn clean(project_handle: &ProjectHandle) -> Result<()> {
     run_smart_clean(&project_handle.project_path, 0)?;
@@ -1090,10 +1090,10 @@ pub fn clean(project_handle: &ProjectHandle) -> Result<()> {
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::project_management::smart_clean;
+/// use tiefdownlib::{project_handle::ProjectHandle, project_management::smart_clean};
 /// use std::path::PathBuf;
 ///
-/// smart_clean(Some(PathBuf::from("my_project"))).unwrap();
+/// smart_clean(&ProjectHandle::open(Some(PathBuf::from("my_project"))).unwrap()).unwrap();
 /// ```
 pub fn smart_clean(project_handle: &ProjectHandle) -> Result<()> {
     let smart_clean_threshold = project_handle.manifest.smart_clean_threshold.unwrap_or(5);
@@ -1153,7 +1153,7 @@ pub(crate) fn run_smart_clean(project: &PathBuf, smart_clean_threshold: u32) -> 
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::project_management::check_dependencies;
+/// use tiefdownlib::{project_handle::ProjectHandle, project_management::check_dependencies};
 ///
 /// check_dependencies(vec!["pandoc", "xelatex"]).unwrap();
 /// ```
@@ -1210,7 +1210,7 @@ pub(crate) fn get_missing_dependencies(dependencies: Vec<&str>) -> Result<Vec<St
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::project_management::load_and_convert_manifest;
+/// use tiefdownlib::{project_handle::ProjectHandle, project_management::load_and_convert_manifest};
 /// use std::path::PathBuf;
 ///
 /// let manifest = load_and_convert_manifest(&PathBuf::from("my_project/manifest.toml")).unwrap();

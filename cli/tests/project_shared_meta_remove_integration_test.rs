@@ -52,10 +52,9 @@ fn test_remove_metadata() {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(manifest_content, r#"[shared_metadata]"#);
-    assert_not_contains!(manifest_content, r#"author"#);
+    let manifest = assertions::read_manifest(&manifest_path);
+    let meta = manifest.shared_metadata.as_ref().unwrap();
+    assert!(!meta.contains_key("author"));
 }
 
 #[rstest]

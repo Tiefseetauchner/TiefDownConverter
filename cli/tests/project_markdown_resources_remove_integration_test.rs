@@ -59,15 +59,17 @@ fn test_markdown_resources_remove() {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(
-        manifest_content,
-        r#"[[markdown_projects]]
-name = "name"
-path = "input"
-output = "output"
-resources = ["path1"]"#
+    let manifest = assertions::read_manifest(&manifest_path);
+    let project = manifest
+        .markdown_projects
+        .as_ref()
+        .unwrap()
+        .iter()
+        .find(|p| p.name == "name")
+        .unwrap();
+    assert_eq!(
+        project.resources.as_ref().unwrap(),
+        &vec![PathBuf::from("path1")]
     );
 
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
@@ -83,9 +85,20 @@ resources = ["path1"]"#
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_not_contains!(manifest_content, r#"path1"#);
+    let manifest = assertions::read_manifest(&manifest_path);
+    let project = manifest
+        .markdown_projects
+        .as_ref()
+        .unwrap()
+        .iter()
+        .find(|p| p.name == "name")
+        .unwrap();
+    let has_path1 = project
+        .resources
+        .as_ref()
+        .map(|r| r.iter().any(|p| p.to_str() == Some("path1")))
+        .unwrap_or(false);
+    assert!(!has_path1);
 }
 
 #[rstest]
@@ -111,15 +124,21 @@ fn test_markdown_resources_remove_leaves_others() {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(
-        manifest_content,
-        r#"[[markdown_projects]]
-name = "name"
-path = "input"
-output = "output"
-resources = ["path1", "path2", "path3"]"#
+    let manifest = assertions::read_manifest(&manifest_path);
+    let project = manifest
+        .markdown_projects
+        .as_ref()
+        .unwrap()
+        .iter()
+        .find(|p| p.name == "name")
+        .unwrap();
+    assert_eq!(
+        project.resources.as_ref().unwrap(),
+        &vec![
+            PathBuf::from("path1"),
+            PathBuf::from("path2"),
+            PathBuf::from("path3")
+        ]
     );
 
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
@@ -135,15 +154,18 @@ resources = ["path1", "path2", "path3"]"#
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_not_contains!(manifest_content, r#"path1"#);
-    assert_contains!(
-        manifest_content,
-        r#"[[markdown_projects]]
-name = "name"
-path = "input"
-output = "output"
-resources = ["path2", "path3"]"#
+    let manifest = assertions::read_manifest(&manifest_path);
+    let project = manifest
+        .markdown_projects
+        .as_ref()
+        .unwrap()
+        .iter()
+        .find(|p| p.name == "name")
+        .unwrap();
+    let resources = project.resources.as_ref().unwrap();
+    assert!(!resources.iter().any(|p| p.to_str() == Some("path1")));
+    assert_eq!(
+        resources,
+        &vec![PathBuf::from("path2"), PathBuf::from("path3")]
     );
 }

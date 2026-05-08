@@ -64,11 +64,8 @@ fn test_remove_template(#[case] template_name: &str) {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-    assert_not_contains!(
-        manifest_content,
-        format!(r#"name = "{}""#, template_name).as_str()
-    );
+    let manifest = assertions::read_manifest(&manifest_path);
+    assert!(!manifest.templates.iter().any(|t| t.name == template_name));
 
     let template_dir = project_path.join("template");
     assert!(template_dir.exists(), "Template directory should exist");
@@ -118,23 +115,16 @@ fn test_remove_template_other_templates_remain() {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(
-        manifest_content,
-        r#"[[templates]]
-name = "test1"
-template_type = "Tex""#
+    let manifest = assertions::read_manifest(&manifest_path);
+    assert!(
+        manifest.templates.iter().any(|t| t.name == "test1"
+            && t.template_type == tiefdownlib::template_type::TemplateType::Tex)
     );
-
-    assert_contains!(
-        manifest_content,
-        r#"[[templates]]
-name = "test3"
-template_type = "Tex""#
+    assert!(
+        manifest.templates.iter().any(|t| t.name == "test3"
+            && t.template_type == tiefdownlib::template_type::TemplateType::Tex)
     );
-
-    assert_not_contains!(manifest_content, r#"name = "test2""#);
+    assert!(!manifest.templates.iter().any(|t| t.name == "test2"));
 
     let template_dir = project_path.join("template");
     assert!(template_dir.exists(), "Template directory should exist");

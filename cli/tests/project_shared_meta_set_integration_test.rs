@@ -42,9 +42,11 @@ fn test_set_metadata() {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(manifest_content, r#"author = "John Doe""#);
+    let manifest = assertions::read_manifest(&manifest_path);
+    assert_eq!(
+        manifest.shared_metadata.as_ref().unwrap()["author"].as_str(),
+        Some("John Doe")
+    );
 }
 
 #[rstest]
@@ -64,10 +66,11 @@ fn test_set_overwrites_metadata() {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content =
-        fs::read_to_string(&manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(manifest_content, r#"author = "John Doe""#);
+    let manifest = assertions::read_manifest(&manifest_path);
+    assert_eq!(
+        manifest.shared_metadata.as_ref().unwrap()["author"].as_str(),
+        Some("John Doe")
+    );
 
     let mut cmd = Command::cargo_bin("tiefdownconverter").expect("Failed to get cargo binary");
     cmd.current_dir(&project_path)
@@ -79,7 +82,9 @@ fn test_set_overwrites_metadata() {
         .assert()
         .success();
 
-    let manifest_content =
-        fs::read_to_string(&manifest_path).expect("Failed to read manifest file");
-    assert_contains!(manifest_content, r#"author = "Tiefseetauchner""#);
+    let manifest = assertions::read_manifest(&manifest_path);
+    assert_eq!(
+        manifest.shared_metadata.as_ref().unwrap()["author"].as_str(),
+        Some("Tiefseetauchner")
+    );
 }

@@ -59,9 +59,11 @@ fn test_injection_add(#[case] name: &str) {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    let expected_manifest = format!(r#"name = "{}""#, name);
-
-    assert_not_contains!(manifest_content, &expected_manifest);
+    let manifest = assertions::read_manifest(&manifest_path);
+    let has_injection = manifest
+        .injections
+        .as_ref()
+        .map(|inj| inj.iter().any(|i| i.name == name))
+        .unwrap_or(false);
+    assert!(!has_injection);
 }

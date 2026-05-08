@@ -60,14 +60,16 @@ fn test_markdown_resources_add() {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(
-        manifest_content,
-        r#"[[markdown_projects]]
-name = "name"
-path = "input"
-output = "output"
-resources = ["path1", "path2"]"#
+    let manifest = assertions::read_manifest(&manifest_path);
+    let project = manifest
+        .markdown_projects
+        .as_ref()
+        .unwrap()
+        .iter()
+        .find(|p| p.name == "name")
+        .unwrap();
+    assert_eq!(
+        project.resources.as_ref().unwrap(),
+        &vec![PathBuf::from("path1"), PathBuf::from("path2")]
     );
 }

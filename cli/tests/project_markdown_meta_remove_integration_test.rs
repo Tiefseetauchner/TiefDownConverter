@@ -76,21 +76,17 @@ fn test_markdown_meta_remove() {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(
-        manifest_content,
-        r#"[[markdown_projects]]
-name = "main"
-path = "Markdown"
-output = "."
-
-[markdown_projects.metadata_fields]
-description = "A description"
-"#
-    );
-
-    assert_not_contains!(manifest_content, r#"title = "My Project""#);
+    let manifest = assertions::read_manifest(&manifest_path);
+    let project = manifest
+        .markdown_projects
+        .as_ref()
+        .unwrap()
+        .iter()
+        .find(|p| p.name == "main")
+        .unwrap();
+    let fields = project.metadata_fields.as_ref().unwrap();
+    assert_eq!(fields["description"].as_str(), Some("A description"));
+    assert!(!fields.contains_key("title"));
 }
 
 #[rstest]

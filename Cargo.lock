@@ -1665,6 +1665,7 @@ dependencies = [
  "rstest",
  "tempfile",
  "tiefdownlib",
+ "toml",
 ]
 
 [[package]]

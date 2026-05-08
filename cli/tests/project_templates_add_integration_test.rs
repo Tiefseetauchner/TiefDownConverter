@@ -40,13 +40,13 @@ fn test_add_template() {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(
-        manifest_content,
-        r#"[[templates]]
-name = "my_template.tex"
-template_type = "Tex""#
+    let manifest = assertions::read_manifest(&manifest_path);
+    assert!(
+        manifest
+            .templates
+            .iter()
+            .any(|t| t.name == "my_template.tex"
+                && t.template_type == tiefdownlib::template_type::TemplateType::Tex)
     );
 }
 
@@ -74,18 +74,19 @@ fn test_add_template_with_custom_type(#[case] template_type: &str) {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(
-        manifest_content,
-        format!(
-            r#"[[templates]]
-name = "My custom template"
-template_type = "{}"
-template_file = "my_template.template""#,
-            template_type
-        )
-        .as_str()
+    let manifest = assertions::read_manifest(&manifest_path);
+    let tmpl = manifest
+        .templates
+        .iter()
+        .find(|t| t.name == "My custom template")
+        .unwrap();
+    assert_eq!(
+        tmpl.template_type,
+        tiefdownlib::template_type::TemplateType::from(template_type)
+    );
+    assert_eq!(
+        tmpl.template_file.as_ref().unwrap().to_str(),
+        Some("my_template.template")
     );
 }
 
@@ -111,19 +112,17 @@ fn test_add_template_with_custom_output(#[case] output_name: &str) {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(
-        manifest_content,
-        format!(
-            r#"[[templates]]
-name = "test.tex"
-template_type = "Tex"
-output = "{}""#,
-            output_name
-        )
-        .as_str()
+    let manifest = assertions::read_manifest(&manifest_path);
+    let tmpl = manifest
+        .templates
+        .iter()
+        .find(|t| t.name == "test.tex")
+        .unwrap();
+    assert_eq!(
+        tmpl.template_type,
+        tiefdownlib::template_type::TemplateType::Tex
     );
+    assert_eq!(tmpl.output.as_ref().unwrap().to_str(), Some(output_name));
 }
 
 #[rstest]
@@ -153,18 +152,19 @@ fn test_add_template_with_custom_file_path(#[case] template_path: &str) {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(
-        manifest_content,
-        format!(
-            r#"[[templates]]
-name = "test.tex"
-template_type = "Tex"
-template_file = "{}""#,
-            template_path
-        )
-        .as_str()
+    let manifest = assertions::read_manifest(&manifest_path);
+    let tmpl = manifest
+        .templates
+        .iter()
+        .find(|t| t.name == "test.tex")
+        .unwrap();
+    assert_eq!(
+        tmpl.template_type,
+        tiefdownlib::template_type::TemplateType::Tex
+    );
+    assert_eq!(
+        tmpl.template_file.as_ref().unwrap().to_str(),
+        Some(template_path)
     );
 }
 
@@ -194,17 +194,15 @@ fn test_add_template_with_name_chooses_correct_template_type(
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(
-        manifest_content,
-        format!(
-            r#"[[templates]]
-name = "{}"
-template_type = "{}""#,
-            template_name, template_type
-        )
-        .as_str()
+    let manifest = assertions::read_manifest(&manifest_path);
+    let tmpl = manifest
+        .templates
+        .iter()
+        .find(|t| t.name == template_name)
+        .unwrap();
+    assert_eq!(
+        tmpl.template_type,
+        tiefdownlib::template_type::TemplateType::from(template_type)
     );
 }
 
@@ -236,18 +234,19 @@ fn test_add_template_with_file_chooses_correct_template_type(
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(
-        manifest_content,
-        format!(
-            r#"[[templates]]
-name = "Custom Template Name"
-template_type = "{}"
-template_file = "{}""#,
-            template_type, template_file
-        )
-        .as_str()
+    let manifest = assertions::read_manifest(&manifest_path);
+    let tmpl = manifest
+        .templates
+        .iter()
+        .find(|t| t.name == "Custom Template Name")
+        .unwrap();
+    assert_eq!(
+        tmpl.template_type,
+        tiefdownlib::template_type::TemplateType::from(template_type)
+    );
+    assert_eq!(
+        tmpl.template_file.as_ref().unwrap().to_str(),
+        Some(template_file)
     );
 }
 
@@ -270,13 +269,22 @@ fn test_add_template_with_filters() {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(
-        manifest_content,
-        r#"[[templates]]
-name = "test.tex"
-template_type = "Tex"
-filters = ["testfilter.lua", "superfilters/", "my_filters/the_filter.lua"]"#
+    let manifest = assertions::read_manifest(&manifest_path);
+    let tmpl = manifest
+        .templates
+        .iter()
+        .find(|t| t.name == "test.tex")
+        .unwrap();
+    assert_eq!(
+        tmpl.template_type,
+        tiefdownlib::template_type::TemplateType::Tex
+    );
+    assert_eq!(
+        tmpl.filters.as_ref().unwrap(),
+        &vec![
+            "testfilter.lua",
+            "superfilters/",
+            "my_filters/the_filter.lua"
+        ]
     );
 }

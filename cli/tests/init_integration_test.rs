@@ -101,8 +101,8 @@ fn test_init_project_no_templates() {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-    assert_not_contains!(manifest_content, "[[templates]]");
+    let manifest = assertions::read_manifest(&manifest_path);
+    assert!(manifest.templates.is_empty());
 }
 
 #[rstest]
@@ -189,11 +189,16 @@ fn test_init_project_templates() {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-    assert_contains!(manifest_content, r#"name = "template.tex""#);
-    assert_contains!(manifest_content, r#"name = "booklet.tex""#);
-    assert_contains!(manifest_content, r#"name = "template_typ.typ""#);
-    assert_contains!(manifest_content, r#"name = "default_epub""#);
+    let manifest = assertions::read_manifest(&manifest_path);
+    assert!(manifest.templates.iter().any(|t| t.name == "template.tex"));
+    assert!(manifest.templates.iter().any(|t| t.name == "booklet.tex"));
+    assert!(
+        manifest
+            .templates
+            .iter()
+            .any(|t| t.name == "template_typ.typ")
+    );
+    assert!(manifest.templates.iter().any(|t| t.name == "default_epub"));
 
     let template_dir = project_path.join("template");
     assert!(template_dir.exists(), "Template directory should exist");
@@ -236,9 +241,8 @@ fn test_init_project_smart_clean() {
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
 
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(manifest_content, r#"smart_clean = true"#);
+    let manifest = assertions::read_manifest(&manifest_path);
+    assert_eq!(manifest.smart_clean, Some(true));
 }
 
 #[rstest]
@@ -259,7 +263,6 @@ fn test_init_project_smart_clean_threshold() {
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
 
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(manifest_content, r#"smart_clean_threshold = 2"#);
+    let manifest = assertions::read_manifest(&manifest_path);
+    assert_eq!(manifest.smart_clean_threshold, Some(2));
 }

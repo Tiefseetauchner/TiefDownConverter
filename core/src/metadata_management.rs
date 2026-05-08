@@ -19,11 +19,11 @@ use toml::{Table, Value};
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::metadata_management::set_metadata;
+/// use tiefdownlib::{project_handle::ProjectHandle, metadata_management::set_metadata};
 /// use std::path::PathBuf;
 ///
 /// set_metadata(
-///     Some(PathBuf::from("my_project")),
+///     &mut ProjectHandle::open(Some(PathBuf::from("my_project"))).unwrap(),
 ///     "author".to_string(),
 ///     "Jane Doe".to_string(),
 /// ).unwrap();
@@ -56,10 +56,10 @@ pub fn set_metadata(project_handle: &mut ProjectHandle, key: String, value: Stri
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::metadata_management::remove_metadata;
+/// use tiefdownlib::{project_handle::ProjectHandle, metadata_management::remove_metadata};
 /// use std::path::PathBuf;
 ///
-/// remove_metadata(Some(PathBuf::from("my_project")), "author".to_string()).unwrap();
+/// remove_metadata(&mut ProjectHandle::open(Some(PathBuf::from("my_project"))).unwrap(), "author".to_string()).unwrap();
 /// ```
 pub fn remove_metadata(project_handle: &mut ProjectHandle, key: String) -> Result<()> {
     let shared_metadata = project_handle
@@ -93,10 +93,10 @@ pub fn remove_metadata(project_handle: &mut ProjectHandle, key: String) -> Resul
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::metadata_management::get_metadata;
+/// use tiefdownlib::{project_handle::ProjectHandle, metadata_management::get_metadata};
 /// use std::path::PathBuf;
 ///
-/// let fields = get_metadata(Some(PathBuf::from("my_project"))).unwrap();
+/// let fields = get_metadata(&ProjectHandle::open(Some(PathBuf::from("my_project"))).unwrap()).unwrap();
 /// for field in fields {
 ///     println!("{} = {}", field.key, field.value);
 /// }

@@ -1,7 +1,7 @@
 // NOTE: Deactivated as these will only work after the manifest migration.
 
 use crate::{
-    _tests::tests_common::get_default_manifest,
+    _tests::tests_common::get_default_project_handle,
     injections::{add_files_to_injection, add_injection, remove_injection},
     manifest_model::Injection,
 };
@@ -13,16 +13,16 @@ use std::path::PathBuf;
 #[case("Injection Name")]
 #[case("Sp3cia/ $ha%acters")]
 fn test_add_injection_injections_none(#[case] name: &str) {
-    let mut manifest = get_default_manifest();
+    let mut handle = get_default_project_handle();
 
     add_injection(
-        &mut manifest,
+        &mut handle,
         name.to_string(),
         vec![PathBuf::from("file1.txt"), PathBuf::from("file2.md")],
     )
     .expect("An error occurred adding the injection to the manifest.");
 
-    let injections = manifest.injections;
+    let injections = handle.manifest.injections;
     assert!(injections.is_some(), "Injections was None");
 
     if let Some(injections) = injections {
@@ -35,40 +35,41 @@ fn test_add_injection_injections_none(#[case] name: &str) {
 
 #[rstest]
 fn test_add_injection_injections_others_exist() {
-    let mut manifest = get_default_manifest();
-    manifest.injections = Some(vec![Injection {
+    let mut handle = get_default_project_handle();
+    handle.manifest.injections = Some(vec![Injection {
         name: "other_injection".to_string(),
         files: Vec::new(),
     }]);
 
     add_injection(
-        &mut manifest,
+        &mut handle,
         "injection_name".to_string(),
         vec![PathBuf::from("file1.txt"), PathBuf::from("file2.md")],
     )
     .expect("An error occurred adding the injection to the manifest.");
 
-    let injections = manifest.injections;
+    let injections = handle.manifest.injections;
     assert!(injections.is_some(), "Injections was None");
 
     if let Some(injections) = injections {
         assert_eq!(injections.len(), 2);
-        assert_eq!(injections[0].name, "injection_name");
-        assert_eq!(injections[0].files[0].to_string_lossy(), "file1.txt");
-        assert_eq!(injections[0].files[1].to_string_lossy(), "file2.md");
+        assert_eq!(injections[0].name, "other_injection");
+        assert_eq!(injections[1].name, "injection_name");
+        assert_eq!(injections[1].files[0].to_string_lossy(), "file1.txt");
+        assert_eq!(injections[1].files[1].to_string_lossy(), "file2.md");
     }
 }
 
 #[rstest]
 fn test_add_injection_injections_exists_already() {
-    let mut manifest = get_default_manifest();
-    manifest.injections = Some(vec![Injection {
+    let mut handle = get_default_project_handle();
+    handle.manifest.injections = Some(vec![Injection {
         name: "injection_name".to_string(),
         files: Vec::new(),
     }]);
 
     let err = add_injection(
-        &mut manifest,
+        &mut handle,
         "injection_name".to_string(),
         vec![PathBuf::from("file1.txt"), PathBuf::from("file2.md")],
     )
@@ -85,16 +86,16 @@ fn test_add_injection_injections_exists_already() {
 #[case("Injection Name")]
 #[case("Sp3cia/ $ha%acters")]
 fn test_remove_injection(#[case] name: &str) {
-    let mut manifest = get_default_manifest();
-    manifest.injections = Some(vec![Injection {
+    let mut handle = get_default_project_handle();
+    handle.manifest.injections = Some(vec![Injection {
         name: name.to_string(),
         files: Vec::new(),
     }]);
 
-    remove_injection(&mut manifest, name.to_string())
+    remove_injection(&mut handle, name.to_string())
         .expect("An error occurred removing the injection from the manifest.");
 
-    let injections = manifest.injections;
+    let injections = handle.manifest.injections;
     assert!(injections.is_some(), "Injections was None");
 
     if let Some(injections) = injections {
@@ -107,13 +108,13 @@ fn test_remove_injection(#[case] name: &str) {
 #[case("Injection Name")]
 #[case("Sp3cia/ $ha%acters")]
 fn test_remove_injection_does_not_exist(#[case] name: &str) {
-    let mut manifest = get_default_manifest();
-    manifest.injections = Some(vec![Injection {
+    let mut handle = get_default_project_handle();
+    handle.manifest.injections = Some(vec![Injection {
         name: "other_injection".to_string(),
         files: Vec::new(),
     }]);
 
-    let err = remove_injection(&mut manifest, name.to_string())
+    let err = remove_injection(&mut handle, name.to_string())
         .expect_err("Removing injection did not fail.");
 
     assert_eq!(
@@ -127,20 +128,22 @@ fn test_remove_injection_does_not_exist(#[case] name: &str) {
 #[case("Injection Name")]
 #[case("Sp3cia/ $ha%acters")]
 fn test_add_files_to_injection(#[case] name: &str) {
-    let mut manifest = get_default_manifest();
-    manifest.injections = Some(vec![Injection {
-        name: "other_injection".to_string(),
+    let mut handle = get_default_project_handle();
+    handle.manifest.injections = Some(vec![Injection {
+        name: name.to_string(),
         files: vec![PathBuf::from("file0.txt")],
     }]);
 
     add_files_to_injection(
-        &mut manifest,
+        &mut handle,
         name.to_string(),
         vec![PathBuf::from("file1.txt"), PathBuf::from("file2.md")],
     )
     .expect("An error occurred adding files to the injection in the manifest.");
 
-    let injections = manifest.injections;
+    assert!(handle.is_dirty());
+
+    let injections = handle.manifest.injections;
     assert!(injections.is_some(), "Injections was None");
 
     if let Some(injections) = injections {

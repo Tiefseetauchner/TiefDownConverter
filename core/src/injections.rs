@@ -38,11 +38,11 @@ impl RenderingInjections {
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::injections::add_injection;
+/// use tiefdownlib::{project_handle::ProjectHandle, injections::add_injection};
 /// use std::path::PathBuf;
 ///
 /// add_injection(
-///     Some(PathBuf::from("my_project")),
+///     &mut ProjectHandle::open(Some(PathBuf::from("."))).unwrap(),
 ///     "header".to_string(),
 ///     vec![PathBuf::from("header.tex")],
 /// ).unwrap();
@@ -88,10 +88,10 @@ pub fn add_injection(
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::injections::remove_injection;
+/// use tiefdownlib::{project_handle::ProjectHandle, injections::remove_injection};
 /// use std::path::PathBuf;
 ///
-/// remove_injection(Some(PathBuf::from("my_project")), "header".to_string()).unwrap();
+/// remove_injection(&mut ProjectHandle::open(Some(PathBuf::from("."))).unwrap(), "header".to_string()).unwrap();
 /// ```
 pub fn remove_injection(project_handle: &mut ProjectHandle, name: String) -> Result<()> {
     if let Some(injections) = project_handle.manifest.injections.as_mut() {
@@ -124,10 +124,10 @@ pub fn remove_injection(project_handle: &mut ProjectHandle, name: String) -> Res
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::injections::get_injections;
+/// use tiefdownlib::{project_handle::ProjectHandle, injections::get_injections};
 /// use std::path::PathBuf;
 ///
-/// let injections = get_injections(Some(PathBuf::from("my_project"))).unwrap();
+/// let injections = get_injections(&ProjectHandle::open(Some(PathBuf::from("."))).unwrap()).unwrap();
 /// for injection in injections {
 ///     println!("{}: {:?}", injection.name, injection.files);
 /// }
@@ -155,11 +155,11 @@ pub fn get_injections(project_handle: &ProjectHandle) -> Result<Vec<Injection>> 
 /// # Examples
 ///
 /// ```no_run
-/// use tiefdownlib::injections::add_files_to_injection;
+/// use tiefdownlib::{project_handle::ProjectHandle, injections::add_files_to_injection};
 /// use std::path::PathBuf;
 ///
 /// add_files_to_injection(
-///     Some(PathBuf::from("my_project")),
+///     &mut ProjectHandle::open(Some(PathBuf::from("."))).unwrap(),
 ///     "header".to_string(),
 ///     vec![PathBuf::from("extra_header.tex")],
 /// ).unwrap();

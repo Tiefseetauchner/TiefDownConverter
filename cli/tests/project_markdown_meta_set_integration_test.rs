@@ -74,17 +74,17 @@ fn test_markdown_meta_set() {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-
-    assert_contains!(
-        manifest_content,
-        r#"[[markdown_projects]]
-name = "main"
-path = "Markdown"
-output = "."
-
-[markdown_projects.metadata_fields]
-title = "My Project""#
+    let manifest = assertions::read_manifest(&manifest_path);
+    let project = manifest
+        .markdown_projects
+        .as_ref()
+        .unwrap()
+        .iter()
+        .find(|p| p.name == "main")
+        .unwrap();
+    assert_eq!(
+        project.metadata_fields.as_ref().unwrap()["title"].as_str(),
+        Some("My Project")
     );
 }
 
@@ -103,33 +103,20 @@ fn test_markdown_meta_set_multiple_projects() {
 
     let manifest_path = project_path.join("manifest.toml");
     assert!(manifest_path.exists(), "Manifest file should exist");
-    let manifest_content = fs::read_to_string(manifest_path).expect("Failed to read manifest file");
-    assert_contains!(
-        manifest_content,
-        r#"[[markdown_projects]]
-name = "main"
-path = "Markdown"
-output = "."
-
-[markdown_projects.metadata_fields]
-title = "My Project"
-
-[[markdown_projects]]
-name = "secondary"
-path = "Markdown"
-output = "."
-
-[markdown_projects.metadata_fields]
-title = "My Secondary Project"
-
-[[markdown_projects]]
-name = "tertiary"
-path = "Markdown"
-output = "."
-
-[markdown_projects.metadata_fields]
-title = "My Tertiary Project"
-"#
+    let manifest = assertions::read_manifest(&manifest_path);
+    let projects = manifest.markdown_projects.as_ref().unwrap();
+    let find = |name: &str| projects.iter().find(|p| p.name == name).unwrap();
+    assert_eq!(
+        find("main").metadata_fields.as_ref().unwrap()["title"].as_str(),
+        Some("My Project")
+    );
+    assert_eq!(
+        find("secondary").metadata_fields.as_ref().unwrap()["title"].as_str(),
+        Some("My Secondary Project")
+    );
+    assert_eq!(
+        find("tertiary").metadata_fields.as_ref().unwrap()["title"].as_str(),
+        Some("My Tertiary Project")
     );
 }
 
