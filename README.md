@@ -1,4 +1,4 @@
-# TiefDown Converter
+# TiefDownConverter
 
 [![GitHub Release](https://img.shields.io/github/v/release/tiefseetauchner/tiefdownconverter?sort=semver&style=for-the-badge)](https://github.com/Tiefseetauchner/TiefDownConverter/releases)
 [![Crates.io Version](https://img.shields.io/crates/v/tiefdownconverter?style=for-the-badge)](https://crates.io/crates/tiefdownconverter)
@@ -6,239 +6,187 @@
 
 ![Fibschiiiiiiiiiiiii_smol](https://github.com/user-attachments/assets/f964e2b3-c728-4547-bd29-1ca6c861bf01)
 
-## Overview
+**Write once. Convert forever. Stop touching that Pandoc command.**
 
-TiefDownConverter is a command-line tool designed to streamline the conversion of structured projects into various output formats, such as PDF, EPUB, and Typst-based documents. While it was originally built for Markdown, it can now combine any file type. The tool acts as a wrapper around Pandoc and XeTeX, enabling users to set up a project once and reproducibly generate multiple formats with a single command.
+---
 
-tiefdownconverter_core is the core library for tiefdownconverter - while it is seperated, it is recommended to use the command line tool.
+## The pitch
 
-### Why TiefDown?
+You have Markdown files. You want a PDF. Maybe two PDFs — one A4, one for print. Maybe also an EPUB. Maybe a Typst version because you're that kind of person.
 
-- **One-Command Workflow**: TiefDown removes the need for complex Pandoc CLI setups, automating template management and format conversions.
-- **Project-Based Structure**: Every TiefDown project is self-contained, making it easy to manage large documents.
-- **Multi-Format Support**: Convert your source files into PDFs (via XeTeX), EPUBs, or other formats using Typst.
-- **Extensibility**: Customize projects with templates and Lua filters for advanced document processing.
-
-## Documentation
-
-Documentation is available in [docs/docs.pdf](https://github.com/Tiefseetauchner/TiefDownConverter/blob/main/docs/docs.pdf) or [docs/docs_tex.pdf](https://github.com/Tiefseetauchner/TiefDownConverter/blob/main/docs/docs_tex.pdf)
-
-These are generated using `tiefdownconverter` as well, thus the two files. It's essentially a demo.
-
-## Features
-
-- Converts projects into PDFs, EPUB, and Typst-based documents.
-- Reads structured project metadata from `manifest.toml`.
-- Supports customizable LaTeX, Typst, and EPUB templates.
-- Allows users to add, remove, and update templates.
-- Enables users to validate project structure and clean temporary files.
-- Simple command-line interface with easy project setup and updates.
-
-## Installation
-
-### Prebuilt Binaries
-
-Download the latest release from [GitHub Releases](https://github.com/Tiefseetauchner/TiefDownConverter/releases) and extract the binary.
-
-### Build from Source
-
-To build TiefDown Converter manually, ensure you have Rust installed, then run:
+Without TiefDownConverter, this looks like:
 
 ```sh
-cargo build --release
+pandoc Chapter\ 1.md Chapter\ 2.md Chapter\ 3.md \
+  --lua-filter=chapter_filter.lua \
+  -o output.tex && \
+xelatex -interaction=nonstopmode template.tex && \
+xelatex -interaction=nonstopmode template.tex  # yes, twice, don't ask
 ```
 
-This will create an executable in the `target/release/` directory.
+...times however many formats you need, manually, every time, forever.
 
-### Dependencies
-
-TiefDown requires the following external dependencies:
-
-- **Pandoc**: Handles parsing and conversion of your source files.
-- **XeTeX**: Required for LaTeX-based PDF generation.
-- **Typst** (optional): Enables Typst-based conversion.
-
-#### Installing Dependencies
-
-##### Linux (Debian/Ubuntu-based):
-
-```sh
-sudo apt install pandoc texlive-xetex typst
-```
-
-##### Windows (via MiKTeX):
-
-1. Install [MiKTeX](https://miktex.org/download) or via `winget install MiKTeX`.
-2. Install Pandoc from [pandoc.org](https://pandoc.org/) or via `winget install pandoc`.
-3. Install Typst manually if needed or via `winget install typst`.
-
-## Usage
-
-### Available Commands
-
-- **Convert** – Converts a TiefDown project, using either the current directory or a specified project. Templates can be selected manually or default ones from the manifest will be used.
-- **Initialize** – Creates a new TiefDown project with optional templates. Supports setting up an input directory, skipping default templates, and overwriting existing projects.
-- **Project Management** – Offers various subcommands to manage TiefDown projects:
-  - Add, remove, and update templates.
-  - Update the project manifest.
-  - List available templates.
-  - Validate the project structure and metadata.
-  - Clean temporary files.
-- **Help** – Displays help information for any command.
-
-### Initializing a Project
-
-```sh
-mkdir my-project
-cd my-project
-tiefdownconverter init -t lix_novel_a4.tex # Or any preset template you may have in mind. For no initial templates, use -n
-```
-
-This creates a new TiefDown project with the `lix_novel_a4.tex` template.
-
-### Converting a Project
+With TiefDownConverter, you set up a project once and then:
 
 ```sh
 tiefdownconverter convert
 ```
 
-This command converts the current project using the specified template.
+That's it. All your formats, all your templates, one command. Go make a coffee.
 
-#### Converting specific templates
+---
+
+## Is this for you?
+
+Probably, if:
+- You write long-form documents in Markdown (novels, documentation, academic papers, anything with chapters)
+- You need the same source to produce multiple output formats
+- You've ever copy-pasted a Pandoc invocation and immediately lost track of it
+
+Probably not, if you need a GUI, a WYSIWYG editor, or something you can hand to someone who's never opened a terminal. This tool has opinions and it will share them with you.
+
+---
+
+## Feature highlights
+
+**Multi-format output from one source**  
+Define as many output templates as you want — LaTeX PDFs, Typst PDFs, EPUBs — and convert them all at once, or selectively with `--templates` or `--profile`. Your source files don't change; only the outputs do.
+
+**Chapter-aware file ordering**  
+Drop your files into the input directory named `Chapter 1.md`, `Chapter 2.md`, and so on. TiefDownConverter figures out the order. Subdirectories work too, recursively, following the same numbering logic. No config required — it just does the obvious thing.
+
+**Multiple markdown projects in one TiefDown project**  
+Managing a series? Each book can be its own markdown project under a single TiefDown project, with shared templates and metadata (publisher, series name) and per-book metadata (title, author). One `convert` command handles all of them.
+
+**Lua filter support**  
+Pandoc's Lua filters slot right in. Attach them per-template so your A4 PDF and your EPUB can behave differently without duplicating anything. This is where the real power is, if you know what you're doing with Pandoc.
+
+**Conversion profiles**  
+Tired of typing `--templates lix_novel_a4.tex,lix_novel_book.tex` every time? Save that as a profile and use `--profile print` instead. Profiles can also be set as the default for a markdown project.
+
+**Preprocessors and custom processors**  
+If the built-in Pandoc invocation isn't enough, define your own. Add `--listings`, change output formats, use `cat` for passthrough — whatever Pandoc accepts, you can wire in. For formats that can't be concatenated (like docx), the custom processor path handles multi-file merging via Pandoc's native AST.
+
+**Injections**  
+Need a different chapter 3 depending on whether you're outputting print or web? Header/body/footer injections let you splice per-template content into the preprocessing step without maintaining separate source trees.
+
+**Shared metadata**  
+Set author, publisher, series info once at the project level. Override it per markdown project where needed. The metadata gets written to `metadata.tex` or `metadata.typ` and is accessible in your templates via `\meta{}` (LaTeX) or importing `meta` (Typst).
+
+**Smart cleaning**  
+Conversion directories stack up. Smart clean keeps only the N most recent ones (configurable, default 5). Enable it at init time or toggle it later — it runs automatically if you want, or manually with `tiefdownconverter project smart-clean`.
+
+---
+
+## Getting started
+
+### Install
 
 ```sh
-tiefdownconverter convert -t lix_novel_book.tex
+cargo install tiefdownconverter
 ```
 
-#### Adding a Lua Filter
+Or grab a prebuilt binary from [GitHub Releases](https://github.com/Tiefseetauchner/TiefDownConverter/releases).
 
-Lua filters can be added to a template using the `tiefdownconverter project update-template` command:
+### Dependencies
+
+You need these installed and on your PATH:
+
+- [Pandoc](https://pandoc.org/)
+- A TeX distribution with XeLaTeX (TeX Live, MiKTeX, MacTeX)
+- [Typst](https://typst.app/) — optional, only needed for Typst templates
+
+**Linux (Debian/Ubuntu):** `sudo apt install pandoc texlive-xetex` + Typst from [typst.app](https://typst.app/)  
+**Windows:** `winget install miktex pandoc typst`  
+**Mac:** MacTeX + Pandoc from [pandoc.org](https://pandoc.org/), Typst if needed
+
+Run `tiefdownconverter check-dependencies` to verify everything's in place.
+
+### Your first project
 
 ```sh
-tiefdownconverter project update-template <TEMPLATE> --add-filters path/to/filter.lua
+mkdir my-novel
+cd my-novel
+tiefdownconverter init -t lix_novel_a4.tex
 ```
 
-To remove a filter:
+This creates a project with a LiX-backed A4 template, a `Markdown/` input directory, and a `manifest.toml`. Drop your chapter files into `Markdown/`, named with a number somewhere in the filename (`Chapter 1.md`, `01 - Introduction.md`, whatever works for you), then:
 
 ```sh
-tiefdownconverter project update-template <TEMPLATE> --remove-filters path/to/filter.lua
+tiefdownconverter convert
 ```
 
-Filters are stored in the project manifest and used during the conversion process.
+A PDF appears. That's the whole loop.
 
-## Project Structure
+### Adding more output formats
 
-A typical TiefDown project consists of:
+```sh
+tiefdownconverter project templates lix_novel_book.tex add
+tiefdownconverter convert
+```
+
+Now you have two PDFs. Adding EPUB or Typst works the same way.
+
+---
+
+## Available preset templates
+
+| Template | Description |
+|---|---|
+| `template.tex` | Basic LaTeX template, good starting point |
+| `booklet.tex` | Booklet layout |
+| `lix_novel_a4.tex` | LiX Novel, A4 paper |
+| `lix_novel_book.tex` | LiX Novel, 8×5in print |
+| `template_typ.typ` | Basic Typst template |
+| `default_epub` | EPUB output |
+
+LiX templates will prompt you to auto-download the required [LiX](https://github.com/NicklasVraa/LiX) `.sty` and `.cls` files on first use. Say yes.
+
+---
+
+## Project structure
 
 ```
-project/
-├── manifest.toml
+my-novel/
+├── manifest.toml          # the whole project lives here
 ├── Markdown/
-│   ├── Chapter 0_ Authors notes.md
 │   ├── Chapter 1.md
-│   ├── ...
-├── template/
-│   ├── lix_novel_a4.tex
-│   ├── lix_novel_book.tex
-│   ├── custom_template.typ
-│   ├── template_epub/
+│   ├── Chapter 2.md
+│   └── ...
+└── template/
+    ├── lix_novel_a4.tex
+    └── meta.tex
 ```
 
-### `manifest.toml` Example
+The `manifest.toml` tracks everything — templates, filters, preprocessors, metadata, profiles. You can edit it directly or use the `tiefdownconverter project` subcommands if you'd rather not think about TOML.
 
-```toml
-markdown_dir = "My Story Folder"
-version = 1
+---
 
-[[templates]]
-filters = ["luafilters/chapter_filter.lua"]
-name = "lix_novel_a4.tex"
-output = "a4_main.pdf"
-template_type = "Tex"
+## Documentation
 
-[[templates]]
-filters = ["luafilters/chapter_filter.lua"]
-name = "lix_novel_book.tex"
-output = "8x5in_main.pdf"
-template_type = "Tex"
-```
+Full documentation is in [docs/docs.pdf](https://github.com/Tiefseetauchner/TiefDownConverter/blob/main/docs/docs.pdf) (generated with TiefDownConverter itself, naturally).
 
-## Customization
+---
 
-### Custom Templates
+## Community & support
 
-Users are encouraged to create their own templates. TiefDown allows adding templates via:
+- [Discord](https://discord.gg/EG3zU9cTFx)
+- [GitHub Issues](https://github.com/Tiefseetauchner/TiefDownConverter/issues)
 
-```sh
-tiefdownconverter project add-template my_template.tex
-```
+Contributions welcome. See the Contributing section in the docs for the architecture overview and PR expectations.
 
-Use -h for more options.
-
-Templates must include:
-
-```latex
-\input{./output.tex}
-```
-
-to correctly insert the converted content.
-
-### Custom Lua Filters
-
-Users can define and apply custom Lua filters by placing them in the project directory and updating the manifest as described above.
-
-Example filter to modify headers:
-
-```lua
-function Header(elem)
-  if elem.level == 1 then
-    return pandoc.RawBlock("latex", "\\h{" .. pandoc.utils.stringify(elem.content) .. "}")
-  end
-  if elem.level == 2 then
-    return pandoc.RawBlock("latex", "\\hh{" .. pandoc.utils.stringify(elem.content) .. "}")
-  end
-end
-```
-
-## Performance & Limitations
-
-- Handles large documents as efficiently as Pandoc and XeTeX allow.
-- Minimal logging/debugging available.
-- No Windows installer yet; setup is manual.
-- EPUB output is functional but lacks advanced customization.
-
-## Community & Support
-
-### Contributions
-
-Contributions are welcome via pull requests on GitHub. Please be kind.
-
-### Bug Reports & Feature Requests
-
-Report issues on the [GitHub Issues page](https://github.com/Tiefseetauchner/TiefDownConverter/issues).
-
-You can also join my [Discord Server](https://discord.gg/EG3zU9cTFx)
+---
 
 ## License
 
-This project is licensed under MIT. See `LICENSE` for details.
+MIT. See `LICENSE`.
+
+---
 
 ## Coffee
 
-If you appreciate this project, consider supporting it by contributing or donating.
+[![Buy me a coffee](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/tiefseetauchner)
 
-[![](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/tiefseetauchner)
+---
 
-## Attributions
-
-Mascot (Fibschiiiiiiiiiiiii) by Finn <3
-
-## Graphs
-
-### Rust Lines
-
-![RS Lines](https://github.com/Tiefseetauchner/TiefDownConverter/blob/main/graphs/rs.png)
-
-### Markdown Lines
-
-![Markdown Lines](https://github.com/Tiefseetauchner/TiefDownConverter/blob/main/graphs/md.png)
+*Mascot (Fibschiiiiiiiiiiiii) by Finn ♥*
