@@ -24,6 +24,7 @@ impl ProjectHandle {
         })
     }
 
+    #[cfg(test)]
     pub(crate) fn create_with_manifest(project: PathBuf, manifest: Manifest) -> Self {
         ProjectHandle {
             project_path: project,
@@ -47,6 +48,7 @@ impl ProjectHandle {
         Ok(())
     }
 
+    #[cfg(test)]
     pub(crate) fn is_dirty(&self) -> bool {
         self.dirty
     }
