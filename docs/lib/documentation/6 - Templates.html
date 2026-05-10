@@ -259,16 +259,18 @@ the combined output from the pandoc conversion.</p>
 <p>Metadata is also written to a <code>metadata.typ</code> file, which
 creates a dictionary for accessing metadata. Below is the same example
 as above for Typst:</p>
-<pre class="typst"><code>#let meta = (
-  author: &quot;Tiefseetauchner et al.&quot;,
-  githubPagesDocsPath: &quot;lib/&quot;,
-  githubPagesUrl: &quot;https://tiefseetauchner.github.io/TiefDownConverter/&quot;,
-  title: &quot;TiefDownConverter Documentation&quot;,
-)</code></pre>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode typst"><code class="sourceCode typst"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">#let</span> <span class="va">meta</span> <span class="op">=</span> <span class="op">(</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  author: <span class="st">&quot;Tiefseetauchner et al.&quot;</span><span class="op">,</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  githubPagesDocsPath: <span class="st">&quot;lib/&quot;</span><span class="op">,</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  githubPagesUrl: <span class="st">&quot;https://tiefseetauchner.github.io/TiefDownConverter/&quot;</span><span class="op">,</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  title: <span class="st">&quot;TiefDownConverter Documentation&quot;</span><span class="op">,</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="op">)</span></span></code></pre></div>
 <p>Accessing metadata then becomes trivial:</p>
-<pre class="typst"><code>#import &quot;metadata.typ&quot;: meta
-#meta.title
-// Writes &quot;TiefDownConverter Documentation</code></pre>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode typst"><code class="sourceCode typst"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">#</span><span class="im">import</span> <span class="st">&quot;metadata.typ&quot;</span><span class="op">:</span> meta</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">#</span>meta<span class="op">.</span>title</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">// Writes &quot;TiefDownConverter Documentation</span></span></code></pre></div>
 <p>Equally to the above template, lua filters and preprocessors are
 fully supported for Typst.</p>
 <p>Processor arguments, as above, are fully supported. The processor
