@@ -1,0 +1,14 @@
+version = 6
+
+[[markdown_projects]]
+name = "Markdown"
+path = "Markdown"
+output = "."
+
+[[templates]]
+name = "template_typ.typ"
+template_type = "Typst"
+
+[custom_processors]
+preprocessors = []
+processors = []
