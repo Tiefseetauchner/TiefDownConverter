@@ -1,10 +1,11 @@
-use clap::Parser;
+use clap::{CommandFactory, Parser};
+use clap_complete::generate;
 use cli::*;
 use colog::format::CologStyle;
 use color_eyre::eyre::{Result, eyre};
 use env_logger::fmt::Formatter;
 use log::Level;
-use std::io::Write;
+use std::io::{self, Write};
 use tiefdownlib::{
     consts, conversion, injections, markdown_project_management, metadata_management,
     project_management,
@@ -316,6 +317,46 @@ fn main() -> Result<()> {
         },
         Commands::CheckDependencies => {
             project_management::check_dependencies(vec!["pandoc", "xelatex", "typst"])?
+        }
+        Commands::Completion { shell } => {
+            generate(
+                shell,
+                &mut Cli::command(),
+                "tiefdownconverter",
+                &mut io::stdout(),
+            );
+
+            println!(
+                "# You just ran the completions command. It currently does not install itself,"
+            );
+            println!(
+                "# rather printing the completions. To install the completions, pipe the output"
+            );
+            println!("# to the appropriate file or add the command you just ran to the file, e.g.");
+            match shell {
+                clap_complete::Shell::Bash => {
+                    println!("# `eval \"$(tiefdownconverter completion bash)\"` for bash.")
+                }
+                clap_complete::Shell::Elvish => {
+                    println!("# `eval (tiefdownconverter completion elvish | slurp)` for elvish.")
+                }
+                clap_complete::Shell::Fish => {
+                    println!("# `tiefdownconverter completion fish | source` for fish.")
+                }
+                clap_complete::Shell::PowerShell => println!(
+                    "# `Invoke-Expression (& {{ (tiefdownconverter completion powershell | Out-String) }})` for powershell."
+                ),
+                clap_complete::Shell::Zsh => {
+                    println!("# `eval \"$(tiefdownconverter completion zsh)\"` for zsh,");
+                    println!(
+                        "# or add the completion to your completions directory with fpath or something."
+                    );
+                    println!(
+                        "# Follow instructions at https://zsh.sourceforge.io/Doc/Release/Completion-System.html."
+                    );
+                }
+                _ => println!("# ... well, I don't know, I don't know your shell :c"),
+            }
         }
     }
 

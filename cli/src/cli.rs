@@ -1,4 +1,5 @@
-use clap::{Parser, Subcommand, builder::PossibleValuesParser, command};
+use clap::{Parser, Subcommand, builder::PossibleValuesParser};
+use clap_complete::Shell;
 use std::path::PathBuf;
 
 use crate::{
@@ -120,6 +121,11 @@ If the number of conversion folders in the project is above this threshold, old 
     },
     #[command(about = "Validate dependencies are installed.")]
     CheckDependencies,
+    #[command(about = "Install completions for shells.")]
+    Completion {
+        #[arg(help = "The shell to install the completion script to.", value_enum)]
+        shell: Shell,
+    },
 }
 
 #[derive(Subcommand)]
