@@ -533,7 +533,8 @@ pub(crate) fn write_multi_file_outputs(
         .map(|result: &(&String, &PathBuf)| -> Result<()> {
             let path = result.1;
             let res = result.0;
-            let nav_meta_data = get_current_node_nav_meta(nav_meta_data, path)?;
+            let nav_meta_data =
+                get_current_node_nav_meta(nav_meta_data, path, conversion_input_dir)?;
 
             let header_injections = run_preprocessors_on_injections(
                 template,
@@ -586,6 +587,7 @@ pub(crate) fn write_multi_file_outputs(
 fn get_current_node_nav_meta(
     nav_meta_data: &Option<(NavMeta, PathBuf)>,
     path: &PathBuf,
+    input_dir: &Path,
 ) -> Result<Option<(NavMeta, PathBuf)>> {
     return Ok(if let Some((nav_meta, nav_meta_path)) = nav_meta_data {
         debug!(
@@ -593,9 +595,21 @@ fn get_current_node_nav_meta(
             path.display()
         );
         let nodes = nav_meta.nodes.clone().unwrap_or(vec![]);
+        let convdir_name = input_dir
+            .components()
+            .filter_map(|c| {
+                if let std::path::Component::Normal(s) = c {
+                    Some(PathBuf::from(s))
+                } else {
+                    None
+                }
+            })
+            .last()
+            .unwrap_or_default();
+        let relative_path = path.strip_prefix(&convdir_name).unwrap_or(path);
         let current = nodes.iter().find(|n| {
-            path.with_extension("")
-                .ends_with(&n.path.with_extension(""))
+            let matches = relative_path.with_extension("") == n.path.with_extension("");
+            matches
         });
 
         Some((
