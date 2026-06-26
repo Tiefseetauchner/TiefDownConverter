@@ -439,7 +439,8 @@ fn add_nav_meta(
         if let Some(current_node) = nav_meta.current.clone() {
             debug!("Found current node '{}'", current_node.id.value);
             let meta_data_path = compiled_directory_path.join(PathBuf::from(format!(
-                ".{}.yml",
+                ".{}{}.yml",
+                current_node.id.value,
                 current_node
                     .path
                     .file_name()
