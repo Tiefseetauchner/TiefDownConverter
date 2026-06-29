@@ -4,11 +4,17 @@ use serde::Serialize;
 use std::{
     fs,
     path::{Path, PathBuf},
+    process::Command,
 };
 
-use crate::{manifest_model::MetaGenerationSettings, meta_generation_format::MetaGenerationFormat};
+use crate::{
+    converters::common::run_with_logging, manifest_model::MetaGenerationSettings,
+    meta_generation_format::MetaGenerationFormat,
+};
 
 const DEFAULT_NAV_META_YML_FILE_PATH: &str = ".meta_nav.yml";
+const META_WRITER_FILE_NAME: &str = ".meta_writer.lua";
+const META_WRITER_LUA: &str = include_str!("resources/meta_writer.lua");
 
 #[derive(Serialize, Clone)]
 pub struct NavMeta {
@@ -26,6 +32,8 @@ pub struct NavMetaNode {
     pub prev: Option<NavMetaNodeId>,
     pub next: Option<NavMetaNodeId>,
     pub depth: usize,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub front_matter: Option<serde_json::Value>,
 }
 
 #[derive(Serialize, Clone)]
@@ -38,6 +46,7 @@ struct PreNavNode {
     id: NavMetaNodeId,
     path: PathBuf,
     title: String,
+    front_matter: Option<serde_json::Value>,
 }
 
 pub(crate) fn retrieve_nav_meta(
@@ -48,6 +57,9 @@ pub(crate) fn retrieve_nav_meta(
 ) -> Result<NavMeta> {
     let canon_compiled_directory_path = &compiled_directory_path.canonicalize()?;
     let canon_conversion_input_dir = &conversion_input_dir.canonicalize()?;
+
+    let meta_writer_path = compiled_directory_path.join(META_WRITER_FILE_NAME);
+    fs::write(&meta_writer_path, META_WRITER_LUA)?;
 
     let pre_nodes: Vec<PreNavNode> = input_files
         .iter()
@@ -72,13 +84,22 @@ pub(crate) fn retrieve_nav_meta(
                 path
             };
 
-            let title = path.with_extension("").to_string_lossy().to_string();
+            let front_matter = read_front_matter(&canon_file_path, &meta_writer_path);
+
+            let title = front_matter
+                .as_ref()
+                .and_then(|fm| fm.get("title"))
+                .and_then(|t| t.as_str())
+                .map(|t| t.to_string())
+                .unwrap_or_else(|| path.with_extension("").to_string_lossy().to_string());
+
             let nav_id = NavMetaNodeId { value: id };
 
             Ok(PreNavNode {
                 id: nav_id,
                 path,
                 title,
+                front_matter,
             })
         })
         .collect::<Result<Vec<_>>>()?;
@@ -106,6 +127,7 @@ pub(crate) fn retrieve_nav_meta(
                 prev,
                 next,
                 depth,
+                front_matter: p.front_matter.clone(),
             }
         })
         .collect::<Vec<_>>();
@@ -116,6 +138,34 @@ pub(crate) fn retrieve_nav_meta(
         nodes: Some(nodes),
         current: None,
     })
+}
+
+fn read_front_matter(file: &Path, writer_path: &Path) -> Option<serde_json::Value> {
+    let mut command = Command::new("pandoc");
+    command.arg(file).arg("-t").arg(writer_path);
+
+    let stdout = match run_with_logging(command, "pandoc", true) {
+        Ok(stdout) => stdout,
+        Err(e) => {
+            debug!(
+                "Could not extract front matter from {}: {}",
+                file.display(),
+                e
+            );
+            return None;
+        }
+    };
+
+    match serde_json::from_str::<serde_json::Value>(stdout.trim()) {
+        Ok(serde_json::Value::Object(map)) if map.is_empty() => None,
+        Ok(serde_json::Value::Array(arr)) if arr.is_empty() => None,
+        Ok(serde_json::Value::Null) => None,
+        Ok(value) => Some(value),
+        Err(e) => {
+            debug!("Could not parse front matter from {}: {}", file.display(), e);
+            None
+        }
+    }
 }
 
 pub(crate) fn generate_nav_meta_file(
