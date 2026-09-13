@@ -69,6 +69,41 @@ pub(crate) fn merge_preprocessors(preprocessor_lists: Vec<Vec<PreProcessor>>) ->
     merged
 }
 
+pub(crate) fn preprocessor_for_file(
+    file: &Path,
+    preprocessors: &Vec<PreProcessor>,
+) -> Option<PreProcessor> {
+    let extension = file
+        .extension()
+        .map(|e| e.to_string_lossy().to_string())
+        .unwrap_or_default();
+
+    choose_preprocessor(preprocessors, &extension).ok()
+}
+
+pub(crate) fn filter_ignored_files(
+    input_files: &Vec<PathBuf>,
+    preprocessors: &Vec<PreProcessor>,
+) -> Vec<PathBuf> {
+    let filtered = input_files
+        .iter()
+        .filter(|f| {
+            !preprocessor_for_file(f, preprocessors)
+                .map(|p| p.ignore.unwrap_or(false))
+                .unwrap_or(false)
+        })
+        .cloned()
+        .collect::<Vec<_>>();
+
+    debug!(
+        "filter_ignored_files -> {} of {} files kept",
+        filtered.len(),
+        input_files.len()
+    );
+
+    filtered
+}
+
 pub(crate) fn retrieve_combined_output(
     template: &Template,
     default_processors: &Option<PreProcessors>,

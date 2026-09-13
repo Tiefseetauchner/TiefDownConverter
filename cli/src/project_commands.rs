@@ -15,11 +15,17 @@ pub(crate) fn list_preprocessors(project: Option<PathBuf>) -> Result<()> {
     }
 
     for preprocessor in preprocessors {
+        let ignore_suffix = if preprocessor.ignore.unwrap_or(false) {
+            " (ignored)"
+        } else {
+            ""
+        };
         info!(
-            "{}: {} {}",
+            "{}: {} {}{}",
             preprocessor.name,
             preprocessor.cli.unwrap_or("pandoc".to_string()),
-            preprocessor.cli_args.join(" ")
+            preprocessor.cli_args.join(" "),
+            ignore_suffix
         );
     }
 
