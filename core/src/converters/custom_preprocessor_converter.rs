@@ -6,9 +6,9 @@ use toml::Table;
 
 use crate::{
     converters::common::{
-        generate_meta_file, retrieve_combined_output, retrieve_output_extension,
-        retrieve_preprocessors, run_preprocessors_on_inputs, write_combined_output,
-        write_multi_file_outputs,
+        filter_ignored_files, generate_meta_file, retrieve_combined_output,
+        retrieve_output_extension, retrieve_preprocessors, run_preprocessors_on_inputs,
+        write_combined_output, write_multi_file_outputs,
     },
     file_retrieval::get_sorted_files,
     injections::retrieve_injections,
@@ -75,6 +75,7 @@ pub(crate) fn convert_custom_preprocessors(
         &injections,
         template.multi_file_output.unwrap_or(false),
     )?;
+    let input_files = filter_ignored_files(&input_files, &preprocessors);
 
     debug!("Found {} input files.", input_files.len());
 
@@ -94,6 +95,7 @@ pub(crate) fn convert_custom_preprocessors(
             compiled_directory_path,
             conversion_input_dir,
             &output_extension,
+            &preprocessors,
         )?;
         Some((
             nav_meta.clone(),

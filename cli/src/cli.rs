@@ -591,6 +591,14 @@ Requires cli arguments
 Should Pandoc not be the required preprocessor for your use case, you can change the called cli program."
         )]
         cli: Option<String>,
+        #[arg(
+            long,
+            help = "Skip files matched by this preprocessor entirely.",
+            long_help = r#"Skip files matched by this preprocessor entirely.
+Ignored files are not written to output and are excluded from navigation metadata generation.
+Useful for defining a template that should not generate output for a given file type."#
+        )]
+        ignore: bool,
         #[arg(help = "The arguments to pass to the preprocessor.", num_args = 1.., value_delimiter = ' ', last = true, allow_hyphen_values = true)]
         cli_args: Vec<String>,
     },

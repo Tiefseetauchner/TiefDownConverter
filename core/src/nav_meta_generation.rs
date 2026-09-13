@@ -8,7 +8,8 @@ use std::{
 };
 
 use crate::{
-    converters::common::run_with_logging, manifest_model::MetaGenerationSettings,
+    converters::common::{preprocessor_for_file, run_with_logging},
+    manifest_model::{MetaGenerationSettings, PreProcessor},
     meta_generation_format::MetaGenerationFormat,
 };
 
@@ -54,6 +55,7 @@ pub(crate) fn retrieve_nav_meta(
     compiled_directory_path: &Path,
     conversion_input_dir: &Path,
     output_extension: &Option<String>,
+    preprocessors: &Vec<PreProcessor>,
 ) -> Result<NavMeta> {
     let canon_compiled_directory_path = &compiled_directory_path.canonicalize()?;
     let canon_conversion_input_dir = &conversion_input_dir.canonicalize()?;
@@ -84,7 +86,15 @@ pub(crate) fn retrieve_nav_meta(
                 path
             };
 
-            let front_matter = read_front_matter(&canon_file_path, &meta_writer_path);
+            let uses_pandoc = preprocessor_for_file(f, preprocessors)
+                .map(|p| p.cli.unwrap_or("pandoc".to_string()) == "pandoc")
+                .unwrap_or(true);
+
+            let front_matter = if uses_pandoc {
+                read_front_matter(&canon_file_path, &meta_writer_path)
+            } else {
+                None
+            };
 
             let title = front_matter
                 .as_ref()
@@ -162,7 +172,11 @@ fn read_front_matter(file: &Path, writer_path: &Path) -> Option<serde_json::Valu
         Ok(serde_json::Value::Null) => None,
         Ok(value) => Some(value),
         Err(e) => {
-            debug!("Could not parse front matter from {}: {}", file.display(), e);
+            debug!(
+                "Could not parse front matter from {}: {}",
+                file.display(),
+                e
+            );
             None
         }
     }

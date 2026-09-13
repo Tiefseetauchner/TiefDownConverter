@@ -208,8 +208,16 @@ fn main() -> Result<()> {
                     name,
                     filter,
                     cli,
+                    ignore,
                     cli_args,
-                } => project_management::add_preprocessor(project, name, filter, cli, cli_args)?,
+                } => project_management::add_preprocessor(
+                    project,
+                    name,
+                    filter,
+                    cli,
+                    cli_args,
+                    if ignore { Some(true) } else { None },
+                )?,
                 PreProcessorsCommands::Remove { name } => {
                     project_management::remove_preprocessor(project, name)?
                 }

@@ -95,12 +95,16 @@ pub struct Processors {
 /// * `cli` - The program used for the preprocessing.
 ///   * Defaults to "pandoc" if not specified.
 /// * `cli_args` - The arguments passed to the cli conversion process.
+/// * `ignore` - Whether matching files should be skipped entirely.
+///   * Skipped files are not written to output and are excluded from navigation metadata generation.
+///   * Defaults to `false` if not specified.
 #[derive(Deserialize, Serialize, Clone)]
 pub struct PreProcessor {
     pub name: String,
     pub extension_filter: Option<String>,
     pub cli: Option<String>,
     pub cli_args: Vec<String>,
+    pub ignore: Option<bool>,
 }
 
 /// DTO containing the preprocessors applied to a template.
@@ -154,12 +158,14 @@ pub static DEFAULT_TEX_PREPROCESSORS: LazyLock<(PreProcessors, Vec<PreProcessor>
                     extension_filter: None,
                     cli: None,
                     cli_args: vec!["-t", "latex"].iter().map(|s| s.to_string()).collect(),
+                    ignore: None,
                 },
                 PreProcessor {
                     name: "default_tex_preprocessor".to_string(),
                     extension_filter: Some("tex".to_string()),
                     cli: Some("cat".to_string()),
                     cli_args: vec![],
+                    ignore: None,
                 },
             ],
         )
@@ -183,12 +189,14 @@ pub static DEFAULT_TYPST_PREPROCESSORS: LazyLock<(PreProcessors, Vec<PreProcesso
                     extension_filter: None,
                     cli: None,
                     cli_args: vec!["-t", "typst"].iter().map(|s| s.to_string()).collect(),
+                    ignore: None,
                 },
                 PreProcessor {
                     name: "default_typst_preprocessor_typst_files".to_string(),
                     extension_filter: Some("typ".to_string()),
                     cli: Some("cat".to_string()),
                     cli_args: vec![],
+                    ignore: None,
                 },
             ],
         )
@@ -208,6 +216,7 @@ pub static DEFAULT_CUSTOM_PROCESSOR_PREPROCESSORS: LazyLock<(PreProcessors, Vec<
                 extension_filter: None,
                 cli: None,
                 cli_args: vec!["-t", "native"].iter().map(|s| s.to_string()).collect(),
+                ignore: None,
             }],
         )
     });
