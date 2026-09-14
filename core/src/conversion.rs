@@ -202,8 +202,9 @@ pub fn convert(project: Option<PathBuf>, conversion_queue: Vec<ConversionTask>) 
 
         let template = get_template_mapping_from_name(&template, &manifest)?;
         debug!("Resolved template mapping for {}.", template.name);
+
         let markdown_project_compiled_directory_path =
-            compiled_directory_path.join(markdown_project.output.clone());
+            compiled_directory_path.join(markdown_project.name.clone() + "_compiled/");
 
         dir::create_all(&markdown_project_compiled_directory_path, false)?;
         dir::copy(

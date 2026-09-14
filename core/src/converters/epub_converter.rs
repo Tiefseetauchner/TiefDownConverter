@@ -9,8 +9,8 @@ use toml::Table;
 
 use crate::{
     converters::common::{
-        add_lua_filters, combine_pandoc_native, generate_meta_file, merge_preprocessors,
-        preprocess_cli_args, retrieve_combined_output, retrieve_preprocessors,
+        add_lua_filters, combine_pandoc_native, filter_ignored_files, generate_meta_file,
+        merge_preprocessors, preprocess_cli_args, retrieve_combined_output, retrieve_preprocessors,
         run_preprocessors_on_inputs, run_with_logging, write_output,
     },
     file_retrieval::{get_relative_path_from_compiled_dir, get_sorted_files},
@@ -92,6 +92,7 @@ pub(crate) fn convert_epub(
         &injections,
         template.multi_file_output.unwrap_or(false),
     )?;
+    let input_files = filter_ignored_files(&input_files, &preprocessors);
     debug!("Found {} input files.", input_files.len());
 
     debug!("Retrieving navigation metadata.");
@@ -105,6 +106,7 @@ pub(crate) fn convert_epub(
             compiled_directory_path,
             conversion_input_dir,
             &None,
+            &preprocessors,
         )?;
         Some((
             nav_meta.clone(),

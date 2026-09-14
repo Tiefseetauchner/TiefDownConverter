@@ -708,6 +708,7 @@ pub fn update_settings(
 /// * `extension_filter` - The file extension the preprocessor should be applied to.
 /// * `cli` - The program to call as the preprocessor.
 /// * `cli_args` - The arguments for the preprocessor.
+/// * `ignore` - Whether matching files should be skipped entirely (not written to output or navigation metadata).
 ///
 /// # Returns
 ///
@@ -725,6 +726,7 @@ pub fn update_settings(
 ///     Some("md".to_string()),
 ///     None,
 ///     vec!["-t".to_string(), "latex".to_string()],
+///     None,
 /// ).unwrap();
 /// ```
 pub fn add_preprocessor(
@@ -733,6 +735,7 @@ pub fn add_preprocessor(
     extension_filter: Option<String>,
     cli: Option<String>,
     cli_args: Vec<String>,
+    ignore: Option<bool>,
 ) -> Result<()> {
     let project = project.unwrap_or(PathBuf::from("."));
     let manifest_path = project.join("manifest.toml");
@@ -744,6 +747,7 @@ pub fn add_preprocessor(
         extension_filter,
         cli,
         cli_args,
+        ignore,
     };
     manifest.custom_processors.preprocessors.push(preprocessor);
 
