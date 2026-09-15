@@ -65,6 +65,11 @@ pub(crate) fn retrieve_nav_meta(
 
     let pre_nodes: Vec<PreNavNode> = input_files
         .iter()
+        .filter(|f| {
+            preprocessor_for_file(f, preprocessors)
+                .map(|p| !p.ignore.unwrap_or(false))
+                .unwrap_or(true)
+        })
         .enumerate()
         .map(|(i, f)| {
             let id = format!(
